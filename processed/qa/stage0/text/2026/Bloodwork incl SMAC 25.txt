@@ -1,0 +1,30 @@
+|  |  |
+|  |  |
+|  |  |
+| Chemistry/metabolic Panel (SMAC 25) |  |
+| Blood chemistry panel, used as a general screening tool by physicians.
+Includes:
+Amylase, Serum
+Comprehensive Metabolic Profile ( includes eGFR ): Albumin, Albumin/Globulin Ratio (calculated), Alkaline Phosphatase, ALT, AST, BUN/Creatinine Ratio (calculated), Calcium, Carbon Dioxide, Chloride, Creatinine with GFR Estimated, Globulin (calculated), Glucose, Potassium, Sodium, Total Bilirubin, Total Protein, Urea Nitrogen
+Creatine Kinase (CK), Total, Serum
+Gamma Glutamyl Transpeptidase (GGT)
+Lactic Acid Dehydrogenase (LD) (LDH)
+Lactic Acid, Plasma
+Lipid Panel: Cholesterol, total; high-density lipoprotein (HDL) cholesterol; low-density lipoprotein (LDL) cholesterol (calculated); triglycerides; Non-HDL Cholesterol (calculated)
+Magnesium, Serum
+Phosphate (as Phosphorus)
+Uric Acid, Serum (Gout Test)
+
+Patient Instructions: fast for 12 hours preceding collection of specimen. Fasting is defined as no consumption of food or beverage other than water for at least 12 hours before testing. Not be on any intravenous infusion that would affect the acid-base balance. Be in a fasting and resting state (should not exercise). Discuss discontinuing drugs and/or certain dietary supplements before testing. |  |
+Add:
+Anemia Panel: Iron, TIBC, %Saturation; Ferritin; Vitamin B12
+Hematology report
+Thyroid Studies: TSH, Free T4, Free T3
+Special Chemistry:  %A1C; HS CRP; Homocysteine 
+Vitamin D 25-OH
+Testosterone/hormone panel (Serum & free testosterone, – if available add DHEA-Sulfate & Estradiol) 
+Serum Antigens Panel – i.e., Prostate Specific Antigen
+Omega-3 index test if available
+ApoB test - people with diabetes, obesity, high triglycerides, or a family history of heart disease, as well as for monitoring the effectiveness of statin therapy. 
+Summary
+You need 1) Standard chemistry panel (SMAC 25 including GFR); 2) Lipid studies (part of SMAC 25); 3) Anemia panel, 4) Hematology report; 5) Thyroid studies; 6) Tumor markers; 7) Testosterone/hormone tests; 8) Special chemistry including %A1C, High-sensitivity C-reactive protein (hsCRP), Omega-3 index and Vit D.

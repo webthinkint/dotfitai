@@ -1,0 +1,87 @@
+From: [CUSTOMER]
+Email: [EMAIL]
+Category: N/A
+Question: Dotfit. Where are the calories burned coming from if the client isn't logging any workouts?
+
+Hi [NAME],
+Thanks for contacting us. Estimated calorie burn is coming from the data entered from the program questionnaire including height, weight, and daily activities chosen from the 7 options of daily activities. It is all then entered into the Mifflin-St Jeor Equation to determine daily energy expenditure with incredible accuracy. See below for related FAQs. Berlinda is cc’d here if you need more information.
+Thanks again and have a great day.
+
+Question: How does it know how many calories I've burned if I've only been awake an hour?
+Hi [NAME],
+The quick answer is the dotFIT program uses your 7-option multiplier (total daily activity choices) to determine your 24hr total energy expenditure (TEE) and then divides it based on waking and sleeping hours regardless of when it takes place (that’s why the program asks for bed and wake time). At the end of the day, the total daily number is actually more accurate than calorie burning measuring devices (see FAQ below). However, as you know you can connect your daily calorie burn measuring devices to override the number such as using a Fit-Bit. All said, I’m connecting you with Berlinda to help make sure you are entering your information correctly. Stay tuned. (Also see below for related FAQs)
+
+More Info
+The dotFIT program energy expenditure formula is from the Mifflin-St Jeor Equation, which is the current best science equation for adult age groups, and all based on your input, including personal statistics, age, gender activity level, etc., that you selected and therefore, will be more accurate than even most calorie monitoring devices, let alone other formulas.  
+When you enter the correct activity multiplier (7 choices) based on you daily activities, the program will give you the correct calories to consume based on your goal, You can always go back to the questionnaire and pick a different activity level and your new recommended calorie intake, based on the goal, will be adjusted appropriately. 
+
+
+Q: How does your program know how many calories I burn?
+A: If you use the dotFIT program as designed  by entering all your personal statistics (height, weight, age, gender etc.), the program uses the evidence-based Mifflin St. Jeor formula to calculate your basal metabolic rated (BMR) and adds that to the activity level you picked from the questionnaire (7 options) that best describes your current lifestyle to estimate your average daily burn. If you use an activity monitoring device such as Fit-Bit, you can plug it into the program and use it to deliver your calorie burn instead of the native formula. Each week (or biweekly if using body fat) you enter your personal statistics and they are changed, the program recalculates your calorie burn to match the physical changes (e.g. less body weight/fat).
+
+Q: How do I change my caloric intake?
+A: Thanks for contacting us. If you are referring on how to change your calorie intake using the dotFIT program, all you need to do is rerun your program and pick a different activity multiplier from the 7 choices (the program will maintain all your current data). Pick a daily activity multiplier with less activity. Also be mindful that every time you enter your weekly weight changes, and you are off goal, the program will automatically reset your calorie intake to keep you on goal or alter your goal if that’s your decision. If this is a different question, I have cc Berlinda here to help you. You guys can jump on a quick call. Here is a link to the program tutorials to help you navigate the program if necessary https://www.dotfit.com/program-vid-tutorials. Reach back out if you need live help.
+
+Q: When I log into my summary page in the am around 7 am it shows that I have burned about 1100 calories. My polar Vantage watch says it's 550. I believe since I have been sleeping that the polar is more accurate. Why would the dotfit summary be so much more? I am concerned for my clients that don't have watches that may believe that they are burning this much so early. Thank you for your help
+
+A: It sounds like a time zone/sleep time error, or something related to that input. I’m connecting you with Berlinda and Chad to help solve the issue. Remember that the average 24hr caloric burn will always be accurate if you enter your information properly, it just doesn’t know exactly when you are sleeping but factors your sleep input.
+What the program does is estimate our daily average burn based on all input including personal statistics, daily activity levels (7 different multipliers that you chose from) sleep hours, etc. The program simply factors it all together, because it uses your sleep hour input, but of course it doesn’t know when you are asleep. It just knows that you sleep a certain amount of hours, then uses a sleeping metabolic rate [SMR] equation to factor it in over a 24hour period. The daily caloric burn estimate by the dotFIT program is actually more accurate than activity monitoring devices when all input is correct, so no fears for clients without devices, they actually are better off (devices are notoriously off on many different activities). That said, there are lots of devices that monitor actual sleep including REM time that you can use with the program and look at it separately. Or you can override the dotFIT calorie burn with many different devices such as Fit-Bit, mindful that overall, the dotFIT program will give you a more accurate reading overtime. And of course, only the dotFIT program gives proper feedback based on your body composition change, which no device can do. We have the patent for that algorithm.
+Stay tuned for Berlinda or Chad.
+
+
+Q: My question has to do with the accuracy your calorie algorithm for exercise. I have used it in the past and it helped me get started but as I progressed in my training, it lacked the ability to change with it. It says I need to burn 4012kcal/day. But between my basal Met. Rate, training, and work I burn over 5,000/day. Am I using it wrong?
+Hi [NAME],
+A: The quick answer is, you are probably not regularly entering your weight/body fat (once weekly for weight and bi-weekly for body fat) or activity changes based on the Mifflin St. Jeor formula (MJF) algorithms and respective 7 multipliers, which is the most accurate estimation of free living energy expenditure (EE) to date. Therefore, start to enter or update these 2 areas (or 3 if using body fat measurements) as the program prompts you and as you continue to increase your activity levels.
+That said, we want you to keep in mind that that EE number target was meant to only be a starting place for your intake recommendations. From that point on, your weekly measurements dictate what you need to do to reach your goal, therefore, simply follow those instructions.
+If you only want to know exactly how many calories you burn in free living and you have no body composition goal, this can only be done using the Doubly Labeled Water technique (DLW), which is neither cheap or practical for regular use.[i]
+
+If you believe you’re regularly burning more calories than estimated or losing weight quicker than desired
+If a long-term change in your daily routine occurs, you may need to update your answers to the program questionnaire regarding the seven options mentioned above. Just choose your “current activity” descriptor accordingly to support either your increase in average daily calorie burn that forces you to continually perform more exercise while still maintaining the same daily activities (e.g. longer cardio sessions, more days per week, etc.), or vice-versa, you increase daily activities without decreasing exercise (e.g. job change, hobby, etc.).
+To understand how our program works to estimate EE please see below:
+
+More info
+Although the most accurate measurement for free living energy expenditure (EE), the Doubly Labeled Water (DLW) technique is very expensive, relatively invasive and definitely not practical for monitoring EE. Basically it’ used for scientific study. Therefore, we designed the dotFIT program to work without having to perform this type of monitoring. To accomplish this, we base all starting and ongoing calorie recommendations on the latest, most accurate formulations combined with your true body/weight measurement changes and trends, leaving no room for error on the program calorie recommendations that will keep you on track to your goal.
+Energy Expenditure Formulation
+The purpose of estimating your energy expenditure is to give you the menus containing calorie totals that will get you started toward your stated goal. From that point on, your changing measurements will dictate your future, accurate calorie intake program recommendations.
+The dotFIT Program estimates your AVERAGE daily energy expenditure (EE) based on the following:
+Your basal metabolic rate (BMR) using your physical characteristics and the Mifflin St. Jeor formula (MJF)
+Your sleeping metabolic rate based on the hours you say you generally sleep and the MJF
+Your average daily activities based on your selection (1-7 below) from the program questionnaire that best describes your AVERAGE week:
+I spend most of the day sitting and I do not exercise.
+I spend most of the day sitting and I exercise less than 4 times a week.
+I spend most of the day sitting and I exercise at least 5 times a week, OR I perform continuous light activity but do not exercise.
+I spend most of the day sitting and I exercise at least 5 times a week, OR I perform continuous light activity and exercise less than 3 times a week.
+I perform light continuous activity and I exercise at least 3 times a week, OR I perform continuous moderate activity and exercise less than 3 times a week.
+I train multiple times per day, OR I perform moderate continuous activity and exercise at least 3 times a week.
+I am an endurance athlete training competitively, OR I perform heavy continuous activity and exercise at least 3 times a week.
+
+Incorporating all the above logic allows an extremely accurate view of how many daily calories you burn on average. Even if you burn more on one or two days of the week by adding more work/exercise, research has demonstrated that you generally will unknowingly compensate by burning less during the rest of the same day or on other days (due to decreased overall daily movement) thus maintaining the accuracy of your estimated weekly or monthly calorie burn. For this reason, we do not allow users to add what they might think of as additional DAILY burned calories to an AVERAGE daily burn as it would give them the sense of a larger energy deficit than actual.* And keep in mind, the only way to validate that you are not compensating for sporadic increases in daily activities would be to use an accurate calorie expenditure measuring method such as DLW for at least two weeks, and preferably a month.
+*We do however, allow you to enter your exercise into the program and show it as “calories burned from exercise” but it’s not added to your average daily EE because it’s already in there based on the way you answered the 7 multipliers and the above explanation.
+Regularly burning more calories than estimated or losing weight quicker than desired
+If a long-term change in your daily routine occurs, you may need to update your answers to the program questionnaire regarding the seven options above. Just choose your “current activity” descriptor accordingly to support either your increase in average daily calorie burn that forces you to continually perform more exercise while still maintaining the same daily activities (e.g. longer cardio sessions, more days per week, etc.), or vice-versa, you increase daily activities without decreasing exercise (e.g. job change, hobby, etc.).
+
+Your body measurement/weight change is the answer to your true calorie balance, not your inputs or estimates
+The program’s calorie recommendations and ongoing calorie adjustments are always accurate because they are tied to your goal and weekly or bi-weekly measurement changes – not your calorie burn or the calories you reported consuming. These numbers are nice to know; they give you something to add and subtract from, and help hold you accountable but do not have to be true. Measurement changes create an indisputable trend and ongoing calorie deficit recommendations that are tied to these changes and the mathematical laws of energy. Follow the program feedback and you will reach your body composition goal. In other words, when the feedback tells you to increase your deficit to XXcals/day – do it, regardless of what you believe you previously did. 
+Note: If you are interested in how many calories certain activities/exercises burn, use our calorie burn tool, record them wherever you like (they will also appear on your Summary Page). If you perform this work and attempting weight loss, think of it only as a bonus towards your weight loss goal, not necessarily a license to eat more.
+From a previous FAQ:
+How dotFIT Me™ Sets Your Goal & Keeps You on Track 
+Estimating Energy Expenditure Creates Your Initial Calorie Recommendations
+Your estimated average daily energy expenditure (expected calories burned) is a calculation taken from your personal statistics and a complete week’s view of your typical daily activities. This daily average of calories burned is then used to create your starting suggested calorie intake that is proposed to allow you to reach your goal on the date you desire.  Calorie intake or burn numbers are not required to be 100% accurate NOR is there ANY method that can establish this accuracy. Accurate calorie changes, if necessary, to stay on goal are dictated by your weekly fat/weight changes & ongoing trend.
+Your Measurement Inputs & Goal Date Determine the Ongoing Accurate Program Feedback
+Your measurement/weight changes from the beginning of your program are mapped to your goal date at each entry creating the program feedback as in the example below:
+“According to your weight/measurement change since the beginning of this program, you lost3lbs therefore you consumed an average of 400calories/day less than you burned during this period. Your goal was to lose 5lbs.To reach your goal your goal by the date you set, you now need to consume 600c/d less than you burn or change your goal date”.
+As you can see from the above hypothetical scenario, there is no mention of how many calories you burned or consumed, only what you ABSOLUTELY need to do based on a TRUE number: your measurement/weight change tied to the laws of energy. After 2-3 weeks of participating with the program there is no room for error because the calorie deficit recommendation is always based on your weight trend since the beginning of your current program not the single week to week input (i.e. updated weight is always mapped to your starting weight). Using the “since beginning” weight  establishes a true trend thus eliminating any daily fluid fluctuation issues.
+Summary
+No matter how you determine your estimated calorie burn and recorded calorie intake, those numbers will always be subject to human error thus so will your estimated calculated deficit. Your dotFIT program ACTUAL deficit is a true number based on a body measurement change used within the indisputable laws of energy – i.e. no room for error. The amount of our ACTUAL deficit is solely responsible for your rate of weight/fat loss – the greater the ACTUAL deficit the faster the weight/fat loss.
+Your body measurements/weight change is the answer to your true calorie balance not your inputs or estimates
+
+
+From: [EMAIL]
+Sent: Tuesday, May 12, 2026 9:10 AM
+To: Experts <[EMAIL]>
+Subject: dotFIT - Ask the Experts
+
+
+ 
+ 
+

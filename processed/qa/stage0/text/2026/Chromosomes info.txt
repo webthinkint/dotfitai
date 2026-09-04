@@ -1,0 +1,9 @@
+Chromosomes are tiny packages of DNA inside your cells that store your body's genetic instructions. They keep your DNA neat and safe, make sure it copies correctly when cells divide, and pass traits from parents to children. You can learn more about these structures from the 
+
+National Human Genome Research Institute. [1, 2, 3, 4, 5]
+Core Jobs of Chromosomes
+Store DNA: They wrap long DNA strands tightly around proteins so they fit inside tiny cell nuclei.
+Guide Cell Division: They help split DNA evenly when old cells make new cells.
+Control Traits: They carry genes that tell your body how to grow, look, and work.
+Pass on Heredity: They ensure children get a balanced mix of traits from both parents
+

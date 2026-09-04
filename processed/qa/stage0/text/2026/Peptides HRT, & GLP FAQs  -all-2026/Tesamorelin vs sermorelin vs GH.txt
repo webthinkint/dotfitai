@@ -1,0 +1,21 @@
+Here’s a side-by-side: Tesamorelin vs Sermorelin vs Growth Hormone (GH) in the same trainer-safe style as your peptide doc. 
+17c93b7f-88ea-462c-8447-9954aaf…
+| Category | Tesamorelin | Sermorelin | Exogenous GH (Somatropin) |
+| What it is | Long-acting GHRH analog (stimulates pituitary) | Short GHRH (1-29) fragment (stimulates pituitary) | Growth hormone delivered directly (bypasses pituitary) |
+| Primary action | Increases endogenous GH pulses → raises IGF-1 | Increases endogenous GH pulses → raises IGF-1 (usually less robust) | Raises GH/IGF-1 directly; more continuous exposure depending on use |
+| FDA status | Approved (for HIV-associated lipodystrophy) | Not FDA-approved | Approved for specific medical indications (e.g., GH deficiency), not for physique/performance |
+| Typical dosing pattern (high-level) | Commonly once daily | Often once or twice daily | Often daily (varies widely under medical care) |
+| Typical “duration of use” | Often months (e.g., 12–26+ weeks) | Often weeks to months | Often months to years in true deficiency; off-label patterns vary |
+| Strongest evidence-backed outcome | Visceral fat reduction (best-known human data) | GH-axis support claims are common; human outcomes are less consistent | Lean mass / body comp changes can be strong, but risk profile higher |
+| Effect on natural GH production | Generally preserves pituitary function (stimulates it) | Generally preserves pituitary function (stimulates it) | Can suppress endogenous GH via feedback while on therapy |
+| Physiologic “pulsatility” | More physiologic than GH (still a medication) | Often most “pulse-like” but shorter/less sustained | Often least physiologic (more exposure outside normal pulses) |
+| Commonly reported pros | Systemic, consistent; evidence in visceral fat | Short-acting; “gentler” feel for some users | Potent, predictable elevations; clinically useful in deficiency |
+| Commonly reported drawbacks | Raises IGF-1; side effects possible (fluid retention, paresthesia) | Less predictable response; may require more frequent dosing | Higher side-effect burden; more oversight needed |
+| Side-effect themes (broad) | Fluid retention, joint stiffness, increased IGF-1 | Similar class themes, often milder/variable | Fluid retention, carpal tunnel/paresthesia, joint pain; insulin sensitivity concerns |
+| Best fit conceptually | Body comp + visceral fat focus with medical oversight | “Entry-level” GH-axis stimulation concept (still medical territory) | True medical deficiency treatment; highest oversight need |
+| Trainer-safe framing | “Stimulates your body’s own GH release; longer-term tool.” | “Stimulates GH release; shorter-acting and less consistent.” | “Hormone replacement—medical-only decision, not a trainer tool.” |
+Quick “when clients ask” summary (1–2 lines each)
+Tesamorelin: “A prescription peptide that stimulates your pituitary to release GH—best known for visceral fat reduction over months.”
+Sermorelin: “A shorter-acting GHRH peptide that also stimulates GH release, but results can be less consistent and protocols vary.”
+GH: “Direct hormone therapy—can be potent but carries the most risk and requires strict medical indication and monitoring.”
+

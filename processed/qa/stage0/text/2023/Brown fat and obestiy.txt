@@ -1,0 +1,24 @@
+A major advance in understanding of brown fat and its relationship to body weight holds the potential for new treatments for obesity, according to researchers at the University of East Anglia and the University of Cambridge, in collaboration with colleagues in the US and Belgium.
+The scientists explained that in mammals, brown and beige adipose tissue has a "unique ability to burn off cellular nutrients as heat in the process of non-shivering thermogenesis". This helps to protect the body against cold temperatures.
+The process of burning calories as heat for thermoregulation in brown adipose tissue depends on a 33-kDa protein called mitochondrial uncoupling protein 1 (UCP1), whose molecular structure the researchers said they had now revealed for the first time in the study, published in the journal Science Advances.
+When activated by fatty acids, UCP1 catalyses the leak of protons across the mitochondrial inner membrane, short-circuiting the mitochondrion to generate heat, bypassing adenosine triphosphate (ATP) synthesis. In contrast, purine nucleotides bind and inhibit UCP1, regulating proton leak by a molecular mechanism that was unclear.
+ADVERTISEMENT
+For the new study, the team used cryo-electron microscopy to reveal "crucial molecular details" of the structure of UCP1 when inhibited by the purine guanosine-5'-triphosphate (GTP). 
+Understanding of the mechanism could enable pharmacological intervention to promote brown fat and UCP1 activation, to burn off excess calories from fat and sugar as heat, without the need for physiological stimuli.
+As a therapeutic strategy to combat metabolic disease, this represents "an important discovery in the race to find treatments for obesity and related diseases, such as diabetes", the researchers said.
+'Brown Fat is the Good Fat'
+Co-author Dr Paul Crichton, PhD, director of the Biomedical Research Centre at the University of East Anglia, explained: "As well as the conventional white fat that we are all familiar with, we can also develop brown fat. Brown fat is the good fat – it breaks down blood sugar and fat molecules to create heat and help maintain body temperature.
+ADVERTISEMENT
+"Most of our fat, however, is white fat, which stores energy – and too much white fat leads to obesity. UCP1 is the key protein that allows the specialised brown fat to burn off calories as heat," he said. "We know that mammals switch on UCP1 activity in brown fat tissue to protect against the cold and to maintain body temperature – especially in new-borns, that cannot yet shiver to keep warm.
+"Brown fat varies in humans, where it correlates with leanness in the population – and there has been a lot of interest in how to increase brown fat and activate UCP1 therapeutically, as a potential way to treat obesity.
+"A lot of research has been focusing on finding ways to encourage brown fat and how to turn white fat into brown fat – in order to burn more calories and fight metabolic disease. But even with more brown fat, UCP1 must still be 'switched on' to gain full benefit."
+More than 40 years of research had been hampered by a lack of details on the molecular make up of UCP1, he explained. "We did not know what UCP1 looks like, to understand how it works – until now."
+ADVERTISEMENT
+Lead researcher Prof Edmund Kunji, research group leader in the Medical Research Council Mitochondrial Biology Unit at the University of Cambridge, said: "Our paper reveals, for the first time, the structure of UCP1 in atomic detail, and how its activity in brown fat cells is inhibited by a key regulatory molecule."
+As well as showing how a regulator binds to prevent UCP1 activity, "more importantly", understanding the structure "will allow scientists to rationalise how activating molecules bind to switch the protein on, leading to the burning of fat", he said. "The activated tissue can also remove glucose from the blood, which can help control diabetes. This is a significant breakthrough in this field."
+This research was supported by the Medical Research Council, the Biological and Biotechnological Sciences Research Council, and by the National Institutes of Health/National Institute of General Medical Sciences. Nanobody discovery was funded by the Instruct-ERIC part of the European Strategy Forum on Research infrastructures, and the Research Foundation – Flanders, and the Strategic Research Program of the Vrije Universiteit Brussel. The authors declare that they have no competing interests.
+Share
+
+References
+Jones SA, Gogoi P, Ruprecht JJ, et al. Structural basis of purine nucleotide inhibition of human uncoupling protein 1. Science Advances. 2023:9(22):eadh4251. DOI: 10.1126/sciadv.adh4251
+

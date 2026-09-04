@@ -1,0 +1,226 @@
+Weighing the consequences of weight loss drugs
+https://www.medpagetoday.com/opinion/second-opinions/104482?xid=nl_mpt_DHE_2023-05-12&eun=g1588485d0r&utm_source=Sailthru&utm_medium=email&utm_campaign=Daily%20Headlines%20Evening%202023-05-12&utm_term=NL_Daily_DHE_dual-gmail-definition 
+Tirzepatide (Mounjaro), perhaps with a new brand name, will likely join semaglutide (Wegovy) by year's end as an approved weight-loss treatmentopens in a new tab or window for people with obesity or overweight and at least one weight-related medical problem. Tirzepatide is currently only approved for diabetes but is prescribed off-label for weight loss. More potent than semaglutide, which is also approved for type 2 diabetes, tirzepatide causes an average 22.5% reductionopens in a new tab or window in body-weight for people without diabetes. Tirzepatide's developer Eli Lilly will reportedly use a priority review voucher purchased for $110 millionopens in a new tab or window to shave 4 months off the approval timeline for a weight-loss indication.
+Prescriptions for these incretin mimetics for weight loss -- on- or off-label -- have skyrocketed. While patients may be shedding pounds, it's far from certain whether these new drugs will actually improve health outcomes, and we're concerned that the prevailing narrative hasn't given enough air time to the potential drawbacks.
+Incretin mimetics were originally developed to treat type 2 diabetes by stimulating insulin production. When diabetics lost weight, these drugs were repurposed for weight loss. Both semaglutide and tirzepatide act as agonists for glucagon-like peptide-1 (GLP-1), a hormone that slows gastric emptying and signals the brain to decrease appetite and reduce energy intake. With the addition of an agonist for another incretin (gastric inhibitory polypeptide [GIP]), tirzepatide causes greater weight reduction (although the role of GIP is uncertain..
+The bottom line is that patients lose interest in eating, so they eat less. But incretin mimetics must be taken over a lifetime -- once the drugs are stopped, the weight returns.. Given the adverse of weight cycling, any temporary benefit of weight loss could be offset by longer-term harms of weight regain when the drugs are stopped.
+
+Weight Loss Doesn't Equal Better Health
+These drugs may not improve health outcomes. In part that's because for obesity they are prescribed based only on body mass index (BMI) -- a measure solely defined by height and weight and developed using data only from white men. While a higher BMI may be associated with health risks in a population, BMI is a poor of cardiometabolic health in individuals. What's more, a little extra weight may be protective. A meta-analysis found that, compared to normal weight, grade 1 obesity (BMI 30 to <35) was not associated with higher mortality, and overweight (BMI 25 to <30) was associated with significantly lower all-cause mortality.
+Obesity is a risk factor for hypertension, hyperlipidemia, and diabetes, but is too often used as a surrogate for these conditions. Many thin people are hypertensive or diabetic, and many higher-weight people are normotensive and don't have diabetes or hypercholesterolemia.
+Health outcomes can be improved without losing weight, and research supports a weight-neutral strategy  for obesity treatment. Data show that, even in the absence of weight loss, exercise training can improve most cardiometabolic risk factors associated with obesity. And increases in cardiovascular fitness and physical activity, unlike weight loss, are consistently associated with lower mortality risks.
+These Drugs Come With More Than Weight Loss
+GLP-1 and GLP-1/GIP receptor agonists may benefit a few highly selected patients, but given known harms -- and the potential for unknown long-term harms -- BMI alone should never be the deciding factor. Certainly no one without medical problems should be using these drugs in an effort to improve health or to improve appearance. Nausea, vomiting, and diarrhea can be severe enough  to send patients to the hospital. These drugs also increase risks  of acute pancreatitis, gallbladder disease, kidney problems, and suicidal ideation, and may increase the risk of thyroid cancer.
+Media are also reporting more adverse effects, including malnutrition caused by inadequate food intake, hair loss , and unusual, vivid dreams .
+There's also concern about increased adverse effects in elders and populations of color, who were inadequately represented in clinical trials for both semaglutide  and tirzepatide  -- participants were primarily white (75%), middle-age (45 years) women (67%). Many older adults  are sarcopenic, and incretin mimetics cause loss of lean body mass as well as fat mass. Moderate obesity may be protective against cardiovascular risks after age 65. Questions also remain about the effect of these drugs on Black Americans, three quarters  of whom have a BMI classifying them as overweight or obese. At best, less than 8%  of trial participants were Black in the tirzepatide trial.
+Consider the Messenger
+Hype is common with incretin drugs, and we understand these medications can be life-changing for select patients. But there needs to be more discussion of harms, the unknown effects of lifelong use, the dearth of information on Black patients, the value of BMI as a predictor of health risks, and whether these drugs actually benefit health. Even harder to find is discussion of the robust research available that supports a weight-neutral strategy for increasing health in higher-weight patients.
+Certainly our weight-obsessed culture is one reason for this limited discourse, but omitting any unappealing facts or unknowns aligns with the interest of pharmaceutical companies. A legion of conflicted individuals and organizations funded by weight-loss drug manufacturers promote a one-sided perspective and actively advocate for broad insurance coverage, especially for Medicare recipients.
+Pharmaceutical company-sponsored organizations and individuals may not believe this money influences their positions, but, if their positions didn't align with the industry view, they wouldn't be receiving that funding. Doctors paid by weight-loss drugmakers are training new residents and medical students ,offering continuing medical education , providing interactive learning modules  and appearing on 60 Minutes . A slew of obesity care and advocacy organizations lobby for insurance coverage, run awareness campaigns, hold conventions, and offer advice for healthcare providers. Quotes from spokespeople to the media relay industry messages without mentioning ties with industry.
+While advocates may believe they are providing unbiased evidence-based information, it's woefully incomplete and misleading. Billions of dollars are likely to be spent on these drugs. A dispassionate look at what taxpayers get for that money is the only way to assess that investment. That's not going to happen when industry is pulling the strings.
+Solving Obesity: New Drugs Can't Change How Little We Know
+
+This is the first in a three-part series from WebMD on the obesity crisis. Part two examines if new weight loss drugs will finally end the obesity crisis. Part three shows how doctors and patients can make treatment even better.
+Everyone's talking about weight loss drugs. 
+The craze began when word leaked about Hollywood types using Ozempic and Wegovy to drop weight. Like a Southern California wildfire, news spread: These injectable drugs could help people lose 10%, 15%, or even 20% of their body weight.
+Now we've blown by the tipping point. More weight loss meds are on the way, some in pill form. In the latest breakthrough, people in a phase II clinical study who took the drug retatrutide lost 24% of their body weight. That's almost on par with bariatric surgery. 
+Doctors (and drug companies) are thrilled, and they should be: These are the first drug treatments for obesity that work. Or, at least, the first to work well. 
+Yet, while these drugs may be a major win for obesity treatment, all the celebratory noise can't erase a sobering truth: There's still a lot we don't know about obesity, including what's behind an unprecedented spike in obesity rates over the past 30-plus years and, crucially, how to prevent obesity in the first place. 
+Heck, researchers aren't even sure how this class of drugs — GLP-1 agonists — works for weight loss. Diabetes was the original target, and weight loss effects were a surprise. 
+"The most effective drug we have for obesity was developed by accident," said Dariush Mozaffarian, MD, a cardiologist and nutrition professor at Boston's Tufts School of Medicine. "That right there should be a clear sign of how little we understand about obesity."
+So Much Research, So Few Answers 
+More than 40% of American adults live with obesity. Sixty years ago, that number was 13%.
+In some ways, that's the medical failure of our time. No matter what we've done or how much science has uncovered, we've just kept gaining weight — even as rising childhood obesity rates have filled the pipeline.
+Around the turn of the century — after the obesity rate soared in the '90s — scientists responded with an explosion of research. As study after study linked excessive fat to the deadliest diseases — cardiovascular disease, strokes, diabetes, cancer — the obesity fight emerged as a clear public health priority. In the last decade alone, the U.S. has invested almost $11 billion in this research. Yet there's no evidence to suggest we can halt or reverse the trend. The biggest tell: Even obesity researchers acknowledge their failures. 
+Time will reveal the drugs' impact, but it may be limited, given how widespread obesity has become. 
+The problem: The list of potential causes of obesity is so long, it's hard to pick one, much less decide how to fix it. Diet and intervention studies can tell us only so much. Few are definitive, and most leave ample room for debate. 
+"The underlying cause [of obesity], and therefore the issues that would guide prevention, are very difficult," said Randy Seeley, PhD, director of the National Institutes of Health-funded Michigan Nutrition Obesity Research Center. "We've run lots of different trials to do obesity prevention, and almost all have been abject failures." 
+We Americans Just Eat Too Much, Right?
+Overeating may be the most widely accepted explanation for rising obesity numbers. It feels intuitive: We eat too much and move too little. Which leads to the "we Americans just love our large portions and sugary foods more than our health" take.
+But what if there were data to suggest that, in fact, our food intake has not changed in 20 years — even as the obesity rate has soared? 
+There is. Picture a chart with three lines. One line represents total food intake, and another our total food supply. A third line — the obesity rate — rises sharply, ultimately surpassing the other two, which stay flat.
+
+ 
+"By two independent measures, calorie intake has been flat in the U.S. for 20 years while obesity has skyrocketed," says Mozaffarian. "That single point should call into question everything we think we know." 
+He revealed this plot twist in a perspective paper he wrote last year. The data is from the National Health and Nutrition Examination Survey on what we eat, and the Food and Agriculture Organization, which tracks the food supply. 
+When you consider our growing body sizes, "the data suggest that Americans have been eating relatively less," the paper notes. It says there's little evidence to suggest physical activity has changed either, undermining the idea that declining exercise could be a driver. 
+As often happens in this field, the argument leaves plenty of room for skepticism. Much of the data in question is based on people reporting their own behavior, and that can be unreliable — people may under-report how much they eat and over-report how much they move. Plus, while overall population data may show steady trends, this may hide differences in important subgroups, said Walter Willett, MD, DrPH, a professor of epidemiology and nutrition at the Harvard T.H. Chan School of Public Health. 
+That is, some groups (such as those in low-income areas) may be eating more and moving less, while others (in more privileged parts) are eating less and moving more — so overall, the line appears flat. What's more: "If you look back farther, food consumption has gone up since the 1970s," Willett says. That's right around the time the average body weight began to rise. 
+Mozaffarian acknowledged these limitations in his paper but said "discarding all these data because they do not fit a conventional theory of obesity would be imprudent; and other hypotheses must also be considered."
+An alternate explanation: The quality of our food intake — like all those sugars and processed carbs — may have changed our bodies' response to food.
+Take the microbiome.  Rodent studies show that changes in the microbes that live in your gut may impact metabolism and body weight. (Some research suggests that fecal transplants may improve the metabolic health of subjects with obesity, but much more research is needed before this can be used to treat people.) 
+Another possibility is the impact of diet on our epigenetics, or the way our genes work. "Epigenetics is something on top of the genetic environment that allows some genes to turn on and off," said Margarita Teran-Garcia, MD, PhD, an obesity researcher at the University of Illinois Urbana-Champaign, who studies interactions between biology and environment. Nutrients, like fat or carbs, may do this to genes that burn or store energy, playing a role in fat storage. 
+These are emerging areas that scientists are still working to understand. 
+"I would say we're maybe 5% of the way there in what we know. And there's still 95% that's understudied," Mozaffarian says.
+What Do We Know From 40 Years of Research?
+Trying to summarize obesity research is overwhelming. So many studies, so many caveats, contradictions, and dead ends. 
+Arguably the biggest landmark was the discovery of leptin, a fat hormone that regulates body weight, in 1994. 
+"It was the discovery of leptin that changed things … that said it's not just willpower; there's biology at work," said James Hill, PhD, director of the Nutrition Obesity Research Center at the University of Alabama at Birmingham. "A lot of scientists started saying, ‘Wow, this problem of obesity is pretty interesting. I might want to look at it.'" 
+The studies began rolling in. In 1990, scientists published 1,900 papers on obesity, according to a search of PubMed, a website that catalogs scientific research. By 2000, that number had more than doubled, and it has risen exponentially ever since, topping 33,000 papers annually for the last 3 years. All told, that's nearly half a million studies.
+
+ 
+Neuroscientists study rodents to see how the brain regulates food intake. Geneticists identify human genes linked to obesity. (Hundreds have been found so far.) Epidemiologists survey large populations, looking for patterns linked to weight gain, weight maintenance, or weight loss. 
+Nutrition researchers do diet studies, dividing people they study into groups assigned to different diets. These are notoriously hard to design. Most rely on people to follow the nutrition advice, and few last more than a year. 
+"‘Oh, there's a professor who has a question. I promise to change my diet and perfectly adhere to it for the next few decades!' No one is going to sign up for that study," said Christopher Gardner, PhD, director of nutrition studies at Stanford Prevention Research Center. 
+Most diet studies show no one diet is better for weight loss than another. Any diet can work if you reduce calories. 
+Still, results vary a lot. In one large diet study from Gardner in 2018, people following a low-carb or low-fat diet found a wide variety of outcomes: Some lost as much as 50 pounds, while others gained up to 20.
+"A 70-pound range," Gardner said. "How can you explain that when they got the same advice?" (In fact, that was the very question Gardner had set out to answer, but he found no link between people's success and their genetics or insulin response.) 
+The thing is, we do know how to lose weight — the problem is keeping it off. High-quality data on long-term weight loss is sparse, but what little we have suggests most people regain lost pounds within 5 years. 
+"We have not, as a health professional community, been very successful with helping people lose fat and maintain that loss," Gardner said.
+For Hill — who in the 1990s co-founded the National Weight Control Registry, a study tracking 10,000 people who've lost weight and kept it off — that's because people are "swimming upstream." 
+"Really good swimmers can do it, but most get swept down," Hill said. "We can either teach people to be better swimmers, or we can reduce the current, which is the environment."
+Both of those options are easier said than done.
+That Pesky Environment
+The overall trend of obesity research has been a shift to understanding obesity as a disease. 
+Like many diseases, obesity is likely caused by a combination of genetics and our environment, said Samuel Klein, MD, a professor of medicine and nutritional science at Washington University School of Medicine in St. Louis.
+"Computers, cars, and cellphones keep us sitting in one place," he said. "We have food that doesn't perish. We can keep it in a can or frozen for months or years. We're never without the availability of food." 
+Many researchers agree, but exactly what parts of that environment are to blame, and how they interact with our bodies, is hotly debated.
+Some theories:
+The prevailing view focuses on the brain. Brain circuits that control food intake are responding to a changing food environment in ways that are still being revealed, resulting in overeating and obesity. (One new study found that obesity may permanently impair the brain's response to eating fats and sugars, making people less able to recognize when they're full.)
+A competing hypothesis — the carbohydrate-insulin model — suggests that highly processed carbohydrates trigger hormonal responses that lead to excess fat storage. 
+Yet another view suggests that chemicals called obesogens (found in products like can linings, plastic bottles, clothing, and pesticides) lead to weight gain by altering hormones and metabolism in ways that promote fat. 
+Still other societal changes may be at play. Weight gain is a side effect of many antidepressants and other treatments for mood disorders, said Louis Aronne, MD, director of the obesity research and treatment program at Weill Cornell Medicine, at Cornell University in New York City. "We estimated in a paper that about 15% of the obesity epidemic could be related." 
+Indoor temperature controls mean we burn fewer calories warming up or cooling down. Changing sleep habits can impact weight. Far fewer people smoke now, a huge health win no doubt. But when people stop smoking, they tend to gain weight. 
+And the list goes on. All of the above? Perhaps. But good luck getting a consensus.
+"Most obesity researchers will tell you that we really don't know why obesity occurs," Hill said. "We know a lot, but I can't sit here and say, ‘Here is why we have so much obesity.'"
+Can a new class of weight loss drugs end the obesity epidemic?  Read part two here.
+
+
+ 
+SOURCES:
+Randy Seeley, PhD, director, Michigan Nutrition Obesity Research Center.
+Dariush Mozaffarian, MD, cardiologist, nutrition professor, Tufts School of Medicine, Boston. 
+Walter Willett, MD, DrPH, professor of epidemiology and nutrition, T.H. Chan School of Public Health, Harvard University, Boston. 
+Margarita Teran-Garcia, MD, PhD, assistant dean for integrated health disparities programs, University of Illinois Urbana-Champaign.
+James Hill, PhD, director, Nutrition Obesity Research Center, University of Alabama at Birmingham. 
+Christopher Gardner, PhD, director, nutrition studies, Stanford Prevention Research Center, Stanford University, Palo Alto, CA. 
+Samuel Klein, MD, professor of medicine and nutritional science, Washington University School of Medicine, St. Louis. 
+Louis Aronne, MD, director, obesity research and treatment program, Weill Cornell Medicine, New York City. 
+
+This is the second in a three-part series from WebMD on the obesity crisis. Part one tackles a complicated question — why does the obesity rate keep rising despite our efforts to stop it? — and can be found here. Part three shows how doctors and patients can make treatment better and can be found here.
+In the mid-1980s, Louis Aronne strolled into a lab at Rockefeller University where a colleague was breeding mice. "I will never forget what he showed me," said Aronne, now the director of obesity research and treatment at Weill Cornell Medicine in New York City. "He had a cage with 10 mice, one severely obese and the others normal weight. He took blood from one of the thin mice and gave it to the fat mouse."
+When Aronne returned 3 days later, that obese mouse had turned thin. 
+It was proof of something Aronne already suspected: Obesity had biological causes and wasn't just a failure of willpower.
+Years later, in 1994, that research led to the discovery of leptin, a hormone released from fat cells that's involved in the regulation of body weight. It was a watershed moment in obesity research. 
+Since then, Aronne and others have worked to build the clinical field of obesity medicine, attempting to shift the public and medical view of obesity from a purely behavioral issue to a disease worthy of medical treatment. 
+All the while, the U.S. obesity rate soared. 
+Now, another watershed moment: We finally have highly effective obesity drugs. The hype is real, and so are the weight loss results. 
+"I've been saying for 30 years that when we find treatments that really work, people aren't going to believe the results," Aronne says. "It took longer than I expected, but it's gratifying now to see."
+All this excitement raises a crucial question: Will the new drugs finally end the obesity crisis? Experts have their doubts.
+The Big Question
+The emerging class of obesity medications known as GLP-1 agonists is indeed a game changer. The weight loss drug semaglutide (Ozempic, Wegovy) showed groundbreaking results, and studies suggest a parade of even more impressive drugs is on the way.
+Yes, the drugs offer new hope to millions with obesity complications. But to truly turn the tide on our 42% obesity rate, much more work remains to be done, researchers said, including answering a big question:
+How do these weight loss drugs work? 
+"We have new blockbuster drugs, and we don't even know why they reduce body weight," says Samuel Klein, MD, professor of medicine and nutritional science at Washington University School of Medicine in St. Louis. "It was by accident that this was discovered."
+Oops, We Created a Weight Loss Drug
+Glucagon-like peptide-1 receptor agonists commonly abbreviated as GLP-1 RAs, emerged as a promising therapeutic class based on incretin therapy that regulates glucose metabolism through multiple mechanisms. (Why do incretins cause weight loss?
+Incretin mimetics present glucose-lowering properties, together with a reduction of appetite and food intake, resulting in weight loss.Jan 25, 2021)
+
+Developed to treat diabetes, the GLP-1 drugs' weight loss effects were a surprise. Now that those effects are confirmed, pharmaceutical companies and researchers are racing to figure out how these drugs work.
+In the 1960s, scientists discovered the incretin effect — when you eat glucose (sugar), your body makes more insulin than it does if glucose is given intravenously. Glucose passes through the GI tract and the gut releases hormones that stimulate insulin secretion. It's "essentially a feed-forward signal to your pancreas to tell it, 'By the way, you need to be ready because there's a bunch of glucose coming,'" said Randy Seeley, MD, director of the Michigan Nutrition Obesity Research Center, funded by the National Institutes of Health. 
+One of these hormones — or "incretins" — is GLP-1. In experiments, people with type 2 diabetes who were hooked up to GLP-1 saw their blood sugar go down. 
+"That led to the idea that if we could take this native hormone and make it last longer, we'd have a therapy for type 2 diabetes," said Seeley. Thanks to a GLP-1-like compound in the saliva of the Gila monster, that idea became reality in the 2000s. 
+Along the way, a surprising side finding came to light: In early trials, diabetes patients on these drugs dropped weight. 
+
+ 
+Both Ozempic and Wegovy — brand names for semaglutide — are once-weekly injections (pill forms to treat obesity are on the way), but the latter is a higher dose. 
+"That dose results in about 40% of patients in the clinical trials achieving a 20% weight loss. We've just had nothing like that in terms of efficacy before," said Seeley, who has worked with some of the drug companies (including Novo Nordisk, the maker of Ozempic and Wegovy, and Eli Lilly, maker of Mounjaro) that market the GLP-1s. 
+By contrast, semaglutide's once-a-day predecessor liraglutide (Saxenda, also made by Novo Nordisk) can lead to about 10% weight loss. 
+"And one of the ironies is, we don't really know why," Seeley says. "We don't know why semaglutide is a better molecule for weight loss than liraglutide." 
+Initially, scientists believed that the drugs, in addition to telling the pancreas to secrete more insulin, were also signaling the brain that you're full. "Turns out that's not really the way it works," Seeley says. "GLP-1 made from your gut probably doesn't get into your brain very much. But you make GLP-1 in your brain as well."
+For weight loss, it's the brain's GLP-1 system, not the gut's, that the drugs are thought to hijack. But exactly which parts of the brain they affect and how is unknown. "That's something lots of people are working on, including our own lab," Seeley said. (Another surprise: The drugs may have potential as an anti-addiction treatment.)
+The diabetes medication tirzepatide (Mounjaro), expected to be approved for weight loss as early as this year, is also a weekly injection, but it has a unique feature: It starts a response not just for GLP-1 but also for another incretin called GIP. Turns out, two is better than one: Trial participants on tirzepatide lost up to 22.5% of their body weight. 
+More of these hybrid drugs are on the way, Seeley said. In mid-stage clinical trials, the drug retatrutide, which targets three hormones, led to 24% weight loss. "The idea is the more bullets we can load into the gun, the more we can push the biology into a place where it's easier to lose weight."
+
+ 
+Shifting From Prevention to Damage Control
+Less invasive and more scalable than surgery (only 1% of the eligible population gets bariatric surgery), the drugs offer doctors a safe, effective way to treat many patients with obesity. That's cause for excitement, but concerns remain because they are expensive, costing about $800 to $1,300 per month out of pocket. Many health insurers, including Medicare, do not cover them for weight loss. 
+"You have this significant advance in obesity treatment, but very few will be able to access it," said Gary Foster, PhD, adjunct professor of psychology in psychiatry at the University of Pennsylvania and chief scientific officer at WW (formerly Weight Watchers).
+There is a push, including a proposed bill, to get Medicare to cover obesity medication. But given the expense of the drugs, the health economics do not support that move, according to an editorial in the New England Journal of Medicine . If Medicare were to cover obesity meds, the budget impact would likely be huge, potentially driving up premiums. If other payers followed suit, the impact could be felt across the U.S. health care system. 
+Other drawbacks include side effects — including nausea, diarrhea, stomach pain, and vomiting — that can be so bad that some patients can't tolerate them.
+And critically, the drugs do not deal with the root cause of the problem, said Robert Lustig, MD, an endocrinologist and pediatrician at the University of California, San Francisco, who has suggested that excess insulin is driving obesity. "No one has the disease that these drugs are treating. No one has GLP-1 deficiency. They're bypassing the problem. They're band-aiding the problem." 
+Because the drugs work by mimicking starvation — they appear to curb hunger, so you eat less — people on them lose not just fat but also healthy lean mass, Lustig said. 
+Concerns about pancreatitis did not really bear out in post-marketing reports. (The drugs are still not recommended in people with pancreatitis, or a history of a type of thyroid cancer or a type of tumor called multiple endocrine neoplasia.) But predicting longer-term outcomes can be hard, notes Lustig.
+Then there are philosophical questions, said James Hill, PhD, director of the Nutrition Obesity Research Center at the University of Alabama at Birmingham.. "If you're continuing to not exercise and eat not healthy foods and take a medication, is that success? Have we won when people are at a lower weight but not doing a healthy behavior?"
+"We Can't Treat Our Way Out of This"
+The fact is, ending the obesity epidemic is a tall order, even for drugs as impressive as these. 
+"We can't treat our way out of this," said Jamy Ard, MD, co-director of Wake Forest Baptist Health Weight Management Center in Winston-Salem, NC. "The treatments we have now are great, and there will be more coming. But we do need to figure out the prevention side of things." 
+Seeley agrees but adds we can't diet-and-exercise our way out either. 
+"There's no switch to be flipped," Seeley says. "If you told me we shouldn't spend all this money on these drugs, we should spend it on prevention — great! What would we do?" 
+And prevention efforts won't help the millions already living with health problems from obesity, Aronne said. 
+"Getting people to stop smoking prevents lung cancer. But stopping smoking doesn't treat lung cancer," Aronne said. "Once the physical changes occur in the lung that cause a tumor to grow, it's too late. You have to think of obesity the same way." 
+Seeley points out that "fearmongering" around the drugs highlights our lingering bias that obesity is a lifestyle issue that should not be medically treated. 
+"People say, 'When you stop taking it, you're going to gain the weight back,'" Seeley said. "There's truth to that, but when you stop taking your hypertension medication, your blood pressure goes up. We don't think of that as a [reason] for why you shouldn't take your blood pressure medication. But that gets trumpeted into all these conversations about whether people [with obesity] should be treated at all."
+Like obesity, blood pressure was once thought to be a behavioral problem too, Aronne said. But blood pressure meds prevent heart attacks and strokes. And it's likely obesity meds will do the same. 
+One 55-year-old patient on the road to kidney failure lost weight on obesity medications, including semaglutide, Aronne said. Now, 6 years later, his kidney function is back to normal. "Normally, we think of kidney disease as irreversible," Aronne said. 
+In that respect, these drugs should save money in the long run by virtue of heading off those health care costs, said Seeley, who imagines a future where obesity is not gone but better managed, like high blood pressure is now. 
+In the end, the drugs are another step toward what Aronne and many others have always pushed for: Treating obesity as a disease. 
+How doctors and patients can do everything better — read part three here.
+
+ 
+This is the third in a three-part series from WebMD on the obesity crisis. Part one asks a complicated question: Why has the obesity rate continued to rise despite our efforts to stop it? Part two examines whether new weight loss drugs will finally end the crisis. 
+After Mia O'Malley gave birth in 2018, she retained fluid in her legs — a common occurrence after giving birth. The swelling made walking, sitting, and caring for her newborn painful and uncomfortable. She went in for a check-up, and her doctor told her it would eventually go away with regular movement and elevating her legs. 
+Months passed and the painful swelling wouldn't subside, so she saw a different primary care doctor. O'Malley said the second doctor didn't examine her legs, but instead implored her to focus on one thing: losing weight. She left with information on which calorie-counting apps to download. 
+As time went by and the swelling persisted, she went back to the second doctor and asked for a water pill to flush out the fluids — something she had seen other new parents discuss online. The doctor obliged, and within days, O'Malley's swelling was gone. She realized she could have avoided 6 months of potential health risks and pushing through pain if only her doctor had seen her as a person, not just a bigger body.
+
+Mia O'Malley and her son.
+Weight bias, unfortunately, is nothing new. Many  studies over decades have shown that doctors sometimes look down on patients with obesity, and can have a hazy understanding of the condition overall. This makes it harder for bigger patients to receive proper care and achieve positive health outcomes, with previous negative experiences deterring some from seeing doctors at all. And so the cycle continues. 
+"There are a lot of things that happen in my body that I feel like I have to educate my [health care] providers on," O'Malley said. "I wish that was different."
+Weight Stigma in Health Care Runs Deep
+In some cases, like O'Malley's, patients don't feel heard because they doubt their doctors can see past their obesity. At the same time, the weight loss advice that doctors tend to give — eat less, move more — often doesn't work. While some doctors do specialize in obesity treatment — obesity medicine has been growing since the field was established in 2011 — most receive little training in how to talk about and treat obesity.
+Then there's the fact that doctors are human and not immune to bias. Previous studies have shown weight stigma in patient-provider encounters, with a 2021 PLOS One study of nearly 14,000 people across six countries showing two-thirds of those who have experienced weight stigma also experienced it with doctors. The result: They perceived less listening and respect from doctors, more judgment due to body weight, and lower quality of health care.
+There's more. The negativity of weight stigma can lead to more unhealthy behavior, including disordered eating, more weight gain, and alcohol use, and it has been linked to higher suicide risk.
+All this is bad news for people and for public health, as it leaves people living with obesity reluctant to seek help for any health issue, much less for weight management. In a country with skyrocketing obesity rates, that's not good. 
+Obesity medicine specialist Fatima Stanford, MD, MPH, an educator and doctor at Harvard Medical School and Massachusetts General Hospital, sees patients from as young as 2 years old to upwards of 90. Among her diverse pool of patients emerges one common theme. 
+"Patients with obesity have been devalued and belittled," she said. "They often seek treatment under cloak of secrecy. They don't want people to know they're being treated for obesity because it must be a sign of failure or of their inadequacy of not doing things the 'hard' or the 'right' way." 
+When It Becomes Easier to Simply Not Go to the Doctor 
+For many larger-bodied patients, it's common to go years without seeing a doctor. Studies have shown that people with obesity are less likely to be screened for certain cancers and more likely to delay care, in large part due to the negative attitudes they experience in health care settings. 
+Research also shows that overweight patients shop for doctors 23% more often than their lower-weight counterparts. For patients with obesity, that jumps to 52%, showing just how hard it is for those patients to find a compassionate provider and stick with them. 
+"It's not just about hurt feelings," O'Malley said. "It's about people avoiding preventative care appointments, avoiding getting injuries treated, avoiding their health issues because they don't want to be shamed." 
+This rings true for Jen McLellan, a plus-sized childbirth educator and author. 
+"Even though this is what I teach full-time, I didn't go to the doctor for over 2 years, and during that time I gained weight already existing in a larger body," she said. "I gained an additional 60 pounds, and it really affected my mental health."
+
+"I spent years not going to the doctor or receiving routine health care," says Jen McLellan, a childbirth educator and author. "I am a statistic that I teach others about."
+The long hiatus began pre-pandemic, after McLellan saw a doctor when she had a hard time breathing. A month before her appointment, she had completed a 5K and was in good health. She asked her provider for an inhaler but was told that would "hurt her heart." The doctor ordered an EKG, which showed no abnormalities, but still refused to give McLellan a prescription for an inhaler. 
+As she was driving home, she nearly blacked out from lack of air. She ended up going to urgent care for an inhaler and was told she just had a restricted airway that needed help opening up after a bout with strep throat. 
+"I've basically had to say [to doctors]: Look at me, the human sitting in front of you that has been mistreated by the health care system," McLellan said. "I am a person. I am not a BMI or a number on the scale. Treat me with dignity." 
+A New Path to Better Results 
+Kristal Hartman, 45, is a member of the Obesity Action Coalition and has sought treatment for obesity throughout her life. She ultimately had bariatric surgery in her mid-30s.
+Before the surgery, she had given birth to twins, and her health had suffered due to polycystic ovary syndrome and thyroid issues. 
+"I had little kids, and I'd already tried every fad diet," Hartman said. "My primary care physician, who has never experienced obesity herself, just kept telling me to 'just walk a little more and put down the fork and eat a little less' — that was pretty much the only advice I got from her about weight management."
+Studies have shown that weight loss advice from doctors rarely includes effective methods, and typically falls into the generic "eat less, move more" variety. 
+This doctor was also an internal medicine specialist whose practice was said to be geared toward patients with more complicated health profiles, Hartman said. Eventually, Hartman's endocrinologist recommended different treatment options, like medication and surgery. 
+"Even when researchers do very nice, controlled studies, only about 5% of people are able to lose 20% of their weight with lifestyle interventions alone. Forty-eight percent of people are able to lose 5% of their weight," said Angela Fitch, MD, associate director of the Weight Center at Massachusetts General Hospital. "The biggest thing I tell people is that it's not about your character; it's about your chemistry."
+
+ 
+Getting regular exercise and eating a balanced diet are good lifestyle choices for everyone, not just those with obesity. But according to Fitch, patients usually need another intervention for successful weight management.
+At the Massachusetts General Hospital Weight Center, Stanford says, it's about trying different therapies and seeing how patients respond. Successful treatment involves every part of a person: genetics, hormone levels, sleep patterns, food access, and mental health. And in her experience, this multidisciplinary approach works. 
+"A large majority of my patients — people I've been seeing for 10 or 12 years who have continued with care — probably an excess of 90% are successful in their treatment strategies," she said. 
+A person's weight management strategies often have to change over time. Even after Hartman lost significant weight from bariatric surgery, her weight began to creep back up (a not uncommon experience). She started taking a prescribed GLP-1 receptor agonist — a group of drugs that includes semaglutide (Ozempic, Wegovy) — to help her maintain her weight. 
+How Doctors and Patients Can Get Better Results Together
+For heavier people who don't have access to a multidisciplinary, patient-focused weight center — and doctors who don't provide those specialized services — there are still ways everyone can achieve better treatment results. 
+For doctors: You're seeing patients with obesity, but do those patients feel "seen"? Is your practice set up to accept and accommodate heavier patients? McClellan suggests looking at areas you may not have thought about previously, such as gowns that fit larger bodies, larger chairs in the waiting room, and scales with higher weight limits.
+Education is key, said Maria Daniela Hurtado Andrade, MD, PhD, an obesity medicine doctor at the Mayo Clinic in Jacksonville, FL. Hurtado Andrade pointed out that new therapies are being developed to manage weight loss, and some (like semaglutide) have already been used for years to treat diabetes. "While some providers are willing to start using these medications, it is not enough," she said. Remember: "We should be treating obesity as any other chronic disease, just like high blood pressure or diabetes." 
+For patients: Check online for lists of "weight-neutral" or "size-friendly" providers endorsed by other larger-bodied patients. Lists like these are places where patients can add the names and information of providers they've had positive experiences with. 
+Ask questions and advocate for yourself, McLellan urges, even if you're not comfortable doing so. "Am I going to be given a sheet or a gown that fits my body? Are they using a blood pressure cuff with the correct size? Are they taking your blood pressure the minute you're hurried back to a room?" (According to the CDC, a patient must be seated with their back supported for at least 5 minutes with their feet flat on the ground in order to get an accurate blood pressure reading.) 
+But what's made the biggest difference for her is being clear with doctors and nurses about how she's feeling in the moment, and how her previous experiences in health care have contributed to that. 
+Since incorporating these strategies, McLellan said she has finally been able to receive the care she deserves from a compassionate provider. 
+"I told [my doctor], 'I want to be healthy,'" she recalled. "And we went through my lab results together. I had done a full blood panel, and he scooted his chair toward me and looked me straight in the eye and said, 'You are healthy.' "
+
+ 
+SOURCES:
+Mia O’Malley, mother who has experienced weight bias.
+Fatima Stanford, MD, MPH, obesity medicine specialist, Harvard Medical School and Massachusetts General Hospital, Boston.
+Jen McLellan, plus-sized childbirth educator and author.
+Kristal Hartman, member, Obesity Action Coalition. 
+Angela Fitch, MD, associate director, Massachusetts General Hospital Weight Center, Boston.
+Johns Hopkins Medicine: “Physicians Have Less Respect for Obese Patients, Study Suggests.”
+American Board of Obesity Medicine: “A Record Number of Physicians Apply for 2019 Certification Exam.”
+PLOS One: “The roles of experienced and internalized weight stigma in healthcare experiences: Perspectives of adults engaged in weight management across six countries.”
+International Journal of Obesity: “Weight stigma and health behaviors: evidence from the Eating in America Study,” “Barriers to routine gynecological cancer screening for White and African-American obese women,” “Weight stigma as a risk factor for suicidality.”
+Journal of General Internal Medicine: “Colorectal Cancer Screening Disparities Related to Obesity and Gender.”
+Obesity: “Doctor shopping by overweight and obese patients is associated with increased healthcare utilization.”
+Family Practice: “What advice do general practitioners give to people living with obesity to lose weight? A qualitative content analysis of recorded interactions.”
+Mayo Clinic: “Weight regain after bariatric surgery.”
+CDC: “Measure Your Blood Pressure.”
+

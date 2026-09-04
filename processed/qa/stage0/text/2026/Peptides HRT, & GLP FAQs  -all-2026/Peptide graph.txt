@@ -1,0 +1,11 @@
+| Peptide | What It Claims to Do | Plain-English Mechanism | Key Risks / Concerns | Trainer Guidance |
+| TB-500 | Soft-tissue healing, mobility, reduced inflammation | Signals cells to move in, form new blood vessels, and remodel injured tissue | Unknown long-term safety; theoretical cancer/angiogenesis concerns | Don’t recommend; refer to sports-med/regen MD |
+| BPC-157 | Gut healing, tendon/ligament repair | Boosts angiogenesis and collagen formation; may support gut lining | Banned in sport; almost no human data; unknown long-term safety | Educate + refer; emphasize it is NOT approved |
+| MOTS-c | Energy, endurance, metabolic flexibility | Mitochondrial peptide that activates AMPK (exercise-like fuel usage) | Unknown metabolic/cancer impact; very early research | Focus on nutrition + conditioning (same pathways safely) |
+| SS-31 (Elamipretide) | Mitochondrial repair, energy improvement | Stabilizes mitochondrial membrane → better ATP, less oxidative stress | Only appropriate in clinical trials; specialist medication | “Not a performance peptide.” Strictly MD territory |
+| AOD-9604 | Fat loss without GH side effects | GH fragment that promotes fat breakdown over fat storage | Human trials: safe but weak results; risk = distraction from fundamentals | Redirect toward food/steps/sleep — the real needle movers |
+| Epitalon | Anti-aging, sleep, recovery | May activate telomerase and support circadian rhythm | Theoretical cancer risk; not validated | Anti-aging claims ≠ proven. Refer out. |
+| Kisspeptin | Hormone boosting, fertility, libido | Activates GnRH → LH/FSH → sex hormone cascade | Fertility risks; inappropriate outside endocrinology | Hormone work = endo only. Not a gym-level tool |
+| Tesamorelin | GH boost + visceral fat reduction | Mimics GHRH → raises GH/IGF-1 | Raises IGF-1, edema, glucose issues, contraindicated in cancer | Prescription-only; only FDA-approved for HIV lipodystrophy |
+| CJC-1295 (DAC/No DAC) | Recovery, GH/IGF-1 increase, body comp | Long-acting GHRH analog → increases GH pulse amplitude | GH-axis risks (edema, CTS, glucose, theoretical cancer) | Treat like GH: doctor-managed only |
+

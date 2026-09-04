@@ -1,0 +1,20 @@
+
+
+Here’s the breakdown based on metabolic studies:
+🔬 Resting Energy Expenditure per Tissue Type
+| Tissue Type | Approx. Calories Burned per Pound per Day | Relative Activity |
+| Skeletal Muscle | ~6 kcal/lb/day | Moderate |
+| Liver | ~90 kcal/lb/day | Very high |
+| Brain | ~110 kcal/lb/day | Extremely high |
+| Heart | ~200 kcal/lb/day | Extremely high |
+| Kidneys | ~200 kcal/lb/day | Extremely high |
+| Adipose Tissue (Fat) | ~2 kcal/lb/day | Very low |
+⚙️ Explanation
+Adipose tissue is mostly energy storage, not an active tissue like muscle. However, it does have some metabolic cost — mostly from maintaining fat cell integrity, hormone signaling (like leptin and adiponectin), and low-level turnover of triglycerides.
+So for example:
+A person with 30 lb of fat would burn roughly 60 kcal/day from that fat mass.
+In contrast, 30 lb of muscle would burn around 180 kcal/day.
+🧠 Key Takeaway
+Fat is metabolically active, but only about one-third as much as muscle and a fraction of the activity of organs.
+The main determinant of your resting metabolic rate (RMR) is your lean body mass (LBM), not fat mass.
+

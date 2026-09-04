@@ -1,0 +1,13 @@
+
+
++9
+Rapamycin is a potent mTOR inhibitor that consistently extends lifespan and improves healthspan in laboratory animals (mice, flies, yeast). While promising for human anti-aging, clinical evidence is limited, with studies indicating potential for metabolic side effects and lacking definitive proof of increased human longevity. [1, 2, 3, 4, 5]
+Key Aspects of Rapamycin for Longevity:
+Mechanism: Rapamycin inhibits the mechanistic Target of Rapamycin (mTOR) pathway, a key regulator of cell growth and metabolism. Blocking this pathway shifts energy from growth to cell maintenance, slowing the aging process.
+Lifespan Extension in Animals: Studies show rapamycin can extend the lifespan of mice by 9%–14%, even when initiated in mid-life. Some studies suggest even greater, more dramatic improvements in healthspan.
+Healthspan Benefits: It has been linked to delayed onset of age-related pathologies, such as cancer, cognitive decline (Alzheimer’s-like symptoms), and improved immune function.
+Human Application & Studies: While often used off-label by people for longevity (typically 6 mg per week), large-scale clinical trials proving it increases human lifespan are currently lacking.
+Risks & Side Effects: Long-term, high-dose use, often necessary for treating transplant patients, can cause significant metabolic and hematological complications. [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Research Status
+While some research suggests rapamycin is the most promising, validated anti-aging drug to date, others argue there is no clear evidence of its efficacy in healthy adults. Further studies, such as the Dog Aging Project, aim to provide more insight into its effects on aging
+

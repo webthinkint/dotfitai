@@ -1,0 +1,12 @@
+Bacteriostatic (BAC) water is a sterile, non-pyrogenic water containing 0.9% benzyl alcohol (9 mg/mL) used as a solvent. Its primary purpose is to dissolve or "reconstitute" medications or powdered substances (like lyophilized peptides) so they can be injected into the body. [1, 2, 3, 4, 5]
+How it Works
+The benzyl alcohol acts as an antimicrobial preservative. Unlike plain sterile water (which must be discarded immediately after a single use), the preservative in BAC water prevents bacteria and fungi from growing. This allows the vial to be safely punctured multiple times to draw small, precise doses over a period of up to 28 days. [1, 2, 3, 4]
+Common Applications
+Medication Preparation: Used to dilute or dissolve concentrated drugs for intravenous, intramuscular, or subcutaneous injection.
+Peptide Research: Frequently used in scientific laboratories to reconstitute freeze-dried peptides. [1, 2, 3, 4]
+Important Safety Considerations
+Prescription Requirement: In the United States, BAC water for injection is typically a prescription-only product and is not available over the counter. [1]
+Expiration: Once a vial of BAC water is unsealed and punctured, it generally loses its effectiveness and should be discarded within 28 days. [1, 2]
+Contamination: To maintain sterility, the rubber stopper on the vial must always be wiped with an alcohol swab prior to inserting a needle. [1, 2]
+Not for Neonates: BAC water is contraindicated for use in newborns due to the toxicity of the benzyl alcohol preservative. [1]
+

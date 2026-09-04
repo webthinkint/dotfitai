@@ -1,0 +1,10 @@
+SS-31's mechanism of action involves a specific targeting of mitochondria, where it binds to a molecule called cardiolipin on the inner mitochondrial membrane. This interaction stabilizes the mitochondrial cristae, boosts ATP production, reduces oxidative stress by inhibiting cytochrome c peroxidase activity, and improves electron transport chain function. These actions protect against mitochondrial dysfunction and support overall cellular health.  
+Key aspects of SS-31's mechanism:
+Mitochondrial targeting: SS-31 is a cationic peptide that selectively accumulates in mitochondria, particularly in the inner mitochondrial membrane, by a process that does not rely on mitochondrial membrane potential. 
+Cardiolipin interaction: It binds to cardiolipin, a phospholipid essential for the structure and function of the inner mitochondrial membrane. 
+Mitochondrial stabilization: By interacting with cardiolipin, SS-31 stabilizes the cristae, which are the folds of the inner membrane where ATP production occurs. 
+Enhanced energy production: It improves the efficiency of the electron transport chain, leading to increased ATP (energy) production. 
+Reduced oxidative stress: SS-31 inhibits the peroxidase activity of cytochrome c, which helps to prevent cardiolipin peroxidation and reduces the production of reactive oxygen species (ROS). 
+Overall effects:
+The combined effects of these actions result in a restoration of mitochondrial function, which is beneficial for a wide range of conditions associated with mitochondrial dysfunction. These include improvements in energy levels, protection from cellular damage, and support for organ function in areas like the heart, kidneys, and brain. 
+

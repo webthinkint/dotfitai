@@ -1,0 +1,1394 @@
+{
+ "pipeline_version": "0.1.0",
+ "options": {
+  "keep_references": false,
+  "citation_base": "pdsrg/",
+  "target_tokens": 650,
+  "max_tokens": 800
+ },
+ "n_docs": 39,
+ "n_chunks": 1080,
+ "n_tokens": 403648,
+ "tables": {
+  "raw": 761,
+  "trivial": 422,
+  "prose_dropped": 290,
+  "text_fallback": 2,
+  "kept": 49
+ },
+ "by_category": {
+  "General": 7,
+  "Health": 10,
+  "MVM": 5,
+  "Performance": 13,
+  "WeightLoss": 4
+ },
+ "n_product_docs": 32,
+ "n_topic_docs": 7,
+ "review_flags": {
+  "discontinued_products": [
+   "KidsMV (discontinued)",
+   "Recover & Build (discontinued)",
+   "VeganMV (discontinued)"
+  ],
+  "needs_category": [],
+  "errors": []
+ },
+ "docs": [
+  {
+   "file": "ActiveMV.pdf",
+   "stem": "ActiveMV",
+   "slug": "activemv",
+   "doc_title": "Active MV",
+   "n_pages": 13,
+   "slide_deck": false,
+   "family": "Active MV",
+   "part_nos": [
+    1005
+   ],
+   "needs_category": false,
+   "category": "MVM",
+   "topics": [],
+   "tables": {
+    "raw": 7,
+    "trivial": 4,
+    "prose_dropped": 2,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 10,
+   "n_chunks": 13,
+   "n_tokens": 6019,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     7,
+     10
+    ]
+   },
+   "source_file": "ActiveMV.pdf"
+  },
+  {
+   "file": "AdvancedBrainHealth.pdf",
+   "stem": "AdvancedBrainHealth",
+   "slug": "advancedbrainhealth",
+   "doc_title": "Brain Health",
+   "n_pages": 9,
+   "slide_deck": false,
+   "family": "Brain Health",
+   "part_nos": [
+    1001
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 13,
+    "trivial": 7,
+    "prose_dropped": 6,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 9,
+   "n_chunks": 13,
+   "n_tokens": 4518,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     6,
+     6
+    ]
+   },
+   "source_file": "AdvancedBrainHealth.pdf"
+  },
+  {
+   "file": "Alln1 SuperBlend.pdf",
+   "stem": "Alln1 SuperBlend",
+   "slug": "alln1-superblend",
+   "doc_title": "Alln1 SuperBlend",
+   "n_pages": 24,
+   "slide_deck": false,
+   "family": "Alln1 SuperBlend",
+   "part_nos": [
+    8001,
+    8016
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 49,
+    "trivial": 8,
+    "prose_dropped": 41,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 22,
+   "n_chunks": 24,
+   "n_tokens": 7748,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 7,
+    "pages": [
+     6,
+     22
+    ]
+   },
+   "source_file": "Alln1 SuperBlend.pdf"
+  },
+  {
+   "file": "AminoFormula.pdf",
+   "stem": "AminoFormula",
+   "slug": "aminoformula",
+   "doc_title": "AminoFormula",
+   "n_pages": 34,
+   "slide_deck": false,
+   "family": "AminoFormula",
+   "part_nos": [
+    1213,
+    1216,
+    1220
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 43,
+    "trivial": 24,
+    "prose_dropped": 14,
+    "text_fallback": 0,
+    "kept": 5
+   },
+   "n_sections": 35,
+   "n_chunks": 46,
+   "n_tokens": 19810,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     23,
+     33
+    ]
+   },
+   "source_file": "AminoFormula.pdf"
+  },
+  {
+   "file": "BestPlantProtein.pdf",
+   "stem": "BestPlantProtein",
+   "slug": "bestplantprotein",
+   "doc_title": "Plant Protein",
+   "n_pages": 8,
+   "slide_deck": false,
+   "family": "Plant Protein",
+   "part_nos": [
+    1300,
+    1301
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 1,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 21,
+   "n_chunks": 21,
+   "n_tokens": 4030,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     6,
+     6
+    ]
+   },
+   "source_file": "BestPlantProtein.pdf"
+  },
+  {
+   "file": "CalciumComplex.pdf",
+   "stem": "CalciumComplex",
+   "slug": "calciumcomplex",
+   "doc_title": "Calcium Complex",
+   "n_pages": 24,
+   "slide_deck": false,
+   "family": "Calcium Complex",
+   "part_nos": [
+    1004
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 12,
+    "trivial": 6,
+    "prose_dropped": 5,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 27,
+   "n_chunks": 32,
+   "n_tokens": 12256,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     15,
+     22
+    ]
+   },
+   "source_file": "CalciumComplex.pdf"
+  },
+  {
+   "file": "CarbRepel.pdf",
+   "stem": "CarbRepel",
+   "slug": "carbrepel",
+   "doc_title": "CarbRepel",
+   "n_pages": 6,
+   "slide_deck": false,
+   "family": "CarbRepel",
+   "part_nos": [
+    1101
+   ],
+   "needs_category": false,
+   "category": "WeightLoss",
+   "topics": [],
+   "tables": {
+    "raw": 2,
+    "trivial": 1,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 11,
+   "n_chunks": 12,
+   "n_tokens": 2744,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     5,
+     5
+    ]
+   },
+   "source_file": "CarbRepel.pdf"
+  },
+  {
+   "file": "CreatineMonohydrate.pdf",
+   "stem": "CreatineMonohydrate",
+   "slug": "creatinemonohydrate",
+   "doc_title": "Creatine Monohydrate",
+   "n_pages": 32,
+   "slide_deck": false,
+   "family": "Creatine Monohydrate",
+   "part_nos": [
+    1200,
+    1227
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 2,
+    "trivial": 2,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 59,
+   "n_chunks": 65,
+   "n_tokens": 20142,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     25,
+     25
+    ]
+   },
+   "source_file": "CreatineMonohydrate.pdf"
+  },
+  {
+   "file": "DigestiveEnzymes.pdf",
+   "stem": "DigestiveEnzymes",
+   "slug": "digestiveenzymes",
+   "doc_title": "Digestive Enzymes",
+   "n_pages": 13,
+   "slide_deck": false,
+   "family": "Digestive Enzymes",
+   "part_nos": [
+    1019
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 24,
+    "trivial": 7,
+    "prose_dropped": 14,
+    "text_fallback": 0,
+    "kept": 3
+   },
+   "n_sections": 30,
+   "n_chunks": 30,
+   "n_tokens": 6788,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     11,
+     12
+    ]
+   },
+   "source_file": "DigestiveEnzymes.pdf"
+  },
+  {
+   "file": "dotFIT Multivitamin & Mineral Formulas Specialty Design Criteria.pdf",
+   "stem": "dotFIT Multivitamin & Mineral Formulas Specialty Design Criteria",
+   "slug": "dotfit-multivitamin-mineral-formulas-specialty-design-criteria",
+   "doc_title": "dotFIT Multivitamin & Mineral Formulas Specialty Design Criteria",
+   "n_pages": 23,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "multivitamin",
+    "formulation"
+   ],
+   "tables": {
+    "raw": 24,
+    "trivial": 12,
+    "prose_dropped": 4,
+    "text_fallback": 2,
+    "kept": 8
+   },
+   "n_sections": 19,
+   "n_chunks": 26,
+   "n_tokens": 11161,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     15,
+     19
+    ]
+   },
+   "source_file": "dotFIT Multivitamin & Mineral Formulas Specialty Design Criteria.pdf"
+  },
+  {
+   "file": "Electrolytes.pdf",
+   "stem": "Electrolytes",
+   "slug": "electrolytes",
+   "doc_title": "Electrolytes",
+   "n_pages": 13,
+   "slide_deck": false,
+   "family": "Electrolytes",
+   "part_nos": [
+    1225
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 1,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 14,
+   "n_chunks": 22,
+   "n_tokens": 9948,
+   "status": null,
+   "note": null,
+   "references_excluded": null,
+   "source_file": "Electrolytes.pdf"
+  },
+  {
+   "file": "ExtremeCreatineXXXL.pdf",
+   "stem": "ExtremeCreatineXXXL",
+   "slug": "extremecreatinexxxl",
+   "doc_title": "Creatine Complex",
+   "n_pages": 15,
+   "slide_deck": false,
+   "family": "Creatine Complex",
+   "part_nos": [
+    1207
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 52,
+   "n_chunks": 53,
+   "n_tokens": 9809,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     13,
+     13
+    ]
+   },
+   "source_file": "ExtremeCreatineXXXL.pdf"
+  },
+  {
+   "file": "FirstString.pdf",
+   "stem": "FirstString",
+   "slug": "firststring",
+   "doc_title": "First String",
+   "n_pages": 32,
+   "slide_deck": false,
+   "family": "First String",
+   "part_nos": [
+    1371,
+    1372
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 65,
+    "trivial": 44,
+    "prose_dropped": 20,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 11,
+   "n_chunks": 28,
+   "n_tokens": 16661,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     19,
+     29
+    ]
+   },
+   "source_file": "FirstString.pdf"
+  },
+  {
+   "file": "GlutamineComplex (formerly MuscleDefender).pdf",
+   "stem": "GlutamineComplex (formerly MuscleDefender)",
+   "slug": "glutaminecomplex-formerly-muscledefender",
+   "doc_title": "GlutamineComplex",
+   "n_pages": 24,
+   "slide_deck": false,
+   "family": "GlutamineComplex",
+   "part_nos": [
+    1205
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 22,
+   "n_chunks": 32,
+   "n_tokens": 15600,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     19,
+     19
+    ]
+   },
+   "source_file": "GlutamineComplex (formerly MuscleDefender).pdf"
+  },
+  {
+   "file": "Introduction to Health Products.pdf",
+   "stem": "Introduction to Health Products",
+   "slug": "introduction-to-health-products",
+   "doc_title": "Introduction to Health Products",
+   "n_pages": 7,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "health",
+    "multivitamin"
+   ],
+   "tables": {
+    "raw": 3,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 3
+   },
+   "n_sections": 7,
+   "n_chunks": 8,
+   "n_tokens": 3190,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     4,
+     5
+    ]
+   },
+   "source_file": "Introduction to Health Products.pdf"
+  },
+  {
+   "file": "Introduction to Lifelong Complete Multivitamin & Mineral Supplementation.pdf",
+   "stem": "Introduction to Lifelong Complete Multivitamin & Mineral Supplementation",
+   "slug": "introduction-to-lifelong-complete-multivitamin-mineral-supplementation",
+   "doc_title": "Introduction to Lifelong Complete Multivitamin & Mineral Supplementation",
+   "n_pages": 2,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "multivitamin"
+   ],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 3,
+   "n_chunks": 3,
+   "n_tokens": 1168,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     2,
+     2
+    ]
+   },
+   "source_file": "Introduction to Lifelong Complete Multivitamin & Mineral Supplementation.pdf"
+  },
+  {
+   "file": "Introduction to Performance Products.pdf",
+   "stem": "Introduction to Performance Products",
+   "slug": "introduction-to-performance-products",
+   "doc_title": "Introduction to Performance Products",
+   "n_pages": 4,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "performance"
+   ],
+   "tables": {
+    "raw": 2,
+    "trivial": 1,
+    "prose_dropped": 1,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 2,
+   "n_chunks": 2,
+   "n_tokens": 1019,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     2,
+     2
+    ]
+   },
+   "source_file": "Introduction to Performance Products.pdf"
+  },
+  {
+   "file": "Introduction to Weight Loss Products.pdf",
+   "stem": "Introduction to Weight Loss Products",
+   "slug": "introduction-to-weight-loss-products",
+   "doc_title": "Introduction to Weight Loss Products",
+   "n_pages": 3,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "weight-loss"
+   ],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 1,
+   "n_chunks": 2,
+   "n_tokens": 980,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     2,
+     2
+    ]
+   },
+   "source_file": "Introduction to Weight Loss Products.pdf"
+  },
+  {
+   "file": "Introduction.pdf",
+   "stem": "Introduction",
+   "slug": "introduction",
+   "doc_title": "Introduction",
+   "n_pages": 12,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "company",
+    "supplement-policy"
+   ],
+   "tables": {
+    "raw": 9,
+    "trivial": 3,
+    "prose_dropped": 4,
+    "text_fallback": 0,
+    "kept": 2
+   },
+   "n_sections": 11,
+   "n_chunks": 13,
+   "n_tokens": 5522,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     9,
+     9
+    ]
+   },
+   "source_file": "Introduction.pdf"
+  },
+  {
+   "file": "JointSkinCollagen+.pdf",
+   "stem": "JointSkinCollagen+",
+   "slug": "jointskincollagen",
+   "doc_title": "CollagenComplex",
+   "n_pages": 26,
+   "slide_deck": false,
+   "family": "CollagenComplex",
+   "part_nos": [
+    1003
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 38,
+    "trivial": 22,
+    "prose_dropped": 16,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 28,
+   "n_chunks": 33,
+   "n_tokens": 12658,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     20,
+     20
+    ]
+   },
+   "source_file": "JointSkinCollagen+.pdf"
+  },
+  {
+   "file": "KidsMV.pdf",
+   "stem": "KidsMV",
+   "slug": "kidsmv",
+   "doc_title": "KidsMV",
+   "n_pages": 11,
+   "slide_deck": false,
+   "family": "KidsMV",
+   "part_nos": [],
+   "needs_category": false,
+   "category": "MVM",
+   "topics": [],
+   "tables": {
+    "raw": 7,
+    "trivial": 4,
+    "prose_dropped": 1,
+    "text_fallback": 0,
+    "kept": 2
+   },
+   "n_sections": 7,
+   "n_chunks": 9,
+   "n_tokens": 3796,
+   "status": "discontinued",
+   "note": "discontinued — older kids/teens: Active MV; younger kids: third-party ChildLife Nutrition, Children's Multi Vitamin & Mineral",
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     5,
+     6
+    ]
+   },
+   "source_file": "KidsMV.pdf"
+  },
+  {
+   "file": "LeanMeal (Formerly LeanMR).pdf",
+   "stem": "LeanMeal (Formerly LeanMR)",
+   "slug": "leanmeal-formerly-leanmr",
+   "doc_title": "LeanMeal Nutrition Shake",
+   "n_pages": 34,
+   "slide_deck": false,
+   "family": "LeanMeal Nutrition Shake",
+   "part_nos": [
+    1333,
+    1334
+   ],
+   "needs_category": false,
+   "category": "WeightLoss",
+   "topics": [],
+   "tables": {
+    "raw": 118,
+    "trivial": 74,
+    "prose_dropped": 40,
+    "text_fallback": 0,
+    "kept": 4
+   },
+   "n_sections": 34,
+   "n_chunks": 39,
+   "n_tokens": 14441,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     16,
+     34
+    ]
+   },
+   "source_file": "LeanMeal (Formerly LeanMR).pdf"
+  },
+  {
+   "file": "NO7 Preworkout (formerly NO7 Rage).pdf",
+   "stem": "NO7 Preworkout (formerly NO7 Rage)",
+   "slug": "no7-preworkout-formerly-no7-rage",
+   "doc_title": "NO7 PreWorkout",
+   "n_pages": 45,
+   "slide_deck": false,
+   "family": "NO7 PreWorkout",
+   "part_nos": [
+    1214,
+    1215,
+    1217
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 26,
+    "trivial": 18,
+    "prose_dropped": 8,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 51,
+   "n_chunks": 65,
+   "n_tokens": 25668,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     28,
+     28
+    ]
+   },
+   "source_file": "NO7 Preworkout (formerly NO7 Rage).pdf"
+  },
+  {
+   "file": "Over50MV.pdf",
+   "stem": "Over50MV",
+   "slug": "over50mv",
+   "doc_title": "Over 50 MV",
+   "n_pages": 7,
+   "slide_deck": false,
+   "family": "Over 50 MV",
+   "part_nos": [
+    1009
+   ],
+   "needs_category": false,
+   "category": "MVM",
+   "topics": [],
+   "tables": {
+    "raw": 4,
+    "trivial": 3,
+    "prose_dropped": 1,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 6,
+   "n_chunks": 7,
+   "n_tokens": 2971,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     5,
+     5
+    ]
+   },
+   "source_file": "Over50MV.pdf"
+  },
+  {
+   "file": "Pre&PostWorkoutShake.pdf",
+   "stem": "Pre&PostWorkoutShake",
+   "slug": "pre-postworkoutshake",
+   "doc_title": "Pre & Post Workout Formula",
+   "n_pages": 8,
+   "slide_deck": false,
+   "family": "Pre & Post Workout Formula",
+   "part_nos": [
+    1367,
+    1368
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 20,
+   "n_chunks": 20,
+   "n_tokens": 4459,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     7,
+     7
+    ]
+   },
+   "source_file": "Pre&PostWorkoutShake.pdf"
+  },
+  {
+   "file": "Product Manufacturing & Third Party Testing.pdf",
+   "stem": "Product Manufacturing & Third Party Testing",
+   "slug": "product-manufacturing-third-party-testing",
+   "doc_title": "Product Manufacturing & Third Party Testing",
+   "n_pages": 7,
+   "slide_deck": false,
+   "family": null,
+   "part_nos": [],
+   "needs_category": false,
+   "category": "General",
+   "topics": [
+    "manufacturing",
+    "quality"
+   ],
+   "tables": {
+    "raw": 2,
+    "trivial": 0,
+    "prose_dropped": 2,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 23,
+   "n_chunks": 23,
+   "n_tokens": 4023,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     7,
+     7
+    ]
+   },
+   "source_file": "Product Manufacturing & Third Party Testing.pdf"
+  },
+  {
+   "file": "Recover&Build.pdf",
+   "stem": "Recover&Build",
+   "slug": "recover-build",
+   "doc_title": "Recover & Build",
+   "n_pages": 17,
+   "slide_deck": false,
+   "family": "Recover & Build",
+   "part_nos": [],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 30,
+   "n_chunks": 33,
+   "n_tokens": 10174,
+   "status": "discontinued",
+   "note": "discontinued — replaced by AminoFormula (legacy rename in the alias table)",
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     12,
+     12
+    ]
+   },
+   "source_file": "Recover&Build.pdf"
+  },
+  {
+   "file": "Reformulated with Careflow (2025).pdf",
+   "stem": "Reformulated with Careflow (2025)",
+   "slug": "reformulated-with-careflow-2025",
+   "doc_title": "Creatine Complex",
+   "n_pages": 6,
+   "slide_deck": false,
+   "family": "Creatine Complex",
+   "part_nos": [
+    1207
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 1,
+    "trivial": 1,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 8,
+   "n_chunks": 12,
+   "n_tokens": 4796,
+   "status": null,
+   "note": null,
+   "references_excluded": null,
+   "source_file": "Reformulated with Careflow (2025).pdf"
+  },
+  {
+   "file": "Sleep Aid.pdf",
+   "stem": "Sleep Aid",
+   "slug": "sleep-aid",
+   "doc_title": "SleepAid",
+   "n_pages": 64,
+   "slide_deck": true,
+   "family": "SleepAid",
+   "part_nos": [
+    1048
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 1,
+    "trivial": 1,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 62,
+   "n_chunks": 64,
+   "n_tokens": 24069,
+   "status": null,
+   "note": null,
+   "references_excluded": null,
+   "source_file": "Sleep Aid.pdf"
+  },
+  {
+   "file": "SuperiorAntioxidant.pdf",
+   "stem": "SuperiorAntioxidant",
+   "slug": "superiorantioxidant",
+   "doc_title": "Antioxidant",
+   "n_pages": 33,
+   "slide_deck": false,
+   "family": "Antioxidant",
+   "part_nos": [
+    1000
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 41,
+    "trivial": 24,
+    "prose_dropped": 13,
+    "text_fallback": 0,
+    "kept": 4
+   },
+   "n_sections": 33,
+   "n_chunks": 40,
+   "n_tokens": 18870,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     21,
+     32
+    ]
+   },
+   "source_file": "SuperiorAntioxidant.pdf"
+  },
+  {
+   "file": "SuperOmega-3 Fish Oils.pdf",
+   "stem": "SuperOmega-3 Fish Oils",
+   "slug": "superomega-3-fish-oils",
+   "doc_title": "Omega-3 Fish Oil",
+   "n_pages": 38,
+   "slide_deck": false,
+   "family": "Omega-3 Fish Oil",
+   "part_nos": [
+    1020
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 33,
+    "trivial": 16,
+    "prose_dropped": 12,
+    "text_fallback": 0,
+    "kept": 5
+   },
+   "n_sections": 43,
+   "n_chunks": 52,
+   "n_tokens": 22697,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     23,
+     36
+    ]
+   },
+   "source_file": "SuperOmega-3 Fish Oils.pdf"
+  },
+  {
+   "file": "ThermAccel.pdf",
+   "stem": "ThermAccel",
+   "slug": "thermaccel",
+   "doc_title": "ThermAccel",
+   "n_pages": 31,
+   "slide_deck": false,
+   "family": "ThermAccel",
+   "part_nos": [
+    1102
+   ],
+   "needs_category": false,
+   "category": "WeightLoss",
+   "topics": [],
+   "tables": {
+    "raw": 11,
+    "trivial": 7,
+    "prose_dropped": 4,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 35,
+   "n_chunks": 42,
+   "n_tokens": 16509,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     21,
+     21
+    ]
+   },
+   "source_file": "ThermAccel.pdf"
+  },
+  {
+   "file": "UltraProbiotic.pdf",
+   "stem": "UltraProbiotic",
+   "slug": "ultraprobiotic",
+   "doc_title": "Probiotics",
+   "n_pages": 16,
+   "slide_deck": false,
+   "family": "Probiotics",
+   "part_nos": [
+    1017
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 0,
+    "trivial": 0,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 23,
+   "n_chunks": 25,
+   "n_tokens": 8290,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     10,
+     10
+    ]
+   },
+   "source_file": "UltraProbiotic.pdf"
+  },
+  {
+   "file": "VeganMV.pdf",
+   "stem": "VeganMV",
+   "slug": "veganmv",
+   "doc_title": "VeganMV",
+   "n_pages": 8,
+   "slide_deck": false,
+   "family": "VeganMV",
+   "part_nos": [],
+   "needs_category": false,
+   "category": "MVM",
+   "topics": [],
+   "tables": {
+    "raw": 3,
+    "trivial": 1,
+    "prose_dropped": 2,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 11,
+   "n_chunks": 11,
+   "n_tokens": 3464,
+   "status": "discontinued",
+   "note": "discontinued",
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     6,
+     6
+    ]
+   },
+   "source_file": "VeganMV.pdf"
+  },
+  {
+   "file": "Vitamin D-3.pdf",
+   "stem": "Vitamin D-3",
+   "slug": "vitamin-d-3",
+   "doc_title": "Vitamin D-3",
+   "n_pages": 2,
+   "slide_deck": false,
+   "family": "Vitamin D-3",
+   "part_nos": [
+    1018
+   ],
+   "needs_category": false,
+   "category": "Health",
+   "topics": [],
+   "tables": {
+    "raw": 2,
+    "trivial": 0,
+    "prose_dropped": 2,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 4,
+   "n_chunks": 4,
+   "n_tokens": 902,
+   "status": null,
+   "note": null,
+   "references_excluded": null,
+   "source_file": "Vitamin D-3.pdf"
+  },
+  {
+   "file": "WeightLoss&LiverSupport.pdf",
+   "stem": "WeightLoss&LiverSupport",
+   "slug": "weightloss-liversupport",
+   "doc_title": "WeightLoss & LiverSupport",
+   "n_pages": 30,
+   "slide_deck": false,
+   "family": "WeightLoss & LiverSupport",
+   "part_nos": [
+    1100
+   ],
+   "needs_category": false,
+   "category": "WeightLoss",
+   "topics": [],
+   "tables": {
+    "raw": 65,
+    "trivial": 41,
+    "prose_dropped": 23,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 25,
+   "n_chunks": 32,
+   "n_tokens": 14222,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     17,
+     17
+    ]
+   },
+   "source_file": "WeightLoss&LiverSupport.pdf"
+  },
+  {
+   "file": "WheySmooth.pdf",
+   "stem": "WheySmooth",
+   "slug": "wheysmooth",
+   "doc_title": "WheySmooth",
+   "n_pages": 57,
+   "slide_deck": false,
+   "family": "WheySmooth",
+   "part_nos": [
+    1369,
+    1370,
+    1374,
+    1375,
+    1391,
+    1392,
+    1399
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 144,
+    "trivial": 85,
+    "prose_dropped": 54,
+    "text_fallback": 0,
+    "kept": 5
+   },
+   "n_sections": 56,
+   "n_chunks": 69,
+   "n_tokens": 28636,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     33,
+     55
+    ]
+   },
+   "source_file": "WheySmooth.pdf"
+  },
+  {
+   "file": "Women'sMV.pdf",
+   "stem": "Women'sMV",
+   "slug": "women-smv",
+   "doc_title": "Women's MV",
+   "n_pages": 13,
+   "slide_deck": false,
+   "family": "Women's MV",
+   "part_nos": [
+    1007
+   ],
+   "needs_category": false,
+   "category": "MVM",
+   "topics": [],
+   "tables": {
+    "raw": 6,
+    "trivial": 4,
+    "prose_dropped": 1,
+    "text_fallback": 0,
+    "kept": 1
+   },
+   "n_sections": 9,
+   "n_chunks": 13,
+   "n_tokens": 5980,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     7,
+     9
+    ]
+   },
+   "source_file": "Women'sMV.pdf"
+  },
+  {
+   "file": "WorkoutExtreme.pdf",
+   "stem": "WorkoutExtreme",
+   "slug": "workoutextreme",
+   "doc_title": "Workout Extreme",
+   "n_pages": 27,
+   "slide_deck": false,
+   "family": "Workout Extreme",
+   "part_nos": [
+    1203
+   ],
+   "needs_category": false,
+   "category": "Performance",
+   "topics": [],
+   "tables": {
+    "raw": 2,
+    "trivial": 2,
+    "prose_dropped": 0,
+    "text_fallback": 0,
+    "kept": 0
+   },
+   "n_sections": 30,
+   "n_chunks": 42,
+   "n_tokens": 17910,
+   "status": null,
+   "note": null,
+   "references_excluded": {
+    "n_sections": 1,
+    "pages": [
+     18,
+     18
+    ]
+   },
+   "source_file": "WorkoutExtreme.pdf"
+  }
+ ]
+}

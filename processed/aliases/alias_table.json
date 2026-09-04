@@ -1,0 +1,438 @@
+{
+ "version": "1.2.0",
+ "source": "data/Product Data/products.json",
+ "normalization": "NFKC, casefold, strip non-alphanumeric",
+ "n_products": 56,
+ "n_products_indexed": 51,
+ "n_families": 31,
+ "families": [
+  {
+   "family": "Active MV",
+   "canonical_part_no": 1005,
+   "part_nos": [
+    1005
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Alln1 SuperBlend",
+   "canonical_part_no": 8001,
+   "part_nos": [
+    8001,
+    8016
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "AminoFormula",
+   "canonical_part_no": 1213,
+   "part_nos": [
+    1213,
+    1216,
+    1220
+   ],
+   "n_variants": 3
+  },
+  {
+   "family": "Antioxidant",
+   "canonical_part_no": 1000,
+   "part_nos": [
+    1000
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Brain Health",
+   "canonical_part_no": 1001,
+   "part_nos": [
+    1001
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Calcium Complex",
+   "canonical_part_no": 1004,
+   "part_nos": [
+    1004
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "CarbRepel",
+   "canonical_part_no": 1101,
+   "part_nos": [
+    1101
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "CollagenComplex",
+   "canonical_part_no": 1003,
+   "part_nos": [
+    1003
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Creatine Complex",
+   "canonical_part_no": 1207,
+   "part_nos": [
+    1207
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Creatine Monohydrate",
+   "canonical_part_no": 1200,
+   "part_nos": [
+    1200,
+    1227
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "Digestive Enzymes",
+   "canonical_part_no": 1019,
+   "part_nos": [
+    1019
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Electrolytes",
+   "canonical_part_no": 1225,
+   "part_nos": [
+    1225
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "First String",
+   "canonical_part_no": 1371,
+   "part_nos": [
+    1371,
+    1372
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "GlutamineComplex",
+   "canonical_part_no": 1205,
+   "part_nos": [
+    1205
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "LeanMeal Nutrition Shake",
+   "canonical_part_no": 1333,
+   "part_nos": [
+    1333,
+    1334
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "LeanPak90",
+   "canonical_part_no": 1600,
+   "part_nos": [
+    1600
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "NO7 PreWorkout",
+   "canonical_part_no": 1214,
+   "part_nos": [
+    1214,
+    1215,
+    1217
+   ],
+   "n_variants": 3
+  },
+  {
+   "family": "Omega-3 Fish Oil",
+   "canonical_part_no": 1020,
+   "part_nos": [
+    1020
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Over 50 MV",
+   "canonical_part_no": 1009,
+   "part_nos": [
+    1009
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Plant Protein",
+   "canonical_part_no": 1300,
+   "part_nos": [
+    1300,
+    1301
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "Pre & Post Workout Formula",
+   "canonical_part_no": 1367,
+   "part_nos": [
+    1367,
+    1368
+   ],
+   "n_variants": 2
+  },
+  {
+   "family": "Probiotics",
+   "canonical_part_no": 1017,
+   "part_nos": [
+    1017
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "SleepAid",
+   "canonical_part_no": 1048,
+   "part_nos": [
+    1048
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "ThermAccel",
+   "canonical_part_no": 1102,
+   "part_nos": [
+    1102
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Vanilla dotWAFER",
+   "canonical_part_no": 1466,
+   "part_nos": [
+    1466
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Vitamin D-3",
+   "canonical_part_no": 1018,
+   "part_nos": [
+    1018
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "WeightLoss & LiverSupport",
+   "canonical_part_no": 1100,
+   "part_nos": [
+    1100
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "WheySmooth",
+   "canonical_part_no": 1369,
+   "part_nos": [
+    1369,
+    1370,
+    1374,
+    1375,
+    1391,
+    1392,
+    1399
+   ],
+   "n_variants": 7
+  },
+  {
+   "family": "Women's MV",
+   "canonical_part_no": 1007,
+   "part_nos": [
+    1007
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "Workout Extreme",
+   "canonical_part_no": 1203,
+   "part_nos": [
+    1203
+   ],
+   "n_variants": 1
+  },
+  {
+   "family": "dotBAR",
+   "canonical_part_no": 1456,
+   "part_nos": [
+    1456,
+    1457,
+    1462,
+    1480,
+    1482
+   ],
+   "n_variants": 5
+  }
+ ],
+ "deterministic_aliases": [
+  {
+   "token": "AF",
+   "family": "AminoFormula",
+   "part_nos": [
+    1213,
+    1216,
+    1220
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "FS",
+   "family": "First String",
+   "part_nos": [
+    1371,
+    1372
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "SB",
+   "family": "Alln1 SuperBlend",
+   "part_nos": [
+    8001,
+    8016
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "WLLS",
+   "family": "WeightLoss & LiverSupport",
+   "part_nos": [
+    1100
+   ],
+   "source": "curation session 2026-09-01"
+  }
+ ],
+ "context_only_tokens": {
+  "MVM": "generic 'multivitamin and mineral formula'. MVs are distinct products chosen by audience — resolve contextually: women's health -> Women's MV, age 50+ -> Over 50 MV, general/athlete -> Active MV, kids/youth -> KidsMV is DISCONTINUED (teens: Active MV; younger kids: third-party guidance in the alias table's discontinued section — tag nothing); unclear -> topics=[multivitamin] with NO product tag (never all three part_nos)",
+  "PP": "'protein powders' (generic) vs Pre & Post Workout Formula — dual usage proven in corpus evidence"
+ },
+ "legacy_renames": [
+  {
+   "deprecated": "MuscleDefender",
+   "current_family": "GlutamineComplex",
+   "part_nos": [
+    1205
+   ],
+   "source": "products.json (formerly marker); corpus-attested form"
+  },
+  {
+   "deprecated": "LeanMR",
+   "current_family": "LeanMeal Nutrition Shake",
+   "part_nos": [
+    1333,
+    1334
+   ],
+   "source": "products.json (formerly marker)"
+  },
+  {
+   "deprecated": "NO7 Rage",
+   "current_family": "NO7 PreWorkout",
+   "part_nos": [
+    1214,
+    1215,
+    1217
+   ],
+   "source": "curated (confirmed 2026-09-01)"
+  },
+  {
+   "deprecated": "SuperiorAntioxidant",
+   "current_family": "Antioxidant",
+   "part_nos": [
+    1000
+   ],
+   "source": "support lead (PDSRG dispositions, 2026-09-01): renamed"
+  },
+  {
+   "deprecated": "UltraProbiotic",
+   "current_family": "Probiotics",
+   "part_nos": [
+    1017
+   ],
+   "source": "support lead (PDSRG dispositions, 2026-09-01): renamed"
+  },
+  {
+   "deprecated": "ExtremeCreatineXXXL",
+   "current_family": "Creatine Complex",
+   "part_nos": [
+    1207
+   ],
+   "source": "support lead (PDSRG dispositions, 2026-09-01): renamed"
+  },
+  {
+   "deprecated": "CreatineXXL",
+   "current_family": "Creatine Complex",
+   "part_nos": [
+    1207
+   ],
+   "source": "formerly-marker in the PDSRG title (ExtremeCreatineXXXL (formerly CreatineXXL)); corpus-attested 'creatine XXL' (5 docs) — same rename chain, same target"
+  },
+  {
+   "deprecated": "JointSkinCollagen+",
+   "current_family": "CollagenComplex",
+   "part_nos": [
+    1003
+   ],
+   "source": "support lead (PDSRG dispositions, 2026-09-01): renamed"
+  },
+  {
+   "deprecated": "JointFlexPlus",
+   "current_family": "CollagenComplex",
+   "part_nos": [
+    1003
+   ],
+   "source": "formerly-marker in the PDSRG title (JointSkinCollagen+ (formerly JointFlexPlus)); corpus-attested (4 docs) — same rename chain, same target"
+  },
+  {
+   "deprecated": "AdvancedBrainHealth",
+   "current_family": "Brain Health",
+   "part_nos": [
+    1001
+   ],
+   "source": "support lead (PDSRG dispositions, 2026-09-01): renamed"
+  }
+ ],
+ "replacements": [
+  {
+   "deprecated": "Recover&Build",
+   "successor_family": "AminoFormula",
+   "successor_part_nos": [
+    1213,
+    1216,
+    1220
+   ],
+   "note": "discontinued and replaced by AminoFormula — a DIFFERENT formula. Currency cue and query-side redirect only; never a product tag (its PDSRG chunks tag no part_nos).",
+   "source": "support lead (PDSRG dispositions, 2026-09-01)"
+  }
+ ],
+ "discontinued": [
+  {
+   "name": "KidsMV",
+   "note": "discontinued — older kids/teens: Active MV; younger kids: third-party ChildLife Nutrition, Children's Multi Vitamin & Mineral"
+  },
+  {
+   "name": "VeganMV",
+   "note": "discontinued"
+  }
+ ],
+ "excluded": {
+  "gear": [
+   1611,
+   1612,
+   1630,
+   1631,
+   1646
+  ],
+  "note": "shaker bottles / SportMixer — not indexed as supplement products"
+ }
+}

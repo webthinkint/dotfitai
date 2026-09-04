@@ -1,0 +1,32 @@
+Scientists Find the 'On' Switch for Energy-Burning Brown Fat (medscape.com)
+Scientists Find the 'On' Switch for Energy-Burning Brown Fat
+Courtney Southwick
+October 17, 2023
+
+27
+172
+Add to Email Alerts
+A process your body uses to stay warm in cool weather could one day lead to new therapies for obesity.
+Scientists have, for the first time, mapped the precise nerve pathways that activate brown fat, or brown adipose tissue (BAT), a specialized fat that generates heat. Low temperatures kick brown fat into gear, helping the body keep its temperature and burning calories in the process.
+"It has long been speculated that activating this type of fat may be useful in treating obesity and related metabolic conditions," said Preethi Srikanthan, MD, an endocrinologist and professor of medicine who oversaw the research at the UCLA School of Medicine. "The challenge has been finding a way of selectively stimulating [it]."
+Brown fat is different from the fat typically linked to obesity: the kind that accumulates around the belly, hips, and thighs. That's white fat. White fat stores energy; brown fat burns it. That's because brown fat cells have more mitochondria, a part of the cell that generates energy.
+The challenge has been finding a way of selectively stimulating. Preethi Srikanthan, MD, UCLA
+After dissecting the necks of eight human cadavers, Srikanthan and her team traced the sympathetic nerve branches in the fat pad above the collarbone — where the largest depot of brown fat in adults is stored. They stained the nerves, took samples, and viewed them under a microscope. 
+They found that nerves leading to brown fat traveled from the third and fourth cervical nerves of the spine, nerves that give sensation to parts of the face, head, neck, and shoulders and that help control the diaphragm.
+In a previous case study, damage to these nerves appeared to block a chemical tracer from reaching brown fat. The evidence suggests that changing this nerve supply could alter brown fat activity, potentially leading to new treatments for obesity and metabolic diseases like type 2 diabetes, Srikanthan said.
+A Possible Mechanism for Ozempic?
+Brown fat has already been linked to at least one breakthrough in obesity treatment. Some evidence suggests that popular medications like semaglutide (Ozempic, Wegovy) and tirzepatide (Mounjaro) may affect brown fat activity. These belong to a class of drugs known as glucagon-like peptide-1 (GLP-1) receptor agonists. They work by mimicking the hormone GLP-1, which is released in the gut and brain in response to eating glucose (sugary foods or drinks).
+"GLP-1 agonists have been shown to increase [brown fat] activity in rodents and humans, but likely indirectly, via activation of specific regions in the brain," explained Varman Samuel, MD, PhD, an associate professor of medicine at the Yale School of Medicine, and chief of endocrinology for the VA Connecticut Healthcare System. 
+The scientific literature is divided on this, but there is enough evidence to support further inquiry, Srikanthan said. Her team has begun a study to examine that link.
+Opening the Door to Future Obesity Treatments
+But their discovery means other new treatments could be on the horizon. 
+Previous research had shown that the sympathetic nervous system, which controls your body's stress response, drives brown fat activity. But now that the UCLA scientists have revealed the exact nerves connecting brown fat to the sympathetic nervous system, we could find ways to stimulate those pathways to activate brown fat – without stimulating the many organs (such as the heart and stomach) also connected to this vast network of nerves, Srikanthan said.
+Methods for doing that could include medication, electrical stimulation, or heat therapy, according to the study. 
+Still, there is reason to temper expectations. "[Brown fat] depots, while highly metabolically active, are quite small," Samuel said. "So, the overall contribution to whole-body energy balance in humans will likely be small."
+On the other hand, that prediction doesn't account for what we don't know. 
+"We're learning more about how tissues communicate with each other, beyond the release of hormones or metabolites," Samuel said. Activating brown fat could trigger "signals that help coordinate whole-body energy metabolism." 
+Sources:
+PLOS One: “Sympathetic innervation of the supraclavicular brown adipose tissue: A detailed anatomical study.”
+Preethi Srikanthan, MD, endocrinologist and professor of medicine, David Geffen School of Medicine, University of California, Los Angeles.
+Varman Samuel, MD, PhD, associate professor of medicine, Yale School of Medicine, New Haven, CT; chief of endocrinology, VA Connecticut Healthcare System.
+

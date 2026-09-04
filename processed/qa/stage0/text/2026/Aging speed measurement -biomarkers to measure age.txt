@@ -1,0 +1,69 @@
+5. I think there's a better way to measure aging for a health/fitness program
+For the type of health span/longevity program you're thinking about, I wouldn't rely on one exotic aging test. I'd build a multi-system Aging Score.
+Something like:
+Metabolic
+HbA1c; fasting glucose; fasting insulin/HOMA-IR; triglycerides; HDL; ApoB
+Homeostatic Model Assessment for Insulin Resistance 
+Inflammation
+hs-CRP 
+Organ health
+eGFR/creatinine; ALT/AST/GGT; albumin 
+Cardiovascular
+resting BP; resting HR; potentially pulse-wave velocity; coronary calcium when clinically appropriate 
+Body composition
+visceral fat; waist circumference; body-fat %; appendicular lean mass 
+Physical capacity
+VO₂max ; grip strength; lower-body strength; gait speed; balance 
+Lifestyle/recovery
+sleep duration/quality; physical activity; cardiorespiratory fitness 
+And then potentially add: DunedinPACE or GrimAge as an interesting molecular layer—not as the final verdict.
+That approach is also consistent with the direction aging researchers are moving: aging is multi-system, so composite biomarkers are likely more informative than one clock. 
+The practical takeaway
+If you told me I had to choose between:
+A) a $400 epigenetic test saying I'm biologically 58 instead of 65
+or
+B) knowing my VO₂max, strength, visceral fat, blood pressure, ApoB, HbA1c, insulin sensitivity, CRP, kidney/liver function and muscle mass,
+I'd take B without hesitation.
+Then I would consider adding Dunedin PACE to B if the goal were to quantify whether a comprehensive longevity intervention appears to be slowing the underlying aging trajectory.
+And there is an interesting opportunity here for your Playspan/health-and-performance concept: you could establish a relatively inexpensive “Pace of Aging Score” combining routine labs + body composition + cardiovascular fitness + strength/function and track it every 6–12 months. That would arguably be more useful to a trainer/client than telling someone their theoretical biological age.
+Miscellaneous information on speed of aging
+Yes. “Speed of aging” can be measured to a degree, and the science is legitimate—but no current test can tell an individual with clinical precision, “you are aging at exactly 0.82× normal.” The field is much better at identifying whether someone appears to be aging faster or slower than peers and predicting future morbidity/mortality risk.
+The important distinction is between biological age and pace of aging.
+1. Biological age vs. speed of aging
+Biological age asks:
+“Compared with an average person, how old does this person's biology look?”
+So a 65-year-old might have a calculated biological age of 57.
+Pace of aging asks a somewhat better question:
+“How rapidly is this person's physiology deteriorating right now?”
+A pace score might theoretically indicate something like 0.85 biological years per chronological year, versus 1.0 being the population reference. DunedinPACE was specifically developed to estimate this type of rate rather than simply produce an “age.” 
+2. What biomarkers are actually used?
+There are several approaches, and I would divide them into four categories.
+| Category | Examples | What it reflects | My view |
+| DNA methylation | DunedinPACE, GrimAge, PhenoAge, Horvath | Epigenetic changes associated with aging/disease/mortality | ★★★★☆ |
+| Routine blood chemistry | glucose, HbA1c, CRP, albumin, creatinine, ALP, WBC/lymphocytes | Metabolic, inflammatory and organ-system aging | ★★★★☆ |
+| Physical function | VO₂max, grip strength, gait speed, muscle mass, strength | Actual functional aging | ★★★★★ |
+| Other molecular markers | proteomics, metabolomics, telomeres, glycan profiles | Different aspects of cellular aging | ★★★☆☆ / emerging |
+One well-known clinical-style calculation is Phenotypic Age (PhenoAge). It combines chronological age with routine biomarkers such as albumin, creatinine, glucose, CRP, alkaline phosphatase and several blood-cell measures. These kinds of physiological algorithms have been associated with disease and mortality risk. 
+3. Epigenetic clocks are probably what you're hearing about
+These measure DNA methylation, chemical modifications occurring at specific CpG sites in DNA.
+There have been several generations:
+First generation
+Horvath Clock / Hannum Clock
+→ primarily designed to predict chronological age.
+Second generation
+PhenoAge / GrimAge
+→ designed more around health outcomes and mortality.
+Third generation
+DunedinPACE
+→ specifically attempts to measure the rate at which someone is aging.
+The newer clocks tend to be considerably more interesting for longevity research than simply asking whether DNA thinks you're 61 instead of 65. NIA reports that newer second- and third-generation measures are associated with functional limitations, cognitive impairment, chronic disease and mortality. 
+4. Is it legit?
+At the population/research level: absolutely.
+There is strong evidence that people showing accelerated biological aging on these measures tend to have worse health outcomes. Epigenetic measures can predict disease, disability and mortality beyond chronological age alone. 
+But there is an important caveat.
+At the individual level: we're not quite there yet.
+A major recent critique concluded that current epigenetic clocks do not yet meet normal standards for individual clinical decision-making. Different clocks can give different answers; results can be influenced by tissue, laboratory processing, illness, stress and other short-term factors. A change of a year or two in “biological age” after an intervention may even fall within technical/biological noise. 
+That's a very important distinction when companies advertise things such as:
+“Your biological age was 67. After taking our supplement for six months, you're now 59.”
+I would be very skeptical of that level of precision.
+See #5 at top of document for best measurements 

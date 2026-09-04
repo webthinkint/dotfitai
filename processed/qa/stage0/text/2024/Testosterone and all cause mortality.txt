@@ -1,0 +1,35 @@
+ 
+Reviews
+14 May 2024
+Associations of Testosterone and Related Hormones With All-Cause and Cardiovascular Mortality and Incident Cardiovascular Disease in Men: Individual Participant Data Meta-analyses
+Authors: Bu B. Yeap, MBBS, PhD https://orcid.org/[CARD], Ross J. Marriott, PhD https://orcid.org/[CARD], Girish Dwivedi, MD, PhD https://orcid.org/0000-0003-0717-740X, Robert J. Adams, MBBS, MD https://orcid.org/[CARD], Leen Antonio, MD, PhD https://orcid.org/[CARD], Christie M. Ballantyne, MD, Douglas C. Bauer, MD https://orcid.org/[CARD], … SHOW ALL …, and Kevin Murray, PhD https://orcid.org/0000-0002-8856-6046AUTHOR, ARTICLE, & DISCLOSURE INFORMATION
+Publication: Annals of Internal Medicine
+https://doi.org/10.7326/M23-2781
+Eligible for CME Point-of-Care
+GET ACCESS
+
+Abstract
+Supplemental Material
+References
+
+Information & Authors
+Metrics & Citations
+Get Access
+References
+Media
+Tables
+Share
+Abstract
+Background:
+Whether circulating sex hormones modulate mortality and cardiovascular disease (CVD) risk in aging men is controversial.
+Purpose:
+To clarify associations of sex hormones with these outcomes.
+Data Sources:
+Systematic literature review to July 2019, with bridge searches to March 2024.
+Study Selection:
+Prospective cohort studies of community-dwelling men with sex steroids measured using mass spectrometry and at least 5 years of follow-up.
+Data Extraction:
+Independent variables were testosterone, sex hormone–binding globulin (SHBG), luteinizing hormone (LH), dihydrotestosterone (DHT), and estradiol concentrations. Primary outcomes were all-cause mortality, CVD death, and incident CVD events. Covariates included age, body mass index, marital status, alcohol consumption, smoking, physical activity, hypertension, diabetes, creatinine concentration, ratio of total to high-density lipoprotein cholesterol, and lipid medication use.
+Data Synthesis:
+Nine studies provided individual participant data (IPD) (255 830 participant-years). Eleven studies provided summary estimates (n = 24 109). Two-stage random-effects IPD meta-analyses found that men with baseline testosterone concentrations below 7.4 nmol/L (<213 ng/dL), LH concentrations above 10 IU/L, or estradiol concentrations below 5.1 pmol/L had higher all-cause mortality, and those with testosterone concentrations below 5.3 nmol/L (<153 ng/dL) had higher CVD mortality risk. Lower SHBG concentration was associated with lower all-cause mortality (median for quintile 1 [Q1] vs. Q5, 20.6 vs. 68.3 nmol/L; adjusted hazard ratio [HR], 0.85 [95% CI, 0.77 to 0.95]) and lower CVD mortality (adjusted HR, 0.81 [CI, 0.65 to 1.00]). Men with lower baseline DHT concentrations had higher risk for all-cause mortality (median for Q1 vs. Q5, 0.69 vs. 2.45 nmol/L; adjusted HR, 1.19 [CI, 1.08 to 1.30]) and CVD mortality (adjusted HR, 1.29 [CI, 1.03 to 1.61]), and risk also increased with DHT concentrations above 2.45 nmol/L. Men with DHT concentrations below 0.59 nmol/L had increased risk for incident CVD events.
+

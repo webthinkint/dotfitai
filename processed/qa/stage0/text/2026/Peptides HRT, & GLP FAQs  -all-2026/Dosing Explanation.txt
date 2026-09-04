@@ -1,0 +1,59 @@
+Dosing Explanation
+
+|  |
+| I want to clear up one of the most common points of confusion in the whole peptide space. |
+| It trips up beginners and people who have been at this for years. |
+| Hopefully, once it clicks, you'll never look at your syringe the same way. |
+| I get a version of this question almost every week. And unfortunately, I can't answer it. |
+|  |
+| Well, even if I wanted to, I can’t answer this question. |
+| Why? Because that sentence tells me almost nothing. |
+| I’m probably as guilty as anyone for this gap in the marketplace, because when I created the peptide cheat sheet years ago, it gave people a way to introduce peptides without having to understand concrete math (BTW, you can download the most up-to-date version of the cheat sheet here). |
+| And today, I want to do my best, in writing, to explain how to always frame your communication about peptide dosages correctly. |
+| Let's get into it. |
+|  |
+| Unit Does Not = Dose |
+| A unit is a measure of liquid, not a measure of peptide. |
+| Your insulin syringe is marked in units because that is how it reads off volume. |
+| The standard syringe holds 100 units per milliliter. |
+| So, 10 units is one-tenth of a milliliter of liquid. That's all the number means. |
+| The syringe has no idea what is dissolved in that liquid. |
+| It could be a tiny dose. It could be a huge one. The syringe can't tell, and neither can I, just from the unit number. |
+|  |
+| Don’t Skip This |
+| So, what decides the actual dose? It’s how much water you put in the vial. |
+| The amount of bacteriostatic water you use to mix your peptide completely changes the amount of peptide per unit. |
+| Let me show you with real numbers. |
+| Say you have a 10mg vial of Retatrutide. |
+| You add 2ml of bacteriostatic water to it. |
+| That gives you 5mg per ml. Written another way, that's 5000mcg per ml. |
+| Your syringe holds 100 units per ml. Divide it out, and each unit carries 50 mcg. |
+| Pull 10 units, and you just dosed 500 mcg or 0.5 mg. |
+| Now here's where it gets interesting. |
+| Take that exact same 10mg vial. This time, mix it with only 1ml of water. |
+| Now you have 10mg per ml. Each unit contains 100 mcg instead of 50 mcg. |
+| The same 10 units now deliver 1mg. |
+| Same vial. Same 10 units on the syringe. DOUBLE the dose. |
+| That's why "10 units" means nothing on its own. Without the reconstitution ratio, you have no idea what you took. |
+|  |
+| The Math |
+| Concentration equals the mg in your vial divided by the ml of water you added. |
+| Dose per unit equals that concentration divided by 100. |
+| That's it. Run those two lines on any vial and you'll always know exactly what one unit is worth. |
+| So, if a 10mg vial gets 2ml of water, that's 5mg per ml, and 0.05mg per unit. 50mcg. Want 250mcg? That's 5 units. |
+| Once you think this way, you stop asking how many units to take. You start by asking how many mcg or mg you're after, then do the quick math to get there. |
+| Different vials, different water volumes, and different goals all change the answer. |
+| Always confirm the mg in your specific vial before you mix, since a 5mg and a 10mg vial look identical once they're reconstituted. |
+| And if you're ever unsure, mix with a clean, round number like 2 ML. It makes the math easy and keeps you from guessing. |
+| Here’s a visual guide to help understand. |
+|  |
+|  |
+| Final Thoughts |
+| The unit number on your syringe is a volume readout. Nothing more. |
+| The people who get into trouble are the ones treating it like a dose. They copy "10 units" from someone else's recommendation without realizing the person used a different vial size or a different amount of water. |
+| Same number on the syringe, completely different reality in the body. |
+| Learn to think in mg and mcg. |
+| Let the units be what they are, a way to measure the liquid. Do that, and you'll always know what you're putting in your body. |
+|  |
+
+

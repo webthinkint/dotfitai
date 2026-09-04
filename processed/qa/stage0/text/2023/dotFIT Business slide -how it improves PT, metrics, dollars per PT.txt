@@ -1,0 +1,17 @@
+Hi [CUSTOMER],
+This is from the Bain study:
+
+
+From: [EMAIL]
+Sent: Wednesday, January 4, 2023 7:07 PM
+To: Experts <[EMAIL]>
+Subject: Contact Us
+
+
+ 
+Name: [CUSTOMER]
+Email: [EMAIL]
+Phone: [PHONE]
+Message: Hey guys, do you have any stats on the percentage of client retention when a nutrition program is implemented vs just personal training (exercise) alone? If so that would be amazing, thanks! 
+ 
+

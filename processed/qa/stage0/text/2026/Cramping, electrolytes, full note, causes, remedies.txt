@@ -1,0 +1,158 @@
+From: [CUSTOMER]
+Email: [EMAIL]
+Category: N/A
+Question: Neal! I live in Maryland so obviously we have hot/humid summers. That being said, Iv been cramping a lot during my CrossFit workouts, sharp abdominal contractions which usually lead to me ending my workouts. I’m assuming this is nutrition related? Any suggestions on how to prevent this?
+
+Hi [NAME],
+Current scientific consensus is that most muscle cramps during exercise are primarily a neuromuscular fatigue problem, with dehydration and electrolyte losses acting as contributing factors in susceptible individuals rather than the sole cause. Therefore, your cramping may be nutrition/fluid/electrolyte related. If you are following proper hydration and diet guidelines for your activity, including supplementing with electrolytes as needed, and still cramping, it may be something else such as simply neuromuscular fatigue. Mindful that low carb diets are often associated with cramping because of low hydration and electrolytes. See below for proper fluid/electrolyte guidelines for specific situations along with a couple of slides from our Practitioner lectures that may be helpful.
+All said, the Bottom line:
+Based on the best available evidence, exercise-induced muscle cramps are best viewed as a problem of fatigued muscle and altered neuromuscular control, with again, dehydration and electrolyte loss serving as important contributors rather than the sole cause. For athletes and highly active individuals, the most effective long-term prevention strategy is to reduce muscle fatigue through appropriate conditioning, strength training, adequate carbohydrate and protein intake, recovery, and individualized fluid and sodium replacement. Hydration and electrolytes matter, but they work best as part of a comprehensive fatigue-management strategy rather than as stand-alone solutions.
+
+Basic Fluid Recommendations* 
+16 oz 2Hr before activity (extra 8-16 oz 1hr before on hot days)
+4-8 oz every 20 minutes during activity
+20 oz for every pound of weight loss post-activity
+*If necessary (extended training sessions) use electrolyte formula and water as directed; may mix with AminoFormula
+
+
+The Current Understanding
+1. Neuromuscular fatigue (Primary Cause)
+This is now considered the leading explanation for most exercise-induced cramps.
+When a muscle becomes fatigued:
+Muscle spindle activity (which stimulates contraction) increases. 
+Golgi tendon organ activity (which normally inhibits excessive contraction) decreases. 
+The balance shifts toward excessive excitation of the motor neuron. 
+The motor neuron begins firing repeatedly, producing a sustained involuntary contraction (cramp). 
+This explains why cramps:
+Almost always occur in muscles working hardest. 
+Frequently happen late in exercise. 
+Resolve when the muscle is stretched (stretching restores inhibitory signaling). 
+Examples:
+Calves during running 
+Hamstrings during sprinting 
+Quadriceps during cycling 
+Forearms during gripping sports 
+
+2. Electrolyte losses (Important in some people)
+Sweat contains:
+Sodium (largest loss) 
+Chloride 
+Small amounts of potassium 
+Very small amounts of magnesium 
+Trace calcium 
+Heavy "salty sweaters" may lose:
+2–6 grams sodium/hour 
+occasionally much more 
+If sodium losses are not replaced during prolonged exercise (>2 hours), nerve excitability may increase, making fatigue-induced cramps more likely.
+Electrolytes are therefore a risk modifier, not necessarily the root cause.
+
+3. Dehydration
+Loss of body water:
+decreases blood volume 
+increases body temperature 
+accelerates fatigue 
+Again, dehydration mainly increases fatigue, which then predisposes to cramping.
+Mild dehydration alone usually does not directly cause cramps.
+
+Other Factors that Increase Risk
+Poor conditioning 
+Sudden increase in training volume 
+Exercise at higher intensity than usual 
+Hot environments 
+Previous history of cramps 
+Older age 
+Inadequate recovery 
+Muscle damage 
+
+Beyond Hydration and Electrolytes: What Actually Helps?
+1. Improve muscular endurance (Probably the most effective prevention)
+Condition the muscles to tolerate the workload.
+Research consistently shows that athletes who cramp often are frequently:
+under-conditioned for the event 
+racing harder than trained for 
+
+2. Progressive overload
+Avoid sudden jumps in:
+mileage 
+weight 
+intensity 
+duration 
+
+3. Strength training
+Stronger muscles fatigue later.
+This delays the neuromuscular changes that lead to cramping.
+
+4. Stretching susceptible muscles
+Regular stretching:
+calves 
+hamstrings 
+quadriceps 
+hip flexors 
+appears helpful for athletes who repeatedly cramp.
+Stretching during a cramp remains one of the fastest ways to stop it.
+
+5. Maintain carbohydrate availability
+Low muscle glycogen:
+increases fatigue 
+alters motor neuron firing 
+increases cramp risk 
+During prolonged activity (>90–120 minutes):
+30–60 g carbohydrate/hour 
+up to 90 g/hour for endurance athletes 
+can reduce fatigue-related cramping.
+
+6. Adequate protein intake
+Protein doesn't directly prevent cramps, but it supports:
+muscle repair 
+recovery 
+resistance to fatigue 
+For active individuals:
+~1.2–2.0 g/kg/day depending on training goals 
+
+7. Heat acclimatization
+As athletes adapt to heat:
+sweat becomes more efficient 
+sodium losses decline 
+fatigue decreases 
+Cramp frequency often decreases after 1–2 weeks of acclimatization.
+
+8. Pickle juice (Interesting evidence)
+Studies show:
+Pickle juice works too quickly (often within 1–2 minutes) for its sodium to reach the bloodstream. 
+Current theory:
+The strong acidic/sour stimulus activates receptors in the mouth and throat. 
+These receptors send signals to the central nervous system that reduce overactive motor neuron firing. 
+Small amounts (about 1–2 oz or 30–60 mL) can shorten an active cramp.
+Similar effects have been observed with:
+mustard 
+spicy compounds (capsaicin) 
+specially formulated TRP (transient receptor potential) agonist products 
+These help stop cramps but are less well established for preventing them.
+
+9. Magnesium
+Despite its popularity:
+Evidence in healthy athletes is generally poor.
+Magnesium supplementation appears beneficial mainly when there is an actual deficiency or in certain groups (such as some older adults or during pregnancy).
+Routine magnesium supplementation has not consistently prevented exercise-associated cramps.
+
+10. Sleep and recovery
+Insufficient sleep:
+increases fatigue 
+reduces neuromuscular control 
+may increase cramp susceptibility 
+Recovery remains an often overlooked component of prevention.
+
+Practical Prevention Strategy
+For most active people, the following combination offers the best evidence-based approach:
+Begin exercise well hydrated. 
+Replace sodium during prolonged or heavy sweating, especially if you're a salty sweater. 
+Match training to the demands of the activity with progressive conditioning. 
+Build muscular strength and endurance. 
+Consume adequate carbohydrate during long-duration exercise to delay fatigue. 
+Eat sufficient daily protein to support recovery. 
+Stretch muscle groups that are prone to cramping. 
+Allow adequate recovery and sleep. 
+For recurrent cramps despite the above, consider carrying a small amount of pickle juice or a TRP-agonist product for rapid relief during activity. 
+Bottom line
+Based on the best available evidence, exercise-induced muscle cramps are best viewed as a problem of fatigued muscle and altered neuromuscular control, with dehydration and electrolyte loss serving as important contributors rather than the sole cause. For athletes and highly active individuals, the most effective long-term prevention strategy is to reduce muscle fatigue through appropriate conditioning, strength training, adequate carbohydrate and protein intake, recovery, and individualized fluid and sodium replacement. Hydration and electrolytes matter, but they work best as part of a comprehensive fatigue-management strategy rather than as stand-alone solutions.
+

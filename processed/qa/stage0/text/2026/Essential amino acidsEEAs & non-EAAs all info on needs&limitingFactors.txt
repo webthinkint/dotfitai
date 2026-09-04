@@ -1,0 +1,82 @@
+we know that non-essential amino acids can be made from the essential amino acids but 2 questions. 1, can some non-essential amino acids be made from other substrate in the body and 2, when can the ingestion of the total daily amount of non-essential amino acids become a limiting factor in growth and recovery -i.e., could a human live and grow on just the essential amino acids and enough total caloric intake
+Yes — many non-essential amino acids (NEAAs) can absolutely be synthesized from substrates other than essential amino acids (EAAs). 
+The body commonly makes NEAAs from:
+glucose intermediates, 
+Krebs/TCA cycle intermediates, 
+ammonia/nitrogen transfer, 
+fatty acid metabolism indirectly, 
+and recycled amino groups from other amino acids. 
+Examples:
+Pyruvate → alanine 
+Oxaloacetate → aspartate 
+α-ketoglutarate → glutamate 
+Glutamate → glutamine, proline, arginine 
+Serine can be made from glycolytic intermediates 
+Glycine can be made from serine 
+So the body is constantly interconverting carbon skeletons and nitrogen donors to manufacture NEAAs as needed.
+That is why they are termed “non-essential” — not because they are unimportant, but because the body usually has the metabolic machinery to synthesize them.
+However, there is a critical nuance:
+Some “non-essential” amino acids become conditionally essential during:
+rapid growth, 
+severe stress, 
+illness, 
+trauma, 
+intense training, 
+burns, 
+aging, 
+or recovery states. 
+This is especially true for:
+glutamine, 
+arginine, 
+glycine, 
+cysteine, 
+tyrosine, 
+and sometimes proline. 
+
+Yes — there absolutely comes a point where inadequate total NEAA availability can limit growth, recovery, and tissue synthesis, even if EAA intake is sufficient. 
+This is one of the most misunderstood concepts in protein metabolism.
+EAAs are the trigger and regulatory signal for muscle protein synthesis — especially leucine.
+But NEAAs still make up a huge percentage of actual tissue protein structure.
+For example:
+collagen is heavily dependent on glycine, proline, hydroxyproline, 
+glutamine is heavily used by immune cells and gut tissue, 
+alanine and glutamate are major nitrogen carriers, 
+glycine demand may exceed endogenous production in high-growth states. 
+So while EAAs initiate anabolic signaling, the body still requires sufficient total nitrogen and substrate availability to complete actual tissue construction.
+A useful analogy:
+EAAs are like the “foremen and permits” that authorize building construction. 
+NEAAs are still much of the “concrete, steel, drywall, and wiring.” 
+You can’t build a skyscraper with only foremen.
+
+Could a human live and grow on only EAAs plus calories?
+Theoretically:
+A human might survive for a period if supplied all EAAs, calories, vitamins, minerals, fats, and carbohydrates. 
+The body could synthesize many NEAAs. 
+But in reality:
+optimal growth, 
+muscle hypertrophy, 
+connective tissue repair, 
+immune function, 
+recovery, 
+and long-term health 
+would likely become impaired because endogenous synthesis capacity is not unlimited.
+Research and clinical nutrition both show:
+nitrogen balance, 
+recovery, 
+wound healing, 
+and lean mass retention 
+are generally superior when adequate total intact protein or balanced amino acid mixtures are consumed versus EAAs alone.
+This is why:
+whey protein, 
+milk proteins, 
+meat, 
+eggs, 
+and balanced complete proteins 
+consistently outperform isolated EAAs alone for long-term tissue support.
+Even though EAAs are the indispensable amino acids, the body still benefits enormously from dietary NEAAs because:
+it reduces the metabolic burden of synthesizing them, 
+it provides nitrogen economy, 
+and it supports tissues with unusually high demand for specific NEAAs. 
+The modern view is really:
+EAAs are indispensable for initiating and permitting growth, but adequate total amino acid availability — including NEAAs — is necessary to sustain maximal growth, repair, recovery, and physiological resilience.
+

@@ -1,0 +1,11 @@
+Bempedoic acid 180 mg lowers cholesterol by inhibiting the enzyme ATP citrate lyase (ACL) in the liver, which is a key enzyme in cholesterol synthesis. This inhibition reduces the availability of acetyl-CoA, a building block for cholesterol and fatty acids. As a result, cholesterol production decreases, and the liver upregulates LDL receptors, increasing the removal of LDL cholesterol from the blood. 
+Detailed mechanism of action
+Prodrug activation: Bempedoic acid is a prodrug that requires activation into its active form in the liver via the enzyme very-long-chain acyl-CoA synthetase 1 (ACSVL1).
+Inhibition of ACL: The active form inhibits ATP citrate lyase (ACL). ACL is located upstream of HMG-CoA reductase (the target of statins) in the cholesterol synthesis pathway.
+Reduced cholesterol synthesis: By blocking ACL, bempedoic acid reduces the conversion of citrate to acetyl-CoA in the cytoplasm. This directly decreases the supply of acetyl-CoA, a crucial precursor for the synthesis of both cholesterol and fatty acids in the liver.
+Upregulation of LDL receptors: The reduction in liver cholesterol synthesis leads to an increase in LDL receptors on the surface of liver cells (hepatocytes).
+Lowered LDL-C: The increased number of LDL receptors allows more LDL particles to be taken up from the blood, resulting in lower circulating LDL cholesterol levels.
+AMPK activation: Bempedoic acid also activates AMP-activated protein kinase (AMPK), which further downregulates key enzymes in cholesterol and fatty acid synthesis. 
+
+
+

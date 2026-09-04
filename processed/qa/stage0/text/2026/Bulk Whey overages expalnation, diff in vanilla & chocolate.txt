@@ -1,0 +1,21 @@
+Question: UFC is inquiring about the difference in serving sizes for the BULK. They asked if they both weigh the same, why are the servings different between the chocolate and vanilla?
+Summary:
+The serving counts differ because chocolate and vanilla have slightly different serving weights, and the manufacturer rounds fill weights to ensure customers receive at least the labeled amount. As a result, serving counts are approximate, and both products typically contain as much or more product than advertised.
+Option 2
+Although both bulk bags are sold as 25 lb products, the published serving counts are estimates based on flavor-specific serving sizes and manufacturing fill tolerances. Because chocolate has a slightly larger serving size (42 g vs. 41 g for vanilla) and the actual fill weights are rounded to ensure customers receive at least the stated amount, serving counts can differ between flavors—and in practice, customers often receive slightly more product than the labeled minimum.
+
+Original data
+From me:
+The general answer is that chocolate protein will often weigh slightly more than vanilla with equal servings because of the chocolate added co-factors but not always and certainly not that big a difference, even if it is 25 lbs. versus a single tub -but let’s check with the manufacturer.
+From the manufacturer:
+Chocolate typically has a high serving size due to cocoa powder, but the bulk weight might be the same due to bulk density. Additionally, there might be a serving that rounds up or down due to the bulk fill weight.
+From me:
+We need something clearer than that because I tried that, and the math doesn’t pan out with a flat 25LBS, which is 11,339.8grams. The chocolate serving is only 1gm bigger than the vanilla, meaning the discrepancy in 25LBS would be no more than a few servings, not 18 servings. If you do the math on 25LBS of chocolate with 284 servings and 42gm/serving it comes to 11,928 grams, which is ~26.2LBS. The vanilla 25LBS bulk with 302 servings at 41gms serving  would then weigh ~27.2LBS (12,382gms). So basically we can tell everyone that the manufacture rounds up the bulk to cover all bases in servings in the 25LBS containers, and sometimes one is heavier but all in range, and in both cases more servings that a true 25LBS of either product, which is why it says “about 302 servings”. i.e., you are getting more than what you paid for in either scenario. 
+Ask Logan if it is ok to say all this (also summary below). Our customers are very smart so I have to know we are correct with this explanation. 
+ Moral of the story -you are getting more in each because they round up and the servings are then published.
+284 servings of chocolate at 42gms/serving =11,928gms or 26.29LBS.
+302 servings of vanilla at 41gms/serving= 12,382gms or 27.2LBS
+Going off a pure 25LBS (no rounding), below would be the equation. Therefore the rounding up favors the customer since there are more servings in both (284 and 302 in current batch) – also explains why chocolate will be less in servings.
+11,339.8 ÷42gm/svg=269svgs chocolate; 11,339.8 ÷41gm/svg=276svgs vanilla
+From the manufacturer/logan:
+Yes, we are aligned with Neal’s answer

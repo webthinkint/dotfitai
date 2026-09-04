@@ -1,0 +1,104 @@
+Methylated vitamins
+Takeaway:
+All the vitamins our PTs deliver, including in the SB, are properly prepared for maximum absorption/cellular function and contain the 2 methylated vitamins that can be (folate & B12).
+More Info
+Methylated vitamin statements are very misleading and wholly untrue. It is based on 2 vitamins that are methylated or can be methylated, not that they necessarily should be. Generally, due to the spreading influencer misinformation, many supplement marketers misuse the term “methylated multivitamin,” What they actually mean:
+Contains 5-MTHF instead of folic acid
+Contains methylcobalamin instead of cyanocobalamin
+It does NOT mean all B vitamins (or A, D, E, K) are methylated — because chemically that is impossible.
+I beat the shit out of the influencer’s comments about this topic. Folic acid (synthetic folate) is actually the only form approved for claims of prevention, especially during pregnancy. Although, we play the marketing game and use the only 2-methylated forms of vitamins (folate and B12) available that can be methylated (folate as calcium L-5-methyltetrahydrofolate and B12 as methyl cobalamin). If the others could be methylated, they would be basically worthless*. Just influencers taking a science topic analogous to what they have done with seed oils, and unknowingly (or not) twisting or misrepresenting the science so it generates revenues. (See Q&As). You cannot methylate most vitamins-period!
+Your business solution: All complete MVM formulas and Alln1 SuperBlend™ have the VMs prepared in forms the body can use. They all are in a pre-formed structure to allow the body to not just absorb them (optimal bioavailability) but also allows proper “functional absorption” (active at the target tissue*), which is better than just bioavailable absorption. All our labels have the forms listed.
+* Ex: Vitamin B6 does not undergo methylation to become active, unlike folate and B12. Instead, it is converted into its active coenzyme form, pyridoxal-5-phosphate (P5P or PLP).
+
+Q: Is the SuperBlend methylated? Thank you in advance! Respectfully, Kendra Ferguson
+A: Thanks for contacting us. There is a lot of junk science regarding methylated vitamin forms, so we seem to be getting this question often. See below for your answer and be mindful that Only B9 (folate) and B12 are available in the market in their methylated forms and the body will convert forms as needed depending on the destination regardless of origin as long as you have enough. The Alln1 SuperBlend (and dotFIT MVMs) uses both B9/Folate (calcium L-5-methyltetrahydrofolate) and B12 (methyl cobalamin) in the methylated forms as do our multivitamin and mineral formulas (MVM). 
+
+Q: Are all your vitamins methylated vitamins? How would I be able to tell?
+A: Your question is vague, in the fact that not all vitamins should contain a methyl group to be effective (actually it is a problem for some). What you want in any vitamin, is an absorbable form (i.e., a form that is already prepared as the body would prepare it once extracted from a food source). All our vitamins (and minerals) are in a pre-formed structure to allow the body proper “functional absorption” (active at the target tissue*), which is better than bioavailable absorption. All our labels have the form listed. Do not be fooled that all vitamins need a methyl group to be effective. In all our products, if it needs a methyl group, it will be part of it and listed on the label such as B12 or Folate in our Alln1 SuperBlendTM and MVMs. If you would like to talk to a chemist further, we will connect you with our pharmacist/chemist for the facts here.
+Many supplement marketers misuse the term “methylated multivitamin,” generally due to the influencer misinformation.
+What they usually mean is:
+Contains 5-MTHF instead of folic acid
+Contains methylcobalamin instead of cyanocobalamin
+It does NOT mean all B vitamins (or A,D,E,K) are methylated — because chemically that is impossible
+
+
+
+Vitamin B6 does not typically undergo methylation to become active, unlike folate and B12. Instead, it is converted into its active coenzyme form, pyridoxal-5-phosphate (P5P or PLP). However, B6 is a critical cofactor that supports the methylation cycle and is necessary for producing the methyl donor SAMe. 
+Key Details on Vitamin B6 and Methylation:
+Active Form: While not "methylated" (e.g., methyl-cobalamin), the active, bioavailable form of Vitamin B6 is pyridoxal 5'-phosphate (P5P), often found in high-quality methylated B-complex supplements.
+Role in Methylation: Vitamin B6 (as P5P) is essential for the conversion of homocysteine into cysteine via the cystathionine beta-synthase (CBS) enzyme.
+Supports Methylation Cycle: It is required for the proper functioning of the entire one-carbon metabolism (methylation) pathway. 
+While you cannot typically buy "methyl-B6," ensuring you consume the active form, P5P, helps bypass enzymatic conversion issues
+
+https://www.cspi.org/article/folic-acid-best-choice-healthy-pregnancy. You would think I wrote this😊-it scientifically supports everything I said and rails on the nutrition influencers saying formulating with 5-MTHF is better than folic acid – as it is not true.
+Conclusion from the review: Ignore the hype. Don’t worry about MTHFR gene variants. There is no reason to spend more money on a prenatal MVM (or any MVM) with 5-MTHF. And don’t be swayed by companies or influencers pushing folate supplements. Folic acid is safe, and it’s the only form of folate that has been shown to prevent neural tube birth defects. 
+
+Some prenatal vitamins claim that people with an MTHFR variant need to take a vitamin that contains a version of folate called L-methylfolate, or 5-MTHF. Why? Folic acid has to undergo conversion before becoming the active form that the body can use, whereas 5-MTHF doesn’t require conversion. Sounds important. But it doesn’t matter. People with the variant can still process folic acid without any problems. “When getting the same amount of folic acid, people with the [variant] have an average amount of folate in their blood that is only slightly lower” than people without the variant, says the CDC.
+But that doesn’t stop influencers and supplement companies from pushing supplements with folate instead of folic acid
+what supplemental vitamins can actually be methylated and put into a multivitamin and mineral formula? Our pharmacist says only 2 are available and they are B9 (folate) and B12 
+Great question — and this is highly relevant if you're formulating a practitioner-grade MVM where form matters.
+Your pharmacist is partially correct in the strict chemical sense, but incomplete in the functional sense.
+If we define “methylated” literally (meaning the molecule already contains a methyl group –CH₃ attached as part of its active structure), then only a few vitamins are commercially available in true methylated forms.
+Let’s break this down precisely.
+
+✅ Vitamins That Exist in TRUE Methylated Forms
+1️⃣ Vitamin B9 – Folate
+5Methyltetrahydrofolate
+Also called L-5-MTHF
+Branded forms: Quatrefolic®, Metafolin®
+This is the biologically active, methyl-donor form
+Bypasses MTHFR conversion
+Highly stable for use in multivitamins
+✔ Fully methylated
+✔ Very common in high-quality MVMs
+
+2️⃣ Vitamin B12
+Methylcobalamin
+One of the active coenzyme forms of B12
+Direct methyl donor
+Used in methylation cycle (methionine synthase reaction)
+Other B12 forms:
+Adenosylcobalamin (mitochondrial form)
+Hydroxocobalamin
+Cyanocobalamin
+✔ Methylcobalamin is truly methylated
+✔ Stable in properly formulated MVMs
+
+⚠️ Vitamins That Are NOT “Methylated” (But Often Confused As Such)
+These do NOT exist as methylated vitamins:
+Vitamin B6 (exists as P5P – pyridoxal-5-phosphate, not methylated)
+Riboflavin (B2) – exists as riboflavin-5-phosphate, not methylated
+Thiamin (B1) – no methyl form
+Niacin (B3) – no methyl form
+Pantothenic acid (B5) – no methyl form
+Biotin – no methyl form
+Vitamins A, D, E, K – no methylated forms
+There are activated or coenzyme forms, but not methylated versions.
+
+🧬 Why Only B9 and B12 Can Be Methylated
+Because they directly participate in one-carbon metabolism and methyl group transfer reactions:
+5-MTHF donates methyl groups
+Methylcobalamin transfers methyl groups to homocysteine
+No other vitamin functions primarily as a methyl donor in this way.
+
+🔬 Important Clarification for Formulators
+Some supplement marketers misuse the term “methylated multivitamin.”
+What they usually mean is:
+Contains 5-MTHF instead of folic acid
+Contains methylcobalamin instead of cyanocobalamin
+It does NOT mean all B vitamins are methylated — because chemically that is impossible.
+
+🏆 If You Were Designing a High-End MVM (Trainer / Practitioner Grade)
+The “fully activated” approach would be:
+Folate as 5-MTHF
+B12 as methylcobalamin (± adenosylcobalamin blend)
+B6 as P5P
+Riboflavin as riboflavin-5-phosphate
+No folic acid
+No cyanocobalamin
+But only two are truly methylated:
+✔ B9
+✔ B12
+Your pharmacist is technically correct.
+
+

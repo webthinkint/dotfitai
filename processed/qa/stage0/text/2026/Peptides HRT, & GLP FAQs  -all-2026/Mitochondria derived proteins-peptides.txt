@@ -1,0 +1,51 @@
+what is the process of mitochondria derived proteins, formerly called Mitochondria derived peptides
+Mitochondria-derived proteins (MDPs), formerly called mitochondria-derived peptides, are a relatively newly recognized group of small signaling proteins that are actually encoded within the mitochondrial genome itself. For decades, scientists believed mitochondria only encoded 13 proteins involved in energy production. We now know mitochondria also produce several small bioactive proteins that function almost like hormones or cellular “stress messengers.”
+The process works roughly like this:
+Mitochondrial DNA transcription
+Mitochondria contain their own small circular DNA separate from nuclear DNA. Within regions once thought to be “non-coding,” small open reading frames (sORFs) are transcribed into RNA. 
+Translation into small proteins
+These RNAs are translated by mitochondrial or sometimes cytoplasmic ribosomes into tiny proteins—usually under ~100 amino acids long. Examples include: 
+Humanin 
+MOTS-c 
+SHLPs (Small Humanin-Like Peptides) 
+Stress sensing and signaling
+Production often increases during:
+Exercise 
+Caloric restriction 
+Oxidative stress 
+Fasting 
+Mitochondrial dysfunction 
+The mitochondria essentially “report” cellular energy status to the rest of the cell and body.
+Cellular and systemic actions
+These proteins can leave the mitochondria and sometimes even circulate in blood, acting on distant tissues. Their actions include: 
+Improving insulin sensitivity 
+Enhancing glucose uptake 
+Supporting mitochondrial biogenesis 
+Reducing oxidative stress 
+Protecting neurons 
+Reducing inflammation 
+Supporting muscle metabolism and exercise adaptation 
+Communication with the nucleus
+One of the most interesting features is “retrograde signaling,” where mitochondria communicate back to the nucleus to influence gene expression related to: 
+Longevity 
+stress resistance 
+metabolism 
+cellular repair 
+One of the most studied examples is MOTS-c:
+
+MOTS-c appears to activate metabolic pathways similar to exercise and energy stress, particularly the AMPK pathway, helping cells shift toward better glucose utilization and fat oxidation.
+Another is Humanin, which has attracted major attention for:
+neuroprotection, 
+anti-apoptotic effects, 
+and potential roles in healthy aging and diseases like Alzheimer’s. 
+The reason the terminology shifted from “peptides” to “proteins” is largely scientific refinement. Initially, these molecules were discovered as very short amino acid chains and called peptides. As understanding evolved, researchers recognized they behave more like true signaling proteins with endocrine-like functions, broader biological actions, and regulated expression patterns.
+From a health and performance standpoint, MDPs are now being heavily investigated in:
+aging and longevity, 
+insulin resistance, 
+obesity, 
+exercise adaptation, 
+neurodegeneration, 
+muscle preservation, 
+and recovery from metabolic stress. 
+One of the major emerging concepts is that exercise, proper nutrition, sleep, and metabolic health may partly exert their anti-aging and performance effects by improving mitochondrial signaling and increasing beneficial MDP activity.
+

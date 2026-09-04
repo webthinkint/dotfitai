@@ -1,0 +1,33 @@
+Hi [CUSTOMER],
+I’m assuming you are referring to the RDAs? As you know, many RDAs for vitamins and minerals are considered too low such as D, C, E, most B vitamins, etc., and most have a wide range of safety, and possibly more benefits, up the Tolerable Upper Limit (UL). Therefore, somewhere between the RDAs and the UL is the sweet spot like you have seen in all our lectures (see below). Call me if you need more information.
+Have a great weekend! 
+
+
+Appendix 2 Summary Figure of Proposed VM Intakes
+Range for Potential Maximum Benefits (The Safe and Recommended Nutrient Range [SRNR])
+Readers are reminded that because of the synergy of essential nutrition throughout all phases of life, vitamins and essential minerals are dependent on each other in all areas of metabolism and therefore insufficiencies of a single vitamin or mineral can cause a negative domino effect, albeit overtime – i.e,. insidious health risk effects. 
+
+The SRNR is depicted below using the data from Table 2 and shows potential overall cellular functioning benefits at different VM concentrations ranging from deficiency to recommended. Typical known U.S. intakes from food alone are shown in the yellow area, and depending on the vitamin or mineral, reach about 40-85% benefits if the RDA is 100%. The “sweet-spot” is shown in green, which, based on the DRIs would be the ~RDA to slightly below the NOAEL and definitely below the UL. Maintaining this sweet spot should be a lifelong goal and entirely possible using properly designed formula incorporating the criteria described in this article to fill in the known gaps, depicted as an average by the yellow/orange area.
+Definitions 
+Nutrient (vitamins and essential minerals [VM]): a substance that provides nourishment essential for growth and the maintenance of life
+VM deficiency: gross under-consumed nutrient leading to overt symptoms that left untreated (repletion) will cause eventual sickness or death
+VM insufficiency: nutrient intakes below the RDA or Estimated Average Requirement (EAR) that left untreated (repletion), may not have overt symptoms, but insidious outcomes related to short and long-term development and health such as disease manifesting so gradually, it would be established before becoming evident, thus likely irreversible.
+RDA: Recommended Dietary Allowance - the dietary intake level that is sufficient (not necessarily optimal) to meet the nutrient requirement of nearly all (97 to 98 percent) healthy individuals in a particular life stage and gender group.
+AI: Adequate Intake - a recommended intake value based on observed or experimentally determined approximations or estimates of nutrient intake by a group (or groups) of healthy people that are assumed to be adequate—used when an RDA cannot be determined.
+UL: Tolerable Upper Intake Level - the highest level of nutrient intake that is likely to pose no risk of adverse health effects for almost all individuals in the general population.
+NOAEL: No Observed Adverse Effect Level - the highest concentration or amount/dose of a substance found NOT to cause an adverse reaction.
+LOAEL: The Lowest Observed Adverse Effect Level - the lowest concentration or amount/dose of a substance found to cause an adverse reaction.
+
+From: [EMAIL]
+Sent: Friday, May 19, 2023 4:57 AM
+To: Experts <[EMAIL]>
+Subject: dotFIT - Ask the Experts
+
+
+ 
+From: [CUSTOMER]
+Email: [EMAIL]
+Category: Supplements
+Question: If the value is over 100% how is that not too much for a client's daily intake?
+ 
+

@@ -1,0 +1,13 @@
+n the peptide manufacturing industry, RUO and PUO are designations used by suppliers to indicate the intended use, regulatory status, and manufacturing quality of a product. [1, 2, 3]
+RUO (Research Use Only)
+RUO means the product is intended strictly for in vitro laboratory research, in vivo animal studies, or early-stage drug discovery. [1, 2]
+Manufacturing & Regulation: These products are generally exempt from the Food and Drug Administration's (FDA) rigid premarket clearance and cGMP (Current Good Manufacturing Practice) requirements for human pharmaceuticals. [1, 2]
+Testing & Purity: While they are synthesized for chemical purity, they are not produced under the strict safety protocols, sterility, or viral-clearance standards required for human medications. [1, 2]
+Legality: RUO peptides are legal to purchase and possess for scientific purposes, but it is illegal to market, prescribe, or administer them for human consumption. [1, 2]
+PUO (Physician / Provider Use Only)
+PUO is a relatively newer, distributor-level label intended to market peptides exclusively to licensed medical clinics or practitioners. [1]
+The Intent: Suppliers often use this label to imply a higher standard of legitimacy or oversight compared to the direct-to-consumer RUO market. [1]
+The Reality: From a regulatory perspective, PUO and RUO are legally treated the same. Unless a peptide is manufactured in an FDA-registered facility as an Active Pharmaceutical Ingredient (API) or an approved prescription drug, the PUO label does not automatically make the compound safe, legal, or compliant for human injection. [1, 2]
+Key Takeaway for Safety and Sourcing
+Neither RUO nor PUO signify that a peptide is a clinical-grade drug. True pharmaceutical-grade peptides must be produced under cGMP (Current Good Manufacturing Practices). You can verify legitimate drug manufacturers and FDA compliance by checking the FDA Drug Database. To understand the difference between research-grade and clinical manufacturing protocols, visit the FDA Guidance on RUO Labeling
+

@@ -1,0 +1,28 @@
+I did a literature search and didn’t find a definitive “recent” (2023–2025) study that unequivocally shows that consuming most carbohydrates at night is better than in the morning in all respects. The evidence is mixed, context-dependent, and often nuanced. However, I found a couple of interesting studies that suggest potential advantages (or at least no disadvantage) under certain conditions. Below is a summary and caveats.
+
+Key Study of Interest
+“Impact of carbohydrate timing on glucose metabolism and metabolic flexibility” (Mattsson et al., 2025)
+This study compared post-exercise carbohydrate ingestion in the evening versus pre-exercise ingestion and no carbohydrate (control) in healthy, trained individuals. PubMed
+The authors found that although morning glucose tolerance was reduced when carbohydrate was ingested the previous evening (after evening exercise), the metabolic flexibility (MetF)—i.e. ability to switch between fat and carbohydrate oxidation—was improved. PubMed
+In particular, during an oral glucose tolerance test (OGTT), during the first hour after post-exercise carbohydrate intake, carbohydrate oxidation was 70–91 % higher relative to control/pre-exercise ingestion. PubMed
+The authors interpret this as suggesting that strategic evening carbohydrate intake (post-exercise) may help enhance metabolic flexibility, which in turn could support performance in subsequent training sessions. PubMed
+While this doesn’t prove that “having most of your carbs at night is superior,” it does challenge the notion that evening carbohydrate intake is inherently detrimental. It suggests that in certain protocols—especially around training—late-day carbs might confer benefits in metabolic responsiveness.
+
+Supporting & Contrasting Evidence
+A recent review of carbohydrate supplementation strategies notes that timing, dose, and type of carbohydrate (and the gastrointestinal adaptation to repeated intake) matter a lot for performance and tolerance. MDPI
+Another study, “Effects of Short-Term Nighttime Carbohydrate Restriction” (Sakamoto et al., 2024) used a restriction of carbs after 4 pm (i.e. limiting evening carbs) and found improved fat metabolism and VO₂peak in a short-term training model. MDPI+1 But that’s a different angle (limiting evening carbs) rather than promoting them.
+More broadly, studies of meal-timing and chrononutrition show that circadian alignment affects glucose tolerance and metabolic responses, which is often used as a caution against heavy late-night carb loads. Wikipedia+1
+Some recent work also shows that high‐glycemic carbohydrate meals may shorten sleep onset latency (i.e. help you fall asleep faster) when consumed in the evening, though that speaks more to sleep than metabolism per se. ScienceDirect
+
+Interpretation & Practical Take-Home
+The Mattsson et al. (2025) study is perhaps the closest to what you asked: it indicates that post-evening exercise carbohydrate consumption doesn’t necessarily impair, and may in fact enhance, metabolic flexibility and carbohydrate oxidation during subsequent tests.
+However, there’s a trade-off: their data also showed poorer morning glucose tolerance under some conditions when carbs were consumed after evening exercise. PubMed
+So it’s not a blanket endorsement of “all carbs at night” but rather suggests that strategic timing of evening carbs, especially in relation to training and when total daily macros are controlled, might be beneficial or at least safe.
+If you like, I can dig further to find an even more recent (2023–2025) randomized trial where evening carbohydrate intake outperformed morning intake for body composition or performance. Do you want me to keep digging?
+
+Studies that favor evening carbs (context-dependent)
+Post-evening exercise carbs may enhance next-day metabolic flexibility.
+A 2025 randomized, crossover study in trained adults compared carb intake after evening exercise vs before exercise and vs no carbs. Evening carbs impaired morning glucose tolerance but improved metabolic flexibility and carbohydrate oxidation during the subsequent OGTT—suggesting potential advantages for athletes who prioritize next-session performance and substrate switching. Taylor & Francis Online+3PMC+3PubMed+3
+Concentrating carbs at dinner improved weight loss and satiety hormones in obesity.
+A 6-month randomized trial in 78 obese police officers found that eating most carbs at dinner (within a hypocaloric diet) led to greater weight, waist, and body-fat reductions, lower hunger scores, and better glucose/insulin, lipids, and inflammatory markers than distributing carbs across the day. A follow-up paper from the same trial showed favorable shifts in leptin/ghrelin/adiponectin profiles with the dinner-carb pattern. PubMed+1
+

@@ -1,0 +1,14 @@
+KPV is a short tripeptide made of three amino acids—lysine, proline, and valine. It is the natural C-terminal fragment of alpha-melanocyte-stimulating hormone (α-MSH). KPV is studied for its potential anti-inflammatory and antimicrobial properties—aiming to soothe gut and skin inflammation without causing the skin-pigment changes linked to its parent hormone. [1, 2, 3]
+How KPV Works in Research
+Cellular signaling: Preclinical studies show KPV helps block 
+NF-κB, a master protein complex that switches on inflammatory genes.
+Cytokine reduction: Laboratory models demonstrate it lowers the production of pro-inflammatory chemicals like TNF-α, IL-6, and IL-1β.
+Targeted absorption: In gut models, KPV is proposed to enter intestinal cells through the PepT1 peptide transporter, which is often more active during inflammation. [1, 2, 3]
+Proposed Uses and Formulations
+Gut health: Marketed or researched for conditions like inflammatory bowel disease or intestinal permeability ("leaky gut") via oral formats.
+Skin conditions: Applied topically in creams or gels for local issues like eczema, psoriasis, or general redness.
+Systemic inflammation: Sometimes compounded into nasal sprays or injectables. [1, 2, 3]
+Safety and Regulatory Status
+Lack of human trials: Almost all current data relies on cell cultures and animal models; large-scale safety and efficacy trials in humans are lacking. [1]
+Regulation: KPV is not FDA-approved as a prescription medication. Products sold online or through wellness clinics often exist in a regulatory gray market as experimental research compounds, meaning purity, dosing accuracy, and sterility can vary significantly. [1, 2]
+

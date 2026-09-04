@@ -1,0 +1,26 @@
+More on using expired drugs
+Douglas S. Paauw, MD
+DISCLOSURES 
+October 02, 2023
+68
+950
+Add to Email Alerts
+A patient inquires about whether he or she can use an EpiPen after the expiration date. What should you advise?
+The EpiPen is unlikely to be effective after the expiration date.
+The EpiPen may be dangerous to use after the expiration date.
+The EpiPen is likely to be okay up to 2 years past the expiration date.
+
+Douglas S. Paauw, MD
+I think that choice C is the most accurate and will get to all the evidence shortly. The expiration date is not the date that the drug stops being effective or potentially becomes toxic. It is a date, required by law, that the manufacturer can guarantee greater than 90% original potency of the medication.
+
+Epinephrine is a costly drug and is usually replaced when the Epipen expires. Weir and colleagues studied six epinephrine syringes 30 months past their expiration date.[1] Three of the syringes and one control, nonexpired syringe were analyzed using liquid chromatography-mass spectrometry and nuclear magnetic resonance to determine epinephrine content. The contents of the other three syringes of epinephrine were cultured for bacteria and fungus, which yielded no microbial growth. The study showed that the content of epinephrine present in the original sample remained unchanged, compared with the control.
+Rachid et al. looked at 35 EpiPens 3-36 months past their expiration dates.[2] The percentage of epinephrine found remained 84%-101%, with all EpiPens less than 24 months past expiration having > 90% of the labeled epinephrine dose. Cantrell and colleagues evaluated a combination of 40 EpiPens and Epipen Jrs that were 1-50 months past expiration.[3] These pens had not been kept in ideal conditions, as some had been in cars, outdoor cabins, and other environments without temperature control. Sixty-one percent of the Epipens and 56% of the EpiPen Juniors had > 90% of the labeled epinephrine content. I think expired Epipens can be used as a back-up option – that is, they are safe to use if there is not an Epipen available that is not expired.
+Shelf life extension program
+Lyon and colleagues reported data from the Shelf Life Extension Program (SLEP).[4] A total of 122 drugs were studied representing 3,005 lots. Based on testing and stability assessment, 88% of the lots were extended at least 1 year beyond their original expiration date for an average extension of 66 months, but the additional stability period was highly variable. Several antibiotics were studied, including ciprofloxacin (mean extension, 55 months), amoxicillin (mean extension, 23 months), and doxycycline (mean extension, 50 months).
+What about other drugs not in pill form?
+I am frequently asked about the longevity of medication formulations that are not in pill form. For example, I have been asked about using expired eye drops. There are few data on this. Reis at al. studied whether travoprost that was past the expiration date still lowered intraocular pressures.[5] Intraocular pressures in glaucoma patients treated with travoprost 6 weeks after the seal was broken were compared with pressures when drops were used immediately after the container seal was broken. There was no significant difference in intraocular pressure between the two treatment groups during the study.
+I found one case report of harm from using expired eye medications. Use of expired eye drops was associated with a case of bilateral toxic epithelial keratopathy.[6] Eye drops can be contaminated and cause irritation from the breakdown products of preservatives.
+Many people use inhalers for many years. This is especially true for albuterol, which is often used for very intermittent symptoms. I found one recent study on the stability of albuterol. Kutty et al. studied expired albuterol inhalers and solutions up to 20 years past expiration.[7] Almost all lots of albuterol maintained > 90% of product (73%-103%), many years past their expiration date. Even at 73% retained activity, the dose would likely be effective.
+Pearl: Expired epinephrine and albuterol appear to retain activity several years past expiration.
+Dr. Paauw is professor of medicine in the division of general internal medicine at the University of Washington, Seattle, and he serves as third-year medical student clerkship director at the University of Washington. He has no conflicts of interest. Contact Dr. Paauw at [EMAIL]
+

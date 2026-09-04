@@ -1,0 +1,48 @@
+For athletes and highly active individuals, many modern sports medicine physicians and performance nutrition specialists aim for a higher serum 25-hydroxyvitamin D [25(OH)D] concentration than the minimum needed to prevent deficiency. The goal is to optimize not only bone health but also muscle function, immune resilience, recovery, and potentially reduce injury risk.
+Common target ranges
+| Serum 25(OH)D | ng/mL | nmol/L | Interpretation |
+| Deficient | <20 | <50 | Increased risk of bone and muscle problems |
+| Insufficient | 20–30 | 50–75 | Acceptable for many adults but not ideal for athletes |
+| Good for general health | 30–50 | 75–125 | Meets most endocrine society recommendations |
+| Preferred for many athletes | 40–60 | 100–150 | Frequently targeted by sports physicians and sports dietitians |
+| High-normal | 60–80 | 150–200 | Sometimes used in elite athletes under physician supervision |
+| Potential concern | >100 | >250 | Generally not recommended without medical indication |
+| Possible toxicity | >150 | >375 | Increased risk of hypercalcemia and other adverse effects |
+Why 40–60 ng/mL?
+This range has become popular among sports medicine clinicians because research suggests that compared with lower concentrations, athletes in this range may experience:
+Better muscle strength and power 
+Improved muscle protein function 
+Reduced incidence of stress fractures 
+Better immune function, especially during heavy training 
+Fewer upper respiratory infections 
+Improved recovery from intense exercise 
+Lower risk of muscle strains in athletes who were previously deficient 
+The evidence is strongest for correcting deficiency. Benefits above about 40 ng/mL are less consistent, but many experts feel there is little downside to maintaining concentrations between 40 and 60 ng/mL when achieved safely.
+Research in athletes
+Numerous studies in professional football, soccer, basketball, military personnel, and endurance athletes have shown that athletes with vitamin D levels below 30 ng/mL tend to have:
+Higher rates of muscle injury 
+More stress fractures 
+Longer recovery times 
+Reduced muscle function 
+When deficient athletes are supplemented to reach approximately 40–50 ng/mL, many studies report improvements in muscle function and reductions in injury rates. Evidence that increasing levels from 50 to 70 ng/mL provides additional performance gains is much weaker.
+What many sports physicians actually do
+A common approach in elite sports programs is:
+Preseason target: 40–60 ng/mL 
+In-season maintenance: Keep above 40 ng/mL 
+Recheck every 3–6 months, particularly in winter or in indoor athletes 
+This is especially common in:
+NFL 
+NBA 
+NHL 
+Professional soccer 
+Olympic training centers 
+Practical supplementation
+Although individual needs vary greatly:
+1,000 IU/day typically raises serum 25(OH)D by roughly 5–10 ng/mL over several months. 
+Many athletes require 2,000–4,000 IU/day to maintain levels between 40 and 60 ng/mL, especially those with darker skin, limited sun exposure, higher body fat, or who train indoors. 
+Some deficient athletes require short-term higher doses under physician supervision before transitioning to a maintenance dose. 
+For your work with athletes
+Given your focus on body composition, performance, and recovery, I would summarize the current practical consensus as:
+Maintain serum 25(OH)D between approximately 40 and 60 ng/mL (100–150 nmol/L). This range is commonly targeted by sports medicine physicians because it appears to provide a favorable balance between musculoskeletal health, immune function, and recovery while avoiding unnecessarily high concentrations. There is little evidence that routinely pushing levels above 60–70 ng/mL produces additional athletic benefits in healthy individuals.
+This recommendation is consistent with the practices of many sports medicine clinicians and is more aggressive than the 30 ng/mL minimum often cited for the general population, while remaining well below concentrations associated with toxicity.
+

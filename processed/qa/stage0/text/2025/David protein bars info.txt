@@ -1,0 +1,81 @@
+Esterified Propoxylated Glycerol (EPG) i
+Disputed facts
+In 2025, the brand David Protein faced scrutiny over its nutrition label after independent lab testing found discrepancies in fat, calorie, and protein content. David Protein disputed the findings, attributing the differences to the use of a modified fat ingredient. 
+The disputed test results
+Fat and calories: A ConsumerLab report cited on Reddit found that a David Fudge Brownie bar contained 9.7 grams of fat and 229 calories, far more than the 2 grams of fat and 150 calories listed on the label.
+Protein: A separate test by ConsumerLab found that David bars contained 23.6 grams of protein, falling short of the 28 grams claimed on the packaging. However, this amount was within the 20% margin of error permitted by the FDA. 
+The company's response
+Modified fat: David Protein confirmed that its bars contain a modified saturated fat called EPG. Because the body metabolizes EPG differently (0.7 calories per gram versus the standard 9), the company does not count it toward the fat content on its nutrition label.
+Flawed testing: A David food scientist argued that the lab tests were faulty because they used a standard chemical analysis (hydrolysis) that did not account for EPG's unique metabolic properties. The company claimed the testing method "incorrectly identif[ied] EPG as a 9-calorie-per-gram fat," resulting in a factually and legally inaccurate calorie count.
+Protein correction: David Protein acknowledged that early batches may have had less protein than advertised but stated that the issue had been fixed. The company also indicated that every current batch is tested to ensure it contains a minimum of 28 grams of protein. 
+
+
+According to published studies, EPG is safe to consume—at least if you don’t binge on it. When three comparison groups consumed 10, 25, and 40 grams of EPG per day, “gastrointestinal adverse events” (gas with discharge, diarrhea, liquid stool…) were reported more frequently by people in the groups that consumed 25 or 40 grams per day, one study found. But 10 grams of EPG per day “was reasonably well tolerated.” David Protein doesn’t disclose how many grams of EPG are in each of its bars. (The company says the 2 grams of fat listed on the label doesn’t include EPG, using the FDA’s classification guidance, but that the ingredient is accounted for in the total calorie count.) David does, however, suggest a limit of two bars per day on its website.
+It’s worth noting that the primary studies on EPG were industry-funded, commissioned by EPG’s then owners, and written up years later by Bechtel on behalf of Epogee’s parent company. That the research was paid for by the company that also stood to profit from it might give anyone pause—but like it or not, the arrangement is standard practice in the food world. Both Bechtel and Dr. Davidson insist that their work on EPG went through rigorous FDA review, in part because of the legacy of Olestra. In any case, their studies offer the best available data.
+
+
+
+
+AI Overview
+Collagen is a protein that scores 0.0 on the Protein Digestibility Corrected Amino Acid Score (PDCAAS), meaning it is an incomplete protein because it lacks tryptophan, an essential amino acid, and has a low profile of other essential amino acids. The PDCAAS is a method for assessing protein quality, where a higher score (up to 1.0) indicates a higher quality protein. While collagen doesn't contribute much to daily protein requirements, its bioactive peptides offer health benefits for joints, skin, and muscle recovery, especially when combined with other protein sources or resistance training.  
+What is the PDCAAS?
+The PDCAAS measures a protein's quality based on the amount of essential amino acids it contains and how well it's digested and absorbed by the body. 
+Scores range from 0.0 to 1.0, with 1.0 representing the highest quality protein. 
+Why does collagen have a low PDCAAS score?
+Collagen is an incomplete protein because it lacks the essential amino acid tryptophan. 
+It also has a lower profile of other essential amino acids compared to other protein sources like meat or whey protein. 
+What are the implications of this score? 
+A low PDCAAS means that collagen is not a suitable primary protein source for meeting the body's daily essential amino acid needs.
+However, the protein content from collagen does not count towards your daily %DV of protein as it lacks essential amino acids, according to some sources.
+Milk protein isolate (MPI) is a concentrated form of milk protein containing at least 90% protein by weight, with minimal fat and carbohydrates, and very little to no lactose. It's made by filtering milk to separate the proteins (whey and casein) from other components, resulting in a powder added to various products like protein bars, drinks, and infant formulas to boost protein content and support muscle growth and overall health.  
+What "milk protein isolate protein" means:
+
+Isolate: 
+
+This term signifies that the protein has been processed to achieve a high level of purity, with most of the fat and lactose removed. 
+
+Protein: 
+
+It refers to the milk protein itself, which is a complete protein source containing all the essential amino acids. 
+Key Characteristics of MPI:
+High Protein Content: It contains a minimum of 90% protein. 
+Low Fat and Carbohydrates: The isolation process removes most of the fat and carbs from the milk. 
+Lactose-Free: It's very low in lactose, making it suitable for many people with lactose intolerance. 
+Contains Whey and Casein: MPI contains both the fast-acting whey protein and the slow-digesting casein protein, in their natural milk ratio. 
+Common Uses:
+
+Sports Nutrition: 
+
+Found in protein powders, bars, and drinks to aid muscle growth and recovery. 
+
+Food Products: 
+
+Used in products like yogurt, ice cream, and soups to increase protein content and improve texture. 
+
+Infant Formulas: 
+
+Its high-quality protein and low lactose content make it a valuable ingredient in some infant formulas. 
+Who benefits from MPI: 
+Individuals looking to increase their daily protein intake.
+Athletes and bodybuilders aiming to support muscle growth and repair.
+People with lactose intolerance who want a dairy-based protein source.
+
+
+
+A modified saturated fat known as Esterified Propoxylated Glycerol (EPG) is a fat-like substance created by chemically altering plant-based oils. It contains fatty acids but is modified with propoxy groups, which prevent it from being fully digested, resulting in significantly fewer calories. EPG is used as a versatile fat alternative in foods to replicate the mouthfeel and texture of traditional fats while providing a low-calorie option without digestive side effects. 
+How EPG is Made
+Splitting Oil Components: 
+The process begins with plant-based oils that are split into glycerol and fatty acids. 
+Propoxylation: 
+Glycerol is then reacted with propylene oxide to insert propylene glycol units, creating a modified glycerol molecule. 
+Esterification: 
+Finally, the fatty acids are joined to these modified glycerol units, forming the final EPG molecule. 
+Key Characteristics
+Calorie Reduction: EPG delivers up to 92% fewer calories than traditional fats, as only about 8% is absorbed and counted as calories. 
+Versatility: It is heat-stable, freeze-thaw stable, and compatible with both water and fat-based systems, making it suitable for a wide range of food products. 
+Sensory Properties: EPG mimics the sensory experience of fat, providing mouthfeel, texture, and a sense of satiety. 
+Ingredients: EPG is GMO-free, allergen-free, trans-fat-free, gluten-free, and vegan. 
+Labeling: On food labels, it is often listed as "modified plant-based oil (EPG)". 
+Common Uses
+EPG is used by manufacturers in various foods to reduce calories and saturated fat, including: Protein bars, Chocolate and confectionery, Ice cream, Plant-based meat alternatives, and Snacks and baked goods. 
+

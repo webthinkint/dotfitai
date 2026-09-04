@@ -1,0 +1,10 @@
+CD38 is a multifunctional enzyme, found on immune cells, that acts as a key regulator of cellular calcium signaling and metabolism by consuming NAD+ (Nicotinamide Adenine Dinucleotide) to produce signaling molecules like cyclic ADP-ribose (cADPR), playing crucial roles in immune responses, inflammation, aging, and various diseases. It can function as an enzyme (hydrolase) or a receptor, impacting cell adhesion and signaling, and is a significant target for therapies related to immune disorders, aging, and cancer. 
+Key Functions & Characteristics:
+NAD+ Metabolism: CD38 consumes NAD+, a vital coenzyme, and is a major factor in age-related NAD+ decline, impacting overall cellular health and energy.
+Calcium Signaling: By producing cADPR, it triggers the release of intracellular calcium, essential for muscle contraction, neurotransmitter release, and cell division.
+Immune Modulation: It's expressed on many immune cells (T cells, B cells, NK cells) and helps regulate immune cell differentiation, activation, and inflammatory responses.
+Cell Surface Molecule: It's a glycoprotein (Cluster of Differentiation 38) that acts as both an enzyme and a receptor, facilitating cell-to-cell interactions. 
+Clinical Significance:
+Biomarker: Its expression levels can indicate immune activity, elevated in conditions like HIV, inflammation, and certain cancers.
+Therapeutic Target: Inhibiting CD38 is being explored to boost NAD+ levels and treat age-related decline, fibrosis, and autoimmune diseases, while antibodies against it (like Daratumumab) are used in multiple myeloma
+

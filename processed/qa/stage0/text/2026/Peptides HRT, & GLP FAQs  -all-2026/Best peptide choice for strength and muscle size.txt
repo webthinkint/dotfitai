@@ -1,0 +1,53 @@
+If the primary goal is increasing strength and skeletal muscle mass in a healthy adult who is already training hard, eating enough protein, and recovering properly, I would rank the commonly discussed peptides/compounds approximately as follows:
+| Rank | Peptide/Compound | Muscle Gain Potential | Strength Potential | Comments |
+| 1 | IGF-1 LR3 | Very High | Very High | Most directly anabolic of the compounds we've discussed. Acts directly on IGF-1 receptors and satellite cells. |
+| 2 | Tesamorelin | Moderate | Moderate | Indirectly increases GH and IGF-1. Better known for body composition and visceral fat reduction than pure hypertrophy. |
+| 3 | MK-677 (not a peptide) | Moderate | Moderate | Raises GH and IGF-1 continuously. Often produces increases in lean mass, though some is water retention. |
+| 4 | Sermorelin | Mild-Moderate | Mild-Moderate | Similar mechanism to Tesamorelin but generally weaker. |
+| 5 | BPC-157 | Low direct effect | Low direct effect | Excellent for recovery and injury support, not a muscle-building peptide. |
+| 6 | TB-500 | Low direct effect | Low direct effect | Recovery and tissue repair, not primarily anabolic. |
+If Your Goal Is Pure Muscle Growth
+IGF-1 LR3
+Primary Use: Increase skeletal muscle growth, satellite cell activation, muscle recovery, and nutrient partitioning.
+Mechanism:
+Directly stimulates IGF-1 receptors in muscle tissue. 
+Increases satellite cell proliferation and differentiation. 
+Enhances protein synthesis. 
+May increase glucose and amino acid uptake into muscle. 
+Long half-life compared with native IGF-1. 
+Among the compounds discussed, IGF-1 LR3 has the strongest direct anabolic effect on skeletal muscle.
+If Your Goal Is Strength + Leaner Physique
+Tesamorelin
+Primary Use: Increase endogenous GH release and reduce visceral fat.
+Mechanism:
+Potent GHRH analog. 
+Increases pulsatile GH secretion. 
+Raises circulating IGF-1. 
+Improves fat mobilization and body composition. 
+Many users report:
+Improved recovery 
+Better body composition 
+Gradual increases in lean mass 
+However, Tesamorelin is generally more of a body-composition peptide than a pure hypertrophy peptide.
+Combining Tesamorelin + IGF-1 LR3
+This is why some physique-focused individuals combine them:
+Tesamorelin → raises endogenous GH and systemic IGF-1. 
+IGF-1 LR3 → provides a direct anabolic signal at the muscle level. 
+The theoretical rationale is:
+Improved recovery and fat loss from GH signaling. 
+Direct muscle growth signaling from IGF-1 LR3. 
+The downside is that this combination produces substantially greater exposure to the GH/IGF axis, so monitoring of:
+IGF-1 
+Fasting glucose 
+HbA1c 
+Blood pressure 
+Edema/carpal tunnel symptoms 
+becomes more important.
+Practical Takeaway
+For a healthy, resistance-trained adult:
+Best for muscle and strength: IGF-1 LR3
+Best for improving body composition while supporting muscle: Tesamorelin
+Best overall balance of leaner physique, recovery, and gradual muscle gain: Tesamorelin with excellent training and nutrition
+Most anabolic combination discussed: Tesamorelin + IGF-1 LR3, though this also carries the greatest uncertainty regarding long-term safety because neither is approved specifically for muscle-building in healthy individuals.
+The reality is that for most trained adults consuming ~1.6–2.2 g/kg/day protein and following a progressive resistance-training program, the largest determinant of muscle gain remains training quality and nutrition; peptides may provide incremental benefits on top of that foundation.
+

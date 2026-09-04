@@ -1,0 +1,97 @@
+[
+ {
+  "file": "CreatineMonohydrate.pdf",
+  "pages": 32,
+  "tables": 0,
+  "text_dosage_values": 110,
+  "table_dosage_values": 0,
+  "collapsed_data_rows": 0,
+  "ragged_tables": 0,
+  "containment_misses": 0,
+  "containment_miss_examples": [],
+  "checks": {
+   "text_layer_present": true,
+   "dosages_in_text": true,
+   "no_collapsed_data_rows": true,
+   "table_rows_rectangular": true,
+   "table_cells_in_page_text": true
+  },
+  "pass": true
+ },
+ {
+  "file": "SuperiorAntioxidant.pdf",
+  "pages": 33,
+  "tables": 17,
+  "text_dosage_values": 49,
+  "table_dosage_values": 10,
+  "collapsed_data_rows": 0,
+  "ragged_tables": 0,
+  "containment_misses": 0,
+  "containment_miss_examples": [],
+  "checks": {
+   "text_layer_present": true,
+   "dosages_in_text": true,
+   "no_collapsed_data_rows": true,
+   "table_rows_rectangular": true,
+   "table_cells_in_page_text": true
+  },
+  "pass": true
+ },
+ {
+  "file": "WheySmooth.pdf",
+  "pages": 57,
+  "tables": 59,
+  "text_dosage_values": 110,
+  "table_dosage_values": 1,
+  "collapsed_data_rows": 0,
+  "ragged_tables": 0,
+  "containment_misses": 0,
+  "containment_miss_examples": [],
+  "checks": {
+   "text_layer_present": true,
+   "dosages_in_text": true,
+   "no_collapsed_data_rows": true,
+   "table_rows_rectangular": true,
+   "table_cells_in_page_text": true
+  },
+  "pass": true
+ },
+ {
+  "file": "dotFIT Multivitamin & Mineral Formulas Specialty Design Criteria.pdf",
+  "pages": 23,
+  "tables": 12,
+  "text_dosage_values": 168,
+  "table_dosage_values": 146,
+  "collapsed_data_rows": 0,
+  "ragged_tables": 0,
+  "containment_misses": 0,
+  "containment_miss_examples": [],
+  "checks": {
+   "text_layer_present": true,
+   "dosages_in_text": true,
+   "no_collapsed_data_rows": true,
+   "table_rows_rectangular": true,
+   "table_cells_in_page_text": true
+  },
+  "pass": true
+ },
+ {
+  "file": "AminoFormula.pdf",
+  "pages": 34,
+  "tables": 19,
+  "text_dosage_values": 141,
+  "table_dosage_values": 22,
+  "collapsed_data_rows": 0,
+  "ragged_tables": 0,
+  "containment_misses": 0,
+  "containment_miss_examples": [],
+  "checks": {
+   "text_layer_present": true,
+   "dosages_in_text": true,
+   "no_collapsed_data_rows": true,
+   "table_rows_rectangular": true,
+   "table_cells_in_page_text": true
+  },
+  "pass": true
+ }
+]

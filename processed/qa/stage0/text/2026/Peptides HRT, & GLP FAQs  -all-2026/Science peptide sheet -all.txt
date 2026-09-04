@@ -1,0 +1,207 @@
+Here’s what I’ll do for you in one pass:
+Science-heavy expanded guide – with mechanism, what we actually know from data, typical study / “street” ranges (framed carefully), and risks.
+Trainer-friendly version – simple language and coaching cues you can use with clients.
+Important safety framing (for you + any trainers reading this):
+With the exception of tesamorelin (for a very specific HIV-related indication) and elamipretide in narrow rare-disease contexts, these peptides are not FDA-approved for general use, quality control is highly variable, human data are sparse, and most “protocols” are based on uncontrolled experience. Nothing below is medical advice or a recommendation to use—only a map of what’s out there so trainers can have informed conversations and know when to refer out.
+A. Science-Heavy Expanded Guide
+1. TB-500 (Thymosin Beta-4 Fragment)
+What it is / status
+Synthetic fragment of the endogenous peptide thymosin beta-4, involved in tissue repair and cell migration. PMC
+Used experimentally for soft-tissue healing; not FDA-approved for any indication.
+Mechanisms (proposed)
+Binds to G-actin, promoting actin polymerization, cell migration, and cytoskeletal remodeling in fibroblasts, endothelial cells, and myocytes. PMC
+Upregulates angiogenesis (VEGF, endothelial cell migration), decreases inflammatory cytokines, and may reduce fibrosis. PMC+1
+Evidence snapshot
+Animal data: improved healing in cardiac injury, corneal wounds, dermal wounds, and some musculoskeletal models.   PMC
+Human data remain limited and mostly small/uncontrolled.
+Dosing in literature / practice (informational only)
+Formal dose-finding in humans is sparse; clinical monographs and compounding protocols often describe systemic doses in the low mg per week range, divided into several subcutaneous injections. A4M
+True evidence-based “optimal” dosing is unknown.
+Risks / concerns
+Short-term: injection-site reactions, edema, fatigue, headache; overall tolerability in small series appears reasonable.Swolverine+1
+Theoretical risks: pro-angiogenic and pro-migration effects raise concern about tumor promotion or unwanted angiogenesis in susceptible individuals (cancer history, proliferative retinopathies, etc.), though this has not been definitively shown in humans.PMC
+Long-term human safety is essentially unknown.
+2. BPC-157 (Body Protection Compound-157)
+What it is / status
+15-aa peptide derived from a gastric protein thought to protect and repair gut mucosa. PMC
+No FDA approval; banned by WADA and many sport bodies. PMC+1
+Mechanisms (proposed)
+Potent pro-angiogenic actions (VEGF signaling), enhances fibroblast migration, collagen deposition, and tendon/ligament repair in preclinical models .Physiology Journals+1
+Modulates NO signaling, exerts anti-inflammatory and antioxidant effects, and supports gut barrier integrity. PMC+2PMC+2
+Evidence snapshot
+Robust rodent data: improved healing of tendons, ligaments, muscles, bone, and GI tract; some neuroprotective signals. Physiology Journals+1
+Human evidence is minimal and largely anecdotal; a recent narrative review emphasizes high promise but very low-quality human data. PMC
+Dosing in literature / practice (informational only)
+Most data are in animals (e.g., microgram/kg injections).Physiology Journals
+Compounded “clinic” protocols commonly cite ~250–500 mcg once or twice daily, oral or SC, but this is not evidence-based and often extrapolated from preclinical work.
+Risks / concerns
+The new 2025 review highlights that while preclinical safety seems acceptable, the lack of regulated manufacturing, dosing standards, or long-term human follow-up is a major concern.PMC+1
+Potential issues: injection-site reactions, unknown effects on aberrant angiogenesis (e.g., tumors, diabetic retinopathy), possible drug–drug interactions through endothelial/NO pathways.
+
+3. MOTS-c
+What it is / status
+16-aa mitochondria-derived peptide encoded by mtDNA, secreted in response to metabolic stress.Cell
+Investigational only; no current broad FDA indication.
+Mechanisms
+Activates AMPK, increases glucose uptake, and shifts muscle toward fatty acid oxidation and improved insulin sensitivity.PMC+2Cell+2
+Modulates expression of nuclear genes related to metabolism and proteostasis (exercise-like transcriptional signature).BioMed Central+1
+Evidence snapshot
+Animal studies: improved exercise capacity, metabolic flexibility, and healthspan with intermittent dosing in aged mice.Nature+1
+Early human data: small studies/observations linking MOTS-c to exercise response and metabolic health; interventional human trials remain very limited.
+Dosing in literature / practice (informational only)
+Mouse work commonly uses intermittent injections several times per week; dose scaled in mg/kg.Nature+1
+Compounding-clinic “protocols” often describe 5–15 mg SC, 2–3x/week, extrapolated from animal scaling—this is experimental and not validated.
+Risks / concerns
+Human safety data are sparse; theoretical concerns involve over-activation of AMPK, unintended weight loss, hypoglycemia in susceptible patients, or interactions with other metabolic drugs.
+Unknown effects in cancer, given metabolic reprogramming roles.
+
+4. SS-31 / Elamipretide
+What it is / status
+Synthetic mitochondria-targeted tetrapeptide that binds cardiolipin in the inner mitochondrial membrane.ScienceDirect+1
+Investigated in cardiomyopathy, Barth syndrome, and other mitochondrial disorders; regulatory status is evolving and indication-specific (recent FDA decisions have been mixed).The Hub+1
+Mechanisms
+Binds cardiolipin, stabilizing inner mitochondrial membrane structure and respiratory chain complexes, reducing ROS production and improving ATP generation.ScienceDirect+1
+Has antioxidant and anti-apoptotic effects in high-stress tissues like heart and skeletal muscle.
+Evidence snapshot
+In Barth syndrome, longer-term elamipretide improved functional capacity and cardiac stroke volume in a phase 2/3 trial, though regulatory endpoints have been contentious.PMC+2Nature+2
+Multiple mitochondrial disease and heart failure trials show mixed but encouraging signals on exercise tolerance and mitochondrial biomarkers.ScienceDirect
+Dosing (from trials, not a protocol)
+Trials often use daily SC or IV dosing at fixed mg amounts (e.g., ~40 mg/day SC in some human studies), but regimens are disease- and protocol-specific.PMC+1
+Risks / concerns
+Reported adverse effects: injection-site reactions, transient headache, nausea, and some GI symptoms; overall tolerability moderate in trials.PMC+1
+As a drug under active regulatory scrutiny, use belongs inside clinical trials / specialist care, not fitness settings.
+
+5. AOD-9604 (hGH Fragment 176–191)
+What it is / status
+Synthetic fragment of the C-terminus of human GH, designed to retain lipolytic but not growth-promoting properties.PMC+1
+Failed to demonstrate consistent weight-loss efficacy in human obesity trials; development as an anti-obesity drug was discontinued, though some clinics still market it off-label.PMC+2paragonsportsmedicine.com+2
+Mechanisms
+Activates lipolysis and inhibits lipogenesis in adipose tissue, likely via cAMP-mediated signaling, without robust GH-like effects on IGF-1 or glucose.PMC+1
+Evidence snapshot
+Animal studies: meaningful reductions in body fat in obese mice.OUP Academic
+Human trials: relatively benign safety profile across several hundred participants, but inconsistent or modest efficacy on fat loss → program was largely abandoned.PMC+2jofem.org+2
+Dosing (research)
+Obesity trials used oral or injectable daily dosing at various mg ranges; exact regimen depends on protocol.PMC+1
+Commercial peptide clinics often use daily SC injections, but there is no evidence-based standard.
+Risks / concerns
+Trials suggest good short-term safety—GI symptoms, headache, mild joint issues most common.jofem.org+1
+Biggest concern is overpromising fat-loss efficacy and using it as a crutch instead of foundational lifestyle changes.
+
+6. Epitalon / Epithalamin
+What it is / status
+Synthetic version of a tetrapeptide originally isolated from the pineal gland; studied as a “geroprotective” peptide.PMC+1
+Not FDA-approved; research is mostly from Eastern European/Russian groups plus newer mechanistic work.
+Mechanisms
+Induces telomerase expression and telomere elongation in human somatic cells in vitro.PMC+1
+Appears to modulate clock genes, melatonin secretion, antioxidant defenses, and immune balance, potentially affecting circadian rhythm, redox homeostasis, and inflammation.PMC+2Healthspan+2
+Evidence snapshot
+Some long-term clinical observations suggest reduced mortality and improved markers of aging in elderly cohorts receiving pineal peptides, but methodology is often limited and not widely replicated.Alzheimer's Drug Discovery Foundation+1
+High-quality, modern placebo-controlled human trials are still lacking.
+Dosing (reported in research)
+Protocols from Russian trials often used short courses (10–20 days) of low-mg daily injections, repeated annually or semi-annually, but details vary widely.Alzheimer's Drug Discovery Foundation+1
+Risks / concerns
+Available data suggest good tolerability in older adults over years, but much of this is from a single research ecosystem.Alzheimer's Drug Discovery Foundation
+Theoretical risk: telomerase activation could promote survival of pre-malignant cells; cancer risk needs much better characterization.
+
+7. Kisspeptin (Kisspeptin-10, -54)
+What it is / status
+Endogenous peptide family critical for activation of the hypothalamic–pituitary–gonadal (HPG) axis.PMC+1
+Studied as a diagnostic and therapeutic tool in reproductive medicine (e.g., infertility, IVF triggers).Frontiers+1
+Mechanisms
+Binds KISS1R (GPR54) on GnRH neurons → stimulates GnRH release, which increases pituitary LH/FSH, leading to increased gonadal steroid production.PMC+1
+Integrates steroid feedback and environmental cues (e.g., energy availability) into reproductive hormone output.
+Evidence snapshot
+Human work: bolus IV kisspeptin robustly increases LH/FSH in both men and women; kisspeptin is being trialed as a safer oocyte maturation trigger in IVF.PMC+1
+Dosing (research)
+IVF and endocrine research uses carefully titrated IV or SC boluses/infusions under specialist supervision; mg ranges are protocol-specific and not appropriate for “recreational” copying.Frontiers+1
+Risks / concerns
+Acute flushing, nausea, headache; risk of ovarian hyperstimulation if misused in IVF contexts.Frontiers
+Not appropriate for gym-level optimization; belongs entirely in reproductive endocrinology settings.
+
+8. Tesamorelin
+What it is / status
+Synthetic GHRH analog, FDA-approved as EGRIFTA® / EGRIFTA SV / EGRIFTA WR for HIV-associated lipodystrophy with excess visceral fat. FDA Access Data+1
+Mechanisms
+Binds pituitary GHRH receptors, increasing pulsatile GH secretion and thereby raising IGF-1 and promoting lipolysis, especially in visceral depots. FDA Access Data
+Evidence snapshot
+Multiple RCTs show reductions in visceral adipose tissue and modest metabolic effects in HIV patients; GH/IGF-1 axis clearly stimulated. FDA Access Data+1
+Label dosing (for its approved indication, not a gym protocol)
+Labeled regimen is 1.4 mg SC once daily in the abdomen for HIV-associated lipodystrophy, with detailed monitoring recommendations. FDA Access Data+1
+Risks / concerns
+Hypersensitivity reactions (rash, urticaria, even anaphylaxis), injection-site reactions, arthralgia, edema, carpal tunnel–like symptoms, increased IGF-1, and potential glucose intolerance / diabetes risk.FDA Access Data+2Mayo Clinic+2
+Contraindicated in active malignancy and used cautiously in anyone with a cancer history because of GH/IGF-1 axis activation.
+
+9. CJC-1295 (with/without DAC)
+What it is / status
+Synthetic GHRH analog; “with DAC” version is conjugated to increase half-life to days.
+Not FDA-approved; used off-label in anti-aging / performance circles.
+Mechanisms
+Binds GHRH receptors → increases amplitude and duration of endogenous GH pulses, especially in response to natural stimuli (sleep, exercise).
+With DAC, maintains elevated baseline GHRH signaling over several days, yielding a sustained rise in GH and IGF-1.
+Evidence snapshot
+Early clinical work showed dose-dependent increases in GH and IGF-1 over weeks; long-term outcome data on body composition, CV risk, or cancer are lacking.
+Dosing in literature / practice (informational)
+Trials used single or weekly injections at fixed mcg/kg doses; “clinic” protocols often mention ~1–2 mg once or twice weekly with DAC, or smaller, more frequent dosing without DAC—none of this is outcome-validated.
+Risks / concerns
+Similar to other GH axis stimulators: edema, arthralgia, paresthesias, carpal tunnel–type symptoms, potential worsening of sleep apnea, and theoretical tumor-promotion risk.
+Additive risks when stacked with other GHRPs or GH itself.
+
+
+Trainer-Friendly Version (Talking Points & Guardrails)
+You can treat this as your coach-facing crib sheet when clients ask about peptides.
+Quick Legend
+Status: ✅ FDA-approved for narrow indication | 🔬 Experimental | 🚫 Not approved / banned in sport
+Trainer rule of thumb: You can explain mechanisms & risks, but you do not recommend, source, or help dose these. Always refer to a qualified medical provider.
+1. TB-500 (Thymosin Beta-4 fragment) – 🔬 Experimental
+What clients think it does: “Heals injuries faster, helps joints and tendons.”
+Plain-English mechanism: Signals cells involved in repair to move in, build new blood vessels, and remodel tissue.
+Key risks to mention: Long-term safety unknown; in theory anything that boosts blood vessel growth and cell migration could be a problem in people with cancer or eye disease.
+Trainer line: “Interesting early data in animals, but human safety’s not nailed down—this is something to discuss with a sports med or regenerative-medicine MD, not something we handle on the gym floor.”
+2. BPC-157 – 🚫 Not approved, banned in sport
+What clients think it does: “Fixes everything—gut, tendon, ligament, shoulder, you name it.”
+Plain-English mechanism: Acts like a repair signal that can boost blood flow and collagen formation in injured tissues and may protect the gut lining.
+Key risks: Human trials are almost non-existent; quality is all over the place; potential concern for abnormal blood vessel growth and unknown long-term effects. It is prohibited by many sports organizations.PMC+1
+Trainer line: “Because it’s banned in sport and not well-studied in humans, I’d want your physician fully in the loop before you even consider it.”
+3. MOTS-c – 🔬 Experimental “exercise-mimetic” signal
+What clients think it does: “Gives you better energy, fat burning, and endurance.”
+Plain-English mechanism: A natural mitochondrial signal that makes muscles handle fuel more like a trained athlete—better glucose handling and more fat use.BioMed Central+1
+Key risks: Very new; we don’t know long-term effects on blood sugar, weight, or cancer risk.
+Trainer line: “Lifestyle, training, and nutrition already drive the same AMPK pathways that MOTS-c targets—and those are proven and safe.”
+4. SS-31 / Elamipretide – 🔬 Rare-disease drug candidate
+What clients think it does: “Repairs mitochondria and boosts energy/heart function.”
+Plain-English mechanism: Sits in the inner mitochondrial membrane and helps your powerplants make energy with less oxidative damage.ScienceDirect+1
+Key risks: Still being sorted out in clinical trials; absolutely not a general performance peptide.
+Trainer line: “Right now this is a specialist drug for rare mitochondrial issues, not a mainstream recovery tool.”
+5. AOD-9604 – 🔬 Safe-ish, but weak evidence for fat loss
+What clients think it does: “GH-like fat burner without side effects.”
+Plain-English mechanism: A small piece of GH that was engineered to tilt fat cells toward breaking down fat instead of storing it, without much impact on growth.PMC+1
+Key risks: Human trials show it’s well-tolerated but not very impressive for weight loss; the big risk is people using it instead of fixing food, steps, and training.PMC+1
+Trainer line: “Even in clinical trials AOD didn’t move the needle much—your calories, protein, steps, and sleep still do 99% of the work.”
+6. Epitalon – 🔬 Longevity / anti-aging peptide
+What clients think it does: “Reverses aging, lengthens telomeres, fixes sleep.”
+Plain-English mechanism: May turn on telomerase, help keep telomeres from shortening, and tune circadian and antioxidant systems.PMC+1
+Key risks: Aging and cancer are tightly linked—boosting telomerase in the wrong person is a theoretical issue; long-term, high-quality studies are thin.Alzheimer's Drug Discovery Foundation
+Trainer line: “Even if the longevity angle pans out, this is something that belongs in a medical anti-aging clinic, not a casual stack.”
+7. Kisspeptin – ✅/🔬 Medical reproductive tool, not a “test booster”
+What clients think it does: “Boosts testosterone, helps fertility, fixes libido.”
+Plain-English mechanism: It’s basically the on-switch for the brain’s reproductive hormone cascade (GnRH → LH/FSH → testosterone/estrogen).PMC+1
+Key risks: Can strongly affect fertility hormones; in IVF settings, misuse can cause ovarian hyperstimulation and other serious issues.Frontiers
+Trainer line: “Any hormone-level work like this is strictly for an endocrinologist or fertility specialist.”
+8. Tesamorelin – ✅ FDA-approved (very specific use)
+What clients think it does: “Lean-out peptide that burns belly fat by boosting GH.”
+Plain-English mechanism: Mimics the brain’s GHRH signal, which makes the pituitary release more GH in pulses, raising IGF-1 and helping reduce visceral fat.FDA Access Data
+Key risks: Can raise blood sugar, IGF-1, and cause edema, joint pain, numbness, and allergic reactions; contraindicated in active cancer.FDA Access Data+1
+Trainer line: “It’s a real, prescription-only drug for a specific HIV-related condition—if someone’s using it outside that, they absolutely need a physician supervising.”
+9. CJC-1295 (with or without DAC) – 🔬 GH-axis stimulator
+What clients think it does: “Long-acting GH booster for recovery, lean mass, and sleep.”
+Plain-English mechanism: Acts like a long-lasting GHRH, making the body release more of its own GH and IGF-1 over time.
+Key risks: Same issues you’d worry about with elevated GH/IGF-1: edema, carpal-tunnel-type symptoms, possible blood sugar and cancer-promotion concerns, plus no long-term outcome data.
+Trainer line: “If someone’s trying to get GH-like effects, they also inherit the GH-like risks—this is doctor territory, not coaching territory.”
+How Trainers Can Use This in Practice
+1. Normalize curiosity, but anchor in basics.
+“It makes sense you’re hearing a lot about peptides; they’re a hot topic. The things we know extend healthspan and performance are still: training, protein, sleep, weight control, and smart supplementation we can fully vet.”
+2. Draw the “scope of practice” line clearly.
+“I can explain what these compounds try to do and what the risks are, but I don’t prescribe, source, or advise doses. If you’re serious about them, we pull a qualified physician into the conversation.”
+3. Use peptides as a door to better fundamentals.
+If a client wants BPC-157 for tendon pain → talk load management, movement quality, protein, collagen + vitamin C, and sleep, and suggest an ortho/sports-med consult
+

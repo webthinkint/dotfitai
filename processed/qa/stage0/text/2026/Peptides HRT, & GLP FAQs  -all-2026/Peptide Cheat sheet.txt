@@ -1,0 +1,39 @@
+Peptide Cheat Sheet (Quick Summary + Mechanism)
+1. TB-500 (Thymosin Beta-4 Fragment)
+Primary Use: Supports tissue repair, recovery, and reduced inflammation—commonly used for healing injuries or improving mobility.
+Mechanism: Enhances actin polymerization, increases angiogenesis, and promotes cell migration, accelerating wound repair and reducing fibrosis.
+2. BPC-157
+Primary Use: Promotes healing of muscles, tendons, ligaments, gut lining, and nerves.
+Mechanism: Modulates growth pathways (VEGF, NO), enhances fibroblast migration, and accelerates angiogenesis and collagen synthesis to repair tissue.
+3. MOTS-C
+Primary Use: Improves mitochondrial efficiency, energy production, and metabolic flexibility (fat oxidation, insulin sensitivity).
+Mechanism: A mitochondrial-derived peptide that activates AMPK, enhances glucose uptake, and improves metabolic homeostasis under cellular stress.
+4. SS-31 (Elamipretide)
+Primary Use: Protects the mitochondria, improves energy production, and reduces oxidative stress—investigated for heart, muscle, and age-related disorders.
+Mechanism: Selectively binds cardiolipin in the inner mitochondrial membrane, stabilizing the ETC and reducing ROS leakage to boost ATP output.
+5. AOD-9604 (Fragment of HGH 176-191)
+Primary Use: Promotes fat loss without raising IGF-1 or causing GH-like systemic effects; often positioned for “stubborn fat” reduction.
+Mechanism: Stimulates lipolysis and inhibits lipogenesis through the β-adrenergic and adenylate cyclase–cAMP pathways, independent of GH receptor activation.
+6. Epitalon (Epithalamin / Epithalon)
+Primary: Longevity-focused;  support sleep, circadian rhythm, and theoretical anti-aging effects.
+Mechanism: Upregulates telomerase activity, supports pineal gland signaling, and helps regulate melatonin secretion and circadian timing.
+7. Kisspeptin-10 / Kisspeptin-54
+Primary Use: Enhances natural reproductive hormone output—often used for improving LH/FSH production, fertility, and libido.
+Mechanism: Stimulates GnRH release from the hypothalamus, which increases LH → testosterone/estrogen production along the HPG axis.
+8. Sermorelin*
+Primary use: restore the body’s ability to release GH to support recovery, body composition, and healthy aging -more subtle and long-term*
+Mechanism: Binds to GHRH receptors in the anterior pituitary to Increase GH pulsatility (especially during sleep) to support anabolic signaling without suppressing natural GH production
+9. Tesamorelin
+Primary Use: Increases natural growth hormone release and reduces visceral fat (FDA-approved for HIV-associated lipodystrophy). Step above Sermorelin- stronger metabolic activity including GH signaling*.
+Mechanism: Acts as a potent GHRH analog that binds GHRH receptors, increasing pulsatile GH and subsequently raising lipolysis and IGF-1 levels.
+10. Ibutamoren (MK-677) Oral non-peptide GH stimulant1
+Primary use: to increase the body’s natural growth hormone and IGF-1 levels to support muscle growth, recovery, and overall anabolic function without injections
+Mechanism: mimics ghrelin (“hunger hormone”) to activate ghrelin receptors (GHS-R1a), which signals the hypothalamus & pituitary to increase natural GH pulse release; liver then produces more IGF-1 leading to an increase in protein synthesis and reduction in muscle breakdown
+11. CJC-1295 (With or Without DAC)
+Primary Use: Enhances natural GH/IGF-1 production for recovery, body composition improvements, and sleep quality.
+Mechanism: Mimics growth hormone–releasing hormone (GHRH), amplifying GH pulse amplitude and duration—especially prolonged when DAC is included.
+12. IGF-1 LR3
+Primary Use: Promotes muscle growth, recovery, and nutrient partitioning through direct anabolic signaling. Often considered one of the most potent downstream mediators of growth hormone activity. 
+Mechanism: A modified long-acting IGF-1 analog that binds directly to IGF-1 receptors, stimulating protein synthesis, satellite cell activation, muscle tissue growth, and cellular recovery through activation of the Akt/mTOR anabolic pathway. Unlike GH secretagogues, it bypasses the pituitary and acts directly at the tissue level. (Note: Unlike Tesamorelin or Sermorelin, IGF-1 LR3 does not increase natural growth hormone production—it acts downstream of GH by directly activating IGF-1 pathways).
+* Sermorelin: A shorter-acting GHRH peptide than Tesamorelin, that also stimulates GH release, but results can be less consistent and protocols vary
+1 Ibutamoren (MK-677) is a small-molecule, non-peptide compound, specifically an orally active ghrelin receptor (GHS-R1a) agonist. It’s a synthetic, drug-like molecule (not a chain of amino acids like peptides designed to bind the ghrelin receptor and stimulate GH release. Its small-molecule structure is what allows it to be taken orally and remain stable in the body. Therefore MK-677 works like a drug, not a peptide—so you can take it orally and it still activates the GH pathway effectively.

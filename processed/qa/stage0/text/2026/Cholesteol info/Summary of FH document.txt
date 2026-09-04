@@ -1,0 +1,29 @@
+This document reviews familial hypercholesterolemia (FH), its diagnosis, genetic aspects, and management strategies to reduce cardiovascular risk.
+Overview of Familial Hypercholesterolemia
+Genetic disorder impairing LDL clearance, leading to lifelong elevated LDL cholesterol.
+Heterozygous FH affects 1 in 250–350; homozygous FH is rarer, about 1 in 160,000–500,000.
+Untreated heterozygous FH causes high risk of coronary events by age 50–60.
+Assessment and Diagnosis
+Clinical diagnosis relies on LDL-C ≥190 mg/dL and family history of premature ASCVD.
+Physical signs include tendon xanthomas, corneal arcus, and xanthelasma.
+Evaluation includes family history, physical exam, and lipid testing; genetic testing confirms diagnosis.
+Cascade screening of relatives is recommended, especially in families with known FH.
+Genetic testing targets LDLR, APOB, PCSK9 genes; it confirms diagnosis and aids cascade screening.
+Many with high LDL-C do not have identifiable variants but remain at risk.
+Management of Heterozygous FH
+Early treatment in childhood offers significant lifetime benefit.
+LDL-C goals: less than 70 mg/dL without ASCVD; less than 55 mg/dL with ASCVD.
+First-line therapy: high-intensity statins (e.g., rosuvastatin, atorvastatin).
+Additional therapies include ezetimibe, PCSK9 inhibitors, bempedoic acid, or inclisiran if goals are unmet.
+Lifestyle modifications: reduce saturated fats, increase activity, manage weight.
+Homozygous FH
+Usually diagnosed around age 12 with LDL-C 400–1000 mg/dL.
+Statins are less effective; LDL apheresis and novel agents like evinacumab and lomitapide are used.
+These treatments lower LDL independently of LDL receptor function.
+Conclusions
+Diagnosis is based on LDL-C levels and family history, not solely genetics.
+Early pharmacologic intervention is crucial for reducing lifetime cardiovascular risk.
+Combination therapy is often necessary to meet LDL-C targets.
+Genetic testing supports cascade screening and treatment decisions, especially in high-risk cases.
+ 
+

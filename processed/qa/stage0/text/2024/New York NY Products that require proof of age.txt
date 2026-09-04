@@ -1,0 +1,34 @@
+I want to inform all dotFIT employees of some important updates to our online shopping cart.  These updates are due to a recent law passed by the State of New York prohibiting retailers from selling dietary supplements, marketed for “weight loss” or “muscle building”, to anyone under the age of 18 . 
+Please note: This law and these system updates ONLY apply to New York State residents. 
+After discussions with our legal team, it has been determined that this law will affect the following dotFIT products:
+WeightLoss & LiverSupport
+CarbRepel
+ThermAccel
+LeanPak90 Kit
+ExtremeCreatineXXXL+
+CreatineMonohydrate
+NO7Rage - All Flavors
+AminoFormula - All Flavors (we are working on changes to the label so these will be excluded from this law for the next run of each flavor)
+Recover&Build
+Therefore, in order to comply with this law, dotFIT recently added the following logic to our website/eStore. 
+If the cart contains any of the products above, the user will be prompted to confirm that they are 18 years or older. 
+Simultaneously, it will also notify the customer, that in order to receive the package, an adult signature will be required for the delivery to be completed. (Delivery carriers provide this service but require the person signing for the shipment to provide proof that they are 21 years of age or older). 
+If the person placing the order replies to the age verification prompt with a “No” response, the prohibited items will be automatically removed from their cart and they can then continue with the balance of the order.
+If the person placing the order replies to the age verification prompt with a “Yes” response, they will be allowed to continue to the cart,  At this time, they will also be provided with more information along with a link to the actual law.  They will then be allowed to proceed with the purchase.  
+Please also note that there will be an additional shipping charge for the proof of age delivery requirement.  The signature, and therefore the charge, is mandated by New York State and is not covered under our free shipping plan or any other free shipping promotions. 
+UPDATE - Our legal team advised us to include the MuscleDefender to the list of products that would require age verification in New York.  We have included this via our eStore when purchasing this product along with the others.
+Our goal is to change the label and the claims, etc. that are needed so that this product (along with the AminoFormulas) no longer need this age verification.  I will keep everyone updated as to our progress on this.
+
+The updated list of products is as follows:
+
+WeightLoss & LiverSupport
+CarbRepel
+ThermAccel
+LeanPak90 Kit
+ExtremeCreatineXXXL+
+CreatineMonohydrate
+NO7Rage - All Flavors
+AminoFormula - All Flavors (we are working on changes to the label so these will be excluded from this law for the next run of each flavor)
+MuscleDefender
+Recover&Build
+

@@ -1,0 +1,34 @@
+IGF-1 LR3 (Long R3 Insulin-Like Growth Factor-1) is a synthetic analog of IGF-1 designed to have a much longer half-life and greater biological activity than natural IGF-1. It has an added 13-amino acid extension and a modification at the 3rd amino acid position, which reduces binding to IGF-binding proteins and allows it to remain active in circulation far longer. 
+Its primary mechanism of action is direct activation of the IGF-1 receptor on muscle and other tissues, stimulating anabolic signaling pathways such as PI3K/Akt/mTOR and MAPK. These pathways increase protein synthesis, satellite cell activation, muscle cell proliferation, glucose uptake, tissue repair, and recovery while also reducing protein breakdown. 
+The primary uses of IGF-1 LR3 are typically related to:
+Supporting lean muscle growth and recovery 
+Enhancing tissue repair after intense training or injury 
+Improving nutrient partitioning and body composition 
+Research into muscle regeneration, metabolism, and anabolic signaling 
+Because IGF-1 signaling also influences cellular growth broadly throughout the body, there are important safety considerations, including potential effects on blood glucose regulation and theoretical concerns regarding abnormal cell proliferation. Most legitimate clinical discussions emphasize medical supervision and careful monitoring. 
+Dosage
+There is no medically established or FDA-approved dosing protocol for IGF-1 LR3 in healthy individuals for muscle growth or performance enhancement. Most dosing information comes from experimental use, peptide clinics, and bodybuilding communities rather than large controlled human trials. 
+That said, the most commonly referenced “performance-support” dosing ranges are:
+20–50 mcg daily as a conservative/common range 
+50–100 mcg daily in more aggressive experimental protocols 
+Typical cycle lengths discussed are 4–6 weeks, followed by time off to reduce receptor desensitization risk. 
+The rationale behind these doses is to activate IGF-1 receptors enough to increase:
+muscle protein synthesis, 
+satellite cell activation, 
+recovery, 
+and nutrient uptake, 
+without excessively increasing side effects such as hypoglycemia, edema, nerve compression symptoms, or unwanted tissue growth. 
+NEXGEN dosing
+After 6 weeks we will assess progress (subjective) and decide if an IGF-1 LR3 peptide add is warranted
+IGF-1 LR3 (5/6 weeks, 50–100µ daily; 1mg=20 50µ shots/vial [25units/shot]) 1vial=1mg (1000µ)
+Primary Use: Promotes muscle growth, recovery, and nutrient partitioning through direct anabolic signaling. Often considered one of the most potent downstream mediators of growth hormone activity. 
+Mechanism: A modified long-acting IGF-1 analog that binds directly to IGF-1 receptors, stimulating protein synthesis, satellite cell activation, muscle tissue growth, and cellular recovery through activation of the Akt/mTOR anabolic pathway. Unlike GH secretagogues, it bypasses the pituitary and acts directly at the tissue level. (Note: Unlike Tesamorelin or Sermorelin, IGF-1 LR3 does not increase natural growth hormone production—it acts downstream of GH by directly activating IGF-1 pathways)
+
+Mechanistically, IGF-1 LR3 primarily works through the Akt/mTOR anabolic signaling pathway:
+
+A major concern with higher or prolonged dosing is that IGF-1 signaling is not muscle-specific — it can stimulate growth pathways in many tissues. Because of that, most medically oriented sources recommend conservative exposure, short durations, and monitoring of:
+fasting glucose, 
+insulin sensitivity, 
+IGF-1 blood levels, 
+and general metabolic markers. 
+

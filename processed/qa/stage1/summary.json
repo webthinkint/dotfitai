@@ -1,0 +1,17 @@
+{
+ "pipeline_version": "0.1.0",
+ "n_documents": 1051,
+ "by_doc_type": {
+  "qa_email": 783,
+  "expert_note": 268
+ },
+ "by_year": {
+  "2023": 367,
+  "2024": 321,
+  "2025": 103,
+  "2026": 260
+ },
+ "n_review_queue": 35,
+ "with_question_extracted": 715,
+ "with_thread_date": 772
+}
