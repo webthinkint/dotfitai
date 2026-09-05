@@ -309,6 +309,25 @@ class TestHarvest:
         assert cands["JointFlexPlus"]["n_docs"] == 0
         assert "CollagenComplex" in cands["JointFlexPlus"]["candidate_target"]
 
+    def test_tolerant_pattern_accepts_and_form(self, tmp_path):
+        # "Recover & Build" ≡ "Recover and Build" — both attested;
+        # the old gap missed the word form entirely (review fix)
+        from qa_pipeline.alias import _tolerant_pattern
+        pat = _tolerant_pattern("Recover&Build")
+        assert pat.search("Recover & Build")
+        assert pat.search("Recover and Build")
+        assert pat.search("Recover&Build")
+        table = build_alias_table(PRODUCTS)
+        docs = [
+            {"source_file": "2024/r.docx",
+             "question": "is Recover and Build discontinued?",
+             "customer_section": "", "expert_section": "", "filename": "x"},
+        ]
+        path = tmp_path / "documents.jsonl"
+        path.write_text("\n".join(json.dumps(d) for d in docs), encoding="utf-8")
+        cands = {c["token"]: c for c in harvest_candidates(table, path)}
+        assert cands["Recover&Build"]["n_docs"] == 1
+
     def test_worksheet_renders_rows(self, tmp_path):
         table = build_alias_table(PRODUCTS)
         cands = harvest_candidates(table, self._docs(tmp_path))
@@ -356,3 +375,34 @@ class TestRealCorpusSanity:
         assert det["WLLS"] == [1100]
         assert "PP" not in det
         assert "MVM" not in det
+
+    def test_family_canonicals_are_pinned(self):
+        """The family voice is the canonical (lowest part_no ≈ first
+        published) SKU's content. A re-export that renumbers SKUs, retires a
+        hero, or backfills a lower number would silently revoice families —
+        this pins canonicals + membership so that change goes red and forces
+        a conscious call (verified sane 2026-09-05: every canonical is the
+        hero flavor)."""
+        from pathlib import Path
+        products_path = Path(__file__).resolve().parents[2] / \
+            "data" / "Product Data" / "products.json"
+        if not products_path.is_file():
+            pytest.skip("real products.json not present")
+        products = json.loads(products_path.read_text(encoding="utf-8"))
+        fams = {f["family"]: f for f in build_alias_table(products)["families"]}
+        expected = {
+            "Alln1 SuperBlend": (8001, [8001, 8016]),
+            "AminoFormula": (1213, [1213, 1216, 1220]),
+            "Creatine Monohydrate": (1200, [1200, 1227]),
+            "First String": (1371, [1371, 1372]),
+            "LeanMeal Nutrition Shake": (1333, [1333, 1334]),
+            "NO7 PreWorkout": (1214, [1214, 1215, 1217]),
+            "Plant Protein": (1300, [1300, 1301]),
+            "Pre & Post Workout Formula": (1367, [1367, 1368]),
+            "WheySmooth": (1369, [1369, 1370, 1374, 1375, 1391, 1392, 1399]),
+            "dotBAR": (1456, [1456, 1457, 1462, 1480, 1482]),
+        }
+        assert {f for f, fam in fams.items() if fam["n_variants"] > 1} == set(expected)
+        for family, (canon, pns) in expected.items():
+            assert fams[family]["canonical_part_no"] == canon, family
+            assert fams[family]["part_nos"] == pns, family

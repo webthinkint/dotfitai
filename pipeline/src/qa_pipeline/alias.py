@@ -367,9 +367,15 @@ def build_alias_table(products: list[dict]) -> dict:
 # --- QA-corpus harvest (candidates only — worksheet, not the table) ----------
 
 def _tolerant_pattern(name: str) -> re.Pattern:
-    """Case/spacing/punctuation-tolerant regex matching *name* in raw text."""
+    """Case/spacing/punctuation-tolerant regex matching *name* in raw text.
+
+    The gap between alphanumerics also accepts a standalone "and"
+    ("Recover & Build" ≡ "Recover and Build" — both attested in the
+    corpus), which the old non-alphanumeric-only gap missed.
+    """
     parts = [re.escape(ch) for ch in name if ch.isalnum()]
-    return re.compile(r"[^A-Za-z0-9]*".join(parts), re.IGNORECASE)
+    gap = r"(?:[^A-Za-z0-9]*\band\b[^A-Za-z0-9]*|[^A-Za-z0-9]*)"
+    return re.compile(gap.join(parts), re.IGNORECASE)
 
 
 def harvest_candidates(alias_table: dict, docs_path: Path) -> list[dict]:
