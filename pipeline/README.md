@@ -22,6 +22,14 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   heading-path prefixes (~650/800 tokens target/max, tables atomic), product /
   category / topic metadata, per-doc review outlines. References sections are
   excluded by default (`--keep-references` to include).
+- **Index** (`index` subcommand) — shape and upload the §9 `kb-main` AI Search
+  index: PDSRG chunks (pass-through — already §9-stamped), products.json §5
+  section-split with family grouping (the canonical SKU's sections are the
+  family documents; variants contribute only genuinely distinct sections),
+  and §8 menu description docs. Vectors (`text-embedding-3-large`, 3072-dim)
+  embed `title + content` and cache under the gitignored
+  `runs/embeddings.jsonl`, so the committed `documents.jsonl` (no vectors)
+  stays byte-identical across reruns.
 
 Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
 the QA stages consume only `data/QAs/**/*.docx`.
@@ -30,8 +38,9 @@ the QA stages consume only `data/QAs/**/*.docx`.
 
 - [uv](https://docs.astral.sh/uv/) (only prerequisite; no system Python needed)
 - Python **3.12** (pinned in `.python-version`)
-- Runtime deps: `python-docx` only (pure Python + lxml wheels — nothing to
-  `apt install` on the Linux VM)
+- Runtime deps: `python-docx`, `pdfplumber` (corpus); `openai`,
+  `azure-search-documents` (Azure data plane — credentials live only in the
+  gitignored `.env`, loaded by `azure_config.py`)
 - Dev deps: `pytest`
 - `uv.lock` is committed → identical dependency resolution on every machine
 
@@ -48,12 +57,14 @@ uv sync
 uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
-Subcommands: `stage0`, `stage1`, `run` (both), `aliases`, `pdsrg`.
+Subcommands: `stage0`, `stage1`, `run` (both), `aliases`, `pdsrg`, `index`.
 Options on all: `--include GLOB` (repeatable), `--limit N` (pilots), `--quiet`,
 `--fail-on-error` (non-zero exit if any file fails — for cron/CI), `--no-prune`
 (keep outputs whose input has been deleted; by default they are removed so the
 output tree always matches the corpus). `pdsrg` adds `--keep-references` and
-`--citation-base`.
+`--citation-base`; `index` (no corpus tree to prune) has `--limit N`,
+`--no-embed` (shape only), `--no-upload` (embed, skip AI Search), `--reset`
+(drop + recreate the index) and `--index-name`.
 
 PDSRG chunking (plan §6):
 
@@ -62,6 +73,16 @@ uv run qa-pipeline pdsrg \
     --input "../data/Practitioner Dietary Supplement Reference Guide" \
     --products "../data/Product Data/products.json" \
     --out ../processed/pdsrg
+```
+
+§9 index build (shape + embed + upload):
+
+```bash
+uv run qa-pipeline index \
+    --chunks ../processed/pdsrg/chunks/chunks.jsonl \
+    --products "../data/Product Data/products.json" \
+    --menus "../data/Reference Menus/All Reference Menus Export.csv" \
+    --out ../processed/index --no-upload    # drop --no-upload to upload
 ```
 
 Pilot per plan §13 week 1 (20 docs incl. nastiest):
@@ -92,6 +113,17 @@ PDSRG outputs (relative to the `pdsrg --out` root, default `processed/pdsrg`):
 <out>/chunks/summary.json    per-doc stats + review flags
 <out>/review/<slug>.md       per-doc chunking outline (human spot-check)
 <out>/runs/pdsrg-<ts>.json   run manifest
+```
+
+Index outputs (relative to the `index --out` root, default `processed/index`):
+
+```
+<out>/documents.jsonl        one §9 record per document (no vectors —
+                            byte-identical reruns)
+<out>/summary.json           counts + embedding/upload stats
+<out>/runs/embeddings.jsonl  vector cache (gitignored — API results,
+                            keyed deployment|api-version|text)
+<out>/runs/index-<ts>.json   run manifest
 ```
 
 - `documents.jsonl` record: `id, source_file, year, topic_subfolder, filename,

@@ -26,15 +26,22 @@ import platform
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import docx as docx_pkg
 
 from . import __version__
 from .alias import build_alias_table, harvest_candidates, norm as _norm, \
     write_curation_worksheet
+from .azure_config import AzureConfigError, REQUIRE_INDEX, load_azure_config
+from .embeddings import EMBEDDING_API_VERSION, Embedder
 from .extract import extract_docx
+from .index_build import (
+    INDEX_NAME, build_documents, embed_text, ensure_index, read_menu_rows,
+    upload_documents,
+)
 from .io_utils import (
-    configure_stdio, doc_id, iter_docx, rel_posix, sha256_file,
+    configure_stdio, doc_id, iter_docx, read_jsonl, rel_posix, sha256_file,
     write_json, write_text,
 )
 from .pdsrg import chunk_pdf, chunk_records, review_outline
@@ -431,6 +438,115 @@ def cmd_pdsrg(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_index(args: argparse.Namespace) -> int:
+    chunks_path = Path(args.chunks).resolve()
+    products_path = Path(args.products).resolve()
+    menus_path = Path(args.menus).resolve()
+    for path, flag in ((chunks_path, "--chunks"), (products_path, "--products"),
+                       (menus_path, "--menus")):
+        if not path.is_file():
+            print(f"error: {flag} not found: {path}", file=sys.stderr)
+            return 2
+    out_dir = Path(args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    chunks = read_jsonl(chunks_path)
+    products = json.loads(products_path.read_text(encoding="utf-8"))
+    families = build_alias_table(products)["families"]
+    menu_rows = read_menu_rows(menus_path)
+    docs = build_documents(chunks, products, families, menu_rows)
+
+    docs_path = out_dir / "documents.jsonl"
+    with docs_path.open("w", encoding="utf-8", newline="\n") as f:
+        for rec in docs:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    summary: dict[str, Any] = {
+        "pipeline_version": __version__,
+        "options": {
+            "index_name": args.index_name, "limit": args.limit,
+            "no_embed": bool(args.no_embed), "no_upload": bool(args.no_upload),
+            "reset": bool(args.reset),
+        },
+        "n_documents": len(docs),
+        "by_source_type": _count_by(docs, "source_type"),
+        "products_indexed": sorted({pn for d in docs for pn in d["products"]}),
+        "embedding": None,
+        "upload": None,
+    }
+
+    if args.no_embed:
+        write_json(out_dir / "summary.json", summary)
+        print(f"index shaped: {len(docs)} documents -> {docs_path} (no embedding)")
+        print(f"  by source: {summary['by_source_type']}")
+        return 0
+
+    try:
+        cfg = load_azure_config(require=REQUIRE_INDEX)
+    except AzureConfigError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+
+    selected = docs if args.limit is None else docs[: args.limit]
+    embedder = Embedder(
+        cfg.openai_endpoint, cfg.openai_api_key, cfg.embedding_deployment,
+        EMBEDDING_API_VERSION, cache_path=out_dir / "runs" / "embeddings.jsonl",
+    )
+    if not args.quiet:
+        print(f"  embedding {len(selected)} document(s) "
+              f"({cfg.embedding_deployment} @ {EMBEDDING_API_VERSION})")
+    vectors = embedder.embed([embed_text(d) for d in selected])
+    embedder.save_cache()
+    summary["embedding"] = {
+        "deployment": cfg.embedding_deployment,
+        "api_version": EMBEDDING_API_VERSION,
+        "n_docs": len(selected),
+        "n_cache_hits": embedder.n_cache_hits,
+        "n_api_calls": embedder.n_api_calls,
+        "dims": len(vectors[0]) if vectors else 0,
+    }
+
+    if args.no_upload:
+        write_json(out_dir / "summary.json", summary)
+        print(f"index done (dry-run): shaped {len(docs)}, embedded "
+              f"{len(selected)} ({embedder.n_api_calls} API call(s), "
+              f"{embedder.n_cache_hits} cache hit(s)) — upload skipped")
+        for d in selected[:2]:
+            print(f"  sample {d['id']}: {d['title']} | {d['content'][:70]}")
+        return 0
+
+    try:
+        index_status = ensure_index(cfg.search_endpoint, cfg.search_admin_key,
+                                    args.index_name, reset=args.reset)
+        n_ok, errors = upload_documents(cfg.search_endpoint,
+                                        cfg.search_admin_key,
+                                        args.index_name, selected, vectors)
+    except Exception as e:  # noqa: BLE001 — report, don't traceback
+        print(f"error: upload failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return 1
+
+    summary["upload"] = {
+        "index": args.index_name, "index_status": index_status,
+        "n_uploaded": n_ok, "n_selected": len(selected), "errors": errors[:20],
+    }
+    write_json(out_dir / "summary.json", summary)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    write_json(out_dir / "runs" / f"index-{stamp}.json", {
+        "pipeline_version": __version__, "stage": "index", "utc": _utcnow(),
+        "args": {k: v for k, v in vars(args).items() if k != "func"},
+        "inputs": {"chunks": sha256_file(chunks_path),
+                   "products": sha256_file(products_path),
+                   "menus": sha256_file(menus_path)},
+        "n_documents": len(docs), "n_embedded": len(selected),
+        "n_uploaded": n_ok, "errors": errors,
+    })
+    print(f"index done: {len(docs)} shaped, {n_ok}/{len(selected)} uploaded to "
+          f"{args.index_name} ({index_status}); errors: {len(errors)}")
+    for e in errors[:10]:
+        print(f"  ERROR {e['key']}: {e['error']}")
+    return 1 if errors and args.fail_on_error else 0
+
+
 def _count_by(docs: list[dict], key: str) -> dict[str, int]:
     out: dict[str, int] = {}
     for d in docs:
@@ -512,6 +628,34 @@ def build_parser() -> argparse.ArgumentParser:
     pd.add_argument("--quiet", action="store_true")
     pd.add_argument("--fail-on-error", action="store_true")
     pd.set_defaults(func=cmd_pdsrg)
+
+    ix = sub.add_parser(
+        "index",
+        help="shape + embed + upload the §9 kb-main index "
+             "(pdsrg chunks + products.json + menu descriptions)")
+    ix.add_argument("--chunks", default="processed/pdsrg/chunks/chunks.jsonl",
+                    help="§6 chunks.jsonl")
+    ix.add_argument("--products", default="data/Product Data/products.json",
+                    help="products.json (§5 section-split source)")
+    ix.add_argument("--menus",
+                    default="data/Reference Menus/All Reference Menus Export.csv",
+                    help="menu CSV (§8 description docs)")
+    ix.add_argument("--out", default="processed/index",
+                    help="output dir (default: processed/index)")
+    ix.add_argument("--index-name", default=INDEX_NAME,
+                    help=f"AI Search index name (default: {INDEX_NAME})")
+    ix.add_argument("--limit", type=int, default=None,
+                    help="embed/upload only the first N documents, id order "
+                         "(documents.jsonl still covers everything)")
+    ix.add_argument("--no-embed", action="store_true",
+                    help="shape documents.jsonl only (no Azure calls)")
+    ix.add_argument("--no-upload", action="store_true",
+                    help="embed (cached) but skip AI Search upload (dry-run)")
+    ix.add_argument("--reset", action="store_true",
+                    help="drop + recreate the index before upload")
+    ix.add_argument("--quiet", action="store_true")
+    ix.add_argument("--fail-on-error", action="store_true")
+    ix.set_defaults(func=cmd_index)
 
     r = sub.add_parser("run", help="stage0 followed by stage1")
     common(r)

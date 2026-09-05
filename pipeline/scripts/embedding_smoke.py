@@ -5,11 +5,9 @@ One-off verification tool in the spirit of ``scripts/pdsrg_gate.py``: proves
 endpoint + key + deployment name end-to-end before the index builder (§9)
 relies on them.
 
-Deliberately does NOT use ``load_azure_config()`` — that loader enforces the
-full runtime contract, and the two chat deployments are still pending a quota
-increase (open item 1). This tool reads only the OpenAI section it needs,
-reusing the module's validators (imported private on purpose: single source
-of validation logic).
+Deliberately uses ``load_azure_config(require=REQUIRE_OPENAI_EMBEDDING)`` —
+the full contract isn't needed and the two chat deployments are still
+pending a quota increase (open item 1).
 
 Prints endpoint, deployment, returned model id, dims and token usage — never
 any key material. Exits non-zero on any failure.
@@ -26,8 +24,7 @@ import sys
 from openai import AzureOpenAI
 
 from qa_pipeline.azure_config import (
-    AzureConfigError, ENV_FILENAME, _endpoint, _required, read_env_file,
-    repo_root,
+    AzureConfigError, REQUIRE_OPENAI_EMBEDDING, load_azure_config,
 )
 
 # Verified against the Foundry v2 resource (services.ai.azure.com): the classic
@@ -43,19 +40,14 @@ def main() -> int:
     parser.add_argument("--input", default="dotFIT embedding smoke test")
     args = parser.parse_args()
 
-    path = repo_root() / ENV_FILENAME
-    if not path.is_file():
-        print(f"FAIL: {ENV_FILENAME} not found at {path}", file=sys.stderr)
-        return 1
-    values = read_env_file(path)
-
     try:
-        endpoint = _endpoint(values, "AZURE_OPENAI_ENDPOINT")
-        api_key = _required(values, "AZURE_OPENAI_API_KEY")
-        deployment = _required(values, "AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
+        cfg = load_azure_config(require=REQUIRE_OPENAI_EMBEDDING)
     except AzureConfigError as e:
         print(f"FAIL: {e}", file=sys.stderr)
         return 1
+    endpoint = cfg.openai_endpoint
+    api_key = cfg.openai_api_key
+    deployment = cfg.embedding_deployment
 
     print(f"endpoint        : {endpoint}")
     print(f"deployment      : {deployment}")

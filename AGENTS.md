@@ -23,13 +23,18 @@ uv run qa-pipeline pdsrg  --input "../data/Practitioner Dietary Supplement Refer
     --products "../data/Product Data/products.json" --out ../processed/pdsrg
 uv run qa-pipeline aliases --products "../data/Product Data/products.json" \
     --out ../processed/aliases --qa-docs ../processed/qa/stage1/documents.jsonl
+uv run qa-pipeline index --chunks ../processed/pdsrg/chunks/chunks.jsonl \
+    --products "../data/Product Data/products.json" \
+    --menus "../data/Reference Menus/All Reference Menus Export.csv" \
+    --out ../processed/index --no-upload   # shape + embed; drop --no-upload to upload
 ```
 
-Subcommands: `stage0`, `stage1`, `run`, `aliases`, `pdsrg`. Shared flags:
+Subcommands: `stage0`, `stage1`, `run`, `aliases`, `pdsrg`, `index`. Shared flags:
 `--include GLOB` (repeatable), `--limit N`, `--quiet`, `--fail-on-error`,
 `--no-prune` (by default outputs whose input disappeared are deleted so the
 output tree always mirrors the corpus). `pdsrg` adds `--keep-references`,
-`--citation-base`.
+`--citation-base`. `index` has no corpus tree to prune; it adds `--no-embed`,
+`--no-upload`, `--reset`, `--index-name`.
 
 Corpus filenames contain spaces, commas and `&` — always quote paths.
 
@@ -79,6 +84,18 @@ from `(formerly X)` markers) plus a curated overlay. It also harvests candidates
 from the QA corpus into a review worksheet. Consumed by `pdsrg.py` to tag chunks
 with `part_no`s and by query-side expansion — **never used to rewrite corpus
 text**.
+
+**Index build (`index_build.py` + `embeddings.py`, plan §9)** — shapes PDSRG
+chunks (already §9-stamped), products.json families (§5 section-split: the
+canonical SKU's sections are the family documents; variants contribute only
+genuinely distinct sections) and §8 menu descriptions into the `kb-main`
+schema (3072-dim vectors, int8 quantization + rescoring, `stored=false`).
+Vectors are API results: they embed `title + content` and cache in the
+gitignored `runs/embeddings.jsonl` (keyed by deployment|api-version|text), so
+the committed `documents.jsonl` carries no vectors and reruns are
+byte-identical. `azure_config.py` reads the gitignored root `.env` — with
+`require=` subsets, since the two chat deployments are pending quota — and
+never echoes values (masked repr; errors name variables only).
 
 **`io_utils.py`** is the single choke point for every read/write (explicit
 UTF-8, `newline="\n"`, POSIX-normalized ids, sorted iteration). New file I/O

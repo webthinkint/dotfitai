@@ -7,7 +7,7 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-05. 129 tests green.
+Numbers verified 2026-09-05. 148 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Numbers verified 2026-09-05. 129 tests green.
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
 | QA Stage 2 (canonicalize) | §4 | blocked on Azure model deployments (item 1) | — |
 | Podcast ASR | §7 | not started | — |
-| Index + retrieval | §9–11 | not started | — |
+| Index + retrieval | §9–11 | **in progress** — `kb-main` schema + builder done; 1,267 docs shaped + embedded (1,080 pdsrg / 177 product / 10 menu), dry-run verified, upload pending; retrieval not started | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -116,12 +116,28 @@ Everything else (rules, index contract, stage design) is in the plan.
   the classic `/openai/deployments` route works, but only on current
   api-versions — `2024-10-21` returns 404 "Resource not found" on v2.
   Verified live: `2025-04-01-preview` (embedding smoke test, 2026-09-05).
+- Index vectors are API results, so they live in a gitignored local cache
+  (`processed/index/runs/embeddings.jsonl`, keyed deployment|api-version|text);
+  the committed `documents.jsonl` carries no vectors — reruns stay
+  byte-identical and re-uploads are free.
+- The menu export's case-duplicate menu names (`Gluten Free`/`Gluten free`,
+  `Night Out`/`Night out` — identical descriptions) merge case-insensitively
+  with the dominant spelling displayed; they would otherwise collide as
+  duplicate document ids (the slug is casefolded).
 
 ## Log
 
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (7)** — Index builder (§9): `kb-main` schema (3072-dim
+  int8-quantized vectors, rescoring, `stored=false`, semantic config), §5
+  products section-split with family grouping (177 docs), §8 menu
+  descriptions (10 — case-duplicate CSV names merged by dominant spelling, a
+  latent duplicate-id bug), PDSRG pass-through (1,080); cached `Embedder` +
+  `azure_config.require=` subsets; `index` CLI. 1,267 documents shaped and
+  embedded (80 API calls first pass, cache hits after), byte-identical
+  reshape verified. 148 tests.
 - **2026-09-05 (6)** — Scan-dump history purged (owner decision, closes the
   (3) caveat): `git filter-repo --invert-paths` removed all four `.scan_*.txt`
   from every commit; hashes rewritten; pre-purge bundle kept outside the repo

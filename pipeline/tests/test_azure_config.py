@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from qa_pipeline.azure_config import (
-    AzureConfig, AzureConfigError, load_azure_config, parse_env, read_env_file,
-    repo_root,
+    AzureConfig, AzureConfigError, KNOWN_VARS, REQUIRE_INDEX, REQUIRE_SPEECH,
+    load_azure_config, parse_env, read_env_file, repo_root,
 )
 
 FAKE = {
@@ -152,3 +152,41 @@ def test_repo_root_holds_the_pipeline_regardless_of_cwd(tmp_path, monkeypatch):
     root = repo_root()
     assert (root / "pipeline" / "pyproject.toml").is_file()
     assert root.joinpath(".git").exists()
+
+
+# --- require= subsets (open item 1: chat deployments pending quota) ---------
+
+
+def test_load_require_subset_allows_missing_chat_and_speech(tmp_path):
+    text = "\n".join([
+        f"AZURE_SEARCH_ENDPOINT={FAKE['AZURE_SEARCH_ENDPOINT']}",
+        "AZURE_SEARCH_ADMIN_KEY=fake-admin",
+        f"AZURE_OPENAI_ENDPOINT={FAKE['AZURE_OPENAI_ENDPOINT']}",
+        "AZURE_OPENAI_API_KEY=fake-api",
+        "AZURE_OPENAI_EMBEDDING_DEPLOYMENT=embed-large",
+    ]) + "\n"
+    cfg = load_azure_config(_env_file(tmp_path, text), require=REQUIRE_INDEX)
+    assert cfg.embedding_deployment == "embed-large"
+    assert cfg.chat_deployment is None
+    assert cfg.speech_region is None and cfg.speech_endpoint is None
+    assert "unset" in repr(cfg)
+
+
+def test_load_require_unknown_var_raises(tmp_path):
+    with pytest.raises(AzureConfigError, match="typo"):
+        load_azure_config(_env_file(tmp_path, _env_text()),
+                         require=("AZURE_TYPO_VAR",))
+
+
+def test_present_but_broken_optional_still_raises(tmp_path):
+    # AZURE_SPEECH_ENDPOINT is not in REQUIRE_INDEX, but a placeholder in it
+    # means a broken file — validated regardless of *require*
+    text = _env_text(AZURE_SPEECH_ENDPOINT="https://<placeholder>.azure.com")
+    with pytest.raises(AzureConfigError, match="AZURE_SPEECH_ENDPOINT"):
+        load_azure_config(_env_file(tmp_path, text), require=REQUIRE_INDEX)
+
+
+def test_known_vars_and_subsets_are_consistent():
+    assert set(REQUIRE_INDEX) <= set(KNOWN_VARS)
+    assert set(REQUIRE_SPEECH) <= set(KNOWN_VARS)
+    assert not set(REQUIRE_INDEX) & set(REQUIRE_SPEECH)

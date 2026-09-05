@@ -47,6 +47,12 @@ def read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding=UTF8))
 
 
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    """Read a JSON Lines file into a list of records (UTF-8, whole-file)."""
+    with path.open("r", encoding=UTF8) as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
 def iter_docx(root: Path) -> list[Path]:
     """Deterministically ordered .docx files under *root* (recursive)."""
     return sorted(p for p in root.rglob("*.docx") if p.is_file())
