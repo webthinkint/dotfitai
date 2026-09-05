@@ -122,6 +122,10 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (6)** — Scan-dump history purged (owner decision, closes the
+  (3) caveat): `git filter-repo --invert-paths` removed all four `.scan_*.txt`
+  from every commit; hashes rewritten; pre-purge bundle kept outside the repo
+  as the escape hatch. 130 tests.
 - **2026-09-05 (5)** — Embedding smoke test **PASS** (§10): live call to the
   deployed `text-embedding-3-large`, 3072 dims confirmed
   (`scripts/embedding_smoke.py`; `openai>=1.60,<3` added). Foundry v2
