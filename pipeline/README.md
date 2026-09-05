@@ -26,7 +26,9 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   index: PDSRG chunks (pass-through — already §9-stamped), products.json §5
   section-split with family grouping (the canonical SKU's sections are the
   family documents; variants contribute only genuinely distinct sections),
-  and §8 menu description docs. Vectors (`text-embedding-3-large`, 3072-dim)
+  §8 menu description docs, and §7 podcast segments (`authority=4`,
+  `citation_url` null until the archive.txt → YouTube mapping is
+  verified). Vectors (`text-embedding-3-large`, 3072-dim)
   embed `title + content` and cache under the gitignored
   `runs/embeddings.jsonl`, so the committed `documents.jsonl` (no vectors)
   stays byte-identical across reruns.
@@ -57,12 +59,14 @@ uv sync
 uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
-Subcommands: `stage0`, `stage1`, `run` (both), `aliases`, `pdsrg`, `index`.
-Options on all: `--include GLOB` (repeatable), `--limit N` (pilots), `--quiet`,
-`--fail-on-error` (non-zero exit if any file fails — for cron/CI), `--no-prune`
-(keep outputs whose input has been deleted; by default they are removed so the
-output tree always matches the corpus). `pdsrg` adds `--keep-references` and
-`--citation-base`; `index` (no corpus tree to prune) has `--limit N`,
+Subcommands: `stage0`, `stage1`, `run` (both), `aliases`, `pdsrg`, `index`,
+`podcast`. Options on all: `--include GLOB` (repeatable), `--limit N`
+(pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
+for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
+default they are removed so the output tree always matches the corpus).
+`pdsrg` adds `--keep-references` and `--citation-base`; `podcast` takes
+`--transcripts` + `--audio` instead of `--input` (no corpus tree to prune);
+`index` (no corpus tree to prune) has `--limit N`,
 `--no-embed` (shape only), `--no-upload` (embed, skip AI Search), `--reset`
 (drop + recreate the index) and `--index-name`.
 
@@ -73,6 +77,16 @@ uv run qa-pipeline pdsrg \
     --input "../data/Practitioner Dietary Supplement Reference Guide" \
     --products "../data/Product Data/products.json" \
     --out ../processed/pdsrg
+```
+
+Podcast segmentation (plan §7 step 3 — transcripts must exist first, see
+`scripts/asr_pilot.py --all`):
+
+```bash
+uv run qa-pipeline podcast \
+    --transcripts ../processed/podcasts/transcripts \
+    --audio "../data/Suppbeast Podcast" \
+    --out ../processed/podcasts
 ```
 
 §9 index build (shape + embed + upload):
@@ -113,6 +127,18 @@ PDSRG outputs (relative to the `pdsrg --out` root, default `processed/pdsrg`):
 <out>/chunks/summary.json    per-doc stats + review flags
 <out>/review/<slug>.md       per-doc chunking outline (human spot-check)
 <out>/runs/pdsrg-<ts>.json   run manifest
+```
+
+Podcast outputs (relative to the `podcast --out` root, default
+`processed/podcasts` — transcripts themselves live in
+`<out>/transcripts/`, written by `scripts/asr_pilot.py --all`):
+
+```
+<out>/segments/segments.jsonl  one record per topic chunk (id,
+                               episode_id/title, chunk_index, start/end
+                               mm:ss + ms, speakers, Speaker-turn text)
+<out>/segments/summary.json    per-episode stats
+<out>/runs/podcast-<ts>.json  run manifest
 ```
 
 Index outputs (relative to the `index --out` root, default `processed/index`):

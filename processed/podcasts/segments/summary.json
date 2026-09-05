@@ -1,0 +1,344 @@
+{
+ "pipeline_version": "0.1.0",
+ "options": {
+  "target_words": 200,
+  "max_words": 250,
+  "target_seconds": 90.0,
+  "max_seconds": 120.0
+ },
+ "errors": [],
+ "n_episodes": 47,
+ "n_segments": 1800,
+ "n_words": 437350,
+ "episodes": [
+  {
+   "episode_id": "1-expert-reacts-to-nutrition-and-fitness-advice",
+   "episode_title": "#1 Expert Reacts to Nutrition and Fitness Advice",
+   "n_segments": 30,
+   "n_words": 7261,
+   "duration_s": 2253.8
+  },
+  {
+   "episode_id": "1-nutrition-expert-reacts-to-controversial-nutrition-advice",
+   "episode_title": "#1 Nutrition Expert Reacts to Controversial Nutrition Advice",
+   "n_segments": 26,
+   "n_words": 6156,
+   "duration_s": 1831.2
+  },
+  {
+   "episode_id": "about-neal-zane-spruce-ep-00",
+   "episode_title": "About Neal & Zane Spruce | Ep 00",
+   "n_segments": 19,
+   "n_words": 4743,
+   "duration_s": 1439.3
+  },
+  {
+   "episode_id": "amino-acids-supplementation-benefits-eaas-and-bcaas",
+   "episode_title": "Amino Acids Supplementation Benefits | EAAs and BCAAs",
+   "n_segments": 29,
+   "n_words": 7377,
+   "duration_s": 2205.4
+  },
+  {
+   "episode_id": "are-supplements-worth-it-ep-07",
+   "episode_title": "Are Supplements WORTH It? | Ep 07",
+   "n_segments": 52,
+   "n_words": 12480,
+   "duration_s": 3805.2
+  },
+  {
+   "episode_id": "carbs-the-most-misunderstood-nutrient",
+   "episode_title": "Carbs: The Most Misunderstood Nutrient",
+   "n_segments": 48,
+   "n_words": 11942,
+   "duration_s": 3825.8
+  },
+  {
+   "episode_id": "creatine-faqs-hair-loss-caffeine-dosing-by-weight-hcl-vs-monohydrate-more",
+   "episode_title": "Creatine FAQs: Hair Loss, Caffeine, Dosing by Weight, HCL vs Monohydrate & More",
+   "n_segments": 24,
+   "n_words": 5615,
+   "duration_s": 1785.7
+  },
+  {
+   "episode_id": "david-protein-bar-failed-consumer-labs-test-layne-norton-neal-spruce-react",
+   "episode_title": "David Protein Bar FAILED Consumer Labs Test | Layne Norton & Neal Spruce React",
+   "n_segments": 15,
+   "n_words": 3888,
+   "duration_s": 1219.8
+  },
+  {
+   "episode_id": "dietary-fiber-gut-health-foods-weight-control-and-more",
+   "episode_title": "DIETARY FIBER: Gut Health, Foods, Weight Control and More!",
+   "n_segments": 34,
+   "n_words": 8354,
+   "duration_s": 2624.0
+  },
+  {
+   "episode_id": "doctor-says-protein-powder-is-bad-and-more-fitness-expert-reacts",
+   "episode_title": "Doctor Says Protein Powder is BAD and More! | Fitness Expert Reacts",
+   "n_segments": 34,
+   "n_words": 8196,
+   "duration_s": 2535.6
+  },
+  {
+   "episode_id": "eaas-vs-bcaas-what-actually-builds-muscle-from-the-guy-who-formulated-the-first-eaa",
+   "episode_title": "EAAs vs BCAAs: What Actually Builds Muscle (From the Guy Who Formulated the First EAA)",
+   "n_segments": 40,
+   "n_words": 9708,
+   "duration_s": 3108.3
+  },
+  {
+   "episode_id": "eat-like-a-pro-athlete-nfl-edition-ep-06",
+   "episode_title": "Eat Like A Pro Athlete | NFL Edition | Ep 06",
+   "n_segments": 32,
+   "n_words": 7510,
+   "duration_s": 2208.6
+  },
+  {
+   "episode_id": "every-diet-works-because-of-calories-in-vs-calories-out",
+   "episode_title": "Every Diet Works Because of Calories In vs Calories Out",
+   "n_segments": 47,
+   "n_words": 11469,
+   "duration_s": 3805.6
+  },
+  {
+   "episode_id": "everything-you-need-to-know-about-macronutrients-from-an-expert-ep-01",
+   "episode_title": "Everything You Need to Know About Macronutrients From an Expert | Ep 01",
+   "n_segments": 45,
+   "n_words": 10719,
+   "duration_s": 3289.5
+  },
+  {
+   "episode_id": "expert-explains-keys-to-lose-fat-ep-04",
+   "episode_title": "Expert Explains KEYS to LOSE FAT! | Ep 04",
+   "n_segments": 61,
+   "n_words": 14796,
+   "duration_s": 4438.8
+  },
+  {
+   "episode_id": "fully-understanding-micronutrients-ep-02",
+   "episode_title": "Fully Understanding Micronutrients | Ep 02",
+   "n_segments": 66,
+   "n_words": 15727,
+   "duration_s": 4912.2
+  },
+  {
+   "episode_id": "glp-1-weight-loss-done-right-ozempic-wegovy-the-real-protocol-for-long-term-success",
+   "episode_title": "GLP-1 Weight Loss Done RIGHT: Ozempic, Wegovy & The Real Protocol for Long-Term Success",
+   "n_segments": 39,
+   "n_words": 9554,
+   "duration_s": 2983.6
+  },
+  {
+   "episode_id": "how-to-avoid-holiday-weight-gain-without-skipping-the-foods-you-love",
+   "episode_title": "How to Avoid Holiday Weight Gain (Without Skipping the Foods You Love)",
+   "n_segments": 40,
+   "n_words": 9642,
+   "duration_s": 3150.7
+  },
+  {
+   "episode_id": "how-to-break-a-muscle-building-plateau",
+   "episode_title": "How to Break a Muscle Building Plateau",
+   "n_segments": 46,
+   "n_words": 11270,
+   "duration_s": 3499.3
+  },
+  {
+   "episode_id": "how-to-break-a-weight-loss-plateau",
+   "episode_title": "How to Break a Weight Loss Plateau",
+   "n_segments": 48,
+   "n_words": 11823,
+   "duration_s": 3456.4
+  },
+  {
+   "episode_id": "how-to-build-the-most-muscle-naturally",
+   "episode_title": "How to Build the Most Muscle (Naturally)",
+   "n_segments": 58,
+   "n_words": 14084,
+   "duration_s": 4281.8
+  },
+  {
+   "episode_id": "how-to-lose-fat-and-gain-muscle-at-the-same-time",
+   "episode_title": "How to LOSE Fat and GAIN Muscle AT THE SAME TIME!",
+   "n_segments": 43,
+   "n_words": 10527,
+   "duration_s": 3090.2
+  },
+  {
+   "episode_id": "i-asked-a-nutrition-expert-which-supplements-are-actually-worth-it",
+   "episode_title": "I Asked a Nutrition Expert Which Supplements Are Actually Worth It!",
+   "n_segments": 22,
+   "n_words": 5595,
+   "duration_s": 1797.4
+  },
+  {
+   "episode_id": "improve-muscle-and-brain-the-complete-guide-to-creatine-ep-12",
+   "episode_title": "Improve Muscle and Brain | The Complete Guide to Creatine | Ep 12",
+   "n_segments": 54,
+   "n_words": 12972,
+   "duration_s": 3949.2
+  },
+  {
+   "episode_id": "new-study-creatine-doesn-t-help-build-muscle-nutrition-expert-explains",
+   "episode_title": "NEW STUDY: CREATINE DOESN'T HELP BUILD MUSCLE | Nutrition Expert Explains",
+   "n_segments": 27,
+   "n_words": 6506,
+   "duration_s": 1960.3
+  },
+  {
+   "episode_id": "nutirition-expert-on-clean-eating-hrt-fat-loss-exercise-keto-diet-and-vegan-diet",
+   "episode_title": "Nutirition Expert on: Clean Eating, HRT, Fat Loss Exercise, Keto Diet and Vegan Diet!",
+   "n_segments": 39,
+   "n_words": 9584,
+   "duration_s": 3113.1
+  },
+  {
+   "episode_id": "nutrition-expert-optimal-nutrition-for-kids-to-reach-maximum-potential",
+   "episode_title": "Nutrition Expert: Optimal Nutrition for Kids to Reach Maximum Potential",
+   "n_segments": 50,
+   "n_words": 12007,
+   "duration_s": 3576.2
+  },
+  {
+   "episode_id": "nutrition-expert-reacts-to-dr-berg-doctor-mike-jay-cutler-more",
+   "episode_title": "Nutrition Expert REACTS to Dr. Berg, Doctor Mike, Jay Cutler & more!",
+   "n_segments": 19,
+   "n_words": 4774,
+   "duration_s": 1599.2
+  },
+  {
+   "episode_id": "nutrition-expert-reacts-to-fitness-advice-mike-israetel-gary-brecka-and-more",
+   "episode_title": "Nutrition Expert Reacts to Fitness Advice! | Mike Israetel, Gary Brecka and more!",
+   "n_segments": 22,
+   "n_words": 5147,
+   "duration_s": 1673.6
+  },
+  {
+   "episode_id": "nutrition-expert-responds-to-calories-in-vs-calories-out-haters-ep-05",
+   "episode_title": "Nutrition Expert Responds to Calories In vs Calories Out Haters | Ep 05",
+   "n_segments": 32,
+   "n_words": 7489,
+   "duration_s": 2292.7
+  },
+  {
+   "episode_id": "old-school-bodybuilding-vs-science-based-lifting",
+   "episode_title": "Old School Bodybuilding vs Science Based Lifting",
+   "n_segments": 32,
+   "n_words": 8036,
+   "duration_s": 2603.3
+  },
+  {
+   "episode_id": "over-40-fitness-blueprint-anti-aging-nutrition-plan-to-stay-strong-lean-young",
+   "episode_title": "Over 40 Fitness Blueprint: Anti-Aging Nutrition Plan to Stay Strong, Lean & Young",
+   "n_segments": 52,
+   "n_words": 13006,
+   "duration_s": 4001.4
+  },
+  {
+   "episode_id": "over-70-of-protein-podwers-contain-high-lead-expert-explains",
+   "episode_title": "Over 70% of Protein Podwers Contain High Lead?! Expert Explains",
+   "n_segments": 19,
+   "n_words": 4421,
+   "duration_s": 1500.0
+  },
+  {
+   "episode_id": "protein-101-with-a-nutrition-expert",
+   "episode_title": "Protein 101 with a Nutrition Expert",
+   "n_segments": 66,
+   "n_words": 16427,
+   "duration_s": 4963.1
+  },
+  {
+   "episode_id": "stop-buying-supplements-here-mass-market-ep-10",
+   "episode_title": "Stop BUYING Supplements HERE! | Mass Market | Ep 10",
+   "n_segments": 52,
+   "n_words": 12474,
+   "duration_s": 3963.4
+  },
+  {
+   "episode_id": "study-shows-endurance-athletes-no-longer-need-to-carb-load",
+   "episode_title": "Study Shows Endurance Athletes No Longer Need to Carb Load?",
+   "n_segments": 23,
+   "n_words": 5521,
+   "duration_s": 1725.1
+  },
+  {
+   "episode_id": "supplement-protocols-for-optimal-health-ep-08",
+   "episode_title": "Supplement Protocols for OPTIMAL Health | Ep 08",
+   "n_segments": 68,
+   "n_words": 16110,
+   "duration_s": 5070.2
+  },
+  {
+   "episode_id": "the-benefits-of-protein-powders-whey-soy-collagen-egg-white-etc",
+   "episode_title": "The Benefits of Protein Powders | Whey, Soy, Collagen, Egg White etc.",
+   "n_segments": 53,
+   "n_words": 12922,
+   "duration_s": 3847.7
+  },
+  {
+   "episode_id": "the-best-immune-system-booster-protocol-ep-11",
+   "episode_title": "The BEST Immune System Booster Protocol | Ep. 11",
+   "n_segments": 30,
+   "n_words": 7146,
+   "duration_s": 2216.2
+  },
+  {
+   "episode_id": "the-protein-craze-has-it-gone-too-far",
+   "episode_title": "THE PROTEIN CRAZE... has it gone too far?",
+   "n_segments": 22,
+   "n_words": 5360,
+   "duration_s": 1782.2
+  },
+  {
+   "episode_id": "the-truth-about-creatine-side-effects-nutrition-expert-explains-science",
+   "episode_title": "The Truth about Creatine Side Effects | Nutrition Expert Explains Science",
+   "n_segments": 44,
+   "n_words": 10516,
+   "duration_s": 3386.2
+  },
+  {
+   "episode_id": "top-10-missing-vitamins-and-minerals-ep-03",
+   "episode_title": "Top 10 Missing Vitamins and Minerals | Ep 03",
+   "n_segments": 45,
+   "n_words": 10819,
+   "duration_s": 3434.0
+  },
+  {
+   "episode_id": "top-nutrition-expert-reacts-to-rfk-jr-new-food-pyramid",
+   "episode_title": "Top Nutrition Expert Reacts to RFK Jr. New Food Pyramid",
+   "n_segments": 13,
+   "n_words": 3615,
+   "duration_s": 1217.7
+  },
+  {
+   "episode_id": "understanding-aging-and-how-to-beat-it-ep-09",
+   "episode_title": "Understanding Aging and How to Beat It | Ep 09",
+   "n_segments": 58,
+   "n_words": 14222,
+   "duration_s": 4391.2
+  },
+  {
+   "episode_id": "vacation-weight-gain-how-fast-you-lose-muscle-gain-fat-the-truth",
+   "episode_title": "Vacation Weight Gain: How Fast You Lose Muscle & Gain Fat (The Truth)",
+   "n_segments": 35,
+   "n_words": 8138,
+   "duration_s": 2442.5
+  },
+  {
+   "episode_id": "what-neal-spruce-takes-every-day-at-73-a-40-year-fitness-expert-s-full-supplement-stack",
+   "episode_title": "What Neal Spruce Takes Every Day at 73 | A 40-Year Fitness Expert's Full Supplement Stack",
+   "n_segments": 31,
+   "n_words": 7743,
+   "duration_s": 2356.5
+  },
+  {
+   "episode_id": "why-we-started-a-fitness-channel-with-no-agenda",
+   "episode_title": "Why We Started a Fitness Channel With No Agenda",
+   "n_segments": 16,
+   "n_words": 3959,
+   "duration_s": 1312.5
+  }
+ ]
+}
