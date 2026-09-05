@@ -197,6 +197,12 @@ def menu_documents(rows: list[dict]) -> list[dict]:
         g["count"][name] = g["count"].get(name, 0) + 1
         g["descr"].setdefault(name, r["menu_descr"].strip())
         g["cals"].add(int(r["menu_calories"]))
+    for key, g in groups.items():
+        if len(set(g["descr"].values())) > 1:
+            raise ValueError(
+                f"menu {key!r}: case-variant names carry different "
+                f"descriptions {sorted(set(g['descr'].values()))!r} — "
+                f"resolve the export before indexing")
     docs = []
     for key in sorted(groups):
         g = groups[key]
@@ -208,7 +214,7 @@ def menu_documents(rows: list[dict]) -> list[dict]:
         docs.append({
             "id": f"menu_desc-{_slug(name)}-description",
             "source_type": "menu_desc",
-            "authority": None,                  # §3 assigns no authority to menus
+            "authority": 5,                       # §3: menus rank last
             "title": name,
             "content": content,
             "citation_url": None,

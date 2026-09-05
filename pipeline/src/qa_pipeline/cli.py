@@ -276,6 +276,7 @@ def cmd_stage1(args: argparse.Namespace) -> int:
 
     docs_path = stage1_dir / "documents.jsonl"
     review_path = stage1_dir / "review_queue.jsonl"
+    documents.sort(key=lambda r: r["source_file"])
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
         for rec in documents:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -376,9 +377,9 @@ def cmd_pdsrg(args: argparse.Namespace) -> int:
         try:
             result = chunk_pdf(path, alias_families,
                                keep_references=args.keep_references)
-        except ValueError as exc:
-            errors.append(str(exc))
-            print(f"  ERROR {path.name}: {exc}", file=sys.stderr)
+        except Exception as exc:  # noqa: BLE001 — one bad PDF must not kill the run
+            errors.append(f"{path.name}: {type(exc).__name__}: {exc}")
+            print(f"  ERROR {path.name}: {type(exc).__name__}: {exc}", file=sys.stderr)
             continue
         doc = result["doc"]
         # relative to the corpus root, never the working directory: the old

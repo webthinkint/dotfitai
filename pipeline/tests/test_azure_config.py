@@ -84,6 +84,12 @@ def test_parse_env_inline_comments():
     }
 
 
+def test_parse_env_quoted_value_with_trailing_comment():
+    # a comment after a quoted value must not leave the quotes behind
+    assert parse_env('A="foo"  # comment\n') == {"A": "foo"}
+    assert parse_env("A='bar'  # comment\n") == {"A": "bar"}
+
+
 def test_read_env_file_tolerates_bom(tmp_path):
     path = _env_file(tmp_path, "\ufeffA=1\n")
     assert read_env_file(path) == {"A": "1"}

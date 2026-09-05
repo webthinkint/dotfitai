@@ -95,6 +95,9 @@ class Embedder:
                 k = self._key(texts[i])
                 self._cache[k] = vec
                 self._dirty.append(k)
+            # checkpoint: a crash mid-run keeps every batch so far instead
+            # of losing all newly embedded vectors (re-embedding costs money)
+            self.save_cache()
         return out  # type: ignore[return-value]
 
     def _embed_batch(self, texts: list[str]) -> list[list[float]]:

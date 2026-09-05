@@ -119,6 +119,17 @@ def test_menu_documents_case_variant_names_merge_deterministically():
     assert "1,000 to 4,500 calories across 3 levels" in d["content"]
 
 
+def test_menu_documents_divergent_descriptions_raise():
+    rows = [
+        {"menu_name": "Night Out", "menu_descr": "Planned night.",
+         "menu_calories": "1000"},
+        {"menu_name": "Night out", "menu_descr": "Something else.",
+         "menu_calories": "2000"},
+    ]
+    with pytest.raises(ValueError, match="different"):
+        menu_documents(rows)
+
+
 def test_menu_documents_one_per_type_with_calorie_range():
     rows = [
         {"menu_name": "Heart Healthy", "menu_descr": "Heart healthy.",
@@ -132,7 +143,7 @@ def test_menu_documents_one_per_type_with_calorie_range():
     assert [d["source_type"] for d in docs] == ["menu_desc", "menu_desc"]
     hh = next(d for d in docs if d["title"] == "Heart Healthy")
     assert "1,000 to 1,500 calories across 2 levels" in hh["content"]
-    assert hh["authority"] is None and hh["topics"] == ["menus"]
+    assert hh["authority"] == 5 and hh["topics"] == ["menus"]
     assert hh["is_current"] is True and hh["products"] == []
 
 
@@ -280,6 +291,18 @@ def test_embedder_batch_alignment_and_cache_roundtrip(tmp_path):
     e2 = _embedder(tmp_path, FakeAPI())
     assert e2.embed(["a", "b", "c"]) == vecs
     assert e2.n_api_calls == 0 and e2.n_cache_hits == 3
+
+
+def test_embedder_checkpoints_cache_per_batch(tmp_path):
+    # a crash after batch 1 must not lose its vectors: the cache file is
+    # appended per batch, not only on save_cache()
+    import json
+    api = FakeAPI()
+    e = _embedder(tmp_path, api, batch=2)
+    e.embed(["a", "b", "c"])
+    cached = [json.loads(l) for l in (tmp_path / "cache.jsonl")
+              .read_text(encoding="utf-8").splitlines()]
+    assert len(cached) == 3
 
 
 def test_embedder_cache_key_includes_deployment(tmp_path):

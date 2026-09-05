@@ -91,8 +91,13 @@ def parse_env(text: str) -> dict[str, str]:
         if key in values:
             raise AzureConfigError(f"{ENV_FILENAME} line {lineno}: duplicate key {key}")
         value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
-            value = value[1:-1]
+        if value.startswith(("'", '"')):
+            q = value[0]
+            end = value.find(q, 1)
+            if end != -1:
+                rest = value[end + 1:].strip()
+                if rest == "" or rest.startswith("#"):
+                    value = value[1:end]
         elif value.startswith("#"):
             value = ""
         elif (m := re.search(r"\s#", value)):
