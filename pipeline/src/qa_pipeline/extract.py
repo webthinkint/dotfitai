@@ -69,16 +69,17 @@ def _walk_body(doc: DocumentObject) -> list[str]:
     from docx.oxml.ns import qn
 
     lines: list[str] = []
-    tables = {id(t._tbl): t for t in doc.tables}   # built once, not per table
+    tables = list(doc.tables)  # document order; nth w:tbl ↔ nth Table
+    tbl_idx = 0
     body = doc.element.body
     for child in body.iterchildren():
         if child.tag == qn("w:p"):
             for piece in _para_text(Paragraph(child, doc)).split("\n"):
                 lines.append(piece)
         elif child.tag == qn("w:tbl"):
-            table = tables.get(id(child))
-            if table is not None:
-                lines.extend(_table_rows(table))
+            if tbl_idx < len(tables):
+                lines.extend(_table_rows(tables[tbl_idx]))
+            tbl_idx += 1
     return lines
 
 

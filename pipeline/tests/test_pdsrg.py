@@ -13,7 +13,8 @@ import pytest
 from qa_pipeline.alias import norm
 from qa_pipeline.pdsrg import (
     MAX_TOKENS, PageLine, assign_heading_levels, build_sections,
-    chunk_records, chunk_section, classify_lines, is_collapsed,
+    chunk_records, chunk_section, classify_lines, extract_tables_hybrid,
+    is_collapsed,
     is_prose_false_positive, is_references_section, is_trivial,
     merge_wrapped_headings, render_table_markdown, resolve_stem,
     running_header_texts, slugify,
@@ -52,6 +53,35 @@ def test_prose_filter_short_cells_not_prose():
 
 def test_collapse_signature():
     assert is_collapsed([["4.9µg 15-20µg 100µg N-250µg", None, None, None]])
+
+
+def test_collapsed_table_survives_prose_filter():
+    """A still-collapsed grid is dosage-dense by construction (3+ dosages
+    in one cell) — it must be kept atomic, never dropped as prose."""
+
+    class _T:
+        def __init__(self, data, bbox):
+            self._data, self.bbox = data, bbox
+        def extract(self):
+            return self._data
+
+    class _Page:
+        page_number = 3
+        def __init__(self, tables):
+            self._tables = tables
+        def find_tables(self, table_settings=None):
+            return self._tables
+        def crop(self, bbox):
+            return self
+
+    grid = [["4.9µg 15-20µg 100µg", None], ["5mg 10mg 20mg", None],
+            ["1g 2g 3g", None]]
+    page = _Page([_T(grid, (0, 0, 100, 100))])
+    stats = {"raw": 0, "trivial": 0, "prose_dropped": 0,
+             "text_fallback": 0, "kept": 0}
+    out = extract_tables_hybrid(page, stats)
+    assert len(out) == 1
+    assert stats["kept"] == 1 and stats["prose_dropped"] == 0
 
 
 def test_render_table_markdown_drops_empty_columns():
@@ -339,6 +369,24 @@ def test_citation_base_is_configurable():
            "slug": "doc"}
     rec = chunk_records(doc, chunks, citation_base="https://cdn.example/kb/")[0]
     assert rec["citation_url"] == "https://cdn.example/kb/Doc.pdf#page=7"
+
+
+def test_citation_url_quotes_corpus_names():
+    # corpus filenames carry spaces, & and apostrophes that break rendered
+    # links — the path is quoted (slashes stay) at build time
+    from qa_pipeline.pdsrg import Section
+    section = Section(path=["Goal"])
+    section.blocks = [("para", "Body text.", 1)]
+    chunks = chunk_section(section, "Sleep Aid", ["Goal"])
+    chunks[0]["id"] = "pdsrg:sleep-aid:001"
+    doc = {"doc_title": "SleepAid", "family": "SleepAid", "part_nos": [],
+           "category": "Health", "topics": [], "source_file": "Sleep Aid.pdf",
+           "slug": "sleep-aid"}
+    rec = chunk_records(doc, chunks)[0]
+    assert rec["citation_url"] == "pdsrg/Sleep%20Aid.pdf#page=1"
+    doc2 = dict(doc, source_file="WeightLoss&LiverSupport.pdf")
+    rec2 = chunk_records(doc2, chunks)[0]
+    assert rec2["citation_url"] == "pdsrg/WeightLoss%26LiverSupport.pdf#page=1"
 
 
 # --- stem resolution ------------------------------------------------------------------

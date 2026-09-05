@@ -51,6 +51,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import quote
 
 import pdfplumber
 
@@ -215,7 +216,8 @@ def extract_tables_hybrid(page, stats: dict[str, int]) -> list[dict]:
             stats["trivial"] += 1
             continue
         strategy = "lines"
-        if is_collapsed(data):
+        collapsed = is_collapsed(data)
+        if collapsed:
             # collapsed wide grids have run-on single-cell rows — must be
             # re-extracted BEFORE the prose filter, whose signature
             # (single-cell rows, long cells) they share
@@ -227,6 +229,15 @@ def extract_tables_hybrid(page, stats: dict[str, int]) -> list[dict]:
                 if redata and not is_collapsed(redata):
                     data, strategy = redata, "text(fallback)"
                     stats["text_fallback"] += 1
+                    collapsed = False
+        if collapsed:
+            # Still collapsed after the retry: a dosage-dense grid, not
+            # prose (prose never packs 3+ dosages into one cell). Keep it
+            # atomic downstream via the oversize path instead of dropping.
+            stats["kept"] += 1
+            out.append({"data": data, "strategy": strategy + "(collapsed)",
+                        "page": page.page_number, "bbox": t.bbox})
+            continue
         if is_prose_false_positive(data):
             stats["prose_dropped"] += 1
             continue
@@ -782,7 +793,10 @@ def chunk_records(doc: dict, chunks: list[dict],
             "topics": doc["topics"],
             "pages": pages,
             "locator": f"{doc['doc_title']} — {title} ({loc})",
-            "citation_url": f"{citation_base}{doc['source_file']}"
+            # source_file carries raw corpus names (spaces, &, apostrophes)
+            # that break rendered links — quote the path (slashes stay) so
+            # the URL works wherever the deployment serves the PDFs from.
+            "citation_url": f"{citation_base}{quote(doc['source_file'])}"
                             f"#page={pages[0]}",
             "date": None,               # §9: nullable for non-QA sources
             "is_current": True,
