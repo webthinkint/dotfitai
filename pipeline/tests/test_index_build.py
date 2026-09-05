@@ -6,8 +6,9 @@ import pytest
 
 from qa_pipeline.embeddings import Embedder
 from qa_pipeline.index_build import (
-    INDEX_NAME, build_documents, embed_text, index_schema, menu_documents,
-    pdsrg_documents, product_documents, read_menu_rows, split_sections,
+    INDEX_NAME, build_documents, embed_text, ensure_index, index_schema,
+    menu_documents, pdsrg_documents, product_documents, read_menu_rows,
+    split_sections, upload_documents,
 )
 
 
@@ -249,3 +250,80 @@ def test_embedder_oversize_raises_before_any_api_call(tmp_path):
     with pytest.raises(ValueError, match="exceeds"):
         e.embed(["x" * (Embedder.MAX_INPUT_CHARS + 1)])
     assert api.calls == []
+
+
+# --- Search wiring (fake SDK clients; serverless-safe, no list calls) ------
+
+
+class _FakeIndexes:
+    def __init__(self, present):
+        self.present = set(present)
+        self.calls: list = []
+
+    def get_index(self, name):
+        self.calls.append(("get", name))
+        if name not in self.present:
+            from azure.core.exceptions import ResourceNotFoundError
+            raise ResourceNotFoundError("not found")
+        return object()
+
+    def create_or_update_index(self, index):
+        self.calls.append(("create", index.name))
+        self.present.add(index.name)
+
+    def delete_index(self, name):
+        self.calls.append(("delete", name))
+        self.present.discard(name)
+
+
+def test_ensure_index_get_based_create_exists_and_reset(monkeypatch):
+    import azure.search.documents.indexes as ixmod
+
+    fake = _FakeIndexes(set())
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    assert ensure_index("https://x.search.windows.net", "k", "kb-main") == "created"
+    assert ("create", "kb-main") in fake.calls
+    assert "get" in [c[0] for c in fake.calls]      # existence probe...
+    assert "list" not in str(fake.calls)              # ...never a list call
+
+    fake2 = _FakeIndexes({"kb-main"})
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake2)
+    assert ensure_index("https://x.search.windows.net", "k", "kb-main") == "exists"
+    assert ("create", "kb-main") not in fake2.calls
+
+    fake3 = _FakeIndexes({"kb-main"})
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake3)
+    assert ensure_index("x", "k", "kb-main", reset=True) == "recreated"
+    assert ("delete", "kb-main") in fake3.calls
+    assert ("create", "kb-main") in fake3.calls
+
+
+class _FakeResult:
+    def __init__(self, key, ok):
+        self.key = key
+        self.succeeded = ok
+        self.error_message = "" if ok else "boom"
+
+
+class _FakeSearch:
+    def __init__(self):
+        self.batches: list = []
+
+    def merge_or_upload_documents(self, docs):
+        self.batches.append(docs)
+        return [_FakeResult(d["id"], ok=(i % 2 == 0))
+                for i, d in enumerate(docs)]
+
+
+def test_upload_documents_batches_payload_and_error_count(monkeypatch):
+    import azure.search.documents as smod
+
+    fake = _FakeSearch()
+    monkeypatch.setattr(smod, "SearchClient", lambda *a, **k: fake)
+    docs = [{"id": f"d{i}", "content": "c"} for i in range(3)]
+    n_ok, errors = upload_documents("https://x.search.windows.net", "k",
+                                     "kb-main", docs,
+                                     [[1.0], [2.0], [3.0]], batch=2)
+    assert [len(b) for b in fake.batches] == [2, 1]   # batched
+    assert fake.batches[0][1]["content_vector"] == [2.0]  # vectors attached
+    assert n_ok == 2 and len(errors) == 1 and errors[0]["key"] == "d1"

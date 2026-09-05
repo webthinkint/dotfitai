@@ -296,19 +296,29 @@ def index_schema(name: str = INDEX_NAME) -> m.SearchIndex:
 
 def ensure_index(search_endpoint: str, admin_key: str, name: str,
                  reset: bool = False) -> str:
-    """Create the index if missing (or delete + recreate with *reset*)."""
+    """Create the index if missing (or delete + recreate with *reset*).
+
+    Single-resource GET, never a list call: the serverless tier rejects
+    index enumeration outright ("cannot enumerate resources without paging").
+    """
     from azure.core.credentials import AzureKeyCredential
+    from azure.core.exceptions import ResourceNotFoundError
     from azure.search.documents.indexes import SearchIndexClient
 
     client = SearchIndexClient(search_endpoint, AzureKeyCredential(admin_key))
-    existing = list(client.list_index_names())
-    if reset and name in existing:
-        client.delete_index(name)
-        existing = [n for n in existing if n != name]
-    if name in existing:
+    if reset:
+        try:
+            client.delete_index(name)
+        except ResourceNotFoundError:
+            pass
+        client.create_or_update_index(index_schema(name))
+        return "recreated"
+    try:
+        client.get_index(name)
         return "exists"
-    client.create_or_update_index(index_schema(name))
-    return "recreated" if reset else "created"
+    except ResourceNotFoundError:
+        client.create_or_update_index(index_schema(name))
+        return "created"
 
 
 def upload_documents(search_endpoint: str, admin_key: str, index_name: str,
