@@ -48,7 +48,7 @@ Hi [NAME],
 I have Neal and Kat added here to be able to help you with your supplement recommendations below.  
 
 Thanks
-Dan
+[NAME]
 
 
 From: [EMAIL]
@@ -69,6 +69,6 @@ Selenium
 Sleep
 Biotin
 Best,
-Adam
+[NAME]
 
 

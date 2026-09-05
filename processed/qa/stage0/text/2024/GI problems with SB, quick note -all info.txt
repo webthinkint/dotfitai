@@ -44,5 +44,5 @@ Dear [NAME],
 I’ve recently started using your supplement drink, 'Allin1 Super Blend,' and have noticed a change in my bowel movements. Specifically, they have become pellet-like. Could you please provide some insight into why this might be happening?
 Thank you for your assistance.
 Best regards,
-Chris
+[NAME]
 

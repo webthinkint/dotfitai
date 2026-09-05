@@ -46,7 +46,7 @@ Hi [NAME],
 Please see below and let me know if you have any of these written up already. 
 
 Thanks,
-Kat
+[NAME]
 
 From: [EMAIL]
 Sent: Friday, November 21, 2025 8:15 AM
