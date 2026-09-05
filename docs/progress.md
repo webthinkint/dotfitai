@@ -7,7 +7,7 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-05. 116 tests green.
+Numbers verified 2026-09-05. 129 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -16,7 +16,7 @@ Numbers verified 2026-09-05. 116 tests green.
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
-| QA Stage 2 (canonicalize) | §4 | blocked on Azure (item 1) | — |
+| QA Stage 2 (canonicalize) | §4 | blocked on Azure model deployments (item 1) | — |
 | Podcast ASR | §7 | not started | — |
 | Index + retrieval | §9–11 | not started | — |
 
@@ -28,7 +28,7 @@ regenerated run.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **partial** — AI Search serverless tier, Central US (prototype). Remaining: Azure OpenAI in Central US (frontier chat, small chat, `text-embedding-3-large`) + quota; AI Speech S0 for ASR (~$35–40 one-off) |
+| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech); credentials in local `.env`; `text-embedding-3-large` deployed and smoke-verified (3072-dim, `scripts/embedding_smoke.py`). Remaining: quota increase for frontier + small chat deployments |
 | 2 | products.json freshness owner | **open** — 8 PDSRG-only gaps closed 2026-09-01. Remaining: name the owner, set monthly diff cadence |
 | 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record |
 | 4 | PPTX disposition | parked |
@@ -108,12 +108,35 @@ Everything else (rules, index contract, stage design) is in the plan.
   separate axes: discontinued docs stay `is_current: true` so "what happened
   to X" is answerable. Every source must stamp `is_current` — AI Search does
   not match null against a filter.
+- All Azure credentials live in the gitignored root `.env` and never leave
+  the machine: `.env.example` is the committed key contract, and
+  `azure_config.py` is the only reader (strict parser; masked `repr`; errors
+  name variables, never values).
+- The Azure OpenAI resource is Foundry v2 shape (`*.services.ai.azure.com`):
+  the classic `/openai/deployments` route works, but only on current
+  api-versions — `2024-10-21` returns 404 "Resource not found" on v2.
+  Verified live: `2025-04-01-preview` (embedding smoke test, 2026-09-05).
 
 ## Log
 
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (5)** — Embedding smoke test **PASS** (§10): live call to the
+  deployed `text-embedding-3-large`, 3072 dims confirmed
+  (`scripts/embedding_smoke.py`; `openai>=1.60,<3` added). Foundry v2
+  endpoint needs api-version `2025-04-01-preview`; `.env` parser now strips
+  unquoted inline comments (the template's trailing-comment style had leaked
+  into a deployment name). 130 tests.
+- **2026-09-05 (4)** — `AZURE_SPEECH_ENDPOINT` (custom Speech domain endpoint)
+  added to the env contract and required by the loader. 129 tests.
+- **2026-09-05 (3)** — Corpus-scan dumps `.scan_*.txt` untracked and gitignored
+  (phone-like strings from the raw corpus sat in the already-pushed initial
+  commit `4a0ac93`; history purge pending owner decision — remote exists).
+- **2026-09-05 (2)** — Secrets contract for the three provisioned Azure
+  services (§4/§7/§9): gitignored root `.env`, committed `.env.example`, and
+  `azure_config.py` (strict loader, masked repr, placeholder detection). 129
+  tests.
 - **2026-09-05** — Owner dispositions closed open item 6 (§4): greeting
   residuals redacted via curated `GREETING_NAME_TOKENS` (+ `my`/`friend`
   stopwords and a newline-crossing fix in the residual scan itself); filename
