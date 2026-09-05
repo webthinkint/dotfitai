@@ -144,7 +144,7 @@ def cmd_stage0(args: argparse.Namespace) -> int:
         report_path = reports_dir / Path(rel).with_suffix(".json")
 
         extraction = extract_docx(path)
-        scrubbed, rep = scrub_docx(extraction, filename=Path(rel).stem)
+        scrubbed, rep = scrub_docx(extraction)
 
         record = {"source_file": rel, "id": doc_id(rel), **rep.to_dict()}
         write_json(report_path, record)
@@ -213,6 +213,7 @@ def cmd_stage1(args: argparse.Namespace) -> int:
     texts = sorted(text_dir.rglob("*.txt"))
     documents: list[dict] = []
     review: list[dict] = []
+    excluded: list[dict] = []
     by_type: dict[str, int] = {}
     by_year: dict[str, int] = {}
 
@@ -223,6 +224,18 @@ def cmd_stage1(args: argparse.Namespace) -> int:
         lines = text_path.read_text(encoding="utf-8").split("\n")
         rep = load_scrub_report(reports_dir, rel)
         rec = classify_and_parse(lines, rel, scrub_report=rep)
+
+        # owner disposition 2026-09-02: documents with no expert-answer text
+        # (stubs, image-only exports, question-only forwards) are not
+        # indexed — excluded from documents.jsonl, tallied in summary.json,
+        # and NOT queued (there is nothing left to decide about them)
+        if not rec["expert_section"].strip():
+            reason = ("no_expert_answer" if rec["doc_type"] == "qa_email"
+                      else "empty_document")
+            excluded.append({"source_file": rec["source_file"],
+                             "reason": reason})
+            continue
+
         documents.append(rec)
 
         if rec["doc_type"] == "qa_email":
@@ -263,6 +276,13 @@ def cmd_stage1(args: argparse.Namespace) -> int:
     summary = {
         "pipeline_version": __version__,
         "n_documents": len(documents),
+        "n_excluded": {
+            "no_expert_answer": sum(1 for e in excluded
+                                    if e["reason"] == "no_expert_answer"),
+            "empty_document": sum(1 for e in excluded
+                                  if e["reason"] == "empty_document"),
+        },
+        "excluded_files": sorted(excluded, key=lambda e: e["source_file"]),
         "by_doc_type": by_type,
         "by_year": by_year,
         "n_review_queue": sum(1 for _ in open(review_path, encoding="utf-8")),

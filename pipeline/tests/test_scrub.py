@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from qa_pipeline.extract import extract_docx
 from qa_pipeline.scrub import (
-    ADDRESS_RE, CARD_RE, EMAIL_RE, PHONE_RE, PROFILE_URL_RE, SSN_RE,
-    scrub_extracted,
+    ADDRESS_RE, CARD_RE, EMAIL_RE, GREETING_NAME_TOKENS, PHONE_RE,
+    PROFILE_URL_RE, SSN_RE, scrub_extracted,
 )
 
 import pytest
@@ -175,10 +175,85 @@ class TestGreetingRedaction:
             assert "greeting_name_residual" not in rep.flags, line
 
     def test_unredactable_greeting_is_flagged_for_review(self):
-        """No terminator -> redacting would risk prose; flag instead."""
-        _, rep = scrub_extracted(["Hey Neal any advice or tips"])
+        """No terminator and no vocabulary entry -> redacting would risk
+        prose; flag instead (unknown names stay a human decision)."""
+        _, rep = scrub_extracted(["Hey Jasmine any advice or tips"])
         assert "greeting_name_residual" in rep.flags
         assert rep.residual_pii_flag is True
+
+    def test_my_friend_is_not_pii_and_does_not_flag(self):
+        """Corpus-attested false positive (owner disposition 2026-09-02):
+        'Hello my friend!' carries no name."""
+        text, rep = scrub_extracted(["Hello my friend! Hope all is great."])
+        assert text == "Hello my friend! Hope all is great."
+        assert "greeting_name_residual" not in rep.flags
+
+    def test_bare_greeting_does_not_reach_across_the_newline(self):
+        """'Hello' alone on a line must not flag the next line's first word
+        (the old residual check's \\s+ crossed newlines — corpus false
+        positive, owner disposition 2026-09-02)."""
+        _, rep = scrub_extracted(["Hello", "how are you doing today?"])
+        assert "greeting_name_residual" not in rep.flags
+        assert rep.residual_pii_flag is False
+
+
+class TestLooseGreetingNames:
+    """Names in GREETING_NAME_TOKENS are redacted without a terminator
+    (owner disposition 2026-09-02: every corpus greeting residual was a real
+    name — no terminator, honorific prefix, lowercase, or slash-joined).
+    Lines are built from the vocabulary constant itself so no real name is
+    pasted into the test source."""
+
+    NAME, OTHER = sorted(GREETING_NAME_TOKENS)[0], sorted(GREETING_NAME_TOKENS)[-1]
+
+    def test_no_terminator(self):
+        text, rep = scrub_extracted(
+            [f"Hey {self.NAME} any advice or tips that would be great"])
+        assert text == f"Hey [CUSTOMER] any advice or tips that would be great"
+        assert rep.greeting_name_redacted
+        assert "greeting_name_residual" not in rep.flags
+
+    def test_and_joined_pair_then_prose(self):
+        text, _ = scrub_extracted(
+            [f"Hello {self.NAME} and {self.OTHER} and good morning!"])
+        assert text == "Hello [CUSTOMER] and good morning!"
+
+    def test_lowercase_name(self):
+        text, _ = scrub_extracted([f"Hey {self.NAME.lower()} and happy Sunday"])
+        assert text == "Hey [CUSTOMER] and happy Sunday"
+
+    def test_honorific_prefix_goes_with_the_name(self):
+        text, _ = scrub_extracted(
+            [f"Hi Mr. {self.OTHER.capitalize()} and I hope this finds you well."])
+        assert text == "Hi [CUSTOMER] and I hope this finds you well."
+
+    def test_slash_joined_pair(self):
+        text, _ = scrub_extracted(
+            [f"Hi {self.NAME}/{self.OTHER}. I have a client with a question."])
+        assert text == "Hi [CUSTOMER]. I have a client with a question."
+
+    def test_vocabulary_token_never_eats_a_longer_word(self):
+        """\\b keeps 'kat' from matching inside 'Katherine' — a partial
+        match would corrupt the word instead of redacting a name."""
+        longer = {t: t.capitalize() + "ine" for t in GREETING_NAME_TOKENS}
+        for stem, word in longer.items():
+            text, rep = scrub_extracted([f"Hello {word} and thanks for the reply"])
+            assert word in text, word
+            assert "greeting_name_residual" in rep.flags  # unknown -> flagged
+
+    def test_greeting_below_a_quoted_header_gets_name_not_customer(self):
+        lines = [
+            "From: someone@example.org",
+            "Sent: Tuesday, June 27, 2023 12:10 PM",
+            "Subject: Ask the Experts",
+            "",
+            f"Hello {self.OTHER} any advice would be great",
+            "Thanks for contacting us.",
+        ]
+        text, rep = scrub_extracted(lines)
+        assert f"Hello {self.OTHER}" not in text
+        assert "Hello [NAME] any advice" in text
+        assert rep.redactions["greeting_name_quoted"] == 1
 
 
 class TestRecipientRedaction:
@@ -193,21 +268,6 @@ class TestRecipientRedaction:
         assert "Porter, Abby" not in text
         assert text.count("[NAME]") == 2
         assert rep.redactions["recipient_name"] == 2
-
-
-class TestFilenameNameFlag:
-    def test_filename_repeating_a_redacted_name_flags(self):
-        _, rep = scrub_extracted(
-            ["Hi Jasmine,", "See the program note."],
-            filename="update supp program connect -jasmine")
-        assert "filename_contains_redacted_name" in rep.flags
-        assert rep.residual_pii_flag is True
-
-    def test_unrelated_filename_does_not_flag(self):
-        _, rep = scrub_extracted(
-            ["Hi Jasmine,", "See the program note."],
-            filename="creatine loading protocol FAQ")
-        assert "filename_contains_redacted_name" not in rep.flags
 
 
 class TestRedactionCounting:

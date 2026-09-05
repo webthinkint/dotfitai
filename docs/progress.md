@@ -7,12 +7,12 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-02. 108 tests green.
+Numbers verified 2026-09-05. 116 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
 | QA Stage 0 — PII scrub | §4 | **done** | 1,051 `.docx` (1,103 − 9 empty − 43 dup groups) |
-| QA Stage 1 — parse & classify | §4 | **done** | 783 qa_email / 268 expert_note / 0 other; 772 `thread_date`; review queue 35 |
+| QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0; 10 unanswerable excluded (6 no-answer, 4 blank) |
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
@@ -28,12 +28,12 @@ regenerated run.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **partial** — AI Search free tier, Central US (prototype). Remaining: Azure OpenAI in Central US (frontier chat, small chat, `text-embedding-3-large`) + quota; AI Speech S0 for ASR (~$35–40 one-off) |
+| 1 | Azure region + SKU | **partial** — AI Search serverless tier, Central US (prototype). Remaining: Azure OpenAI in Central US (frontier chat, small chat, `text-embedding-3-large`) + quota; AI Speech S0 for ASR (~$35–40 one-off) |
 | 2 | products.json freshness owner | **open** — 8 PDSRG-only gaps closed 2026-09-01. Remaining: name the owner, set monthly diff cadence |
 | 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record |
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | week 3–4, decide empirically |
-| 6 | Stage 3 review-queue dispositions | **open** (2026-09-02) — 35 items: 11 `greeting_name_residual`, 15 `filename_contains_redacted_name`, 6 `no_expert_answer`, 4 `empty_document`. Decisions land in `FILENAME_ACCEPTED_NAMES` / `ACCEPTED_HONORIFIC_NAMES` |
+| 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05 — all 35 dispositioned: real greeting names redacted via `GREETING_NAME_TOKENS` (false positives fixed), filename flag removed, no-answer + blank docs excluded. Queue 0 |
 
 ## Decisions
 
@@ -42,11 +42,20 @@ Everything else (rules, index contract, stage design) is in the plan.
 
 **Corpus & PII**
 
-- Filenames are **flagged, not scrubbed** — they are load-bearing topic
-  summaries. A filename repeating a name this document redacted is queued.
+- Filenames carry no review burden (2026-09-05): they are load-bearing topic
+  summaries that are neither scrubbed nor flagged — the name-repeat flag is
+  gone entirely.
 - Redaction is conservative: anything that cannot be redacted without eating
   prose is flagged. A review queue of 0 must be earned; the old "0" was
-  undetected leaks, not a clean corpus.
+  undetected leaks, not a clean corpus. The 2026-09-05 queue of 0 is the
+  post-disposition steady state, earned by redaction + exclusion rules
+  rather than by looking away.
+- Greeting residuals (2026-09-05 dispositions): 6 of the 11 flags were real
+  names in terminator-free shapes — redacted via the corpus-attested
+  `GREETING_NAME_TOKENS` vocabulary (honorific-prefixed, lowercase, and-joined
+  and slash-joined forms; `my`/`friend` are stopwords, and the residual scan
+  no longer crosses newlines — those 5 flags were checker false positives).
+  An unknown name in the same position still flags.
 - 9 zero-byte files deleted; 51 duplicates deleted across 43 md5-identical
   groups (keep rule: earliest year → shallowest path → lexicographic). Full
   KEEP/DEL record: `processed/qa/runs/data-cleanup-2026-09-02.log`, since
@@ -99,18 +108,17 @@ Everything else (rules, index contract, stage design) is in the plan.
   separate axes: discontinued docs stay `is_current: true` so "what happened
   to X" is answerable. Every source must stamp `is_current` — AI Search does
   not match null against a filter.
-- int8 scalar quantization + rescoring, no stored vector copies: **binding for
-  the index definition** regardless of tier (f32 on `text-embedding-3-large`
-  would need ~120 MB vs the free tier's 50 MB).
-- AI Search free tier / Central US is prototype-only; move to Basic before
-  beta (free cannot be upgraded in place; reindexing from our deterministic
-  push pipeline is cheap).
 
 ## Log
 
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05** — Owner dispositions closed open item 6 (§4): greeting
+  residuals redacted via curated `GREETING_NAME_TOKENS` (+ `my`/`friend`
+  stopwords and a newline-crossing fix in the residual scan itself); filename
+  name-flag removed; 6 no-answer + 4 blank docs excluded from
+  `documents.jsonl` (1,051 → 1,041). Review queue 35 → 0. 116 tests.
 - **2026-09-02 (4)** — Docs reconciled with the code: plan promoted to a living
   v1.1 with the corrections folded in; `pipeline/README.md` and the `pdsrg.py`
   docstring rewritten; table now emits `n_products_indexed` (51 SKUs → 31
@@ -140,7 +148,7 @@ the artifact it describes.
   `LEGACY_NAME_OVERRIDES` added after the MuscleDefender miss. 36 tests.
 - **2026-09-01** — PDSRG extraction gate **PASS**, human-verified against MVM
   p5–6 and AminoFormula p20; §6 unblocked.
-- **2026-08-27** — Azure AI Search provisioned (free tier, Central US);
+- **2026-08-27** — Azure AI Search provisioned (serverless tier, Central US);
   capacity math fixed the quantization decision.
 - **2026-08-26 (2)** — Extraction gate test PASS on 5 stress PDFs (the plan's
   worst-case guess was wrong; the real stress cases are WheySmooth,

@@ -92,7 +92,7 @@ goes through it, otherwise the cross-platform guarantee silently breaks.
 - **Curation lives in Python constants**, JSON outputs are derived:
   `CURATED_ALIASES`, `CURATED_LEGACY`, `CURATED_REPLACEMENTS`,
   `CONTEXT_ONLY_TOKENS` (`alias.py`), `STEM_META` (`pdsrg.py`),
-  `ACCEPTED_HONORIFIC_NAMES`, `FILENAME_ACCEPTED_NAMES`, `ROLE_MAILBOXES`
+  `ACCEPTED_HONORIFIC_NAMES`, `GREETING_NAME_TOKENS`, `ROLE_MAILBOXES`
   (`scrub.py`). Unknown stems / unattested names must **raise**, not silently
   produce untagged chunks.
 - **A rename is not a replacement**: a rename is an identity mapping and may

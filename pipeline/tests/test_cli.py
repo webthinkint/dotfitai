@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 
-from qa_pipeline.cli import _errors_path, _prune_orphans, _read_stage0_errors
+from qa_pipeline.cli import (
+    _errors_path, _prune_orphans, _read_stage0_errors, cmd_stage1,
+)
 
 
 def _write_errors(root, payload):
@@ -63,3 +66,40 @@ class TestPruneOrphans:
 
     def test_missing_root_is_a_noop(self, tmp_path):
         assert _prune_orphans(tmp_path / "nope", set()) == 0
+
+
+class TestStage1ExcludesUnanswerableDocs:
+    """Owner disposition 2026-09-02: docs without expert replies and blank
+    docs are excluded from documents.jsonl (tallied in summary.json), not
+    sent to the review queue — there is nothing left to decide about them."""
+
+    def _build_stage0(self, root):
+        text = root / "stage0" / "text" / "2023"
+        text.mkdir(parents=True)
+        (text / "note.txt").write_text(
+            "A plain note about creatine loading.\n", encoding="utf-8")
+        (text / "stub.txt").write_text(
+            "From: [CUSTOMER]\nEmail: [EMAIL]\nQuestion: anything?\n",
+            encoding="utf-8")
+        (text / "blank.txt").write_text("\n", encoding="utf-8")
+
+    def test_excluded_tallied_and_never_queued(self, tmp_path, capsys):
+        self._build_stage0(tmp_path)
+        assert cmd_stage1(argparse.Namespace(out=str(tmp_path), quiet=True)) == 0
+
+        docs = [json.loads(l) for l in
+                (tmp_path / "stage1" / "documents.jsonl").read_text(
+                    encoding="utf-8").splitlines()]
+        assert [d["source_file"] for d in docs] == ["2023/note.docx"]
+
+        summary = json.loads(
+            (tmp_path / "stage1" / "summary.json").read_text(encoding="utf-8"))
+        assert summary["n_documents"] == 1
+        assert summary["n_excluded"] == {
+            "no_expert_answer": 1, "empty_document": 1}
+        assert [e["source_file"] for e in summary["excluded_files"]] == [
+            "2023/blank.docx", "2023/stub.docx"]
+
+        queue = (tmp_path / "stage1" / "review_queue.jsonl").read_text(
+            encoding="utf-8").splitlines()
+        assert queue == []

@@ -127,24 +127,29 @@ Known benign platform difference: `runs/*.json` manifests record
   from the committed `stage0/errors.json`)
 - `honorific_plus_name` — e.g. "Dr. Smith" in content; humans confirm whether
   it's staff/expert (clear it into `ACCEPTED_HONORIFIC_NAMES`) or a customer
-- `greeting_name_residual` — a greeting whose name has no terminator
-  (`Hey Neal any advice…`); redacting it automatically would corrupt prose
-- `filename_contains_redacted_name` — the filename repeats a name this document
-  redacted; filenames are never rewritten, so a human decides (staff names are
-  cleared into `FILENAME_ACCEPTED_NAMES`)
-- `no_expert_answer` / `empty_document` — nothing to index
+- `greeting_name_residual` — a greeting whose name has no terminator and is
+  not in the corpus-attested `GREETING_NAME_TOKENS` vocabulary (`Hey Jasmine
+  any advice…`); redacting it automatically would corrupt prose
 - `no_quotable_structure` — `doc_type: other`; the LLM-confirm path in Stage 2
 
-## Verified corpus numbers (full run, 2026-09-02)
+Not queued, by owner disposition (2026-09-05): documents with no expert
+reply and blank documents are excluded from `documents.jsonl` and tallied in
+`summary.json` (`n_excluded`) instead — there is nothing left to decide about
+them. Filenames are neither scrubbed nor flagged (owner disposition
+2026-09-05); the former `filename_contains_redacted_name` flag is gone.
+
+## Verified corpus numbers (full run, 2026-09-05)
 
 - 1,051 `.docx` → **1,051 scrubbed**, 0 parse errors
-- Classification: **783 qa_email**, 268 expert_note, 0 other
+- Classification: **777 qa_email**, 264 expert_note, 0 other — 10
+  unanswerable docs excluded (6 no-answer stubs, 4 blanks), not queued
 - Redactions (per occurrence): 1,681 contact-block email fields, 1,057 inline
-  emails, 774 customer-name fields, 693 opening greetings + 277 greetings in
+  emails, 774 customer-name fields, 693 opening greetings + 283 greetings in
   quoted replies, 362 phone fields, 243 inline phones, 221 recipient display
   names, 25 postal addresses, 5 card-shaped numbers, 3 social-profile URLs
 - Dropped: 711 copyright footers, 195 disclaimer lines, 139 signature blocks
-- 35 files in the review queue (25 residual-PII, 6 no-answer, 4 empty)
+- 0 files in the review queue (the 35 flagged 2026-09-02 were dispositioned
+  2026-09-05 — see plan §14 item 6)
 - DOI strings like `10.1007/s13197-011-0571` are correctly *not* matched as
   phones; the address rule was corpus-verified with zero false positives
 

@@ -170,19 +170,23 @@ class TestForwardedThread:
 
 
 class TestEmptyAnswerGuard:
-    def test_qa_email_without_an_answer_is_queued(self):
+    """No-answer docs are excluded by the CLI (owner disposition
+    2026-09-02), not queued — the record still marks itself needs_review so
+    the exclusion is auditable per document."""
+
+    def test_qa_email_without_an_answer_marks_needs_review(self):
         rec = classify_and_parse(
             ["From: [CUSTOMER]", "Email: [EMAIL]", "Question: anything?"],
             "2023/stub.docx", scrub_report={})
         assert rec["doc_type"] == "qa_email"
         assert rec["expert_section"] == ""
         assert rec["needs_review"] is True
-        assert "no_expert_answer" in review_reasons(rec)
+        assert "no_expert_answer" not in review_reasons(rec)
 
-    def test_empty_document_is_queued(self):
+    def test_empty_document_marks_needs_review(self):
         rec = classify_and_parse(["", "  "], "2023/blank.docx", scrub_report={})
         assert rec["needs_review"] is True
-        assert "empty_document" in review_reasons(rec)
+        assert "empty_document" not in review_reasons(rec)
 
 
 class TestDateLocaleIndependence:

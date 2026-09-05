@@ -183,8 +183,9 @@ def classify_and_parse(
     residual_pii = bool((scrub_report or {}).get("residual_pii_flag", False))
     if residual_pii:
         needs_review = True
-    # a document with no answer/body text is never usable — the split failed
-    # or the file is a stub; either way a human must look
+    # a document with no answer/body text is not indexable — the CLI excludes
+    # it from documents.jsonl (owner disposition 2026-09-02); the flag stays
+    # true in the record so the exclusion is auditable per document
     if not expert_lines:
         needs_review = True
 
@@ -207,15 +208,17 @@ def classify_and_parse(
 
 
 def review_reasons(rec: dict) -> list[str]:
-    """Why *rec* is in the Stage 3 queue (plan §4 Stage 3), most specific first."""
+    """Why *rec* is in the Stage 3 queue (plan §4 Stage 3), most specific first.
+
+    Documents with no expert-answer text never get here: the CLI excludes
+    them from documents.jsonl and tallies them in summary.json instead
+    (owner disposition 2026-09-02 — only answerable docs are indexed, and
+    there is nothing left to decide about a stub)."""
     reasons: list[str] = []
     if rec["residual_pii_flag"]:
         reasons.append("residual_pii_flag")
     if rec["doc_type"] == "other":
         reasons.append("no_quotable_structure")
-    if not rec["expert_section"].strip():
-        reasons.append("no_expert_answer" if rec["doc_type"] == "qa_email"
-                       else "empty_document")
     return reasons + rec["scrub_flags"]
 
 

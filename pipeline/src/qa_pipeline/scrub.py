@@ -84,15 +84,38 @@ GREETING_LEAD_RE = re.compile(
     r"|[A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*){1,3})"
     r"(?=\s*(?:[,!:;()–—…-]|$))"
 )
-# Anything still greeting-shaped after redaction (no terminator, so it cannot
-# be redacted without risking prose) -> flag for human review.
+
+# Owner disposition 2026-09-02: every corpus greeting residual was a real
+# name in a shape the terminator rule cannot redact (no terminator after the
+# name, honorific prefix, lowercase, slash-joined pairs). Instead of guessing
+# on arbitrary tokens (which would eat prose — "Hello my friend"), names in
+# this curated, corpus-attested vocabulary are redacted without a terminator
+# ("Hey <name> and happy Sunday" -> "Hey [NAME] and happy Sunday"). An
+# unknown name in the same position is still flagged, never guessed at.
+GREETING_NAME_TOKENS = frozenset({"neal", "kat", "spruce", "eve"})
+_NAME_ALT = r"(?:" + "|".join(sorted(GREETING_NAME_TOKENS)) + r")\b"
+GREETING_LOOSE_RE = re.compile(
+    # group 1 = the lead; group 2 = optional honorific + the name span, so
+    # the honorific is replaced together with the name ("Hi Mr. Spruce and I
+    # hope" -> "Hi [NAME] and I hope")
+    r"^(\s*(?i:Hi|Hey|Hello|Dear|Good\s+(?:morning|afternoon|evening))\s+)"
+    rf"((?:(?i:miss|mrs|mr|ms|dr)\.?\s+)?{_NAME_ALT}(?:(?:\s+and\s+|/){_NAME_ALT})*)",
+    re.IGNORECASE,
+)
+# Anything still greeting-shaped after both passes (no terminator, name not in
+# the vocabulary, so redacting would risk prose) -> flag for human review.
+# Horizontal whitespace only: a greeting alone on a line must not reach across
+# the newline and flag the first word of the next line ("Hello\nhow are you").
 GREETING_RESIDUAL_RE = re.compile(
-    r"^\s*(?i:Hi|Hey|Hello|Dear)\s+([A-Za-z][\w'’.-]*)", re.MULTILINE
+    r"^\s*(?i:Hi|Hey|Hello|Dear)[^\S\n]+([A-Za-z][\w'’.-]*)", re.MULTILINE
 )
 GREETING_STOPWORDS = frozenset({
     "there", "team", "everyone", "everybody", "all", "folks", "guys", "gals",
     "buddy", "gentlemen", "ladies", "again", "both", "sir", "madam",
     "doctor", "coach", "thank", "thanks", "from", "and",
+    # corpus-attested non-names (owner disposition 2026-09-02: "Hello my
+    # friend" is not PII and must not flag)
+    "my", "friend",
 })
 
 COPYRIGHT_RE = re.compile(r"^\s*Copyright\s+\d{4}(?:[-–]\d{2,4})?\s+dotFIT", re.IGNORECASE)
@@ -125,15 +148,6 @@ ACCEPTED_HONORIFIC_NAMES = frozenset({
     "Streichhan", "Spruce",
 })
 HONORIFIC_NAME_RE = re.compile(r"\b(?:Mr\.|Ms\.|Mrs\.|Dr\.)\s+([A-Z]\w+(?:\s+[A-Z]\w+){0,2})")
-
-# Filename check (owner decision 2026-09-02): filenames are informative topic
-# summaries and are NOT rewritten, but a filename containing a token this
-# document redacted as a person's name is a probable customer name on a path
-# that reaches git and the index — flag it. Names below are cleared by the
-# owner (dotFIT staff routinely named in filenames) and do not flag.
-# The name itself is never written to the report.
-FILENAME_ACCEPTED_NAMES: frozenset[str] = frozenset()
-FILENAME_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z'-]{2,}")
 
 # Recipient labels: display names are people, addresses are handled by
 # EMAIL_RE. Role mailboxes are kept verbatim — they carry no PII and they are
@@ -198,14 +212,7 @@ def _bump(d: dict[str, int], key: str, n: int = 1) -> None:
     d[key] = d.get(key, 0) + n
 
 
-def _note_names(seen: set[str], text: str) -> None:
-    """Remember redacted name tokens (in memory only — never written out)."""
-    for tok in FILENAME_TOKEN_RE.findall(text):
-        seen.add(tok.casefold())
-
-
-def _redact_recipient_value(value: str, rep: ScrubReport,
-                            seen_names: set[str]) -> str:
+def _redact_recipient_value(value: str, rep: ScrubReport) -> str:
     """``Neal Spruce <n@x.com>; Porter, Abby`` -> ``[NAME] <n@x.com>; [NAME]``.
 
     Role mailboxes (``Experts``) are kept: they are not personal data and they
@@ -220,7 +227,6 @@ def _redact_recipient_value(value: str, rep: ScrubReport,
         display = head.strip().strip('"').strip("'")
         if sep:                                   # "Display <addr>"
             if display and display.casefold() not in ROLE_MAILBOXES:
-                _note_names(seen_names, display)
                 _bump(rep.redactions, "recipient_name")
                 display = "[NAME]"
             out.append(f"{display} <{tail}".strip())
@@ -232,7 +238,6 @@ def _redact_recipient_value(value: str, rep: ScrubReport,
             out.append(stripped)
             continue
         if BARE_NAME_RE.match(stripped) or LAST_FIRST_RE.match(stripped):
-            _note_names(seen_names, stripped)
             _bump(rep.redactions, "recipient_name")
             out.append("[NAME]")
             continue
@@ -240,8 +245,7 @@ def _redact_recipient_value(value: str, rep: ScrubReport,
     return "; ".join(out)
 
 
-def _redact_label_line(line: str, rep: ScrubReport,
-                       seen_names: set[str]) -> str:
+def _redact_label_line(line: str, rep: ScrubReport) -> str:
     """Structural redaction of labeled header/contact lines.
 
     Values are replaced but labels survive (``From: [CUSTOMER]``) so that
@@ -262,11 +266,10 @@ def _redact_label_line(line: str, rep: ScrubReport,
             _bump(rep.redactions, "email_field")
             return f"{label.capitalize()}: [EMAIL]"
         if value:
-            _note_names(seen_names, value)
             _bump(rep.redactions, "customer_name_field")
             return f"{label.capitalize()}: [CUSTOMER]"
     if label in RECIPIENT_LABELS and value:
-        new = _redact_recipient_value(value, rep, seen_names)
+        new = _redact_recipient_value(value, rep)
         if new != value:
             return f"{label.capitalize()}: {new}"
     return line  # Sent/Subject/Category/Question/Message: content, kept
@@ -301,30 +304,38 @@ def _cut_signature(lines: list[str], header_idx: int) -> tuple[list[str], bool]:
     return [l for i, l in enumerate(lines) if i not in drop], True
 
 
-def _redact_greetings(lines: list[str], rep: ScrubReport, primary_idx: int | None,
-                      seen_names: set[str]) -> list[str]:
+def _redact_greetings(lines: list[str], rep: ScrubReport,
+                      primary_idx: int | None) -> list[str]:
     """``Hi Edward,`` -> ``Hi [CUSTOMER],`` on the expert's opening line and
     ``Hi [NAME],`` on every other greeting in the document.
 
     Greetings occur below quoted thread headers too (a forwarded enquiry puts
     the reply — and its greeting — under the header), so every line is
-    checked, not just the first.
+    checked, not just the first. Two passes: the terminator-delimited rule
+    first, then the curated-vocabulary rule for names with no terminator
+    (GREETING_NAME_TOKENS — see its comment for why the vocabulary exists).
     """
     for i, line in enumerate(lines):
         m = GREETING_LEAD_RE.match(line)
-        if not m:
+        if m and m.group(2).split()[0].casefold() not in GREETING_STOPWORDS:
+            placeholder = "[CUSTOMER]" if i == primary_idx else "[NAME]"
+            lines[i] = line[:m.start(2)] + placeholder + line[m.end(2):]
+            if placeholder == "[CUSTOMER]":
+                rep.greeting_name_redacted = True
+                _bump(rep.redactions, "greeting_name")
+            else:
+                _bump(rep.redactions, "greeting_name_quoted")
             continue
-        name = m.group(2)
-        if name.split()[0].casefold() in GREETING_STOPWORDS:
-            continue
-        placeholder = "[CUSTOMER]" if i == primary_idx else "[NAME]"
-        _note_names(seen_names, name)
-        lines[i] = line[:m.start(2)] + placeholder + line[m.end(2):]
-        if placeholder == "[CUSTOMER]":
-            rep.greeting_name_redacted = True
-            _bump(rep.redactions, "greeting_name")
-        else:
-            _bump(rep.redactions, "greeting_name_quoted")
+        loose = GREETING_LOOSE_RE.match(line)
+        if loose and loose.group(2):
+            placeholder = "[CUSTOMER]" if i == primary_idx else "[NAME]"
+            lines[i] = (line[:loose.end(1)] + placeholder
+                        + line[loose.end(2):])
+            if placeholder == "[CUSTOMER]":
+                rep.greeting_name_redacted = True
+                _bump(rep.redactions, "greeting_name")
+            else:
+                _bump(rep.redactions, "greeting_name_quoted")
     return lines
 
 
@@ -346,26 +357,10 @@ def _first_nonblank(lines: list[str], stop: int | None) -> int | None:
     return None
 
 
-def _filename_carries_redacted_name(filename: str, seen_names: set[str]) -> bool:
-    """True if *filename* repeats a token this document redacted as a name.
-
-    Owner-cleared names (dotFIT staff) do not count. The token itself is
-    never returned or written — only this boolean reaches the report.
-    """
-    tokens = {t.casefold() for t in FILENAME_TOKEN_RE.findall(filename)}
-    return bool((tokens & seen_names) - FILENAME_ACCEPTED_NAMES)
-
-
-def scrub_extracted(lines: list[str],
-                    filename: str | None = None) -> tuple[str, ScrubReport]:
-    """Scrub extracted lines -> (scrubbed_text, report). Pure, deterministic.
-
-    *filename* (without extension) is inspected but never rewritten: it is
-    only used for the residual check in step 6.
-    """
+def scrub_extracted(lines: list[str]) -> tuple[str, ScrubReport]:
+    """Scrub extracted lines -> (scrubbed_text, report). Pure, deterministic."""
     rep = ScrubReport(ok=True)
     rep.n_lines_in = len(lines)
-    seen_names: set[str] = set()
 
     # 1. drop boilerplate lines first (they would break the signature scan)
     out: list[str] = []
@@ -390,12 +385,12 @@ def scrub_extracted(lines: list[str],
             header_idx = find_customer_header(lines)  # re-locate after cut
 
     # 3. structural redaction of labeled lines
-    lines = [_redact_label_line(line, rep, seen_names) for line in lines]
+    lines = [_redact_label_line(line, rep) for line in lines]
 
     # 4. greeting de-naming (whole document; the expert's opening greeting is
     #    the only one we can attribute to the enquirer)
     primary_idx = _first_nonblank(lines, header_idx)
-    lines = _redact_greetings(lines, rep, primary_idx, seen_names)
+    lines = _redact_greetings(lines, rep, primary_idx)
 
     # 5. pattern redaction over everything that remains
     text = "\n".join(lines)
@@ -412,9 +407,6 @@ def scrub_extracted(lines: list[str],
            for m in GREETING_RESIDUAL_RE.finditer(text)):
         rep.flags.append("greeting_name_residual")
         rep.residual_pii_flag = True
-    if filename and _filename_carries_redacted_name(filename, seen_names):
-        rep.flags.append("filename_contains_redacted_name")
-        rep.residual_pii_flag = True
     if rep.greeting_name_redacted:
         rep.flags.append("greeting_name_replaced")
 
@@ -422,11 +414,10 @@ def scrub_extracted(lines: list[str],
     return text, rep
 
 
-def scrub_docx(extraction: ExtractResult,
-               filename: str | None = None) -> tuple[str | None, ScrubReport]:
+def scrub_docx(extraction: ExtractResult) -> tuple[str | None, ScrubReport]:
     """Full Stage 0 for one document: extract -> scrub. Returns (text, report);
     text is None for unparseable files (report.error explains why)."""
     if not extraction.ok:
         rep = ScrubReport(ok=False, error=extraction.error)
         return None, rep
-    return scrub_extracted(extraction.lines, filename=filename)
+    return scrub_extracted(extraction.lines)

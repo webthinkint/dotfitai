@@ -97,9 +97,10 @@ Runs on raw files; no LLM sees unscrubbed text; nothing is uploaded anywhere bef
    cannot be asserted (mail recipients, greetings inside quoted replies).
 4. Scrub report per file: what was redacted, where. Failed-to-parse files go to a manual
    queue. **Redaction is conservative by design**: a name that cannot be redacted without
-   risking prose (a greeting with no terminator, an unrecognised honorific, a filename
-   repeating a redacted name) is *flagged* for review, never guessed at
-   (progress 2026-09-02 (2)).
+   risking prose (an unrecognized honorific, a greeting whose name has no terminator and no
+   entry in the curated, corpus-attested `GREETING_NAME_TOKENS` vocabulary) is *flagged* for
+   review, never guessed at (progress 2026-09-02 (2); the corpus's greeting residuals were
+   dispositioned 2026-09-05 — all real names, now redacted via the vocabulary).
 
 Output: scrubbed text + report. Any file with a residual-PII flag cannot proceed to Stage 2
 until cleared.
@@ -112,11 +113,13 @@ until cleared.
   quoted contact block (progress 2026-09-02 (2)).
 - Classify: `qa_email` (both sections present) | `expert_note` (no customer quote) |
    `other` (internal, research summary, mixed) — cheap rules first, LLM confirms edge cases.
+- Exclude documents with no expert-answer text (question-only stubs, image-only exports):
+   dropped from `documents.jsonl`, tallied in `summary.json` (`n_excluded`), never queued —
+   only answerable docs are indexed (owner decision 2026-09-05).
 - Capture metadata: year folder, subfolder topic (e.g. `Sweeteners, Natural definitions...`),
-   filename (topic summary, genuinely informative). **Filenames are not rewritten**
-   (owner decision 2026-09-02): they are load-bearing topic summaries. Instead a filename
-   that repeats a name the document redacted is flagged for review — the name itself is
-   never written to any report.
+   filename (topic summary, genuinely informative). **Filenames are neither rewritten nor
+   reviewed** (owner decisions 2026-09-02, 2026-09-05): they are load-bearing topic
+   summaries; the former name-repeat flag was removed by owner disposition.
 
 ### Stage 2 — LLM-assisted structuring (batch, on scrubbed text only)
 
@@ -344,7 +347,11 @@ Definitions live here; **current status lives in the table at the bottom of
    are versioned in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`.
 4. **PPTX disposition** — parked; revisit only if sales/teaching content is requested later.
 5. Semantic ranker on/off decided empirically on golden set (week 3–4).
-6. **Stage 3 review-queue dispositions** (opened 2026-09-02 (2)): 35 items — residual-PII
-   flags the scrubber refuses to guess at, documents with no answer text, and filenames
-   repeating a redacted name. The owner's decisions land in `FILENAME_ACCEPTED_NAMES` /
-   `ACCEPTED_HONORIFIC_NAMES`, the same curation-in-code pattern as the alias overlays.
+6. ~~**Stage 3 review-queue dispositions** (opened 2026-09-02 (2))~~ — **CLOSED 2026-09-05**.
+   All 35 items dispositioned by the owner: (a) every greeting residual was either a real
+   name — redacted via the new corpus-attested `GREETING_NAME_TOKENS` vocabulary — or a
+   checker false positive ("Hello my friend"; a bare "Hello" whose residual scan crossed
+   the newline), both fixed in `scrub.py`; (b) filenames carry no review burden — the
+   `filename_contains_redacted_name` flag is removed; (c) the 6 no-answer and 4 blank
+   documents are excluded from `documents.jsonl` and tallied in `summary.json` instead of
+   queued. Review queue: 35 → 0.
