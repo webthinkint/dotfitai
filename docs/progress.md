@@ -7,16 +7,16 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-05. 151 tests green.
+Numbers verified 2026-09-05. 186 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
 | QA Stage 0 — PII scrub | §4 | **done** | 1,051 `.docx` (1,103 − 9 empty − 43 dup groups) |
-| QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0; 10 unanswerable excluded (6 no-answer, 4 blank) |
+| QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0 (round 2 cleared); 10 unanswerable excluded (6 no-answer, 4 blank) |
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
-| QA Stage 2 (canonicalize) | §4 | blocked on Azure model deployments (item 1) | — |
+| QA Stage 2 (canonicalize) | §4 | **pilot unblocked** — small chat live (item 1); implementation next | — |
 | Podcast segmentation | §7 | **done** — `podcast` subcommand; greedy merge to ~90 s / 200-word targets (phrases atomic); Speaker-turn text is the speaker-map rewrite contract | 47 episodes → 1,800 segments (median 76 s / 251 words); rerun byte-identical |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed** — 47/47 episodes via fast-transcription (diarization on, dotFIT phrase list); 5-episode spot-check clean; remaining: speaker-map (text rewrite + re-upload, non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3 |
 | Index + retrieval | §9–11 | **index live** — `kb-main` holds 3,067 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast); podcast-filtered + unfiltered retrieval smoke PASS (authority ordering holds); remaining: QA canonical (Stage 2) source, golden-set eval, ranker toggle | `processed/index/` |
@@ -34,7 +34,7 @@ regenerated run.
 | 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record |
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | week 3–4, decide empirically |
-| 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05 — all 35 dispositioned: real greeting names redacted via `GREETING_NAME_TOKENS` (false positives fixed), filename flag removed, no-answer + blank docs excluded. Queue 0 |
+| 6 | Stage 3 review-queue dispositions | **closed (round 2)** 2026-09-05 — owner triage: 5 study-author honorifics (pasted articles/transcripts) cleared into `ACCEPTED_HONORIFIC_NAMES`; 2 full-name customer sign-offs redacted by the new sign-off rule. Queue 0. Remaining: git history still holds the two names in older blobs — purge needs owner decision (same precedent as the `.scan` purge) |
 
 ## Decisions
 
@@ -51,12 +51,19 @@ Everything else (rules, index contract, stage design) is in the plan.
   undetected leaks, not a clean corpus. The 2026-09-05 queue of 0 is the
   post-disposition steady state, earned by redaction + exclusion rules
   rather than by looking away.
-- Greeting residuals (2026-09-05 dispositions): 6 of the 11 flags were real
-  names in terminator-free shapes — redacted via the corpus-attested
-  `GREETING_NAME_TOKENS` vocabulary (honorific-prefixed, lowercase, and-joined
-  and slash-joined forms; `my`/`friend` are stopwords, and the residual scan
-  no longer crosses newlines — those 5 flags were checker false positives).
-  An unknown name in the same position still flags.
+- Greeting residuals (2026-09-05 dispositions, round 1): 6 of the 11 flags
+  were real names in terminator-free shapes — redacted via the
+  corpus-attested `GREETING_NAME_TOKENS` vocabulary (honorific-prefixed,
+  lowercase, and-joined and slash-joined forms; `my`/`friend` are stopwords,
+  and the residual scan no longer crosses newlines — those 5 flags were
+  checker false positives). An unknown name in the same position still flags.
+- Greeting residuals (2026-09-05 dispositions, round 2): sign-off names below
+  the quoted header (`Thanks,`/`Regards,` + one bare-name line) redact to
+  `[NAME]` — honorific/credential kept, `--` delimiter dropped; the expert
+  region above the header is untouched (staff bylines, not PII). A bare
+  `Mr` (no period, e.g. the LeanMR abbreviation) fused across a blank line
+  with the next line's first word no longer flags — honorific gaps span at
+  most one newline.
 - 9 zero-byte files deleted; 51 duplicates deleted across 43 md5-identical
   groups (keep rule: earliest year → shallowest path → lexicographic). Full
   KEEP/DEL record: `processed/qa/runs/data-cleanup-2026-09-02.log`, since
@@ -135,6 +142,10 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (17)** — Index hardening: embed cache checkpoints per batch (crash keeps vectors), `citation_url` path-quoting (`Sleep Aid.pdf` → `Sleep%20Aid.pdf`; zero raw spaces), menu descriptions stamped `authority=5` (explicit last — nulls sort unpredictably); podcast top-up recorded in plan §11 (owner decision B). Regen: counts identical (1,080 chunks, 3,067 docs); re-upload pending with the next cycle. 2 new tests. 186 tests.
+- **2026-09-05 (16)** — Family canonicals pinned: regression test asserts `canonical_part_no` + membership for all 10 multi-SKU families (lowest-part_no ≈ first-published verified sane — every canonical is the hero flavor); a re-export that revoices families goes red. 1 new test. 184 tests.
+- **2026-09-05 (15)** — Review round 2 cleared: sign-off de-naming rule (`Thanks,`/`Regards,` + bare name below the quoted header → `[NAME]`, 43 redactions over ~34 files; expert region untouched), honorific gap capped at one newline (kills the `lean Mr`/`Thanks` false fuse) + middle-initial capture (surname-tested), 8 study-author surnames allowlisted (Williams flagged as common — veto-able). Regen: queue 7→0; names verified absent from `processed/`. 8 new tests. 183 tests.
+- **2026-09-05 (14)** — Scrub review fixes: period-optional honorific check, `Good morning` residual, profile-URL domains (`x.com`/`threads.net`/`fb.me` + left-boundary guard after a regen catch on `nxgenrx.com`), `and`-form tolerant matching (`Recover&Build` 17→19 docs), still-collapsed PDSRG grids kept atomic, nth-table ordering, explicit stage1 sort, per-file pdsrg errors, menu divergence assert, quoted-value comment parsing. Regen: queue 0→7 (all period-less honorifics, pending disposition); PDSRG/index byte-identical. 8 new tests. 175 tests.
 - **2026-09-05 (13)** — Small chat deployment live: `gpt-5-mini` smoke PASS (strict JSON-schema extraction contract for Stage 2; `REQUIRE_OPENAI_SMALL_CHAT` subset + `scripts/chat_smoke.py`). Stage 2 pilot unblocked; frontier deployment still pending quota. 167 tests.
 - **2026-09-05 (12)** — Podcast ingestion (§7 step 4) done: `podcast_documents` (`authority=4`, mm:ss locator, null citation_url until the archive.txt→YouTube mapping is verified) + `--podcast-segments` flag; 3,067/3,067 uploaded to `kb-main` (1,800 new), 0 errors, retrieval smoke PASS. 2 new tests. 167 tests.
 - **2026-09-05 (11)** — Podcast segmentation (§7 step 3) done: new `qa_pipeline/podcast.py` + `podcast` CLI subcommand (transcripts + audio dirs in, `segments/segments.jsonl` + `summary.json` out); 47 episodes → 1,800 segments, zero word loss, rerun byte-identical. 14 new tests. 165 tests.

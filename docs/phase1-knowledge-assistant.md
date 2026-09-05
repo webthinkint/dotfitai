@@ -44,10 +44,10 @@ citations, grounded exclusively in dotFIT's own knowledge sources.
 | 6 | PII policy | Strip & discard, placeholder substitution; nothing unscrubbed leaves the pipeline | ✅ confirmed |
 | 7/8 | Validity & dedupe | Current answers only; filter/dedupe after structuring | ✅ confirmed |
 | 9 | Golden set | See §12 (~300 items, stratified + hand-written adversarial) | ✅ recommended, accepted |
-| 10 | Authority order | products.json > PDSRG > QA > podcast (PPTX excluded) | default, unobjected |
+| 10 | Authority order | products.json > PDSRG > QA > podcast > menu descriptions (menu authority 5, lowest; owner decision 2026-09-05) | default, unobjected |
 | 11 | Claims source | `products.json` is the approved-claims corpus; assistant quotes it | resolved by data |
 | 12 | Product identity | `part_no`/`coid` canonical; alias table derived from products.json + QA vocabulary; `product_family` groups flavor SKUs | default |
-| 13 | Transcript source | Own ASR pipeline (Azure AI Speech batch, diarization + word timestamps); no YouTube captions | ✅ confirmed |
+| 13 | Transcript source | Own ASR pipeline (Azure AI Speech fast-transcription, diarization + word timestamps); no YouTube captions | ✅ confirmed |
 | 14 | Index shape | Single AI Search index, filtered by source/authority/currency | recommended, accepted |
 | 15 | Ingestion language | Python offline pipeline; C# runtime | recommended, accepted |
 | 16 | Chunking | Per-source (see §4–§7) | recommended, accepted |
@@ -63,7 +63,7 @@ citations, grounded exclusively in dotFIT's own knowledge sources.
 | 2 | `data/Practitioner Dietary Supplement Reference Guide/` | 39 text-layer PDFs, 41 MB | Clean-ish; needs section chunking + table-preservation test |
 | 3 | `data/QAs/` .docx | 1,051 files, 2023–2026 (1,103 exported; 9 zero-byte + 51 duplicates removed 2026-09-02) | Saved email threads + free-form notes; heavy cleanup (§4) |
 | 4 | `data/Suppbeast Podcast/` | 47 MP3s, ~35–40 h | Needs ASR (§7) — wave 2 |
-| — | `data/Reference Menus/All Reference Menus Export.csv` | 10 menu types × 17 calorie levels, 3,534 rows | Deferred (tools); only the 10 descriptions indexed |
+| — | `data/Reference Menus/All Reference Menus Export.csv` | 10 menu types × 17 calorie levels, 3,534 rows | Deferred (tools); only the 10 descriptions indexed (authority 5) |
 | — | `Product Summaries/*.pptx` | 354 slides | Excluded from Phase 1 |
 
 The assistant must answer product questions from authority 1–2 and use authority 3 for
@@ -88,7 +88,10 @@ Runs on raw files; no LLM sees unscrubbed text; nothing is uploaded anywhere bef
 1. Extract text from .docx XML (paragraph-level).
 2. Structural redaction: remove/placeholder the `Name:`, `Email:`, `Phone:` lines of the contact
    block; redact addresses in `From:/To:` headers; drop signatures; drop the copyright footer
-   line (noise).
+   line (noise). Customer sign-offs below the quoted header (a bare `Thanks,`/`Regards,`-class
+   closer + one bare-name line, e.g. `Dr Jane Smith (PhD)`) redact the name span to `[NAME]`
+   (honorific/credential kept; `--` delimiter dropped) — the expert region above the header is
+   untouched (staff bylines, not PII).
 3. Pattern redaction: email addresses, phone numbers (separator-bearing US/CA formats —
    bare 10-digit runs are deliberately not matched, dosages would false-positive), postal
    addresses, URLs to personal/social profiles, SSN/credit-card-like strings → placeholders
@@ -112,7 +115,8 @@ until cleared.
   **forwarded threads whose header is line 0**, where the reply is written *below* the
   quoted contact block (progress 2026-09-02 (2)).
 - Classify: `qa_email` (both sections present) | `expert_note` (no customer quote) |
-   `other` (internal, research summary, mixed) — cheap rules first, LLM confirms edge cases.
+   `other` (internal, research summary, mixed) — deterministic rules; `other`
+   goes to the review queue for the Stage 2 LLM-confirm/human path.
 - Exclude documents with no expert-answer text (question-only stubs, image-only exports):
    dropped from `documents.jsonl`, tallied in `summary.json` (`n_excluded`), never queued —
    only answerable docs are indexed (owner decision 2026-09-05).
@@ -123,7 +127,9 @@ until cleared.
 
 ### Stage 2 — LLM-assisted structuring (batch, on scrubbed text only)
 
-Small Azure OpenAI deployment, JSON-schema outputs, temperature 0. Per document:
+Small Azure OpenAI deployment, JSON-schema outputs, GPT-5-family default (no
+temperature knob — determinism comes from the strict schema plus the
+source-containment diff pass, not temperature 0). Per document:
 
 ```
 id, source_file, year, doc_type,
@@ -218,14 +224,17 @@ SKU's content is the family document; variants contribute only genuinely distinc
 
 ## 7. Podcast pipeline (wave 2, parallelizable from week 1)
 
-1. **ASR**: Azure AI Speech **batch transcription** — diarization on, word-level timestamps,
+1. **ASR**: Azure AI Speech **fast-transcription** (synchronous inline upload —
+   no blob storage needed) — diarization on, word-level timestamps,
    custom phrase list with dotFIT product names + common supplement jargon (the predictable
    failure mode). ~35–40 h audio ≈ **$35–40 total**. Region-pinned, enterprise data terms.
    *Self-hosted fallback (if "ourselves" means on-prem): faster-whisper large-v3 + pyannote
    diarization, documented but not the default.*
 2. **QC**: 10% sample human spot-check (WER + product-name accuracy); fix phrase list, re-run
    failures.
-3. **Segmentation**: merge diarized turns into topic chunks (~60–120 s / 150–250 words), each
+3. **Segmentation**: merge diarized turns into topic chunks (targets ~90 s /
+   200 words, hard caps 120 s / 250 words; phrases atomic, so medians can sit
+   at the caps), each
    with `episode_id`, `title` (from filename, normalized — filenames contain full-width
    characters ｜ ： that must be cleaned), `start`/`end` (mm:ss), `speakers`, text.
 4. Index with `authority=4`, `source_type=podcast`; citations render as
@@ -253,7 +262,7 @@ source-specific).
 |---|---|---|---|
 | `id` | string | key | `{source}-{file|part_no|episode}-{section|chunk}` — dashes, not colons: AI Search keys forbid `:` (`InvalidDocumentKey`, hit 2026-09-05) |
 | `source_type` | string | filterable, facetable | `qa` \| `product` \| `pdsrg` \| `podcast` \| `menu_desc` |
-| `authority` | int32 | filterable, sortable | 1–4 per §3 |
+| `authority` | int32 | filterable, sortable | 1–5 per §3 (menus rank last — nulls sort unpredictably, so menus carry an explicit 5) |
 | `title` | string | searchable | product name / QA canonical question / episode+segment |
 | `content` | string | searchable | markdown, tables verbatim |
 | `content_vector` | Collection(Edm.Single) | vectorized | Azure OpenAI `text-embedding-3-large` (3072-dim), **int8 scalar quantization + rescoring, no stored vector copies** — binding per 2026-08-27, keep on Basic too |
@@ -267,6 +276,9 @@ source-specific).
 
 Query profile: hybrid (BM25 + vector, RRF) → **semantic ranker ON** (toggleable, validated on
 golden set) → top-5 with `products`/`topics` filters when the query names a product.
+Podcast segments carry no `products`/`topics` tags (owner decision 2026-09-05 — spoken
+mentions are too noisy for deterministic tagging), so they join product answers via an
+unfiltered top-up for the last context slots, never via the filters.
 Tier: Basic initially; revisit only if latency/limits demand.
 
 ## 10. Models & provider
@@ -330,7 +342,7 @@ forbidden content (non-compliant claim language).
 
 | Week | Track A — data/pipeline | Track B — infra/runtime | Track C — people |
 |---|---|---|---|
-| 1 | Stage 0–1 scrub prototype on 20 docs (incl. nastiest); PDSRG extraction gate test; alias table v1; podcast phrase list | Provision AI Search + Azure OpenAI (region-paired); skeleton repo (Python pipeline / C# service); kick off ASR batch (independent) | Confirm escalation policy owner; golden-set rubric draft |
+| 1 | Stage 0–1 scrub prototype on 20 docs (incl. nastiest); PDSRG extraction gate test; alias table v1; podcast phrase list | Provision AI Search + Azure OpenAI (region-paired); skeleton repo (Python pipeline / C# service); kick off ASR sweep (independent) | Confirm escalation policy owner; golden-set rubric draft |
 | 2 | Full Stage 0–2 run (1,051 docs); review queue opens; Stage 4 dedupe/currency; PDSRG chunked; products.json section-split | Agent v0: search → grounded answer + citations; eval harness wired | Support lead works review queue; golden-set sampling script reviewed |
 | 3 | Index build (products + PDSRG + canonical QA); menu descriptions; transcript QC + segmentation (if ASR done) | Guardrails (pre/post checks, disclosure, escalation); eval loop vs dev set | Golden set labeled (250 + write 50) |
 | 4 | Tuning (ranker on/off, filters, chunk sizes) vs golden set | Internal dogfood with support/nutrition team; fix list | Dogfood feedback triage |

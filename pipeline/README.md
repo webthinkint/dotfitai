@@ -183,7 +183,8 @@ Known benign platform difference: `runs/*.json` manifests record
 
 - `parse_error` — file is not a valid `.docx`; needs a data-owner look (read
   from the committed `stage0/errors.json`)
-- `honorific_plus_name` — e.g. "Dr. Smith" in content; humans confirm whether
+- `honorific_plus_name` — e.g. "Dr. Smith" in content (period optional —
+  "Dr Smith" flags the same way); humans confirm whether
   it's staff/expert (clear it into `ACCEPTED_HONORIFIC_NAMES`) or a customer
 - `greeting_name_residual` — a greeting whose name has no terminator and is
   not in the corpus-attested `GREETING_NAME_TOKENS` vocabulary (`Hey Jasmine
@@ -203,11 +204,15 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
   unanswerable docs excluded (6 no-answer stubs, 4 blanks), not queued
 - Redactions (per occurrence): 1,681 contact-block email fields, 1,057 inline
   emails, 774 customer-name fields, 693 opening greetings + 283 greetings in
-  quoted replies, 362 phone fields, 243 inline phones, 221 recipient display
-  names, 25 postal addresses, 5 card-shaped numbers, 3 social-profile URLs
-- Dropped: 711 copyright footers, 195 disclaimer lines, 139 signature blocks
-- 0 files in the review queue (the 35 flagged 2026-09-02 were dispositioned
-  2026-09-05 — see plan §14 item 6)
+  quoted replies, 43 customer sign-off names (`Thanks,`/`Regards,` + bare name
+  below the quoted header — `[NAME]`, honorific/credential kept), 362 phone
+  fields, 243 inline phones, 221 recipient display names, 25 postal addresses,
+  5 card-shaped numbers, 3 social-profile URLs
+- Dropped: 711 copyright footers, 195 disclaimer lines, 139 signature blocks,
+  1 `--` email delimiter above a redacted sign-off
+- 0 files in the review queue (round 2, owner-dispositioned 2026-09-05: 5
+  study-author honorifics cleared into `ACCEPTED_HONORIFIC_NAMES`, 2 full-name
+  sign-off leaks redacted by the new sign-off rule — see plan §14 item 6)
 - DOI strings like `10.1007/s13197-011-0571` are correctly *not* matched as
   phones; the address rule was corpus-verified with zero false positives
 
