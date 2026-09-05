@@ -40,6 +40,24 @@ class TestPatterns:
         assert PROFILE_URL_RE.search("instagram.com/janefit")
         assert not PROFILE_URL_RE.search("https://www.dotfit.com/product")
 
+    def test_profile_urls_short_and_new_domains(self):
+        # fb.me / x.com / threads.net carry no .com suffix — the old
+        # host+`.com` construction never matched them (review fix)
+        assert PROFILE_URL_RE.search("see https://x.com/someuser")
+        assert PROFILE_URL_RE.search("see https://www.threads.net/t/abc")
+        assert PROFILE_URL_RE.search("see https://fb.me/xyz")
+        text, rep = scrub_extracted(["my page https://x.com/someuser here"])
+        assert "[PROFILE-URL]" in text
+        assert "x.com/someuser" not in text
+
+    def test_profile_url_does_not_match_inside_longer_domains(self):
+        # x.com is a suffix of nxgenrx.com — without a left boundary the
+        # short domain eats the tail of the longer one (regen catch)
+        url = "https://nxgenrx.com/#/dotfit"
+        assert not PROFILE_URL_RE.search(url)
+        text, _ = scrub_extracted([url])
+        assert text.strip() == url
+
 
 class TestScrubExtracted:
     def test_email_thread_scrub(self, email_thread_docx):
@@ -100,6 +118,13 @@ class TestResidualHonorificAllowlist:
         assert rep.flags.count("honorific_plus_name") == 1
         assert rep.residual_pii_flag is True
 
+    def test_honorific_without_period_flags(self):
+        # "Dr Smith" (no period) is the same person-reference and must
+        # flag like the dotted form (review fix)
+        _, rep = scrub_extracted(["as Dr Smith noted, take with food."])
+        assert "honorific_plus_name" in rep.flags
+        assert rep.residual_pii_flag is True
+
     def test_accepted_name_does_not_flag(self):
         text, rep = scrub_extracted([
             "as Dr. Katz noted, take with food."])
@@ -120,6 +145,27 @@ class TestResidualHonorificAllowlist:
         _, ok = scrub_extracted(["as Dr. Jules Hirsch reported,"])
         assert "honorific_plus_name" not in ok.flags
         _, bad = scrub_extracted(["as Dr. Hirsch Nakamura reported,"])
+        assert "honorific_plus_name" in bad.flags
+
+    def test_honorific_gap_never_crosses_a_blank_line(self):
+        # "lean Mr" (the LeanMR product) + a Thanks closer is not a person
+        # reference — the old \\s+ gap fused them into a false flag
+        _, rep = scrub_extracted(
+            ["It was for the chocolate lean Mr", "", "Thanks,"])
+        assert "honorific_plus_name" not in rep.flags
+        assert rep.residual_pii_flag is False
+
+    def test_wrapped_honorific_still_flags(self):
+        _, rep = scrub_extracted(["as Dr.", "Smith noted, take with food."])
+        assert "honorific_plus_name" in rep.flags
+
+    def test_middle_initial_does_not_hide_the_surname(self):
+        # capture runs to the surname, so the allowlist is tested on it:
+        # Katz is accepted, Rivera is not
+        _, ok = scrub_extracted(["as Dr Alex M. Katz noted, take with food."])
+        assert "honorific_plus_name" not in ok.flags
+        _, bad = scrub_extracted(
+            ["as Dr Alex M. Rivera noted, take with food."])
         assert "honorific_plus_name" in bad.flags
 
 
@@ -178,6 +224,14 @@ class TestGreetingRedaction:
         """No terminator and no vocabulary entry -> redacting would risk
         prose; flag instead (unknown names stay a human decision)."""
         _, rep = scrub_extracted(["Hey Jasmine any advice or tips"])
+        assert "greeting_name_residual" in rep.flags
+        assert rep.residual_pii_flag is True
+
+    def test_good_morning_residual_flags(self):
+        # the residual check must cover the same leads as the redact
+        # rules — "Good morning <name>" without a terminator used to
+        # pass silently (review fix)
+        _, rep = scrub_extracted(["Good morning Jasmine any advice"])
         assert "greeting_name_residual" in rep.flags
         assert rep.residual_pii_flag is True
 
@@ -254,6 +308,70 @@ class TestLooseGreetingNames:
         assert f"Hello {self.OTHER}" not in text
         assert "Hello [NAME] any advice" in text
         assert rep.redactions["greeting_name_quoted"] == 1
+
+
+class TestSignoffRedaction:
+    """Customer sign-offs in quoted replies (owner disposition 2026-09-05,
+    review round 2 — two quoted replies leaked full sign-off names). Names
+    below are fabricated (example.com / 555 convention for people too)."""
+
+    HEADER = [
+        "From: someone@example.org",
+        "Sent: Tuesday, June 27, 2023 12:10 PM",
+        "Subject: Ask the Experts",
+        "",
+    ]
+
+    def test_thanks_plus_full_name(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "It was for the chocolate protein",
+            "",
+            "Thanks,",
+            "",
+            "Jane Smith",
+        ])
+        assert "Jane Smith" not in text
+        assert text.rstrip().endswith("Thanks,\n\n[NAME]")
+        assert rep.redactions["signoff_name"] == 1
+        assert rep.residual_pii_flag is False
+
+    def test_delim_plus_regards_plus_credentialed_honorific(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "Message: would you recommend this",
+            "",
+            "-- ",
+            "Regards,",
+            "",
+            "Dr Jane Smith (PhD Org Chem)",
+        ])
+        assert "Jane Smith" not in text
+        assert "Dr [NAME] (PhD Org Chem)" in text
+        assert "-- " not in text
+        assert rep.redactions["signoff_name"] == 1
+        assert rep.dropped["signature_delim"] == 1
+        assert rep.residual_pii_flag is False
+
+    def test_expert_region_signoff_is_staff_not_pii(self):
+        # above the quoted header: expert sign-offs stay verbatim
+        text, rep = scrub_extracted([
+            "Thanks,",
+            "John",
+            "Thanks for contacting us.",
+        ] + self.HEADER + ["Question: dosing?"])
+        assert "Thanks,\nJohn\nThanks for contacting us." in text
+        assert "signoff_name" not in rep.redactions
+
+    def test_expert_note_without_header_untouched(self):
+        text, _ = scrub_extracted(["Thanks,", "John"])
+        assert "John" in text
+
+    def test_non_name_after_closer_untouched(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "Thanks,",
+            "we will follow up soon.",
+        ])
+        assert "we will follow up soon." in text
+        assert "signoff_name" not in rep.redactions
 
 
 class TestRecipientRedaction:

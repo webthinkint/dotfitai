@@ -62,12 +62,13 @@ ADDRESS_RE = re.compile(
     r"(?:\s*,?\s*(?:[A-Z][\w'’.-]*\s*){1,3},?\s*[A-Z][A-Za-z]\.?\s*\d{5}(?:-\d{4})?)?"
 )
 
-SOCIAL_HOSTS = (
-    "facebook", "fb\\.me", "instagram", "linkedin", "tiktok", "twitter",
-    r"x\.com", "snapchat", "pinterest", r"threads\.net", "reddit",
+SOCIAL_DOMAINS = (
+    "facebook\\.com", "fb\\.me", "instagram\\.com", "linkedin\\.com",
+    "tiktok\\.com", "twitter\\.com", r"x\.com", "snapchat\\.com",
+    "pinterest\\.com", r"threads\.net", "reddit\\.com",
 )
 PROFILE_URL_RE = re.compile(
-    r"(?:https?://)?(?:www\.)?(?:" + "|".join(SOCIAL_HOSTS) + r")\.com/[^\s<>\"']+",
+    r"(?<![A-Za-z0-9.-])(?:https?://)?(?:www\.)?(?:" + "|".join(SOCIAL_DOMAINS) + r")/[^\s<>\"']+",
     re.IGNORECASE,
 )
 
@@ -107,7 +108,7 @@ GREETING_LOOSE_RE = re.compile(
 # Horizontal whitespace only: a greeting alone on a line must not reach across
 # the newline and flag the first word of the next line ("Hello\nhow are you").
 GREETING_RESIDUAL_RE = re.compile(
-    r"^\s*(?i:Hi|Hey|Hello|Dear)[^\S\n]+([A-Za-z][\w'’.-]*)", re.MULTILINE
+    r"^\s*(?i:Hi|Hey|Hello|Dear|Good\s+(?:morning|afternoon|evening))[^\S\n]+([A-Za-z][\w'’.-]*)", re.MULTILINE
 )
 GREETING_STOPWORDS = frozenset({
     "there", "team", "everyone", "everybody", "all", "folks", "guys", "gals",
@@ -117,6 +118,25 @@ GREETING_STOPWORDS = frozenset({
     # friend" is not PII and must not flag)
     "my", "friend",
 })
+
+# Customer sign-off de-naming (owner disposition 2026-09-05, review round 2:
+# two quoted replies leaked full names as sign-offs — "Thanks,\\n\\nJane
+# Smith" and "-- \\nRegards,\\n\\nDr Jane Smith (PhD Org Chem)"). A bare
+# closer line followed (past blanks) by ONE bare-name line is a sign-off, not
+# prose; the name span is replaced with [NAME]. Only below the quoted header
+# (the customer region) — expert sign-offs above it are staff names, not PII.
+# In forwarded threads the expert reply also sits below the header, so a
+# staff sign-off there redacts to [NAME] too: harmless (sign-offs carry no
+# answer content) and still safer than attributing roles by rule.
+CLOSER_RE = re.compile(
+    r"^\s*(?i:thanks|thank you|many thanks|thanks so much|regards|"
+    r"kind regards|best regards|best|sincerely|cheers)\s*[,.!]*\s*$",
+)
+_SIG_DELIM_RE = re.compile(r"^\s*--\s*$")
+_SIGNOFF_NAME_RE = re.compile(
+    r"^\s*((?:(?i:mr|mrs|ms|dr)\.?\s+)?)([A-Z][\w'’.-]+"
+    r"(?:\s+[A-Z][\w'’.-]+){0,2})(\s*\(.*\))?\s*$",
+)
 
 COPYRIGHT_RE = re.compile(r"^\s*Copyright\s+\d{4}(?:[-–]\d{2,4})?\s+dotFIT", re.IGNORECASE)
 DISCLAIMER_RE = re.compile(r"^\s*Disclaimer\s*:", re.IGNORECASE)
@@ -146,8 +166,25 @@ ACCEPTED_HONORIFIC_NAMES = frozenset({
     "Hazen", "Freeman", "Gardner", "Hirsch", "Nabel", "Sacks", "Katz",
     "Djalilian", "Paauw", "LeWine", "Davidson", "Gonzalez", "Axe",
     "Streichhan", "Spruce",
+    # owner disposition 2026-09-05 (review queue round 2): pasted
+    # articles/transcripts — study authors and podcast guests, not customers.
+    # NOTE: "Williams" is a common surname — a future customer "Dr Williams"
+    # would clear silently; veto here if that trade is ever wrong.
+    "Crichton", "Jastreboff", "Watto", "Williams", "Kargi",
+    "Ornish", "LaFaver", "Leibel",
 })
-HONORIFIC_NAME_RE = re.compile(r"\b(?:Mr\.|Ms\.|Mrs\.|Dr\.)\s+([A-Z]\w+(?:\s+[A-Z]\w+){0,2})")
+# Gap inside an honorific span: with a period, horizontal whitespace plus at
+# most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
+# is required — bare "Dr" must not glue onto a word ("DrPH" the degree) and
+# two newlines never belong to one reference ("lean Mr\n\nThanks," is the
+# LeanMR product plus a closer, not "Mr Thanks" — regen catch 2026-09-05).
+_HON_WS_DOT = r"\.(?:[^\S\n]*\n)?[^\S\n]*"
+_HON_WS_NL = r"[^\S\n]*\n[^\S\n]*"
+_HON_WS_SP = r"[^\S\n]+"
+HONORIFIC_NAME_RE = re.compile(
+    r"\b(?:Mr|Ms|Mrs|Dr)(?:" + _HON_WS_DOT + "|" + _HON_WS_NL + "|" + _HON_WS_SP + ")" +
+    r"([A-Z](?:\w+|\.)?(?:(?:" + _HON_WS_NL + "|" + _HON_WS_SP + r")[A-Z](?:\w+|\.)?){0,2})"
+)
 
 # Recipient labels: display names are people, addresses are handled by
 # EMAIL_RE. Role mailboxes are kept verbatim — they carry no PII and they are
@@ -339,6 +376,45 @@ def _redact_greetings(lines: list[str], rep: ScrubReport,
     return lines
 
 
+def _redact_signoffs(lines: list[str], header_idx: int | None,
+                       rep: ScrubReport) -> list[str]:
+    """``Thanks,\\n\\nJane Smith`` -> ``Thanks,\\n\\n[NAME]`` below the header.
+
+    Exactly one bare-name line (optional honorific, optional credential
+    parenthetical — the honorific/credential stay, they are not identifying).
+    A standalone ``--`` email delimiter directly above the closer goes with
+    it. No header (expert notes) -> untouched: there is no quoted customer
+    mail to protect and sign-offs there are staff bylines.
+    """
+    if header_idx is None:
+        return lines
+    out = list(lines)
+    drop: set[int] = set()
+    for i in range(header_idx, len(out)):
+        if i in drop or not CLOSER_RE.match(out[i]):
+            continue
+        j = i + 1
+        blanks = 0
+        while j < len(out) and not out[j].strip():
+            j += 1
+            blanks += 1
+            if blanks > 3:
+                break
+        if j >= len(out):
+            continue
+        m = _SIGNOFF_NAME_RE.match(out[j])
+        if not m:
+            continue
+        out[j] = out[j][:m.start(2)] + "[NAME]" + out[j][m.end(2):]
+        _bump(rep.redactions, "signoff_name")
+        if i - 1 >= 0 and _SIG_DELIM_RE.match(out[i - 1]):
+            drop.add(i - 1)
+    if drop:
+        _bump(rep.dropped, "signature_delim", len(drop))
+        out = [l for k, l in enumerate(out) if k not in drop]
+    return out
+
+
 def _pattern_scrub(text: str, rep: ScrubReport) -> str:
     for regex, placeholder in PATTERN_RULES:
         n = len(regex.findall(text))
@@ -391,6 +467,9 @@ def scrub_extracted(lines: list[str]) -> tuple[str, ScrubReport]:
     #    the only one we can attribute to the enquirer)
     primary_idx = _first_nonblank(lines, header_idx)
     lines = _redact_greetings(lines, rep, primary_idx)
+
+    # 4b. customer sign-off de-naming (quoted region only — see _redact_signoffs)
+    lines = _redact_signoffs(lines, header_idx, rep)
 
     # 5. pattern redaction over everything that remains
     text = "\n".join(lines)
