@@ -15,8 +15,9 @@ to AI Search (manual indexing — chunking is source-specific, per §9):
 - **menu descriptions** (§8) — one small doc per menu type (10), with the
   calorie range computed from the CSV.
 
-QA (Stage 2, blocked on the small-chat quota) and podcast (§7 ASR) sources
-join later; their records already follow the same §9 field contract.
+Podcast segments (§7 step 3 output) join here as fourth source; QA
+(Stage 2, blocked on the small-chat quota) joins later under the same
+§9 field contract.
 
 AI Search document keys may only contain letters, digits, ``_``, ``-`` and
 ``=`` (``InvalidDocumentKey`` otherwise), so §9's colon-separated id style
@@ -234,12 +235,48 @@ def read_menu_rows(path: Path) -> list[dict]:
     raise ValueError(f"menu CSV is neither UTF-8 nor cp1252: {path}")
 
 
+def podcast_documents(segments: list[dict]) -> list[dict]:
+    """§7 segments → §9 docs (``authority=4``).
+
+    - ``id`` gets a ``podcast-`` namespace prefix: segment ids are
+      slug-based and can start with a digit (``1-expert-reacts…``).
+    - ``title`` carries the mm:ss range so result lists disambiguate
+      segments of one episode; ``locator`` is the citable time range.
+    - ``citation_url`` stays None until the ``archive.txt`` → YouTube
+      mapping is verified (see ``podcast.py``) — no guessed URLs.
+    - ``products``/``topics`` stay empty: spoken text gets no
+      deterministic alias tagging (future work, same policy as the
+      corpus-never-rewritten rule).
+    - ``is_current`` is True: v1 has no supersession logic for episodes,
+      and an unstamped (null) doc is invisible to filtered queries.
+    """
+    docs = []
+    for s in segments:
+        docs.append({
+            "id": f"podcast-{s['id']}",
+            "source_type": "podcast",
+            "authority": 4,                      # §3: podcast transcripts
+            "title": f"{s['episode_title']} ({s['start']}–{s['end']})",
+            "content": s["text"],
+            "citation_url": None,
+            "locator": f"{s['start']}–{s['end']}",
+            "products": [],
+            "topics": [],
+            "date": None,                       # §9: nullable for podcast
+            "is_current": True,
+            "product_status": None,
+        })
+    return docs
+
+
 def build_documents(chunks: list[dict], products: list[dict],
-                    families: list[dict], menu_rows: list[dict]) -> list[dict]:
+                    families: list[dict], menu_rows: list[dict],
+                    podcast_segments: list[dict] | None = None) -> list[dict]:
     """All §9 documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
             + product_documents(products, families)
-            + menu_documents(menu_rows))
+            + menu_documents(menu_rows)
+            + podcast_documents(podcast_segments or []))
     return sorted(docs, key=lambda d: d["id"])
 
 

@@ -45,6 +45,9 @@ from .io_utils import (
     write_json, write_text,
 )
 from .pdsrg import chunk_pdf, chunk_records, review_outline
+from .podcast import (
+    clean_title, resolve_titles, segment_episode, summarize as summarize_podcast,
+)
 from .scrub import scrub_docx
 from .stage1 import classify_and_parse, load_scrub_report, review_reasons
 
@@ -438,6 +441,72 @@ def cmd_pdsrg(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_podcast(args: argparse.Namespace) -> int:
+    transcripts_dir = Path(args.transcripts).resolve()
+    audio_dir = Path(args.audio).resolve()
+    out_root = Path(args.out).resolve()
+    if not transcripts_dir.is_dir():
+        print(f"error: transcripts dir not found: {transcripts_dir}",
+              file=sys.stderr)
+        return 2
+    if not audio_dir.is_dir():
+        print(f"error: audio dir not found: {audio_dir}", file=sys.stderr)
+        return 2
+
+    try:
+        titles = resolve_titles(audio_dir)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    files = sorted(transcripts_dir.glob("*.json"))
+    if args.include:
+        files = [f for f in files
+                 if any(fnmatch.fnmatch(rel_posix(f, transcripts_dir), pat)
+                        for pat in args.include)]
+    if args.limit is not None:
+        files = files[: args.limit]
+
+    segments_dir = out_root / "segments"
+    segments_dir.mkdir(parents=True, exist_ok=True)
+    all_chunks: list[dict] = []
+    errors: list[str] = []
+    for i, path in enumerate(files, 1):
+        slug = path.stem
+        if slug not in titles:
+            errors.append(f"{path.name}: no .mp3 twin in {audio_dir} "
+                          f"(slug {slug!r} unresolved)")
+            continue
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        source_file = titles[slug]
+        title = clean_title(Path(source_file).name)
+        chunks = segment_episode(slug, title, source_file, payload)
+        all_chunks.extend(chunks)
+        if not args.quiet:
+            print(f"  [{i}/{len(files)}] {title}: {len(chunks)} segments")
+
+    all_chunks.sort(key=lambda c: c["id"])
+    with (segments_dir / "segments.jsonl").open("w", encoding="utf-8",
+                                                   newline="\n") as f:
+        for rec in all_chunks:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    summary = {"pipeline_version": __version__,
+               "options": {"target_words": 200, "max_words": 250,
+                             "target_seconds": 90.0, "max_seconds": 120.0},
+               "errors": errors,
+               **summarize_podcast(all_chunks)}
+    write_json(segments_dir / "summary.json", summary)
+    mpath = _manifest(out_root, "podcast", args, files, transcripts_dir, {
+        "ok": len(files) - len(errors), "errors": len(errors),
+        "n_segments": len(all_chunks),
+    })
+    print(f"podcast done: {len(files) - len(errors)}/{len(files)} episodes -> "
+          f"{len(all_chunks)} segments; manifest: {mpath}")
+    for e in errors:
+        print(f"  ERROR {e}", file=sys.stderr)
+    return 1 if errors and args.fail_on_error else 0
+
+
 def cmd_index(args: argparse.Namespace) -> int:
     chunks_path = Path(args.chunks).resolve()
     products_path = Path(args.products).resolve()
@@ -454,7 +523,15 @@ def cmd_index(args: argparse.Namespace) -> int:
     products = json.loads(products_path.read_text(encoding="utf-8"))
     families = build_alias_table(products)["families"]
     menu_rows = read_menu_rows(menus_path)
-    docs = build_documents(chunks, products, families, menu_rows)
+    segments_path = Path(args.podcast_segments).resolve()
+    if segments_path.is_file():
+        podcast_segments = read_jsonl(segments_path)
+    else:
+        podcast_segments = []
+        print(f"  note: podcast segments not found ({segments_path}) — "
+              f"shaping without the podcast source")
+    docs = build_documents(chunks, products, families, menu_rows,
+                           podcast_segments)
 
     docs_path = out_dir / "documents.jsonl"
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -536,7 +613,10 @@ def cmd_index(args: argparse.Namespace) -> int:
         "args": {k: v for k, v in vars(args).items() if k != "func"},
         "inputs": {"chunks": sha256_file(chunks_path),
                    "products": sha256_file(products_path),
-                   "menus": sha256_file(menus_path)},
+                   "menus": sha256_file(menus_path),
+                   "podcast_segments": (sha256_file(segments_path)
+                                          if segments_path.is_file()
+                                          else None)},
         "n_documents": len(docs), "n_embedded": len(selected),
         "n_uploaded": n_ok, "errors": errors,
     })
@@ -640,6 +720,10 @@ def build_parser() -> argparse.ArgumentParser:
     ix.add_argument("--menus",
                     default="data/Reference Menus/All Reference Menus Export.csv",
                     help="menu CSV (§8 description docs)")
+    ix.add_argument("--podcast-segments",
+                    default="processed/podcasts/segments/segments.jsonl",
+                    help="§7 segments.jsonl (missing file shapes without "
+                         "the podcast source)")
     ix.add_argument("--out", default="processed/index",
                     help="output dir (default: processed/index)")
     ix.add_argument("--index-name", default=INDEX_NAME,
@@ -656,6 +740,25 @@ def build_parser() -> argparse.ArgumentParser:
     ix.add_argument("--quiet", action="store_true")
     ix.add_argument("--fail-on-error", action="store_true")
     ix.set_defaults(func=cmd_index)
+
+    pc = sub.add_parser(
+        "podcast",
+        help="segment podcast transcripts into topic chunks (plan §7 step 3)")
+    pc.add_argument("--transcripts",
+                    default="processed/podcasts/transcripts",
+                    help="dir of fast-transcription .json files")
+    pc.add_argument("--audio", default="data/Suppbeast Podcast",
+                    help="dir of the .mp3 files (episode-title source)")
+    pc.add_argument("--out", default="processed/podcasts",
+                    help="output root (default: processed/podcasts)")
+    pc.add_argument("--include", action="append", metavar="GLOB",
+                    help="only process transcripts whose dir-relative path "
+                         "matches this glob (repeatable)")
+    pc.add_argument("--limit", type=int, default=None,
+                    help="process at most N transcripts (for pilots)")
+    pc.add_argument("--quiet", action="store_true")
+    pc.add_argument("--fail-on-error", action="store_true")
+    pc.set_defaults(func=cmd_podcast)
 
     r = sub.add_parser("run", help="stage0 followed by stage1")
     common(r)

@@ -17,8 +17,9 @@ Numbers verified 2026-09-05. 151 tests green.
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
 | QA Stage 2 (canonicalize) | §4 | blocked on Azure model deployments (item 1) | — |
-| Podcast ASR | §7 | not started | — |
-| Index + retrieval | §9–11 | **partial index live** — `kb-main` holds 1,267 docs (1,080 pdsrg / 177 product / 10 menu); hybrid retrieval smoke PASS; remaining: QA canonical (Stage 2) + podcast (ASR) sources, golden-set eval, ranker toggle | `processed/index/` |
+| Podcast segmentation | §7 | **done** — `podcast` subcommand; greedy merge to ~90 s / 200-word targets (phrases atomic); Speaker-turn text is the speaker-map rewrite contract | 47 episodes → 1,800 segments (median 76 s / 251 words); rerun byte-identical |
+| Podcast ASR | §7 | **transcribed + QC PASS, indexed** — 47/47 episodes via fast-transcription (diarization on, dotFIT phrase list); 5-episode spot-check clean; remaining: speaker-map (text rewrite + re-upload, non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3 |
+| Index + retrieval | §9–11 | **index live** — `kb-main` holds 3,067 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast); podcast-filtered + unfiltered retrieval smoke PASS (authority ordering holds); remaining: QA canonical (Stage 2) source, golden-set eval, ranker toggle | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -28,7 +29,7 @@ regenerated run.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech); credentials in local `.env`; `text-embedding-3-large` deployed and smoke-verified (3072-dim, `scripts/embedding_smoke.py`). Remaining: quota increase for frontier + small chat deployments |
+| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech); credentials in local `.env`; `text-embedding-3-large` deployed and smoke-verified (3072-dim, `scripts/embedding_smoke.py`); `gpt-5-mini` deployed as the small chat model and smoke-verified (strict JSON-schema extraction, `scripts/chat_smoke.py` — no temperature knob, GPT-5-family default only). Remaining: quota increase for the frontier chat deployment |
 | 2 | products.json freshness owner | **open** — 8 PDSRG-only gaps closed 2026-09-01. Remaining: name the owner, set monthly diff cadence |
 | 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record |
 | 4 | PPTX disposition | parked |
@@ -134,6 +135,11 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (13)** — Small chat deployment live: `gpt-5-mini` smoke PASS (strict JSON-schema extraction contract for Stage 2; `REQUIRE_OPENAI_SMALL_CHAT` subset + `scripts/chat_smoke.py`). Stage 2 pilot unblocked; frontier deployment still pending quota. 167 tests.
+- **2026-09-05 (12)** — Podcast ingestion (§7 step 4) done: `podcast_documents` (`authority=4`, mm:ss locator, null citation_url until the archive.txt→YouTube mapping is verified) + `--podcast-segments` flag; 3,067/3,067 uploaded to `kb-main` (1,800 new), 0 errors, retrieval smoke PASS. 2 new tests. 167 tests.
+- **2026-09-05 (11)** — Podcast segmentation (§7 step 3) done: new `qa_pipeline/podcast.py` + `podcast` CLI subcommand (transcripts + audio dirs in, `segments/segments.jsonl` + `summary.json` out); 47 episodes → 1,800 segments, zero word loss, rerun byte-identical. 14 new tests. 165 tests.
+- **2026-09-05 (10)** — Podcast QC (§7) PASS: 5-episode stratified spot-check all clean, no re-runs, phrase list unchanged; notes + speaker-map ground truth in `processed/podcasts/qc_notes.md`. 151 tests.
+- **2026-09-05 (9)** — Podcast ASR sweep (§7) done: 47/47 episodes transcribed 0 failures (fast-transcription inline upload, `en-US` + diarization + 65-phrase dotFIT list; `scripts/asr_pilot.py --all`, 2 workers). 38.0 h → 35,050 phrases / ~437K words with word timestamps; outputs in `processed/podcasts/transcripts/` (<slug>.json + readable .txt). Next: 10% QC, segmentation + speaker-map (map needs the small chat deployment — same quota blocker as Stage 2). 151 tests.
 - **2026-09-05 (8)** — `kb-main` uploaded and queryable: 1,267/1,267 docs,
   0 errors (all vectors from cache). First attempt failed wholesale:
   `InvalidDocumentKey` — colons are illegal in AI Search keys; ids now use

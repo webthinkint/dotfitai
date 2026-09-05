@@ -7,8 +7,8 @@ import pytest
 from qa_pipeline.embeddings import Embedder
 from qa_pipeline.index_build import (
     INDEX_NAME, build_documents, embed_text, ensure_index, index_schema,
-    menu_documents, pdsrg_documents, product_documents, read_menu_rows,
-    split_sections, upload_documents,
+    menu_documents, pdsrg_documents, podcast_documents, product_documents,
+    read_menu_rows, split_sections, upload_documents,
 )
 
 
@@ -159,6 +159,28 @@ def _chunks():
              "topics": [], "date": None, "is_current": True}]
 
 
+def _segments():
+    return [{"id": "1-expert-reacts-000", "episode_id": "1-expert-reacts",
+             "episode_title": "#1 Expert Reacts", "source_file": "e.mp3",
+             "chunk_index": 0, "start": "00:00", "end": "01:36",
+             "start_ms": 0, "end_ms": 96000, "duration_s": 96.0,
+             "speakers": [1, 2], "n_words": 200,
+             "text": "Speaker 1: Take creatine daily."}]
+
+
+def test_podcast_documents_shape_and_defaults():
+    doc = podcast_documents(_segments())[0]
+    assert doc["id"] == "podcast-1-expert-reacts-000"  # namespaced, digit-safe
+    assert doc["source_type"] == "podcast" and doc["authority"] == 4
+    assert doc["title"] == "#1 Expert Reacts (00:00–01:36)"
+    assert doc["locator"] == "00:00–01:36"
+    assert doc["content"] == "Speaker 1: Take creatine daily."
+    assert doc["citation_url"] is None  # archive.txt mapping unverified
+    assert doc["products"] == [] and doc["topics"] == []
+    assert doc["date"] is None and doc["product_status"] is None
+    assert doc["is_current"] is True  # null would hide it from filters
+
+
 def test_index_ids_are_search_key_safe():
     """Regression: AI Search keys allow only [A-Za-z0-9_\-=] — the 2026-09-05
     upload failed wholesale on colon ids (InvalidDocumentKey)."""
@@ -166,18 +188,30 @@ def test_index_ids_are_search_key_safe():
 
     docs = build_documents(_chunks(), PRODUCTS, FAMILIES,
                            [{"menu_name": "M", "menu_descr": "d",
-                             "menu_calories": "1000"}])
+                             "menu_calories": "1000"}],
+                           _segments())
     bad = [d["id"] for d in docs if not re.fullmatch(r"[A-Za-z0-9_\-=]+", d["id"])]
     assert not bad
 
 
 def test_build_documents_sorted_and_deterministic():
     args = (_chunks(), PRODUCTS, FAMILIES,
-            [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}])
+            [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}],
+            _segments())
     d1 = build_documents(*args)
     d2 = build_documents(*args)
     assert d1 == d2
     assert [d["id"] for d in d1] == sorted(d["id"] for d in d1)
+    by_source = {}
+    for d in d1:
+        by_source[d["source_type"]] = by_source.get(d["source_type"], 0) + 1
+    assert by_source["podcast"] == 1
+
+
+def test_build_documents_without_podcast_unchanged():
+    args = (_chunks(), PRODUCTS, FAMILIES,
+            [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}])
+    assert len(build_documents(*args)) + 1 == len(build_documents(*args, _segments()))
 
 
 def test_embed_text_is_title_plus_content():
