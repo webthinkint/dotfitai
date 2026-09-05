@@ -52,14 +52,17 @@ def main() -> int:
         return 1
 
     counters = stats.get("counters", {}) if hasattr(stats, "get") else {}
+
+    def _u(name: str):
+        return (counters.get(name) or {}).get("usage", "?")
+
+    def _q(name: str):
+        return (counters.get(name) or {}).get("quota", "usage-based")
+
     print(f"endpoint : {cfg.search_endpoint}")
     print(f"index    : {kb}")
-    if counters:
-        print(f"docs     : {counters.get('documentCount', '?')}  "
-              f"storage  : {counters.get('storageUsage', '?')}")
-    else:
-        # serverless (usage-based) tiers report no quota counters
-        print("usage    : serverless tier — no quota counters (normal)")
+    print(f"docs     : {_u('document_counter')} (usage-based billing)")
+    print(f"indexes  : {_u('index_counter')}/{_q('index_counter')}")
     print("PASS")
     return 0
 

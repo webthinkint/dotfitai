@@ -4,7 +4,7 @@
   "index_name": "kb-main",
   "limit": null,
   "no_embed": false,
-  "no_upload": true,
+  "no_upload": false,
   "reset": false
  },
  "n_documents": 1267,
@@ -70,9 +70,15 @@
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
   "n_docs": 1267,
-  "n_cache_hits": 1265,
-  "n_api_calls": 1,
+  "n_cache_hits": 1267,
+  "n_api_calls": 0,
   "dims": 3072
  },
- "upload": null
+ "upload": {
+  "index": "kb-main",
+  "index_status": "exists",
+  "n_uploaded": 1267,
+  "n_selected": 1267,
+  "errors": []
+ }
 }

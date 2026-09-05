@@ -251,7 +251,7 @@ source-specific).
 
 | Field | Type | Attributes | Notes |
 |---|---|---|---|
-| `id` | string | key | `{source}:{file|part_no|episode}:{section|chunk}` |
+| `id` | string | key | `{source}-{file|part_no|episode}-{section|chunk}` — dashes, not colons: AI Search keys forbid `:` (`InvalidDocumentKey`, hit 2026-09-05) |
 | `source_type` | string | filterable, facetable | `qa` \| `product` \| `pdsrg` \| `podcast` \| `menu_desc` |
 | `authority` | int32 | filterable, sortable | 1–4 per §3 |
 | `title` | string | searchable | product name / QA canonical question / episode+segment |

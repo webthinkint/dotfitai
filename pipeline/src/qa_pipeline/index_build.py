@@ -18,6 +18,12 @@ to AI Search (manual indexing — chunking is source-specific, per §9):
 QA (Stage 2, blocked on the small-chat quota) and podcast (§7 ASR) sources
 join later; their records already follow the same §9 field contract.
 
+AI Search document keys may only contain letters, digits, ``_``, ``-`` and
+``=`` (``InvalidDocumentKey`` otherwise), so §9's colon-separated id style
+(``pdsrg:stem:001``) is mapped to dashes at index time: ``pdsrg-stem-001``.
+The committed source records keep their ids; the substitution is purely
+mechanical and reversible. A test pins the key rule on every built id.
+
 Determinism: ``documents.jsonl`` (no vectors) is byte-identical across
 reruns — pure shaping from committed inputs, sorted by ``id``. Vectors are
 API results cached locally (see ``embeddings.py``), and ``runs/`` outputs
@@ -105,7 +111,7 @@ def product_documents(products: list[dict], families: list[dict]) -> list[dict]:
     def base_doc(pn: str, section: str, title: str, part_nos: list[str]) -> dict:
         p = by_pn[pn]
         return {
-            "id": f"product:{pn}:{section}",
+            "id": f"product-{pn}-{section}",
             "source_type": "product",
             "authority": 1,                     # §3: legal-approved copy
             "title": title,
@@ -157,7 +163,7 @@ def pdsrg_documents(chunks: list[dict]) -> list[dict]:
     docs = []
     for c in chunks:
         docs.append({
-            "id": c["id"],
+            "id": c["id"].replace(":", "-"),  # colon keys are illegal in AI Search
             "source_type": "pdsrg",
             "authority": c.get("authority", 2),
             "title": c.get("title"),
@@ -199,7 +205,7 @@ def menu_documents(rows: list[dict]) -> list[dict]:
         content = (f"{descr}\n\nAvailable calorie targets range from "
                    f"{lo:,} to {hi:,} calories across {len(cals)} levels.")
         docs.append({
-            "id": f"menu_desc:{_slug(name)}:description",
+            "id": f"menu_desc-{_slug(name)}-description",
             "source_type": "menu_desc",
             "authority": None,                  # §3 assigns no authority to menus
             "title": name,

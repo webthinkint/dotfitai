@@ -60,7 +60,7 @@ def test_product_documents_family_and_variant_rules():
     ids = [d["id"] for d in docs]
 
     # canonical SKU's sections are the family documents
-    fam = next(d for d in docs if d["id"] == "product:1333:description")
+    fam = next(d for d in docs if d["id"] == "product-1333-description")
     assert fam["title"] == "LeanMeal Nutrition Shake"
     assert fam["products"] == ["1333", "1334", "1335"]
     assert fam["authority"] == 1 and fam["is_current"] is True
@@ -68,14 +68,14 @@ def test_product_documents_family_and_variant_rules():
     assert fam["date"] is None and fam["product_status"] is None
 
     # identical variant sections contribute nothing (vanilla)
-    assert not [i for i in ids if i.startswith("product:1334:")]
+    assert not [i for i in ids if i.startswith("product-1334-")]
 
     # genuinely distinct variant sections are kept, tagged to the variant
-    banana_facts = next(d for d in docs if d["id"] == "product:1335:supplement_facts")
+    banana_facts = next(d for d in docs if d["id"] == "product-1335-supplement_facts")
     assert banana_facts["products"] == ["1335"]
     assert banana_facts["title"] == "LeanMeal Nutrition Shake - Banana"
     assert banana_facts["locator"] == "Banana"
-    assert "product:1335:flavor-notes" in ids
+    assert "product-1335-flavor-notes" in ids
     # family part_nos stay strings throughout (query filters are strings)
     assert all(isinstance(pn, str) for d in docs for pn in d["products"])
 
@@ -95,6 +95,7 @@ def test_pdsrg_documents_passthrough_with_string_part_nos():
              "locator": "Active MV (p. 1)", "products": [1005], "topics": ["MVM"],
              "date": None, "is_current": True, "product_status": "discontinued"}
     doc = pdsrg_documents([chunk])[0]
+    assert doc["id"] == "pdsrg-activemv-001"       # colons mapped to dashes
     assert doc["products"] == ["1005"]          # int part_no -> string
     assert doc["authority"] == 2 and doc["source_type"] == "pdsrg"
     assert doc["product_status"] == "discontinued"
@@ -113,7 +114,7 @@ def test_menu_documents_case_variant_names_merge_deterministically():
     docs = menu_documents(rows)
     assert len(docs) == 1                     # one doc despite spelling drift
     d = docs[0]
-    assert d["id"] == "menu_desc:night-out:description"
+    assert d["id"] == "menu_desc-night-out-description"
     assert d["title"] == "Night out"          # dominant spelling (2 of 3 rows)
     assert "1,000 to 4,500 calories across 3 levels" in d["content"]
 
@@ -156,6 +157,18 @@ def _chunks():
     return [{"id": "pdsrg:b:001", "authority": 2, "title": "t", "content": "c",
              "citation_url": "x", "locator": "l", "products": [1],
              "topics": [], "date": None, "is_current": True}]
+
+
+def test_index_ids_are_search_key_safe():
+    """Regression: AI Search keys allow only [A-Za-z0-9_\-=] — the 2026-09-05
+    upload failed wholesale on colon ids (InvalidDocumentKey)."""
+    import re
+
+    docs = build_documents(_chunks(), PRODUCTS, FAMILIES,
+                           [{"menu_name": "M", "menu_descr": "d",
+                             "menu_calories": "1000"}])
+    bad = [d["id"] for d in docs if not re.fullmatch(r"[A-Za-z0-9_\-=]+", d["id"])]
+    assert not bad
 
 
 def test_build_documents_sorted_and_deterministic():

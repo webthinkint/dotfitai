@@ -7,7 +7,7 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-05. 148 tests green.
+Numbers verified 2026-09-05. 151 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Numbers verified 2026-09-05. 148 tests green.
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
 | QA Stage 2 (canonicalize) | §4 | blocked on Azure model deployments (item 1) | — |
 | Podcast ASR | §7 | not started | — |
-| Index + retrieval | §9–11 | **in progress** — `kb-main` schema + builder done; 1,267 docs shaped + embedded (1,080 pdsrg / 177 product / 10 menu), dry-run verified, upload pending; retrieval not started | `processed/index/` |
+| Index + retrieval | §9–11 | **partial index live** — `kb-main` holds 1,267 docs (1,080 pdsrg / 177 product / 10 menu); hybrid retrieval smoke PASS; remaining: QA canonical (Stage 2) + podcast (ASR) sources, golden-set eval, ranker toggle | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -120,6 +120,10 @@ Everything else (rules, index contract, stage design) is in the plan.
   (`processed/index/runs/embeddings.jsonl`, keyed deployment|api-version|text);
   the committed `documents.jsonl` carries no vectors — reruns stay
   byte-identical and re-uploads are free.
+- AI Search keys forbid colons: index ids use dashes (`pdsrg-x-001`),
+  mapped from the committed §9-style ids at build time — the 2026-09-05
+  upload failed wholesale on `InvalidDocumentKey` before the mapping; a
+  regression test pins the key rule on every built id.
 - The menu export's case-duplicate menu names (`Gluten Free`/`Gluten free`,
   `Night Out`/`Night out` — identical descriptions) merge case-insensitively
   with the dominant spelling displayed; they would otherwise collide as
@@ -130,6 +134,12 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-05 (8)** — `kb-main` uploaded and queryable: 1,267/1,267 docs,
+  0 errors (all vectors from cache). First attempt failed wholesale:
+  `InvalidDocumentKey` — colons are illegal in AI Search keys; ids now use
+  dashes (plan §9 row updated, regression test pins the rule). Retrieval
+  smoke PASS: hybrid queries hit topical PDSRG chunks, family product docs,
+  and the `products` part_no filter. 151 tests.
 - **2026-09-05 (7)** — Index builder (§9): `kb-main` schema (3072-dim
   int8-quantized vectors, rescoring, `stored=false`, semantic config), §5
   products section-split with family grouping (177 docs), §8 menu
