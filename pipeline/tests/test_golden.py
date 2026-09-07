@@ -11,14 +11,23 @@ from qa_pipeline.cli import main
 from qa_pipeline.golden import (
     ADVERSARIAL_PLAN,
     ADVERSARIAL_SIZE,
+    CURATED_ADVERSARIAL,
+    PROBE_QUERY_WORDS,
+    PROBE_SOURCES,
+    build_adversarial,
     build_pool,
+    build_probes,
     largest_remainder,
+    probe_query,
+    probe_stratum,
     rank_key,
     record_families,
     repair_coverage,
     run_golden,
     unmet_requirements,
+    write_adversarial_jsonl,
     write_adversarial_worksheet,
+    write_probes_jsonl,
     write_worksheet,
 )
 
@@ -295,9 +304,9 @@ class TestWriters:
         assert "a\\|b" in text                # pipe escaped, no table break
         assert "> line1\n> line2" in text     # both answer lines quoted
 
-    def test_adversarial_scaffold_shape(self, tmp_path):
+    def test_adversarial_worksheet_shape(self, tmp_path):
         path = tmp_path / "adversarial.md"
-        write_adversarial_worksheet(path)
+        write_adversarial_worksheet(path, build_adversarial())
         text = path.read_text(encoding="utf-8")
         blocks = [ln for ln in text.splitlines() if ln.startswith("### A-")]
         assert len(blocks) == ADVERSARIAL_SIZE == 50
@@ -307,9 +316,175 @@ class TestWriters:
         for plan in ADVERSARIAL_PLAN:
             n_cat = sum(1 for b in blocks if b.endswith(plan["category"]))
             assert n_cat == plan["n"]
-        assert text.count("- Question: …") == 50
-        assert text.count("- Expected behavior:") == 50
+        assert text.count("- **Q:** ") == 50
+        assert text.count("- Forbidden: ") == 50
         assert "escalation accuracy" in text
+        assert "…" not in text          # the scaffold blanks are gone
+
+
+class TestAdversarial:
+    """The 50 written items (§12) — the escalation-accuracy metric's input."""
+
+    def test_composition_matches_the_plan(self):
+        items = build_adversarial()
+        assert len(items) == ADVERSARIAL_SIZE == 50
+        for plan in ADVERSARIAL_PLAN:
+            n_cat = sum(1 for i in items if i["category"] == plan["category"])
+            assert n_cat == plan["n"]
+        assert [i["item_no"] for i in items] == [f"A-{n:03d}" for n in range(1, 51)]
+
+    def test_splits_are_even_and_alternate(self):
+        items = build_adversarial()
+        assert sum(1 for i in items if i["split"] == "dev") == 25
+        assert sum(1 for i in items if i["split"] == "test") == 25
+        # every category divides across both halves, not just the totals
+        for plan in ADVERSARIAL_PLAN:
+            rows = [i for i in items if i["category"] == plan["category"]]
+            assert {i["split"] for i in rows} == {"dev", "test"}
+
+    def test_every_item_is_gradeable(self):
+        for item in build_adversarial():
+            assert item["question"].strip()
+            assert item["expected_behavior"].strip()
+            assert 1 <= len(item["points"]) <= 3, item["item_no"]
+            assert all(p.strip() for p in item["points"]), item["item_no"]
+            assert item["forbidden"].strip(), item["item_no"]
+
+    def test_questions_are_unique(self):
+        questions = [i["question"] for i in build_adversarial()]
+        assert len(set(questions)) == len(questions)
+
+    def test_build_raises_when_counts_drift_from_the_plan(self, monkeypatch):
+        # A silently short category reports escalation accuracy for a
+        # different experiment than §12 specifies.
+        short = [i for i in CURATED_ADVERSARIAL
+                 if i["category"] != "claim_trap"]
+        monkeypatch.setattr("qa_pipeline.golden.CURATED_ADVERSARIAL", short)
+        with pytest.raises(ValueError, match="counts disagree"):
+            build_adversarial()
+
+    def test_build_raises_on_an_unknown_category(self, monkeypatch):
+        monkeypatch.setattr(
+            "qa_pipeline.golden.CURATED_ADVERSARIAL",
+            [*CURATED_ADVERSARIAL,
+             {"category": "made_up", "question": "q", "points": ["p"],
+              "forbidden": "f"}])
+        with pytest.raises(ValueError, match="not in ADVERSARIAL_PLAN"):
+            build_adversarial()
+
+    def test_build_raises_on_a_duplicate_question(self, monkeypatch):
+        doubled = [*CURATED_ADVERSARIAL]
+        # keep the category counts valid so the duplicate check is what fires
+        doubled[1] = {**doubled[1], "question": doubled[0]["question"]}
+        monkeypatch.setattr("qa_pipeline.golden.CURATED_ADVERSARIAL", doubled)
+        with pytest.raises(ValueError, match="duplicate adversarial"):
+            build_adversarial()
+
+    def test_jsonl_is_one_object_per_item(self, tmp_path):
+        path = tmp_path / "adversarial.jsonl"
+        items = build_adversarial()
+        write_adversarial_jsonl(path, items)
+        lines = path.read_text(encoding="utf-8").splitlines()
+        assert len(lines) == 50
+        parsed = [json.loads(ln) for ln in lines]
+        assert parsed == items
+        assert path.read_bytes().endswith(b"\n")
+
+
+def _index_docs(n_pdsrg=8, n_podcast=8, stems=("activemv", "wheysmooth"),
+                episodes=("ep-one", "ep-two")):
+    """Synthetic §9 index rows in the two probe-bearing shapes."""
+    docs = []
+    for i in range(n_pdsrg):
+        stem = stems[i % len(stems)]
+        docs.append({
+            "id": f"pdsrg-{stem}-{i:03d}",
+            "source_type": "pdsrg",
+            "title": f"Section {i}",
+            # heading path line, blank line, then the body
+            "content": f"Guide > {stem} > Section {i}\n\n"
+                       + " ".join(f"body{i}word{w}" for w in range(40)),
+            "locator": f"{stem} (p. {i})",
+        })
+    for i in range(n_podcast):
+        episode = episodes[i % len(episodes)]
+        docs.append({
+            "id": f"podcast-{episode}-{i:03d}",
+            "source_type": "podcast",
+            "title": f"{episode} (00:00–01:00)",
+            "content": f"Speaker 1: talk{i} "
+                       + " ".join(f"said{i}word{w}" for w in range(40)),
+            "locator": "00:00–01:00",
+        })
+    return docs
+
+
+class TestProbes:
+    """Retrieval probes over PDSRG/podcast — §12 coverage gap, open item 15."""
+
+    def test_query_drops_the_heading_path_and_speaker_labels(self):
+        docs = _index_docs(n_pdsrg=1, n_podcast=1)
+        pdsrg_query = probe_query(docs[0])
+        assert pdsrg_query is not None
+        # the heading path would let BM25 answer on the title field alone
+        assert "Guide >" not in pdsrg_query
+        assert "Section 0" not in pdsrg_query
+        assert pdsrg_query.startswith("body0word0")
+
+        podcast_query = probe_query(docs[1])
+        assert podcast_query is not None
+        assert "Speaker 1:" not in podcast_query
+        assert podcast_query.startswith("talk0")
+
+    def test_query_is_capped_at_the_word_budget(self):
+        query = probe_query(_index_docs(n_pdsrg=1, n_podcast=0)[0])
+        assert len(query.split(" ")) == PROBE_QUERY_WORDS
+
+    def test_short_chunks_are_not_queryable(self):
+        doc = {"id": "pdsrg-x-001", "source_type": "pdsrg",
+               "content": "Guide > x > y\n\ntoo short", "title": "y"}
+        assert probe_query(doc) is None
+
+    def test_every_stratum_is_probed_at_least_once(self):
+        probes, summary = build_probes(_index_docs(), n_per_source=4)
+        for source in PROBE_SOURCES:
+            strata = {p["stratum"] for p in probes
+                      if p["source_type"] == source}
+            assert len(strata) == 2       # both stems, both episodes
+        assert summary["n_probes"] == len(probes) == 8
+
+    def test_probe_points_at_a_real_document_id(self):
+        docs = _index_docs()
+        ids = {d["id"] for d in docs}
+        probes, _ = build_probes(docs, n_per_source=4)
+        assert all(p["expected_doc_id"] in ids for p in probes)
+        # a probe never expects a document from the other corpus
+        for probe in probes:
+            assert probe["expected_doc_id"].startswith(probe["source_type"])
+
+    def test_deterministic_across_input_order(self):
+        docs = _index_docs()
+        a, sa = build_probes(docs, n_per_source=4)
+        b, sb = build_probes(list(reversed(docs)), n_per_source=4)
+        assert a == b and sa == sb
+
+    def test_missing_corpus_raises_rather_than_shrinking(self):
+        # An index that lost its podcast documents must fail loudly, not
+        # quietly emit a probe set that no longer covers them.
+        pdsrg_only = [d for d in _index_docs() if d["source_type"] == "pdsrg"]
+        with pytest.raises(ValueError, match="cannot probe a corpus"):
+            build_probes(pdsrg_only, n_per_source=4)
+
+    def test_unexpected_document_id_shape_raises(self):
+        with pytest.raises(ValueError, match="document id shape"):
+            probe_stratum({"id": "pdsrg-001"})
+
+    def test_jsonl_round_trips(self, tmp_path):
+        probes, _ = build_probes(_index_docs(), n_per_source=4)
+        path = tmp_path / "probes.jsonl"
+        write_probes_jsonl(path, probes)
+        lines = path.read_text(encoding="utf-8").splitlines()
+        assert [json.loads(ln) for ln in lines] == probes
 
 
 class TestCli:
@@ -328,8 +503,8 @@ class TestCli:
         assert rc == 0
         out = tmp_path / "golden"
         names = sorted(p.name for p in out.iterdir() if p.is_file())
-        assert names == ["adversarial.md", "sample.jsonl", "summary.json",
-                         "worksheet.md"]
+        assert names == ["adversarial.jsonl", "adversarial.md", "sample.jsonl",
+                         "summary.json", "worksheet.md"]
         first = {n: (out / n).read_bytes() for n in names}
 
         # rerun from a different working directory: byte-identical outputs
@@ -347,3 +522,28 @@ class TestCli:
         rc = main(["golden", "--qa-docs", "nope.jsonl", "--products",
                    "products.json", "--out", "golden"])
         assert rc == 2
+
+    def test_probes_are_emitted_when_the_index_build_is_present(
+            self, tmp_path, monkeypatch):
+        (tmp_path / "products.json").write_text(json.dumps(PRODUCTS),
+                                                encoding="utf-8")
+        qa_dir = tmp_path / "stage4"
+        qa_dir.mkdir()
+        (qa_dir / "documents.jsonl").write_text(
+            "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in _pool()),
+            encoding="utf-8")
+        (tmp_path / "index.jsonl").write_text(
+            "".join(json.dumps(d, ensure_ascii=False) + "\n"
+                    for d in _index_docs()),
+            encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+
+        rc = main(["golden", "--qa-docs", "stage4/documents.jsonl",
+                   "--products", "products.json",
+                   "--index-docs", "index.jsonl", "--out", "golden"])
+        assert rc == 0
+        out = tmp_path / "golden"
+        assert (out / "probes.jsonl").is_file()
+        summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+        assert summary["probes"]["n_probes"] > 0
+        assert set(summary["probes"]["n_per_source"]) == set(PROBE_SOURCES)

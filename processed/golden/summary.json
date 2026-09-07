@@ -165,5 +165,625 @@
    "category": "out_of_scope",
    "n": 15
   }
- ]
+ ],
+ "probes": {
+  "n_probes": 120,
+  "n_per_source": {
+   "pdsrg": 60,
+   "podcast": 60
+  },
+  "n_strata": {
+   "pdsrg": 39,
+   "podcast": 47
+  },
+  "query_words": 30,
+  "splits": {
+   "dev": 60,
+   "test": 60
+  },
+  "allocation": [
+   {
+    "source_type": "pdsrg",
+    "stratum": "wheysmooth",
+    "pool": 69,
+    "quota": 3,
+    "probed": 3
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "creatinemonohydrate",
+    "pool": 65,
+    "quota": 3,
+    "probed": 3
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "no7-preworkout-formerly-no7-rage",
+    "pool": 65,
+    "quota": 3,
+    "probed": 3
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "sleep-aid",
+    "pool": 64,
+    "quota": 3,
+    "probed": 3
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "extremecreatinexxxl",
+    "pool": 53,
+    "quota": 8,
+    "probed": 8
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "superomega-3-fish-oils",
+    "pool": 52,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "aminoformula",
+    "pool": 46,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "thermaccel",
+    "pool": 42,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "workoutextreme",
+    "pool": 42,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "superiorantioxidant",
+    "pool": 40,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "leanmeal-formerly-leanmr",
+    "pool": 39,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "jointskincollagen",
+    "pool": 33,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "recover-build",
+    "pool": 33,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "calciumcomplex",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "glutaminecomplex-formerly-muscledefender",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "weightloss-liversupport",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "digestiveenzymes",
+    "pool": 30,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "firststring",
+    "pool": 28,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "dotfit-multivitamin-mineral-formulas-specialty-design-criteria",
+    "pool": 26,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "ultraprobiotic",
+    "pool": 25,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "alln1-superblend",
+    "pool": 24,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "product-manufacturing-third-party-testing",
+    "pool": 23,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "electrolytes",
+    "pool": 22,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "bestplantprotein",
+    "pool": 21,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "pre-postworkoutshake",
+    "pool": 20,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "activemv",
+    "pool": 13,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "advancedbrainhealth",
+    "pool": 13,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "introduction",
+    "pool": 13,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "women-smv",
+    "pool": 13,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "carbrepel",
+    "pool": 12,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "reformulated-with-careflow-2025",
+    "pool": 12,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "veganmv",
+    "pool": 11,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "kidsmv",
+    "pool": 9,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "introduction-to-health-products",
+    "pool": 8,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "over50mv",
+    "pool": 7,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "vitamin-d-3",
+    "pool": 4,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "introduction-to-lifelong-complete-multivitamin-mineral-supplementation",
+    "pool": 3,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "introduction-to-performance-products",
+    "pool": 2,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "pdsrg",
+    "stratum": "introduction-to-weight-loss-products",
+    "pool": 2,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "supplement-protocols-for-optimal-health-ep-08",
+    "pool": 68,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "fully-understanding-micronutrients-ep-02",
+    "pool": 66,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "protein-101-with-a-nutrition-expert",
+    "pool": 66,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "expert-explains-keys-to-lose-fat-ep-04",
+    "pool": 61,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "how-to-build-the-most-muscle-naturally",
+    "pool": 58,
+    "quota": 10,
+    "probed": 10
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "understanding-aging-and-how-to-beat-it-ep-09",
+    "pool": 58,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "improve-muscle-and-brain-the-complete-guide-to-creatine-ep-12",
+    "pool": 54,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "the-benefits-of-protein-powders-whey-soy-collagen-egg-white-etc",
+    "pool": 53,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "are-supplements-worth-it-ep-07",
+    "pool": 52,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "over-40-fitness-blueprint-anti-aging-nutrition-plan-to-stay-strong-lean-young",
+    "pool": 52,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "stop-buying-supplements-here-mass-market-ep-10",
+    "pool": 52,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "nutrition-expert-optimal-nutrition-for-kids-to-reach-maximum-potential",
+    "pool": 50,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "carbs-the-most-misunderstood-nutrient",
+    "pool": 48,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "how-to-break-a-weight-loss-plateau",
+    "pool": 48,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "every-diet-works-because-of-calories-in-vs-calories-out",
+    "pool": 47,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "how-to-break-a-muscle-building-plateau",
+    "pool": 46,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "everything-you-need-to-know-about-macronutrients-from-an-expert-ep-01",
+    "pool": 45,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "top-10-missing-vitamins-and-minerals-ep-03",
+    "pool": 45,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "the-truth-about-creatine-side-effects-nutrition-expert-explains-science",
+    "pool": 44,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "how-to-lose-fat-and-gain-muscle-at-the-same-time",
+    "pool": 43,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "eaas-vs-bcaas-what-actually-builds-muscle-from-the-guy-who-formulated-the-first-eaa",
+    "pool": 40,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "how-to-avoid-holiday-weight-gain-without-skipping-the-foods-you-love",
+    "pool": 40,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "glp-1-weight-loss-done-right-ozempic-wegovy-the-real-protocol-for-long-term-success",
+    "pool": 39,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "nutirition-expert-on-clean-eating-hrt-fat-loss-exercise-keto-diet-and-vegan-diet",
+    "pool": 39,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "vacation-weight-gain-how-fast-you-lose-muscle-gain-fat-the-truth",
+    "pool": 35,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "dietary-fiber-gut-health-foods-weight-control-and-more",
+    "pool": 34,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "doctor-says-protein-powder-is-bad-and-more-fitness-expert-reacts",
+    "pool": 34,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "eat-like-a-pro-athlete-nfl-edition-ep-06",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "nutrition-expert-responds-to-calories-in-vs-calories-out-haters-ep-05",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "old-school-bodybuilding-vs-science-based-lifting",
+    "pool": 32,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "what-neal-spruce-takes-every-day-at-73-a-40-year-fitness-expert-s-full-supplement-stack",
+    "pool": 31,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "1-expert-reacts-to-nutrition-and-fitness-advice",
+    "pool": 30,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "the-best-immune-system-booster-protocol-ep-11",
+    "pool": 30,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "amino-acids-supplementation-benefits-eaas-and-bcaas",
+    "pool": 29,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "new-study-creatine-doesn-t-help-build-muscle-nutrition-expert-explains",
+    "pool": 27,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "1-nutrition-expert-reacts-to-controversial-nutrition-advice",
+    "pool": 26,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "creatine-faqs-hair-loss-caffeine-dosing-by-weight-hcl-vs-monohydrate-more",
+    "pool": 24,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "study-shows-endurance-athletes-no-longer-need-to-carb-load",
+    "pool": 23,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "i-asked-a-nutrition-expert-which-supplements-are-actually-worth-it",
+    "pool": 22,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "nutrition-expert-reacts-to-fitness-advice-mike-israetel-gary-brecka-and-more",
+    "pool": 22,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "the-protein-craze-has-it-gone-too-far",
+    "pool": 22,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "about-neal-zane-spruce-ep-00",
+    "pool": 19,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "nutrition-expert-reacts-to-dr-berg-doctor-mike-jay-cutler-more",
+    "pool": 19,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "over-70-of-protein-podwers-contain-high-lead-expert-explains",
+    "pool": 19,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "why-we-started-a-fitness-channel-with-no-agenda",
+    "pool": 16,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "david-protein-bar-failed-consumer-labs-test-layne-norton-neal-spruce-react",
+    "pool": 15,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "podcast",
+    "stratum": "top-nutrition-expert-reacts-to-rfk-jr-new-food-pyramid",
+    "pool": 13,
+    "quota": 1,
+    "probed": 1
+   }
+  ]
+ }
 }
