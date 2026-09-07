@@ -39,9 +39,12 @@ pruned by default (`--no-prune` to keep), so the output tree mirrors the corpus.
 Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`; live checks are
 `dotfit-agent` CLI verbs. See `runtime/README.md` for verbs, flags and config.
 
-`scripts/pdsrg_gate.py` and `scripts/pdsrg_density_scan.py` are one-off analysis
-tools, not part of the CLI; the gate's validated extraction strategy was folded
-into `pdsrg.py` and is why its settings look the way they do.
+`pipeline/scripts/` holds one-off tools, not part of the CLI: `pdsrg_gate.py` and
+`pdsrg_density_scan.py` (the gate's validated extraction strategy was folded into
+`pdsrg.py` and is why its settings look the way they do), `stage4_cluster_scan.py`
+(the scan that locks the 0.88 threshold — see `docs/decisions.md`),
+`asr_pilot.py` (the §7 transcription sweep that produced the transcripts) and the
+`chat_smoke.py` / `embedding_smoke.py` / `search_ping.py` connectivity checks.
 
 ## Architecture
 
@@ -61,10 +64,12 @@ Runtime queries the index; `alias.py` feeds both `pdsrg` and query expansion.
 | `stage4.py` | dedup clustering + currency stamping | §4 |
 | `alias.py` | derived + curated alias table, QA candidate harvest | §5 |
 | `pdsrg.py` | PDF → section chunks with heading paths | §6 |
+| `podcast.py` | ASR transcripts → timed, speaker-labelled segments | §7 |
 | `index_build.py` + `embeddings.py` | `kb-main` shaping, embedding, upload | §9 |
 | `golden.py` | stratified golden-set draw + labeling worksheets | §12 |
 | `azure_config.py` | root `.env` contract, `require=` subsets, masked repr | §9–11 |
 | `io_utils.py` | **every** read/write | — |
+| `cli.py` | subcommand surface, path defaults, `runs/` manifests | — |
 | `runtime/` | guardrail → rewrite → search → answer → post-check | §11 |
 
 Cross-file contracts that no single docstring owns:

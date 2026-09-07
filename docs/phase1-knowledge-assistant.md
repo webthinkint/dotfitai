@@ -61,7 +61,7 @@ citations, grounded exclusively in dotFIT's own knowledge sources.
 |---|---|---|---|
 | 1 | `data/Product Data/products.json` — legal-approved website copy | 56 SKUs (51 indexed + 5 gear), markdown (avg 4 KB) | Clean; needs section-split + family grouping |
 | 2 | `data/Practitioner Dietary Supplement Reference Guide/` | 39 text-layer PDFs, 41 MB | Clean-ish; needs section chunking + table-preservation test |
-| 3 | `data/QAs/` .docx | 1,051 files, 2023–2026 (1,103 exported; 9 zero-byte + 51 duplicates removed 2026-09-02) | Saved email threads + free-form notes; heavy cleanup (§4) |
+| 3 | `data/QAs/` .docx | 1,051 files, 2023–2026 (1,103 exported − 51 duplicates − 1 zero-byte = 1,051, 2026-09-02; 43 md5 groups, 9 zero-byte files in total — record: `processed/qa/runs/data-cleanup-2026-09-02.log`) | Saved email threads + free-form notes; heavy cleanup (§4) |
 | 4 | `data/Suppbeast Podcast/` | 47 MP3s, ~35–40 h | Needs ASR (§7) — wave 2 |
 | — | `data/Reference Menus/All Reference Menus Export.csv` | 10 menu types × 17 calorie levels, 3,534 rows | Deferred (tools); only the 10 descriptions indexed (authority 5) |
 | — | `Product Summaries/*.pptx` | 354 slides | Excluded from Phase 1 |
@@ -192,6 +192,11 @@ Built 2026-09-07 (`stage4` subcommand). Only now (post-structuring), in this ord
 
 One document per canonical Q&A pair — no chunking (they are already the right size).
 `question_canonical` and `answer` both searchable; `is_current=true` only.
+*Correction (2026-09-07): one exception — a few expert notes are slide decks whose
+answer exceeds the embedding input cap, and those split at paragraph boundaries into
+`-p1`/`-p2` documents rather than truncate (`index_build.py`). In the 2026-09-07 build
+7 records become 17 documents, which is why the index carries 929 QA documents for
+919 current records.*
 
 ---
 
@@ -324,11 +329,13 @@ user question
   → SSE stream to widget
 ```
 
-Standing behaviors: AI-identity disclosure at conversation start; "nutrition guidance, not
-medical advice" posture; **hard escalation list**: pregnancy/breastfeeding,
-managed conditions (diabetes etc.), eating-disorder signals, under-18, medication interactions,
-extreme calorie targets, self-harm → refuse + hand off to human contact. No arithmetic on
-macros/calories in v1 (that's the planner/tool work, later).
+Standing behaviors: AI-identity disclosure at conversation start (the library carries it in
+the refusal/handoff templates and the CLI banner; the conversation-start case belongs to the
+SSE service); "nutrition guidance, not medical advice" posture; **hard escalation list**:
+pregnancy/breastfeeding, managed conditions (diabetes etc.), eating-disorder signals,
+under-18, medication interactions, extreme calorie targets, self-harm → refuse + hand off
+to human contact. No arithmetic on macros/calories in v1 (that's the planner/tool work,
+later).
 
 Built 2026-09-07 as `runtime/` (plan §13 Track B): the `DotFit.Agents` library
 implements this pipeline component-for-component, and the `dotfit-agent` CLI
@@ -413,8 +420,11 @@ Definitions live here; **current status lives in the "Open items" table in
 
 1. **Region + SKU pricing** for Azure OpenAI / AI Search (needs an Azure sub decision).
 2. **Freshness owner** for products.json re-export cadence (monthly diff proposed).
-3. ~~**Alias table curation session** with support lead~~ — **CLOSED 2026-09-01**; outcomes
-   are versioned in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`.
+3. ~~**Alias table curation session** with support lead~~ — **CLOSED 2026-09-01**
+   (pass 1) and again **2026-09-07** (pass 2, the three-tier split); outcomes are
+   versioned in `CURATED_ALIASES` / `CURATED_LLM_ONLY_ALIASES` /
+   `CONTEXT_ONLY_TOKENS`. A pass 3 would start from the unresolved Stage 2
+   mentions tallied in `stage2/summary.json`.
 4. **PPTX disposition** — parked; revisit only if sales/teaching content is requested later.
 5. Semantic ranker on/off decided empirically on golden set (week 3–4).
 6. ~~**Stage 3 review-queue dispositions** (opened 2026-09-02 (2))~~ — **CLOSED 2026-09-05**.
@@ -425,8 +435,48 @@ Definitions live here; **current status lives in the "Open items" table in
    `filename_contains_redacted_name` flag is removed; (c) the 6 no-answer and 4 blank
    documents are excluded from `documents.jsonl` and tallied in `summary.json` instead of
    queued. Review queue: 35 → 0.
+7. **Stage 4 review-queue dispositions** (opened 2026-09-07) — the clusters the
+   §4 Stage 4 conflict proxy refuses to auto-resolve: non-nested member `part_no`
+   sets mean deterministic code cannot tell agreement from disagreement, so the
+   owner picks a canonical or splits the cluster. Evidence quotes ride on the
+   records in `stage4/documents.jsonl`; `clusters.jsonl` is the session record.
+8. **Golden-set labeling** (opened 2026-09-07) — the §12 human pass: points-to-hit,
+   expected sources and forbidden content for the 250 sampled items, plus the 50
+   hand-written adversarial ones. Sampling is scripted (`qa-pipeline golden`);
+   this is the part that is not. Nutritionist + support lead, ~2–3 days.
+9. ~~**Runtime live smoke** (opened 2026-09-07)~~ — **CLOSED 2026-09-07**: the
+   end-to-end `ask`/`search` failure was the wedged index (item 10), not the
+   service.
+10. **Orphaned `kb-main` index** (opened 2026-09-07) — the first index is stuck
+    mid-delete: it serves no documents and never finishes deleting, while still
+    counting against service quota and storage. Needs an Azure support ticket.
+    On resolution, either rebuild as `kb-main` or keep `kb-main-v2` and flip both
+    code defaults (`index_build.py`'s `INDEX_NAME`, `RuntimeOptions.IndexName`).
+11. ~~**Claim language sourced from authority 3** (opened 2026-09-07)~~ —
+    **FIXED 2026-09-07**: the answer agent quoted claim wording from a QA answer
+    instead of the approved copy, so retrieved sources are now tagged quotable
+    (authority 1–2) vs context-only and the answer instructions fail closed.
+    Regression coverage lands with the §12 eval harness.
 12. **Claims-audit precision** (opened 2026-09-07) — gating (§11 "streaming vs.
     gating") makes a `claims_language` false positive cost an answered question
     rather than a trace line, and the audit's precision is currently unmeasured
     (4 live runs). §12 must report it on the adversarial-50 before the SSE
     service ships; if it is poor, the lever is the audit prompt, not the gate.
+13. **Stage 2 review-queue dispositions** (opened 2026-09-07) — the Stage 3 pass
+    over Stage 2's own output: residual-PII flags, the low-confidence tail, the
+    containment failure and the 5% audit sample. Unlike the Stage 0 flag, this one
+    does not gate — Stage 2 redacts what it flags, so flagged records index and the
+    queue is an audit trail to work, not a hold. The bulk-disposition shape is in
+    `docs/decisions.md`.
+14. **Podcast citation URLs** (opened 2026-09-07) — §7 step 4 renders podcast
+    citations with a YouTube link built from `archive.txt`, but that mapping is 47
+    video IDs with no titles and is unverified, so the index stamps
+    `citation_url: null` rather than guess a link. Verify the mapping — or drop the
+    link from the citation format — and re-upload the podcast documents.
+15. **§12 evaluation coverage** (opened 2026-09-07) — three things §12 does not
+    currently measure, to settle per-gap when the eval harness is built: the
+    claims-audit precision item 12 asks for (there is no metric line for it);
+    retrieval over PDSRG and podcast (every sampled question is drawn from the QA
+    pool, while those two corpora are 72% of the index); and the degraded-guardrail
+    path (the pre-check fails open by design, so in that case the 100% escalation
+    target rests on the answer instructions and the post-check alone).

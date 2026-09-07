@@ -1,4 +1,7 @@
-"""CLI entry points: ``stage0``, ``stage1``, ``stage2``, ``run`` (stages 0+1).
+"""CLI entry points: ``stage0``, ``stage1``, ``stage2``, ``stage4``, ``run``
+(stages 0+1), ``aliases``, ``pdsrg``, ``podcast``, ``index``, ``golden``.
+Per-subcommand contracts live in the module each one drives; what follows is
+the QA-stage layout, which this module owns.
 
 Designed for identical behavior on Windows (dev) and Linux (production):
 

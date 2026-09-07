@@ -1,7 +1,10 @@
-# QA Corpus Pipeline — Stage 0 (PII scrub) + Stage 1 (parse & classify) + Stage 2 (LLM structuring)
+# dotFIT Phase 1 offline pipeline — QA stages, PDSRG, podcast, index, golden set
 
-Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
-(PDSRG chunking):
+Implements the offline half of `docs/phase1-knowledge-assistant.md`: §4 (QA
+Stages 0–2 and 4), §5 (alias table), §6 (PDSRG chunking), §7 (podcast
+segmentation), §8 (menu descriptions), §9 (index build) and §12 (golden-set
+sampling). The overview bullets below skip `aliases` and `podcast`; both are
+covered under Usage and Output layout.
 
 - **Stage 0** — deterministic, local PII scrub of `.docx` QA files: structural
   redaction (contact blocks, `From:`/`To:`/`Cc:` display names, signatures,
@@ -74,6 +77,11 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
 Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
 the QA stages consume only `data/QAs/**/*.docx`.
 
+**Index name:** `INDEX_NAME` still defaults to `kb-main`, which is the orphaned
+index (progress open item 10). Until that resolves, pass
+`--index-name kb-main-v2` — the live index — on every `index` run. The runtime
+carries the same default and the same caveat (`runtime/README.md`).
+
 ## Tooling
 
 - [uv](https://docs.astral.sh/uv/) (only prerequisite; no system Python needed)
@@ -98,7 +106,7 @@ uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
 Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run` (stages 0+1), `aliases`, `pdsrg`,
-`index` (+ `--qa-docs`), `podcast`. Options on all: `--include GLOB` (repeatable), `--limit N`
+`index` (+ `--qa-docs`), `podcast`, `golden`. Options on all: `--include GLOB` (repeatable), `--limit N`
 (pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
 for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
 default they are removed so the output tree always matches the corpus).

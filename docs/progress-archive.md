@@ -5,6 +5,14 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`, and each cites the commit that holds the detail.
 
+- **2026-09-07 (28)** — Runtime v0 shipped (§11, §13 Track B) (`0717125`,
+  `2ab90c9`): new `runtime/` .NET 10 solution — `DotFit.Agents` library +
+  `dotfit-agent` CLI, the §11 pipeline component-for-component, no tool calls.
+  Components and config contract are in `runtime/README.md`. Live smoke reached
+  `guardrail`/`rewrite` on gpt-5-mini; end-to-end `ask`/`search` was blocked by
+  what read as a service-side failure on `dotfitsearch` (open item 9, since
+  root-caused to the wedged index in entry 29). **64 runtime tests** (scripted
+  `IChatClient` fakes, no Azure).
 - **2026-09-07 (27)** — Golden-set sampling shipped (§12) (`f685456`): new
   `golden` subcommand + module; the sampling rules and their rationale are in
   `golden.py`'s docstring. Full run: 650-pair pool → **250 items** across 29

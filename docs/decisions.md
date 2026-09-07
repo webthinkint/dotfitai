@@ -37,7 +37,9 @@ the test.
 - 9 zero-byte files deleted; 51 duplicates deleted across 43 md5-identical
   groups (keep rule: earliest year → shallowest path → lexicographic). Full
   KEEP/DEL record: `processed/qa/runs/data-cleanup-2026-09-02.log`, since
-  `data/` is untracked.
+  `data/` is untracked. The arithmetic that reconciles to 1,051: 1,103 − 51
+  duplicates − 1 zero-byte caught during dedup (the other 8 went in the
+  separate zero-byte pass, before the count).
 - Residual honorific+name flags were all public figures, dotFIT staff, or
   street addresses → owner-approved into `ACCEPTED_HONORIFIC_NAMES` (16
   surnames), matched at the surname position only.
