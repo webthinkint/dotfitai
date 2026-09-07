@@ -1,11 +1,11 @@
 {
  "pipeline_version": "0.1.0",
  "options": {
-  "index_name": "kb-main",
+  "index_name": "kb-main-v2",
   "limit": null,
   "no_embed": false,
   "no_upload": false,
-  "reset": true
+  "reset": false
  },
  "n_documents": 3996,
  "by_source_type": {
@@ -77,8 +77,8 @@
   "dims": 3072
  },
  "upload": {
-  "index": "kb-main",
-  "index_status": "recreated",
+  "index": "kb-main-v2",
+  "index_status": "created",
   "n_uploaded": 3996,
   "n_selected": 3996,
   "errors": []
