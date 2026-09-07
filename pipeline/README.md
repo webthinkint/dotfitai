@@ -257,32 +257,35 @@ reply and blank documents are excluded from `documents.jsonl` and tallied in
 them. Filenames are neither scrubbed nor flagged (owner disposition
 2026-09-05); the former `filename_contains_redacted_name` flag is gone.
 
-## Verified corpus numbers (Stage 2 full run, 2026-09-06)
+## Verified corpus numbers (Stage 2, full run 2026-09-06; alias-1.3.0 regen 2026-09-07)
 
 - 1,041 Stage 1 docs → **1,041 canonical records** on prompt 1.1.0, 0 fallbacks,
   0 LLM errors (~1,040 small-chat calls across chunked runs — per-doc cache
   checkpoints make the run resumable surviving 2 timeouts and 1 Azure 403;
-  a cache-hit rerun is byte-identical with 0 calls)
-- Review queue **223** (21%, down from 590 pre-triage): 168 residual-PII flags
+  a cache-hit rerun is byte-identical with 0 calls). Alias-1.3.0 regen
+  (2026-09-07): 2 live calls (the two scrub-fix docs) + 1,039 cache hits,
+  0 errors — 338 docs gained part_nos (42 newly tagged), unresolved mentions
+  3,474 → 2,292 (−34%)
+- Review queue **222** (21%, down from 590 pre-triage), fully dispositioned
+  (rounds 1–2, `docs/progress.md` entries 19–20): 168 residual-PII flags
   (customer-side names correctly caught; staff bulk-accepted via silent-redact
-  vocabulary), 47 deterministic 5% audit samples, 4 containment fails,
-  5 low-confidence — open for Stage 3 owner triage (triage round 1 dispositions
-  in `docs/progress.md` entry 19)
-- Quality: containment median 0.990 (answer word-recall vs source), confidence
-  median 0.9; 639 docs carry product tags (50 part_nos), 306 carry currency
-  cues, 271 null canonical questions (264 expert notes + 7 question-less)
-- Curation signal (never a queue reason): top unresolved mentions —
-  `dotFIT Multivitamin & Mineral` (166), `Over50` (164), `2-Active`/`1-Active`
-  (154/150), `Kids` (149), `Super Calcium` (145), `MVM` (129), `Super Omega 3` /
-  `SuperOmega-3` (107/72), `BestPlantProtein` (77), `VeganMV` (76) — feed for the
-  next alias-curation pass (spacing variants, MV fragments, missing products).
-  Curation pass 2 (2026-09-07, alias table 1.3.0) resolved the family spellings
-  and the dose tiers and gated `Women's` to the mention path; `Kids`/`VeganMV`
-  stay unresolved by design (discontinued — no part_no). **These counts predate
-  that pass**; rerun `stage2` to refresh them
-- Safety: 0 own-answer evidence leaks (every flagged span redacted from its own
-  answer); no raw emails/phones introduced into content fields (the 2 matches
-  are a vendor address inside a filename — filename disposition stands)
+  vocabulary), 48 deterministic 5% audit samples, 1 containment fail,
+  5 low-confidence
+- Quality: containment median 0.996 (answer word-recall vs source), confidence
+  median 0.92; 676 docs carry product tags (50 part_nos), 306 carry currency
+  cues, 275 null canonical questions (264 expert notes + 11 question-less)
+- Curation signal (never a queue reason), post-1.3.0 tally — top unresolved
+  mentions: `dotFIT Multivitamin & Mineral` (159), `Kids` (149), `MVM` (123),
+  `VeganMV` (76), `dotFIT Nutrition High Protein Bar` (52), `1-Vegan` (48),
+  `dotFIT protein shakes` (38), `Gatorade` (30), `Protein Powders` (29),
+  `dotFIT protein mix` (29). Curation pass 2 (2026-09-07, alias table 1.3.0)
+  resolved the family spellings, dose tiers and `Women's` (LLM-only tier);
+  `Kids`/`VeganMV`/`1-Vegan` stay unresolved by design (discontinued — no
+  part_no to tag) and `MVM` is context-only — this tally is the input to any
+  pass 3 (§14 open item 3)
+- Safety, re-verified on the regen artifacts: 0 own-answer evidence leaks
+  (flagged name spans absent from their own answers, including both live-call
+  docs); 0 raw emails/phones in title/answer fields
 
 ## Verified corpus numbers (Stage 0–1 full run, 2026-09-05)
 
