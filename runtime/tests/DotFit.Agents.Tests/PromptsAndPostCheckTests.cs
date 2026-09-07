@@ -18,9 +18,9 @@ public class PromptsTests
         };
         string message = Prompts.BuildAnswerUserMessage("What is Test Product?", sources, ["note one"]);
         Assert.StartsWith("Customer question: What is Test Product?", message);
-        Assert.Contains("[1] First Product — dotFIT approved product copy (authority 1)", message);
+        Assert.Contains("[1] First Product — dotFIT approved product copy (authority 1) — QUOTABLE FOR PRODUCT CLAIMS", message);
         Assert.Contains("url: https://example.com/products/test", message);
-        Assert.Contains("[2] customer q — dotFIT customer Q&A (authority 3)", message);
+        Assert.Contains("[2] customer q — dotFIT customer Q&A (authority 3) — CONTEXT ONLY", message);
         Assert.Contains("dated: 2025-03-01", message);
         Assert.Contains("Notes:\n- note one", message);
     }
@@ -41,6 +41,48 @@ public class PromptsTests
         Assert.Contains("healthcare professional", refusal);
         Assert.Contains("pregnancy or breastfeeding", refusal);
         Assert.Contains("nutrition guidance, not medical advice", refusal);
+    }
+
+    [Fact]
+    public void ClaimsMarkerSplitsApprovedCopyFromContextOnly()
+    {
+        // §3: products.json (authority 1) and the PDSRG (2) are the approved
+        // claims corpus; customer Q&A (3) and podcasts (4) are context.
+        Assert.True(Prompts.ClaimsQuotable(1));
+        Assert.True(Prompts.ClaimsQuotable(2));
+        Assert.False(Prompts.ClaimsQuotable(3));
+        Assert.False(Prompts.ClaimsQuotable(4));
+        Assert.Equal("QUOTABLE FOR PRODUCT CLAIMS", Prompts.ClaimsMarker(2));
+        Assert.Equal("CONTEXT ONLY", Prompts.ClaimsMarker(3));
+    }
+
+    [Fact]
+    public void EverySourceCarriesAClaimMarker()
+    {
+        // Regression: the 2026-09-08 smoke lifted claim wording from an
+        // authority-3 Q&A and cited it beside an authority-2 chunk that never
+        // said it. Prose in the instructions was not enough — the tag has to
+        // ride on every rendered source.
+        var sources = new List<Retrieval.RetrievedDocument>
+        {
+            TestDocs.Product("P"), TestDocs.Pdsrg("G"), TestDocs.Qa("Q"),
+        };
+        string message = Prompts.BuildAnswerUserMessage("q", sources, []);
+        foreach (string line in message.Split((char)10).Where(l => l.StartsWith('[')))
+            Assert.True(line.Contains("QUOTABLE FOR PRODUCT CLAIMS") || line.Contains("CONTEXT ONLY"),
+                $"unmarked source line: {line}");
+        Assert.Equal(2, message.Split("QUOTABLE FOR PRODUCT CLAIMS").Length - 1);
+        Assert.Equal(1, message.Split("CONTEXT ONLY").Length - 1);
+    }
+
+    [Fact]
+    public void AnswerInstructionsBindClaimsToTheQuotableTag()
+    {
+        Assert.Contains("QUOTABLE FOR PRODUCT CLAIMS", Prompts.AnswerInstructions);
+        Assert.Contains("CONTEXT ONLY", Prompts.AnswerInstructions);
+        // the fail-closed clause: a claim found only in context may not be stated as one
+        Assert.Contains("appears ONLY in a CONTEXT ONLY", Prompts.AnswerInstructions);
+        Assert.Contains("Never attach a QUOTABLE source's", Prompts.AnswerInstructions);
     }
 
     [Fact]

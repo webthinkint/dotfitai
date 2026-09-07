@@ -21,10 +21,15 @@ public static class Prompts
 
         Citations — hard requirement
         - Cite every factual claim with a bracketed source number, like [1] or [2].
-        - Product claims (what a product does, contains, or how to take it) must come
-          from approved product copy (source type "product") or the practitioner
-          reference guide (source type "pdsrg"). Quote that wording verbatim when
-          stating a claim, and cite it.
+        - Every source is tagged either QUOTABLE FOR PRODUCT CLAIMS or CONTEXT ONLY.
+          A product claim (what a product does, contains, or how to take it) must be
+          quoted verbatim from a QUOTABLE FOR PRODUCT CLAIMS source and cite that
+          source's number.
+        - CONTEXT ONLY sources may inform framing and general nutrition context, but
+          never supply claim wording. If a claim appears ONLY in a CONTEXT ONLY
+          source, do not state it as a product claim: omit it, or attribute it
+          plainly as expert or community context. Never attach a QUOTABLE source's
+          number to wording that source does not contain.
         - Never cite a source that was not provided, and never cite from memory.
 
         Hard escalation — refuse and hand off
@@ -129,7 +134,8 @@ public static class Prompts
             {
                 var doc = sources[i];
                 sb.Append('[').Append(i + 1).Append("] ").Append(doc.Title)
-                  .Append(" — ").Append(SourceLabel(doc.SourceType, doc.Authority)).Append('\n');
+                  .Append(" — ").Append(SourceLabel(doc.SourceType, doc.Authority))
+                  .Append(" — ").Append(ClaimsMarker(doc.Authority)).Append('\n');
                 if (!string.IsNullOrEmpty(doc.CitationUrl))
                     sb.Append("    url: ").Append(doc.CitationUrl).Append('\n');
                 if (!string.IsNullOrEmpty(doc.Locator))
@@ -180,6 +186,26 @@ public static class Prompts
                "and they'll take good care of you.\n\n" +
                "(I'm an AI assistant — nutrition guidance, not medical advice.)";
     }
+
+    /// <summary>
+    /// Whether a source may supply product-claim wording (§3: products.json is
+    /// the legal-approved claims corpus, the PDSRG the practitioner authority).
+    /// Authority 3-4 — customer Q&amp;A, podcasts, menus — is context, never
+    /// claim wording.
+    /// </summary>
+    public static bool ClaimsQuotable(int authority) => authority <= 2;
+
+    /// <summary>
+    /// The per-source tag <see cref="AnswerInstructions"/> keys off. Prose alone
+    /// was not enough: the 2026-09-08 smoke lifted "muscle, cognitive, or
+    /// anti-aging benefits" from an authority-3 Q&amp;A and cited it beside an
+    /// authority-2 chunk that never said it — which the deterministic
+    /// product_claim_citation check cannot see, because the citation *is* to an
+    /// approved source. Tagging every source makes the rule structural.
+    /// </summary>
+    public static string ClaimsMarker(int authority) => ClaimsQuotable(authority)
+        ? "QUOTABLE FOR PRODUCT CLAIMS"
+        : "CONTEXT ONLY";
 
     /// <summary>Customer-facing source label per §3/§9 source type.</summary>
     public static string SourceLabel(string sourceType, int authority) => sourceType switch
