@@ -33,9 +33,11 @@ uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
     --products "../data/Product Data/products.json" --out ../processed/qa/stage2
 uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
     --products "../data/Product Data/products.json" --out ../processed/qa/stage4
+uv run qa-pipeline golden --qa-docs ../processed/qa/stage4/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/golden
 ```
 
-Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`, `index`, `podcast`. Shared flags:
+Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`, `index`, `podcast`, `golden`. Shared flags:
 `--include GLOB` (repeatable), `--limit N`, `--quiet`, `--fail-on-error`,
 `--no-prune` (by default outputs whose input disappeared are deleted so the
 output tree always mirrors the corpus). `pdsrg` adds `--keep-references`,
@@ -114,6 +116,15 @@ that are also ordinary English (`Women's` vs `women's health`);
 `CONTEXT_ONLY_TOKENS` (PP, MVM) is resolved by neither. One token, one tier —
 the build raises on overlap. Adding a token to the wrong tier is how blind
 false tags get in.
+
+**Golden set (`golden.py`, plan §12)** — stratified draw from the Stage 4
+current question-bearing pairs into the §12 labeling artifacts
+(`processed/golden/`: `sample.jsonl`, `worksheet.md`, `adversarial.md`,
+`summary.json`). Tunables are constants in the module (sizes, recent-year
+weight, coverage floors); selection order is sha256(seed:id) — no RNG, no
+timestamps, byte-identical from any cwd. The worksheet and adversarial
+scaffold are inputs for the human labeling pass (open item 8), not eval
+outputs; the harness that scores answers is later work.
 
 **Index build (`index_build.py` + `embeddings.py`, plan §9)** — shapes PDSRG
 chunks (already §9-stamped), products.json families (§5 section-split: the

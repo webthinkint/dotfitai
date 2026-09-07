@@ -1,0 +1,349 @@
+"""Golden-set sampling tests (plan §12) — synthetic fixtures, no network."""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from qa_pipeline.alias import build_alias_table
+from qa_pipeline.cli import main
+from qa_pipeline.golden import (
+    ADVERSARIAL_PLAN,
+    ADVERSARIAL_SIZE,
+    build_pool,
+    largest_remainder,
+    rank_key,
+    record_families,
+    repair_coverage,
+    run_golden,
+    unmet_requirements,
+    write_adversarial_worksheet,
+    write_worksheet,
+)
+
+
+def _product(part_no, longname):
+    return {"part_no": part_no, "longname": longname, "coid": 1,
+            "URL": "https://www.dotFIT.com/x", "searchcontent": "x"}
+
+
+# mirror of the test_alias.py / test_stage4.py synthetic corpus (covers every
+# curated overlay target so build_alias_table validates)
+PRODUCTS = [
+    _product(1005, "Active MV - Multivitamin & Mineral Formula"),
+    _product(1007, "Women's MV - Multivitamin & Mineral Formula"),
+    _product(1009, "Over 50 MV - Multivitamin & Mineral Formula"),
+    _product(1001, "Brain Health"),
+    _product(1003, "CollagenComplex"),
+    _product(1000, "Antioxidant"),
+    _product(1017, "Probiotics"),
+    _product(1200, "Creatine Monohydrate - Raspberry Lemonade Drink Mix"),
+    _product(1227, "Creatine Monohydrate - Unflavored"),
+    _product(1207, "Creatine Complex - Raspberry Lemonade"),
+    _product(1213, "AminoFormula - Blue Raspberry"),
+    _product(1216, "AminoFormula - Lemonade"),
+    _product(1214, "NO7 PreWorkout - Blue Raspberry"),
+    _product(1215, "NO7 PreWorkout - Lemonade"),
+    _product(1333, "LeanMeal Nutrition Shake - Chocolate (formerly LeanMR)"),
+    _product(1334, "LeanMeal Nutrition Shake - Vanilla (formerly LeanMR)"),
+    _product(1371, "First String - Chocolate"),
+    _product(8001, "Alln1 SuperBlend - Orange Burst"),
+    _product(1100, "WeightLoss & LiverSupport"),
+    _product(1369, "WheySmooth -  High Protein - Chocolate"),
+    _product(1374, "All Natural WheySmooth - Chocolate"),
+    _product(1020, "Omega-3 Fish Oil"),
+    _product(1004, "Calcium Complex"),
+    _product(1300, "Plant Protein - Vanilla"),
+    _product(1301, "Plant Protein - Chocolate"),
+]
+
+
+def _rec(rid, source_file, question, *, year=2024, thread_date="2024-05-01",
+         products=(), topics=(), is_current=True, answer="Expert answer.",
+         doc_type="qa_email"):
+    return {
+        "id": rid,
+        "source_file": source_file,
+        "year": year,
+        "doc_type": doc_type,
+        "thread_date": thread_date,
+        "topic_subfolder": "",
+        "filename": source_file.rsplit("/", 1)[-1],
+        "question_original": question,
+        "question_canonical": question,
+        "answer": answer,
+        "products": list(products),
+        "products_unresolved": [],
+        "topics": list(topics),
+        "is_current": is_current,
+        "stage4_status": "current" if is_current else "superseded_currency",
+    }
+
+
+@pytest.fixture
+def alias_table():
+    return build_alias_table(PRODUCTS)
+
+
+def _pool():
+    """Small synthetic pool: 3 years, 3 families + untagged, 18 pairs."""
+    recs = []
+    n = 0
+    for year, dates in [(2022, ["2022-01-05"]), (2023, ["2023-03-01"] * 6),
+                        (2026, ["2026-02-01"] * 11)]:
+        for i, date in enumerate(dates):
+            n += 1
+            products = [1213] if i % 3 == 0 else ([1005] if i % 3 == 1 else [])
+            topics = ["creatine"] if i % 2 == 0 else ["dosing"]
+            recs.append(_rec(f"r{n:02d}", f"{year}/q{n:02d}.docx",
+                             f"Question {n} about thing {n}?", year=year,
+                             thread_date=date, products=products,
+                             topics=topics))
+    return recs
+
+
+class TestBuildPool:
+    def test_excludes_superseded_and_questionless(self):
+        recs = _pool() + [
+            _rec("s01", "2024/superseded.docx", "Old question?",
+                 is_current=False),
+            _rec("e01", "2024/expert.docx", None, doc_type="expert_note"),
+            _rec("q01", "2024/noquestion.docx", None),
+        ]
+        pool, excluded = build_pool(recs)
+        ids = {r["id"] for r in pool}
+        assert "s01" not in ids and "e01" not in ids and "q01" not in ids
+        assert excluded["n_not_current"] == 1
+        assert excluded["n_no_question"] == 2
+        assert excluded["n_duplicate_question"] == 0
+
+    def test_duplicate_question_keeps_newest_thread(self):
+        recs = [
+            _rec("old", "2023/old.docx", "Same question?", year=2023,
+                 thread_date="2023-01-01"),
+            _rec("new", "2026/new.docx", "Same question?", year=2026,
+                 thread_date="2026-01-01"),
+        ]
+        pool, excluded = build_pool(recs)
+        assert [r["id"] for r in pool] == ["new"]
+        assert excluded["n_duplicate_question"] == 1
+
+    def test_undated_thread_falls_back_to_folder_year(self, alias_table):
+        from qa_pipeline.golden import year_of
+        rec = _rec("u1", "2025/undated.docx", "Q?", year=2025,
+                   thread_date=None)
+        assert year_of(rec) == 2025
+
+
+class TestLargestRemainder:
+    def test_exact_proportional_with_remainders(self):
+        alloc = largest_remainder({"a": 3, "b": 1}, 7)
+        assert alloc == {"a": 5, "b": 2}
+        assert sum(alloc.values()) == 7
+
+    def test_caps_and_minimums(self):
+        alloc = largest_remainder({"a": 10, "b": 1}, 6,
+                                  caps={"a": 2}, minimums={"b": 1})
+        assert alloc == {"a": 2, "b": 4}  # a capped, b soaks the rest
+
+    def test_impossible_raises(self):
+        with pytest.raises(ValueError):
+            largest_remainder({"a": 1}, 3, caps={"a": 1})
+
+    def test_empty_weights_raise(self):
+        with pytest.raises(ValueError):
+            largest_remainder({}, 3)
+
+
+class TestRunGolden:
+    def test_sizes_splits_and_determinism(self, alias_table):
+        pool = _pool()
+        items, swaps, summary = run_golden(pool, alias_table, n_sample=10)
+        assert len(items) == 10
+        assert summary["splits"]["sampled"] == {"dev": 5, "test": 5}
+        assert summary["splits"]["total"] == {"dev": 30, "test": 30}
+        assert summary["n_items"] == len(items)
+        # item numbering is dense and ordered
+        assert [i["item_no"] for i in items] == [f"G-{n:03d}" for n in range(1, 11)]
+
+        again = run_golden(_pool(), alias_table, n_sample=10)
+        assert [i["id"] for i in again[0]] == [i["id"] for i in items]
+        assert again[2] == summary
+
+    def test_input_order_does_not_matter(self, alias_table):
+        pool = _pool()
+        shuffled = list(reversed(pool))
+        a = run_golden(pool, alias_table, n_sample=8)[0]
+        b = run_golden(shuffled, alias_table, n_sample=8)[0]
+        assert [i["id"] for i in a] == [i["id"] for i in b]
+
+    def test_recent_years_boosted_and_singles_floored(self, alias_table):
+        pool = _pool()  # 2022:1, 2023:6, 2026:11
+        _, _, summary = run_golden(pool, alias_table, n_sample=10)
+        by_year = {r["year"]: r for r in summary["year_allocation"]}
+        assert by_year[2022]["sampled"] == 1  # floor keeps the 2022 single
+        # 2026 pool share is 61% but weight x2 pushes its sample share up
+        assert by_year[2026]["sampled"] >= 6
+        assert sum(r["sampled"] for r in by_year.values()) == 10
+
+    def test_pool_smaller_than_sample_takes_everything(self, alias_table):
+        pool = _pool()[:3]
+        items, _, summary = run_golden(pool, alias_table, n_sample=250)
+        assert len(items) == 3
+        assert summary["unmet"] == [] or summary["unmet"]
+
+    def test_unknown_part_no_raises(self, alias_table):
+        pool = _pool() + [_rec("x1", "2024/x.docx", "Q?", products=[9999])]
+        with pytest.raises(ValueError, match="9999"):
+            run_golden(pool, alias_table, n_sample=5)
+
+    def test_every_stratum_of_two_lands_in_both_splits(self, alias_table):
+        # one family dominates 2026 so its cell gets >=2 items
+        pool = [_rec(f"m{i:02d}", f"2026/m{i:02d}.docx", f"Merge question {i}?",
+                     year=2026, thread_date="2026-04-01", products=[1005],
+                     topics=["multivitamin"]) for i in range(8)]
+        items, _, _ = run_golden(pool, alias_table, n_sample=8)
+        splits = {(i["family"], i["split"]) for i in items}
+        assert ("Active MV", "dev") in splits and ("Active MV", "test") in splits
+
+    def test_empty_pool_raises(self, alias_table):
+        with pytest.raises(ValueError, match="empty"):
+            run_golden([], alias_table)
+
+
+class TestCoverageRepair:
+    def _pn2fam(self, alias_table):
+        from qa_pipeline.golden import part_no_families
+        return part_no_families(alias_table)
+
+    def test_missing_faq_family_is_swapped_in(self, alias_table):
+        pn2fam = self._pn2fam(alias_table)
+        # 6 Active MV docs sampled; 3 AminoFormula docs exist but none made
+        # the cut — the FAQ floor (min(3, pool)) must swap them in
+        sample0 = [_rec(f"mv{i}", f"2024/mv{i}.docx", f"MV Q{i}?",
+                        products=[1005], topics=["multivitamin"])
+                   for i in range(6)]
+        pool = sample0 + [
+            _rec(f"af{i}", f"2024/af{i}.docx", f"AminoFormula Q{i}?",
+                 products=[1213], topics=["amino"]) for i in range(3)]
+        sample, swaps = repair_coverage(sample0, pool, pn2fam, "seed")
+        assert len(sample) == 6  # swaps replace, never grow the sample
+        fams = sorted(f for r in sample for f in record_families(r, pn2fam))
+        assert fams == ["Active MV"] * 3 + ["AminoFormula"] * 3
+        assert len(swaps) == 3
+        assert {s["requirement"] for s in swaps} == {"family:AminoFormula"}
+
+    def test_missing_topic_is_swapped_in(self, alias_table):
+        pn2fam = self._pn2fam(alias_table)
+        sample0 = [_rec(f"p{i}", f"2024/p{i}.docx", f"Q{i}?", products=[1005])
+                   for i in range(3)]
+        pool = sample0 + [_rec("t1", "2024/t1.docx", "Topic Q?",
+                               products=[1005], topics=["creatine"])]
+        sample, swaps = repair_coverage(sample0, pool, pn2fam, "seed")
+        assert any("creatine" in (r.get("topics") or []) for r in sample)
+        assert swaps and swaps[0]["requirement"] == "topic:creatine"
+
+    def test_sole_coverage_is_never_the_victim(self, alias_table):
+        pn2fam = self._pn2fam(alias_table)
+        sole = _rec("sole", "2024/sole.docx", "Sole creatine Q?",
+                    products=[1005], topics=["creatine"])
+        others = [_rec(f"o{i}", f"2024/o{i}.docx", f"Other Q {i}?",
+                       products=[1005]) for i in range(4)]
+        missing = [_rec(f"af{i}", f"2024/af{i}.docx", f"AminoFormula Q{i}?",
+                        products=[1213]) for i in range(3)]
+        pool = [sole] + others + missing
+        sample = [sole, others[0]]
+        sample, _ = repair_coverage(sample, pool, pn2fam, "seed")
+        ids = {r["id"] for r in sample}
+        assert "sole" in ids          # only creatine coverage — protected
+
+    def test_unmet_reported_when_pool_cannot_cover(self, alias_table):
+        pn2fam = self._pn2fam(alias_table)
+        # every pool doc covers the same requirement set, and the sample is
+        # smaller than the FAQ floor: no swap can reduce the deficit
+        pool = [_rec(f"p{i}", f"2024/p{i}.docx", f"Q{i}?", products=[1005],
+                     topics=["multivitamin"]) for i in range(6)]
+        sample, swaps = repair_coverage(pool[:1], pool, pn2fam, "seed")
+        assert swaps == []  # no-progress guard rejects equivalent-doc swaps
+        unmet = unmet_requirements(sample, pool, pn2fam)
+        assert "family:Active MV" in unmet
+
+
+class TestWriters:
+    def test_worksheet_has_labeling_fields(self, tmp_path, alias_table):
+        items, _, _ = run_golden(_pool(), alias_table, n_sample=4)
+        path = tmp_path / "worksheet.md"
+        write_worksheet(path, items)
+        text = path.read_text(encoding="utf-8")
+        for item in items:
+            assert f"## {item['item_no']} [" in text
+        assert text.count("**Points to hit (2–5):**") == 4
+        assert "- 5. …" in text               # five blank point slots
+        assert "**Forbidden:**" in text
+        assert "authority 1" in text and "authority 3" in text
+        assert "**Source answer:**" in text
+        assert "> Expert answer." in text     # answer blockquoted
+
+    def test_worksheet_escapes_pipes_and_newlines(self, tmp_path, alias_table):
+        rec = _rec("pipe", "2024/pipe.docx", "Q | with pipe?",
+                   topics=["a|b"], answer="line1\nline2")
+        items, _, _ = run_golden([rec], alias_table, n_sample=1)
+        path = tmp_path / "worksheet.md"
+        write_worksheet(path, items)
+        text = path.read_text(encoding="utf-8")
+        assert "a\\|b" in text                # pipe escaped, no table break
+        assert "> line1\n> line2" in text     # both answer lines quoted
+
+    def test_adversarial_scaffold_shape(self, tmp_path):
+        path = tmp_path / "adversarial.md"
+        write_adversarial_worksheet(path)
+        text = path.read_text(encoding="utf-8")
+        blocks = [ln for ln in text.splitlines() if ln.startswith("### A-")]
+        assert len(blocks) == ADVERSARIAL_SIZE == 50
+        devs = sum(1 for b in blocks if "[dev]" in b)
+        tests = sum(1 for b in blocks if "[test]" in b)
+        assert (devs, tests) == (25, 25)
+        for plan in ADVERSARIAL_PLAN:
+            n_cat = sum(1 for b in blocks if b.endswith(plan["category"]))
+            assert n_cat == plan["n"]
+        assert text.count("- Question: …") == 50
+        assert text.count("- Expected behavior:") == 50
+        assert "escalation accuracy" in text
+
+
+class TestCli:
+    def test_golden_end_to_end_byte_identical(self, tmp_path, monkeypatch):
+        products_path = tmp_path / "products.json"
+        products_path.write_text(json.dumps(PRODUCTS), encoding="utf-8")
+        qa_dir = tmp_path / "stage4"
+        qa_dir.mkdir()
+        (qa_dir / "documents.jsonl").write_text(
+            "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in _pool()),
+            encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+
+        rc = main(["golden", "--qa-docs", "stage4/documents.jsonl",
+                   "--products", "products.json", "--out", "golden"])
+        assert rc == 0
+        out = tmp_path / "golden"
+        names = sorted(p.name for p in out.iterdir() if p.is_file())
+        assert names == ["adversarial.md", "sample.jsonl", "summary.json",
+                         "worksheet.md"]
+        first = {n: (out / n).read_bytes() for n in names}
+
+        # rerun from a different working directory: byte-identical outputs
+        (tmp_path / "elsewhere").mkdir()
+        monkeypatch.chdir(tmp_path / "elsewhere")
+        rc = main(["golden", "--qa-docs", str(qa_dir / "documents.jsonl"),
+                   "--products", str(products_path), "--out",
+                   str(tmp_path / "golden2")])
+        assert rc == 0
+        for n in names:
+            assert (tmp_path / "golden2" / n).read_bytes() == first[n], n
+
+    def test_missing_inputs_exit_2(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        rc = main(["golden", "--qa-docs", "nope.jsonl", "--products",
+                   "products.json", "--out", "golden"])
+        assert rc == 2

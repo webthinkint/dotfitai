@@ -44,6 +44,10 @@ from .azure_config import (
 )
 from .embeddings import EMBEDDING_API_VERSION, Embedder
 from .extract import extract_docx
+from .golden import (
+    ADVERSARIAL_SIZE, GOLDEN_VERSION, run_golden, write_adversarial_worksheet,
+    write_worksheet,
+)
 from .index_build import (
     INDEX_NAME, build_documents, delete_documents, embed_text, ensure_index,
     list_index_ids, read_menu_rows, upload_documents,
@@ -766,6 +770,54 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     return 1 if errors and args.fail_on_error else 0
 
 
+def cmd_golden(args: argparse.Namespace) -> int:
+    qa_path = Path(args.qa_docs).resolve()
+    if not qa_path.is_file():
+        print(f"error: Stage 4 documents.jsonl not found: {qa_path}",
+              file=sys.stderr)
+        return 2
+    products_path = Path(args.products).resolve()
+    if not products_path.is_file():
+        print(f"error: products.json not found: {products_path}", file=sys.stderr)
+        return 2
+
+    records = read_jsonl(qa_path)
+    alias_table = build_alias_table(
+        json.loads(products_path.read_text(encoding="utf-8")))
+    items, swaps, summary = run_golden(records, alias_table)
+
+    out_dir = Path(args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    sample_path = out_dir / "sample.jsonl"
+    with sample_path.open("w", encoding="utf-8", newline="\n") as f:
+        for item in items:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    write_worksheet(out_dir / "worksheet.md", items)
+    write_adversarial_worksheet(out_dir / "adversarial.md")
+    write_json(out_dir / "summary.json", summary)
+
+    mpath = _manifest(out_dir, "golden", args, [qa_path], qa_path.parent, {
+        "n_items": len(items),
+        "products_sha256": sha256_file(products_path),
+        "alias_table_version": alias_table["version"],
+        "golden_version": GOLDEN_VERSION,
+    })
+    years = ", ".join(
+        f"{row['year']}:{row['sampled']}" for row in summary["year_allocation"])
+    print(f"golden set: {summary['pool']['n_pool']} current QA pairs -> "
+          f"{len(items)} items ({years}); splits "
+          f"{summary['splits']['sampled']['dev']}/"
+          f"{summary['splits']['sampled']['test']} dev/test + "
+          f"{ADVERSARIAL_SIZE} adversarial; "
+          f"{len(swaps)} coverage swap(s) -> {out_dir}")
+    if summary["unmet"]:
+        for u in summary["unmet"]:
+            print(f"  WARNING unmet coverage: {u}", file=sys.stderr)
+        return 1
+    print(f"manifest: {mpath}")
+    return 0
+
+
 def cmd_index(args: argparse.Namespace) -> int:
     chunks_path = Path(args.chunks).resolve()
     products_path = Path(args.products).resolve()
@@ -1121,6 +1173,17 @@ def build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--quiet", action="store_true")
     pc.add_argument("--fail-on-error", action="store_true")
     pc.set_defaults(func=cmd_podcast)
+
+    g = sub.add_parser(
+        "golden",
+        help="stratified golden-set sample + labeling worksheets (plan §12)")
+    g.add_argument("--qa-docs", default="processed/qa/stage4/documents.jsonl",
+                   help="Stage 4 documents.jsonl (the sampling pool)")
+    g.add_argument("--products", default="data/Product Data/products.json",
+                   help="path to products.json (alias table source)")
+    g.add_argument("--out", default="processed/golden",
+                   help="output dir (default: processed/golden)")
+    g.set_defaults(func=cmd_golden)
 
     r = sub.add_parser("run", help="stage0 followed by stage1")
     common(r)

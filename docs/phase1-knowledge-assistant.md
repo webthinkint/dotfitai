@@ -346,6 +346,16 @@ forbidden content (non-compliant claim language).
 **Splits:** 150 dev / 150 test. **Labeling:** nutritionist + support lead, with a rubric;
 ~2–3 days effort using the structured store (sampling is scripted).
 
+Sampling **is** scripted (2026-09-07): `qa-pipeline golden` draws the 250 from
+the Stage 4 current question-bearing pairs — stratified by enquiry year ×
+product family, 2025–2026 weighted ×2, ≥1 per present year (the pre-2023
+evergreen singles stay in), FAQ-family (top 10, ≥3 each) and evergreen-topic
+(top 20, ≥1 each) coverage floors — and emits the labeling artifacts to
+`processed/golden/` (`sample.jsonl`, `worksheet.md` with the rubric and
+prefilled source candidates, `adversarial.md` scaffold for the hand-written
+50, `summary.json` with the allocation audit). Splits land 125/125 sampled +
+25/25 adversarial = the 150/150 above.
+
 **Metrics (CI regression on every prompt/retrieval/model change):**
 - RAGAS-style: faithfulness ≥ 0.9, answer relevancy ≥ 0.85, context precision ≥ 0.8
 - Citation rate = 100% of product-claim answers cite authority 1–2

@@ -62,6 +62,14 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   embed `title + content` and cache under the gitignored
   `runs/embeddings.jsonl`, so the committed `documents.jsonl` (no vectors)
   stays byte-identical across reruns.
+- **Golden set** (`golden` subcommand) — the §12 sampling pass over the
+  Stage 4 canonicals: 250 items stratified by enquiry year × product family
+  (2025–2026 weighted ×2 for currency, ≥1 per present year, FAQ-family and
+  evergreen-topic coverage floors), split 125/125 plus a 25/25 adversarial
+  scaffold = §12's 150 dev / 150 test. Outputs the labeling artifacts
+  (`sample.jsonl`, `worksheet.md` with the rubric and prefilled source
+  candidates, `adversarial.md`, `summary.json` allocation audit); selection
+  order is sha256(seed:id) — no RNG, byte-identical reruns from any cwd.
 
 Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
 the QA stages consume only `data/QAs/**/*.docx`.
@@ -123,6 +131,15 @@ uv run qa-pipeline podcast \
     --transcripts ../processed/podcasts/transcripts \
     --audio "../data/Suppbeast Podcast" \
     --out ../processed/podcasts
+```
+
+§12 golden-set sampling (labeling worksheet + adversarial scaffold):
+
+```bash
+uv run qa-pipeline golden \
+    --qa-docs ../processed/qa/stage4/documents.jsonl \
+    --products "../data/Product Data/products.json" \
+    --out ../processed/golden
 ```
 
 §9 index build (shape + embed + upload):

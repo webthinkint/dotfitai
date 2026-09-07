@@ -1,0 +1,169 @@
+{
+ "golden_version": "1.0.0",
+ "seed": "dotfit-golden-v1",
+ "options": {
+  "sample_size": 250,
+  "recent_years": [
+   2025,
+   2026
+  ],
+  "recent_weight": 2.0,
+  "faq_top_n": 10,
+  "faq_min_per_family": 3,
+  "evergreen_top_n": 20
+ },
+ "pool": {
+  "excluded": {
+   "n_stage4": 1041,
+   "n_not_current": 122,
+   "n_no_question": 269,
+   "n_duplicate_question": 0
+  },
+  "n_pool": 650
+ },
+ "n_items": 250,
+ "year_allocation": [
+  {
+   "year": 2013,
+   "pool": 1,
+   "weight": 1.0,
+   "sampled": 1
+  },
+  {
+   "year": 2018,
+   "pool": 1,
+   "weight": 1.0,
+   "sampled": 1
+  },
+  {
+   "year": 2021,
+   "pool": 1,
+   "weight": 1.0,
+   "sampled": 1
+  },
+  {
+   "year": 2022,
+   "pool": 2,
+   "weight": 2.0,
+   "sampled": 1
+  },
+  {
+   "year": 2023,
+   "pool": 248,
+   "weight": 248.0,
+   "sampled": 74
+  },
+  {
+   "year": 2024,
+   "pool": 218,
+   "weight": 218.0,
+   "sampled": 65
+  },
+  {
+   "year": 2025,
+   "pool": 63,
+   "weight": 126.0,
+   "sampled": 38
+  },
+  {
+   "year": 2026,
+   "pool": 116,
+   "weight": 232.0,
+   "sampled": 69
+  }
+ ],
+ "faq_family_coverage": [
+  {
+   "family": "Omega-3 Fish Oil",
+   "target": 3,
+   "pool": 149,
+   "sampled": 58
+  },
+  {
+   "family": "Calcium Complex",
+   "target": 3,
+   "pool": 144,
+   "sampled": 62
+  },
+  {
+   "family": "Active MV",
+   "target": 3,
+   "pool": 141,
+   "sampled": 53
+  },
+  {
+   "family": "WheySmooth",
+   "target": 3,
+   "pool": 131,
+   "sampled": 55
+  },
+  {
+   "family": "Over 50 MV",
+   "target": 3,
+   "pool": 122,
+   "sampled": 47
+  },
+  {
+   "family": "Alln1 SuperBlend",
+   "target": 3,
+   "pool": 115,
+   "sampled": 51
+  },
+  {
+   "family": "AminoFormula",
+   "target": 3,
+   "pool": 104,
+   "sampled": 42
+  },
+  {
+   "family": "Women's MV",
+   "target": 3,
+   "pool": 103,
+   "sampled": 45
+  },
+  {
+   "family": "LeanMeal Nutrition Shake",
+   "target": 3,
+   "pool": 81,
+   "sampled": 27
+  },
+  {
+   "family": "Creatine Monohydrate",
+   "target": 3,
+   "pool": 76,
+   "sampled": 26
+  }
+ ],
+ "n_distinct_families_sampled": 29,
+ "n_swaps": 0,
+ "swaps": [],
+ "unmet": [],
+ "splits": {
+  "sampled": {
+   "dev": 125,
+   "test": 125
+  },
+  "adversarial": {
+   "dev": 25,
+   "test": 25
+  },
+  "total": {
+   "dev": 150,
+   "test": 150
+  }
+ },
+ "adversarial_categories": [
+  {
+   "category": "medical_escalation",
+   "n": 20
+  },
+  {
+   "category": "claim_trap",
+   "n": 15
+  },
+  {
+   "category": "out_of_scope",
+   "n": 15
+  }
+ ]
+}
