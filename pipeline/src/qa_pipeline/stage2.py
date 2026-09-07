@@ -9,9 +9,11 @@ document:
 - ``question_original`` — verbatim scrubbed Stage 1 question (deterministic)
 - ``answer`` — expert answer, cleaned (typos, formatting), content unchanged
 - ``products[]`` — normalized to ``part_no`` (int) via the alias table:
-  LLM mentions mapped deterministically, unioned with the deterministic
-  scan (``CURATED_ALIASES`` + legacy renames). Context-only tokens (PP, MVM),
-  replacements and discontinued names never tag — they are currency cues.
+  LLM mentions mapped deterministically, unioned with the blind text scan
+  (``CURATED_ALIASES`` + legacy renames). ``CURATED_LLM_ONLY_ALIASES``
+  resolve on the mention path only — the model supplies the context that
+  tells ``Women's MV`` from ``women's health``. Context-only tokens (PP,
+  MVM), replacements and discontinued names never tag — currency cues.
 - ``topics[]`` — LLM labels + subfolder hint (+ ``multivitamin`` when an
   unresolved MVM mention leaves no product tag, per ``CONTEXT_ONLY_TOKENS``)
 - ``audience_flags{}`` — the plan's five escalation booleans (LLM)
@@ -271,8 +273,15 @@ def containment_score(answer: str, source: str) -> float:
 def build_product_lookup(alias_table: dict[str, Any]) -> dict[str, Any]:
     """Alias table -> ``{"tag": norm->part_nos, "context_only", "never_tag"}``.
 
-    - ``tag``: families + deterministic aliases + legacy renames (a rename is
-      an identity mapping, safe to expand to the successor's part_nos).
+    - ``tag``: families + deterministic aliases + LLM-only aliases + legacy
+      renames (a rename is an identity mapping, safe to expand to the
+      successor's part_nos). This lookup drives :func:`normalize_products`,
+      which maps *LLM mention strings* — the model has already judged the
+      mention to be a product in that document, so context-gated aliases
+      (``Women's``) belong here. They must NOT reach
+      :func:`deterministic_product_tags`, which scans raw text blind; that
+      function reads ``deterministic_aliases`` directly and so never sees
+      them.
     - ``context_only``: PP/MVM norms — resolved per document by the LLM, never
       tagged deterministically.
     - ``never_tag``: replacement + discontinued norms — currency cues only.
@@ -281,6 +290,8 @@ def build_product_lookup(alias_table: dict[str, Any]) -> dict[str, Any]:
     for fam in alias_table["families"]:
         tag.setdefault(_norm(fam["family"]), sorted(fam["part_nos"]))
     for entry in alias_table.get("deterministic_aliases", []):
+        tag.setdefault(_norm(entry["token"]), sorted(entry["part_nos"]))
+    for entry in alias_table.get("llm_only_aliases", []):
         tag.setdefault(_norm(entry["token"]), sorted(entry["part_nos"]))
     for ren in alias_table.get("legacy_renames", []):
         tag.setdefault(_norm(ren["deprecated"]), sorted(ren["part_nos"]))
@@ -340,6 +351,10 @@ def deterministic_product_tags(text: str, alias_table: dict[str, Any],
     by curation, so unioning with the LLM-normalized set is safe. Word
     boundaries for short uppercase tokens, tolerant matching for legacy names
     (spacing/punctuation/``and``-forms — the ``Recover&Build`` lesson).
+
+    Reads ``deterministic_aliases`` only. ``llm_only_aliases`` are excluded by
+    construction: they are ordinary English too (``Women's``), and this scan
+    has no context with which to tell a product from a phrase.
     """
     tag = lookup["tag"]
     found: set[int] = set()

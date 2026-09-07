@@ -44,6 +44,11 @@ PRODUCTS = [
     _product(1227, "Creatine Monohydrate - Unflavored"),
     _product(1207, "Creatine Complex - Raspberry Lemonade"),
     _product(1100, "WeightLoss & LiverSupport"),
+    # families reached only through the 2026-09-07 spelling aliases
+    _product(1020, "Omega-3 Fish Oil"),
+    _product(1004, "Calcium Complex"),
+    _product(1300, "Plant Protein - Vanilla"),
+    _product(1301, "Plant Protein - Chocolate"),
     _product(1371, "First String - Chocolate"),
     _product(1372, "First String - Vanilla"),
     _product(8001, "Alln1 SuperBlend - Orange Burst"),
@@ -103,11 +108,13 @@ class TestFamilyDerivation:
 
     def test_family_count(self):
         table = build_alias_table(PRODUCTS)
-        # 31 products - 3 gear = 28; families: MV x3, BrainHealth,
+        # 35 products - 3 gear = 32; families: MV x3, BrainHealth,
         # CollagenComplex, Antioxidant, Probiotics, Glutamine, AminoFormula,
         # NO7, LeanMeal, WheySmooth, dotBAR, dotWAFER, CreatineMonohydrate,
-        # CreatineComplex, WLLS, FirstString, Alln1SuperBlend = 19
-        assert table["n_families"] == 19
+        # CreatineComplex, WLLS, FirstString, Alln1SuperBlend (19) + the
+        # alias-only families Omega-3 Fish Oil, Calcium Complex,
+        # Plant Protein = 22
+        assert table["n_families"] == 22
 
 
 class TestLegacyRenames:
@@ -192,6 +199,47 @@ class TestDeterministicAliases:
         tokens = {a["token"] for a in table["deterministic_aliases"]}
         assert "PP" not in tokens
         assert "PP" in table["context_only_tokens"]
+
+    def test_spelling_aliases_reach_families_the_rules_cannot(self):
+        table = build_alias_table(PRODUCTS)
+        det = {a["token"]: a["part_nos"] for a in table["deterministic_aliases"]}
+        assert det["SuperOmega-3"] == [1020]
+        assert det["SuperCalcium"] == [1004]
+        assert det["BestPlantProtein"] == [1300, 1301]
+        assert det["All Natural WheySmooth"] == [1369, 1374, 1391]
+        assert det["Over50"] == [1009]
+        assert det["1-Active"] == det["2-Active"] == [1005]
+
+    def test_llm_only_aliases_are_a_separate_tier(self):
+        # they must never appear in the list the blind text scan reads
+        table = build_alias_table(PRODUCTS)
+        det = {a["token"] for a in table["deterministic_aliases"]}
+        llm = {a["token"]: a for a in table["llm_only_aliases"]}
+        assert "Women's" not in det
+        assert llm["Women's"]["part_nos"] == [1007]
+        assert llm["Women's"]["family"] == "Women's MV"
+        assert "women's health" in llm["Women's"]["note"]
+
+    def test_a_token_cannot_be_in_both_tiers(self, monkeypatch):
+        import qa_pipeline.alias as alias_mod
+        monkeypatch.setitem(alias_mod.CURATED_LLM_ONLY_ALIASES, "AF",
+                            {"family": "AminoFormula"})
+        with pytest.raises(ValueError, match="both CURATED_ALIASES"):
+            build_alias_table(PRODUCTS)
+
+    def test_gated_alias_cannot_also_be_context_only(self, monkeypatch):
+        import qa_pipeline.alias as alias_mod
+        monkeypatch.setitem(alias_mod.CURATED_LLM_ONLY_ALIASES, "MVM",
+                            {"family": "Active MV"})
+        with pytest.raises(ValueError, match="also CONTEXT_ONLY_TOKENS"):
+            build_alias_table(PRODUCTS)
+
+    def test_unknown_llm_only_family_raises(self, monkeypatch):
+        import qa_pipeline.alias as alias_mod
+        monkeypatch.setitem(alias_mod.CURATED_LLM_ONLY_ALIASES, "ZZ",
+                            {"family": "No Such Family"})
+        with pytest.raises(ValueError, match="unknown family"):
+            build_alias_table(PRODUCTS)
 
     def test_unknown_alias_family_raises(self, monkeypatch):
         import qa_pipeline.alias as alias_mod

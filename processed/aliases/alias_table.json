@@ -1,5 +1,5 @@
 {
- "version": "1.2.0",
+ "version": "1.3.0",
  "source": "data/Product Data/products.json",
  "normalization": "NFKC, casefold, strip non-alphanumeric",
  "n_products": 56,
@@ -277,12 +277,54 @@
  ],
  "deterministic_aliases": [
   {
+   "token": "1-Active",
+   "family": "Active MV",
+   "part_nos": [
+    1005
+   ],
+   "source": "curation session 2026-09-01",
+   "note": "dose tier, not a product: 'children 12-17yr use 1-Active' means one Active MV daily. Owner ruling 2026-09-07 — collapse to the product; the 1-vs-2 tablet distinction is dosage guidance that lives in the answer text, not in the filter"
+  },
+  {
+   "token": "2-Active",
+   "family": "Active MV",
+   "part_nos": [
+    1005
+   ],
+   "source": "curation session 2026-09-01",
+   "note": "dose tier — see 1-Active (two Active MV daily, adults/very active females under 50)"
+  },
+  {
    "token": "AF",
    "family": "AminoFormula",
    "part_nos": [
     1213,
     1216,
     1220
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "All Natural WheySmooth",
+   "family": "WheySmooth",
+   "part_nos": [
+    1369,
+    1370,
+    1374,
+    1375,
+    1391,
+    1392,
+    1399
+   ],
+   "source": "curation session 2026-09-01",
+   "note": "a SUFFIX of the family name, so the prefix rule cannot see it; CURATED_FAMILIES already folds part_nos 1374/1375 into the WheySmooth family, so this expands family-wide as usual"
+  },
+  {
+   "token": "BestPlantProtein",
+   "family": "Plant Protein",
+   "part_nos": [
+    1300,
+    1301
    ],
    "source": "curation session 2026-09-01"
   },
@@ -296,11 +338,52 @@
    "source": "curation session 2026-09-01"
   },
   {
+   "token": "Over50",
+   "family": "Over 50 MV",
+   "part_nos": [
+    1009
+   ],
+   "source": "curation session 2026-09-01",
+   "note": "solid-cased coinage from the program-note boilerplate; the spaced 'over 50' (an age) is a different string and never matches this case-sensitive token"
+  },
+  {
    "token": "SB",
    "family": "Alln1 SuperBlend",
    "part_nos": [
     8001,
     8016
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "Super Calcium",
+   "family": "Calcium Complex",
+   "part_nos": [
+    1004
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "Super Omega 3",
+   "family": "Omega-3 Fish Oil",
+   "part_nos": [
+    1020
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "SuperCalcium",
+   "family": "Calcium Complex",
+   "part_nos": [
+    1004
+   ],
+   "source": "curation session 2026-09-01"
+  },
+  {
+   "token": "SuperOmega-3",
+   "family": "Omega-3 Fish Oil",
+   "part_nos": [
+    1020
    ],
    "source": "curation session 2026-09-01"
   },
@@ -311,6 +394,17 @@
     1100
    ],
    "source": "curation session 2026-09-01"
+  }
+ ],
+ "llm_only_aliases": [
+  {
+   "token": "Women's",
+   "family": "Women's MV",
+   "part_nos": [
+    1007
+   ],
+   "source": "curation session 2026-09-01",
+   "note": "264 corpus occurrences, 163 of them the bare program-note form ('if female under 50 use Women's;'). Blind scanning is unsafe: 'women's health', 'women's hospital', 'women's basketball', 'women's sports' are all attested. norm() folds the curly-apostrophe spelling onto this entry"
   }
  ],
  "context_only_tokens": {

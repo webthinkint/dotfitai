@@ -146,10 +146,16 @@ _SIGNOFF_NAME_RE = re.compile(
 # token is usually an organization ("Thanks, Diabetic Support Group"), and
 # missing it fails safe toward the LLM flag, never toward prose damage.
 # Same region gate as _redact_signoffs: customer region only.
+# Bare "best" is the one closer that REQUIRES its comma: unlike the others it
+# is also an ordinary adjective, and comma-less it ate prose in the first
+# regen ("...and Best Plant Protein." plus the heading "Best Scientific
+# Combination" both became "Best [NAME]" — review 2026-09-07). A sign-off
+# writes "Best, Matt"; a sentence writes "Best Plant Protein". Every other
+# closer keeps the optional comma ("Thanks Neal" is attested).
 _INLINE_CLOSER_AT = re.compile(
-    r"\b(?i:thanks|thank you|many thanks|thanks so much|"
-    r"regards|kind regards|best regards|best|sincerely|cheers|"
-    r"respectfully)\s*,?\s+",
+    r"\b(?:(?i:thanks|thank you|many thanks|thanks so much|"
+    r"regards|kind regards|best regards|sincerely|cheers|"
+    r"respectfully)\s*,?|(?i:best)\s*,)\s+",
 )
 _INLINE_NAME_RE = re.compile(
     r"^((?:(?i:mr|mrs|ms|dr)\.?\s+)?)"

@@ -51,7 +51,7 @@ from pathlib import Path
 
 from .io_utils import write_json, write_text
 
-ALIAS_TABLE_VERSION = "1.2.0"
+ALIAS_TABLE_VERSION = "1.3.0"  # 2026-09-07: family-spelling + LLM-only aliases
 
 # --- curated overlay ---------------------------------------------------------
 
@@ -162,12 +162,72 @@ SEED_ABBREVIATIONS: dict[str, dict] = {
 # "tag" outcomes: deterministic metadata tagging approved. Matching rule is
 # the same uppercase word-boundary regex the harvest used (corpus attests
 # capitalized usage). Targets resolve to family part_nos at build time.
+#
+# Curation pass 2026-09-07 added a second class: not abbreviations but
+# *corpus spellings of a family the derivation cannot reach*, because
+# normalize_products matches norm-exact or family-PREFIX only. Every one is
+# attested (counts are corpus occurrences) and unambiguous — none is ordinary
+# English, so the deterministic text scan is safe. norm() collapses spelling
+# variants on the LLM path, so one entry per distinct written form is enough
+# for the scan and any variant resolves through the normalizer.
 CURATED_ALIASES: dict[str, dict] = {
     "AF": {"family": "AminoFormula"},
     "SB": {"family": "Alln1 SuperBlend"},
     "FS": {"family": "First String"},
     "WLLS": {"family": "WeightLoss & LiverSupport"},
+    # family reachable by neither exact nor prefix match (2026-09-07)
+    "SuperOmega-3": {"family": "Omega-3 Fish Oil"},      # 282 occurrences
+    "Super Omega 3": {"family": "Omega-3 Fish Oil"},
+    "SuperCalcium": {"family": "Calcium Complex"},       # 254 occurrences
+    "Super Calcium": {"family": "Calcium Complex"},
+    "BestPlantProtein": {"family": "Plant Protein"},     # 162 occurrences
+    "All Natural WheySmooth": {                          # 117 occurrences
+        "family": "WheySmooth",
+        "note": "a SUFFIX of the family name, so the prefix rule cannot see "
+                "it; CURATED_FAMILIES already folds part_nos 1374/1375 into "
+                "the WheySmooth family, so this expands family-wide as usual",
+    },
+    "Over50": {                                          # 165 mentions
+        "family": "Over 50 MV",
+        "note": "solid-cased coinage from the program-note boilerplate; the "
+                "spaced 'over 50' (an age) is a different string and never "
+                "matches this case-sensitive token",
+    },
+    # dose tiers, collapsed to the product by owner ruling 2026-09-07
+    "1-Active": {
+        "family": "Active MV",
+        "note": "dose tier, not a product: 'children 12-17yr use 1-Active' "
+                "means one Active MV daily. Owner ruling 2026-09-07 — collapse "
+                "to the product; the 1-vs-2 tablet distinction is dosage "
+                "guidance that lives in the answer text, not in the filter",
+    },
+    "2-Active": {
+        "family": "Active MV",
+        "note": "dose tier — see 1-Active (two Active MV daily, adults/"
+                "very active females under 50)",
+    },
 }
+
+# LLM-only aliases (curation pass 2026-09-07). Same target shape as
+# CURATED_ALIASES, but these tokens are ALSO ordinary English, so only the
+# context-aware consumer may resolve them: Stage 2's normalize_products maps
+# them because the model already judged the mention to be a product in that
+# document, while the blind deterministic text scan must never fire on them.
+# The middle ground between CURATED_ALIASES (safe everywhere) and
+# CONTEXT_ONLY_TOKENS (resolved by no one, per-document topic guidance only).
+CURATED_LLM_ONLY_ALIASES: dict[str, dict] = {
+    "Women's": {
+        "family": "Women's MV",
+        "note": "264 corpus occurrences, 163 of them the bare program-note "
+                "form ('if female under 50 use Women's;'). Blind scanning is "
+                "unsafe: 'women's health', 'women's hospital', 'women's "
+                "basketball', 'women's sports' are all attested. norm() folds "
+                "the curly-apostrophe spelling onto this entry",
+    },
+}
+# NOT aliased, deliberately: "Kids" (149 mentions) and "VeganMV"/"1-Vegan"
+# point at KidsMV / VeganMV, which are DISCONTINUED — there is no part_no to
+# tag. They stay unresolved, which is the honest answer.
 
 # context-only outcomes stay OUT of the deterministic table: Stage 2 LLM
 # resolves them per document (unsure cases -> Stage 3 review queue).
@@ -313,34 +373,49 @@ def build_alias_table(products: list[dict]) -> dict:
         for fam in sorted(families.values(), key=lambda f: f["family"])
     ]
 
-    # confirmed abbreviation aliases -> flat list of tag rules for downstream
-    deterministic_aliases = []
-    for token, cfg in sorted(CURATED_ALIASES.items()):
-        if "family" in cfg:
-            fam = families.get(cfg["family"])
-            if fam is None:
-                raise ValueError(
-                    f"CURATED_ALIASES[{token!r}] targets unknown family "
-                    f"{cfg['family']!r}")
-            deterministic_aliases.append({
-                "token": token, "family": cfg["family"],
-                "part_nos": sorted(fam["part_nos"]),
-                "source": "curation session 2026-09-01",
-            })
-        else:
-            unknown = sorted(set(cfg["part_nos"]) - present - gear)
-            if unknown:
-                raise ValueError(
-                    f"CURATED_ALIASES[{token!r}] part_nos not in (non-gear) "
-                    f"products: {unknown}")
-            entry = {
-                "token": token,
-                "part_nos": sorted(cfg["part_nos"]),
-                "source": "curation session 2026-09-01",
-            }
+    # confirmed aliases -> flat list of tag rules for downstream
+    def _alias_records(curated: dict[str, dict], label: str) -> list[dict]:
+        out = []
+        for token, cfg in sorted(curated.items()):
+            entry = {"token": token}
+            if "family" in cfg:
+                fam = families.get(cfg["family"])
+                if fam is None:
+                    raise ValueError(
+                        f"{label}[{token!r}] targets unknown family "
+                        f"{cfg['family']!r}")
+                entry["family"] = cfg["family"]
+                entry["part_nos"] = sorted(fam["part_nos"])
+            else:
+                unknown = sorted(set(cfg["part_nos"]) - present - gear)
+                if unknown:
+                    raise ValueError(
+                        f"{label}[{token!r}] part_nos not in (non-gear) "
+                        f"products: {unknown}")
+                entry["part_nos"] = sorted(cfg["part_nos"])
+            entry["source"] = cfg.get("source", "curation session 2026-09-01")
             if cfg.get("note"):
                 entry["note"] = cfg["note"]
-            deterministic_aliases.append(entry)
+            out.append(entry)
+        return out
+
+    deterministic_aliases = _alias_records(CURATED_ALIASES, "CURATED_ALIASES")
+    llm_only_aliases = _alias_records(CURATED_LLM_ONLY_ALIASES,
+                                      "CURATED_LLM_ONLY_ALIASES")
+    # a token cannot be both blind-safe and context-gated, nor gated and
+    # context-only: the narrower ruling must be the only one in force
+    overlap = ({a["token"] for a in deterministic_aliases}
+               & {a["token"] for a in llm_only_aliases})
+    if overlap:
+        raise ValueError(
+            f"tokens in both CURATED_ALIASES and CURATED_LLM_ONLY_ALIASES: "
+            f"{sorted(overlap)}")
+    gated_context_only = ({norm(a["token"]) for a in llm_only_aliases}
+                          & {norm(t) for t in CONTEXT_ONLY_TOKENS})
+    if gated_context_only:
+        raise ValueError(
+            f"CURATED_LLM_ONLY_ALIASES tokens are also CONTEXT_ONLY_TOKENS: "
+            f"{sorted(gated_context_only)}")
 
     return {
         "version": ALIAS_TABLE_VERSION,
@@ -353,6 +428,7 @@ def build_alias_table(products: list[dict]) -> dict:
         "n_families": len(family_records),
         "families": family_records,
         "deterministic_aliases": deterministic_aliases,
+        "llm_only_aliases": llm_only_aliases,
         "context_only_tokens": dict(sorted(CONTEXT_ONLY_TOKENS.items())),
         "legacy_renames": legacy_renames,
         "replacements": replacements,

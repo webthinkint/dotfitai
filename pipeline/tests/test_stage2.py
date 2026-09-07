@@ -55,6 +55,13 @@ PRODUCTS = [
     _product(1371, "First String - Chocolate"),
     _product(8001, "Alln1 SuperBlend - Orange Burst"),
     _product(1100, "WeightLoss & LiverSupport"),
+    # families the 2026-09-07 spelling aliases target
+    _product(1369, "WheySmooth -  High Protein - Chocolate"),
+    _product(1374, "All Natural WheySmooth - Chocolate"),
+    _product(1020, "Omega-3 Fish Oil"),
+    _product(1004, "Calcium Complex"),
+    _product(1300, "Plant Protein - Vanilla"),
+    _product(1301, "Plant Protein - Chocolate"),
 ]
 
 
@@ -186,6 +193,40 @@ class TestNormalizeProducts:
         pns, unresolved = normalize_products(["MysteryPowder 9000"], lookup, families)
         assert pns == [] and unresolved == ["MysteryPowder 9000"]
 
+    def test_corpus_spellings_the_prefix_rule_cannot_reach(self, lookup, families):
+        # curation pass 2026-09-07: norm() collapses the written variants
+        for tok in ("SuperOmega-3", "Super Omega 3", "SuperOmega 3"):
+            pns, _ = normalize_products([tok], lookup, families)
+            assert pns == [1020], tok
+        for tok in ("SuperCalcium", "Super Calcium"):
+            pns, _ = normalize_products([tok], lookup, families)
+            assert pns == [1004], tok
+        for tok in ("BestPlantProtein", "Best Plant Protein"):
+            pns, _ = normalize_products([tok], lookup, families)
+            assert pns == [1300, 1301], tok
+        pns, _ = normalize_products(["Over50"], lookup, families)
+        assert pns == [1009]
+
+    def test_all_natural_wheysmooth_is_a_suffix_not_a_prefix(self, lookup, families):
+        # 'WheySmooth' is a suffix here, so the family-prefix rule is blind
+        # to it; CURATED_FAMILIES folds 1374 into the WheySmooth family
+        pns, unresolved = normalize_products(
+            ["All Natural WheySmooth"], lookup, families)
+        assert pns == [1369, 1374] and unresolved == []
+
+    def test_dose_tiers_collapse_to_active_mv(self, lookup, families):
+        # owner ruling 2026-09-07: 1-Active / 2-Active are one-a-day and
+        # two-a-day Active MV, not separate products
+        for tok in ("1-Active", "2-Active"):
+            pns, _ = normalize_products([tok], lookup, families)
+            assert pns == [1005], tok
+
+    def test_llm_only_alias_resolves_on_the_mention_path(self, lookup, families):
+        # the model judged this a product mention in context, so it maps
+        for tok in ("Women's", "Women’s", "womens"):
+            pns, unresolved = normalize_products([tok], lookup, families)
+            assert pns == [1007] and unresolved == [], tok
+
 
 class TestDeterministicTags:
     def test_alias_needs_word_boundaries(self, alias_table, lookup):
@@ -197,6 +238,28 @@ class TestDeterministicTags:
 
     def test_context_only_not_scanned(self, alias_table, lookup):
         assert deterministic_product_tags("take your MVM daily", alias_table, lookup) == []
+
+    def test_llm_only_aliases_never_scanned(self, alias_table, lookup):
+        # the whole point of the tier: blind text has no context to tell the
+        # product from the phrase, so it must not guess either way
+        for text in ("she asked about women's health",
+                     "a women's hospital study",
+                     "if female under 50 use Women's; males use 2-Active"):
+            assert 1007 not in deterministic_product_tags(
+                text, alias_table, lookup), text
+
+    def test_spelling_aliases_are_scanned(self, alias_table, lookup):
+        # ...while the unambiguous spellings stay in the blind scan
+        assert deterministic_product_tags(
+            "SuperOmega-3\nTake 1-2 daily", alias_table, lookup) == [1020]
+        assert deterministic_product_tags(
+            "children 12-17yr use 1-Active", alias_table, lookup) == [1005]
+
+    def test_lowercase_superlative_is_not_a_product(self, alias_table, lookup):
+        # tokens are case-sensitive: prose asking for "the best plant protein"
+        # must not tag (the capitalized brand form is a separate string)
+        assert deterministic_product_tags(
+            "what is the best plant protein you sell?", alias_table, lookup) == []
 
 
 class TestCurrencyCues:

@@ -427,6 +427,29 @@ class TestInlineSignoffRedaction:
         ])
         assert "Thank you, Neal, for the prompt reply" in text
 
+    def test_comma_less_best_is_prose_not_a_closer(self):
+        # regression: bare "Best" is also an adjective — comma-less it ate
+        # a product mention and a heading in the first regen (review
+        # 2026-09-07). A sign-off writes the comma.
+        text, rep = scrub_extracted(self.HEADER + [
+            "I pointed her to our All Natural Why and Best Plant Protein.",
+            "Best Scientific Combination",
+        ])
+        assert "Best Plant Protein." in text
+        assert "Best Scientific Combination" in text
+        assert "signoff_name_inline" not in rep.redactions
+
+    def test_best_with_comma_still_redacts(self):
+        text, rep = scrub_extracted(self.HEADER + ["Best, Matt"])
+        assert "Matt" not in text
+        assert text.rstrip().endswith("Best, [NAME]")
+        assert rep.redactions["signoff_name_inline"] == 1
+
+    def test_best_regards_still_redacts(self):
+        text, rep = scrub_extracted(self.HEADER + ["Best regards, Jane Smith"])
+        assert "Jane Smith" not in text
+        assert rep.redactions["signoff_name_inline"] == 1
+
     def test_expert_region_and_headerless_notes_untouched(self):
         text, _ = scrub_extracted([
             "Best, Kat Barefield, MS, RDN",
