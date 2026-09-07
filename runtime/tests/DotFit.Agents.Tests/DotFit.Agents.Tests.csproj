@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DotFit.Agents\DotFit.Agents.csproj" />
     <ProjectReference Include="..\..\src\DotFit.Agents.Cli\DotFit.Agents.Cli.csproj" />
+    <ProjectReference Include="..\..\src\DotFit.Agents.Service\DotFit.Agents.Service.csproj" />
   </ItemGroup>
 
 </Project>

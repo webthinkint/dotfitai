@@ -202,6 +202,22 @@ public static class Prompts
         "(I'm an AI assistant — nutrition guidance, not medical advice.)";
 
     /// <summary>
+    /// AI-identity disclosure for the start of a conversation (§11 standing
+    /// behaviors). The refusal and withheld templates carry their own copy
+    /// because they may be the only thing a customer ever sees; this is the
+    /// one the SSE service emits before the first answer, so a customer who
+    /// only ever gets good answers is still told what they are talking to.
+    /// Kept here rather than in the service so there is one wording to review,
+    /// not two.
+    /// </summary>
+    public static string ConversationDisclosure() =>
+        "I'm an AI assistant — nutrition guidance, not medical advice. " +
+        "I answer from dotFIT's approved product copy, the practitioner " +
+        "reference guide, customer Q&A and podcasts, and I cite my sources. " +
+        "For anything medical, I'll hand you to the dotFIT support team or a " +
+        "healthcare professional.";
+
+    /// <summary>
     /// Whether a source may supply product-claim wording (§3: products.json is
     /// the legal-approved claims corpus, the PDSRG the practitioner authority).
     /// Authority 3-4 — customer Q&amp;A, podcasts, menus — is context, never
