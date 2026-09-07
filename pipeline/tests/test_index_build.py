@@ -170,23 +170,30 @@ def _chunks():
              "topics": [], "date": None, "is_current": True}]
 
 
+# Synthetic episode + its own video-id table: the real PODCAST_VIDEO_IDS is a
+# curated 47-entry constant and an unknown stem raises by design, so the tests
+# inject a table instead of naming a real episode.
+VIDEO_IDS = {"e": "testVideoId0"}
+
+
 def _segments():
     return [{"id": "1-expert-reacts-000", "episode_id": "1-expert-reacts",
              "episode_title": "#1 Expert Reacts", "source_file": "e.mp3",
              "chunk_index": 0, "start": "00:00", "end": "01:36",
-             "start_ms": 0, "end_ms": 96000, "duration_s": 96.0,
+             "start_ms": 32000, "end_ms": 96000, "duration_s": 96.0,
              "speakers": [1, 2], "n_words": 200,
              "text": "Speaker 1: Take creatine daily."}]
 
 
 def test_podcast_documents_shape_and_defaults():
-    doc = podcast_documents(_segments())[0]
+    doc = podcast_documents(_segments(), VIDEO_IDS)[0]
     assert doc["id"] == "podcast-1-expert-reacts-000"  # namespaced, digit-safe
     assert doc["source_type"] == "podcast" and doc["authority"] == 4
     assert doc["title"] == "#1 Expert Reacts (00:00–01:36)"
     assert doc["locator"] == "00:00–01:36"
     assert doc["content"] == "Speaker 1: Take creatine daily."
-    assert doc["citation_url"] is None  # archive.txt mapping unverified
+    # deep-linked to the segment start, so §7.4's "at 14:32" lands there
+    assert doc["citation_url"] == "https://www.youtube.com/watch?v=testVideoId0&t=32s"
     assert doc["products"] == [] and doc["topics"] == []
     assert doc["date"] is None and doc["product_status"] is None
     assert doc["is_current"] is True  # null would hide it from filters
@@ -200,7 +207,7 @@ def test_index_ids_are_search_key_safe():
     docs = build_documents(_chunks(), PRODUCTS, FAMILIES,
                            [{"menu_name": "M", "menu_descr": "d",
                              "menu_calories": "1000"}],
-                           _segments())
+                           _segments(), None, VIDEO_IDS)
     bad = [d["id"] for d in docs if not re.fullmatch(r"[A-Za-z0-9_\-=]+", d["id"])]
     assert not bad
 
@@ -208,7 +215,7 @@ def test_index_ids_are_search_key_safe():
 def test_build_documents_sorted_and_deterministic():
     args = (_chunks(), PRODUCTS, FAMILIES,
             [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}],
-            _segments())
+            _segments(), None, VIDEO_IDS)
     d1 = build_documents(*args)
     d2 = build_documents(*args)
     assert d1 == d2
@@ -222,7 +229,8 @@ def test_build_documents_sorted_and_deterministic():
 def test_build_documents_without_podcast_unchanged():
     args = (_chunks(), PRODUCTS, FAMILIES,
             [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}])
-    assert len(build_documents(*args)) + 1 == len(build_documents(*args, _segments()))
+    assert (len(build_documents(*args)) + 1
+            == len(build_documents(*args, _segments(), None, VIDEO_IDS)))
 
 
 # --- qa_documents (Stage 2 canonicals -> §9) ------------------------------------
@@ -312,7 +320,8 @@ def test_build_documents_with_qa_sorted_and_key_safe():
     import re
     args = (_chunks(), PRODUCTS, FAMILIES,
             [{"menu_name": "M", "menu_descr": "d",
-              "menu_calories": "1000"}], _segments(), [_qa_rec()])
+              "menu_calories": "1000"}], _segments(), [_qa_rec()],
+            VIDEO_IDS)
     docs = build_documents(*args)
     assert docs == sorted(docs, key=lambda d: d["id"])
     assert "qa-abc123def4567890" in [d["id"] for d in docs]
@@ -327,7 +336,7 @@ def test_embed_text_is_title_plus_content():
 
 def test_index_schema_matches_plan_9():
     s = index_schema(INDEX_NAME)
-    assert s.name == "kb-main"
+    assert s.name == "kb-main-v2"
     fields = {f.name: f for f in s.fields}
     assert set(fields) == {"id", "source_type", "authority", "title", "content",
                            "content_vector", "citation_url", "locator",

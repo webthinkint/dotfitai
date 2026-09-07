@@ -1,7 +1,7 @@
 namespace DotFit.Agents.Retrieval;
 
 /// <summary>
-/// One row of the <c>kb-main</c> index (plan §9 schema), as retrieved.
+/// One row of the §9 index (plan §9 schema), as retrieved.
 /// <see cref="Score"/> is always the service retrieval score (BM25, or the
 /// RRF fusion for a hybrid query) and <see cref="RerankerScore"/> is the
 /// semantic ranker's, populated only when the ranker ran — Azure reports the

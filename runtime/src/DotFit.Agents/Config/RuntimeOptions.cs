@@ -62,7 +62,13 @@ public sealed record RuntimeOptions
     public string? EmbeddingDeployment { get; init; }
     /// <summary>The subset this instance was loaded for.</summary>
     public RuntimeNeeds Needs { get; init; } = RuntimeNeeds.Full;
-    public string IndexName { get; init; } = "kb-main";
+    /// <summary>
+    /// The §9 index. <c>kb-main</c> is the original name and is unusable — that
+    /// index is stuck mid-delete (progress open item 10), so the name cannot be
+    /// recreated; this mirrors <c>index_build.INDEX_NAME</c> and the two must
+    /// stay in step. Flip back only once Azure support frees the name.
+    /// </summary>
+    public string IndexName { get; init; } = "kb-main-v2";
     /// <summary>Alias table artifact (plan §5 output) — default lives beside the .env.</summary>
     public required string AliasTablePath { get; init; }
     public required string EnvFilePath { get; init; }

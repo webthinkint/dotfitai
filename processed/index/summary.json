@@ -78,7 +78,7 @@
  },
  "upload": {
   "index": "kb-main-v2",
-  "index_status": "created",
+  "index_status": "exists",
   "n_uploaded": 3996,
   "n_selected": 3996,
   "errors": []

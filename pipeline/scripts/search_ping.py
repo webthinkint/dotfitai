@@ -18,6 +18,7 @@ import sys
 from qa_pipeline.azure_config import (
     AzureConfigError, REQUIRE_SEARCH, load_azure_config,
 )
+from qa_pipeline.index_build import INDEX_NAME
 
 
 def main() -> int:
@@ -37,10 +38,10 @@ def main() -> int:
         )
         stats = client.get_service_statistics()
         try:
-            client.get_index("kb-main")
-            kb = "kb-main: present"
+            client.get_index(INDEX_NAME)
+            kb = f"{INDEX_NAME}: present"
         except ResourceNotFoundError:
-            kb = "kb-main: absent (will be created on upload)"
+            kb = f"{INDEX_NAME}: absent (will be created on upload)"
     except Exception as e:  # noqa: BLE001 — printing the failure is the tool's job
         print(f"FAIL: {type(e).__name__}: {e}", file=sys.stderr)
         if _is_auth_failure(e):
