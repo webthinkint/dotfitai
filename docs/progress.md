@@ -32,18 +32,18 @@ regenerated run.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech); credentials in local `.env`; `text-embedding-3-large` deployed and smoke-verified (3072-dim, `scripts/embedding_smoke.py`); `gpt-5-mini` deployed as the small chat model and smoke-verified (strict JSON-schema extraction, `scripts/chat_smoke.py` — no temperature knob, GPT-5-family default only). Remaining: quota increase for the frontier chat deployment |
+| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech), credentials in local `.env`; `text-embedding-3-large` and `gpt-5-mini` deployed and smoke-verified. Remaining: quota increase for the frontier chat deployment |
 | 2 | products.json freshness owner | **open** — 8 PDSRG-only gaps closed 2026-09-01. Remaining: name the owner, set monthly diff cadence |
-| 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record. Pass 2 (2026-09-07) added the family spellings + the LLM-only tier off the Stage 2 unresolved tally; that tally (2,292 post-1.3.0-regen mentions, led by `dotFIT Multivitamin & Mineral`, `Kids`, `MVM` and third-party peptide names) is the input to any pass 3 |
+| 3 | Alias-table curation session | **closed** 2026-09-01, pass 2 2026-09-07 — outcomes live in `CURATED_ALIASES` / `CURATED_LLM_ONLY_ALIASES` / `CONTEXT_ONLY_TOKENS`; the worksheet is the session record. The 2,292-mention Stage 2 unresolved tally is the input to any pass 3 |
 | 4 | PPTX disposition | parked |
-| 5 | Semantic ranker on/off | week 3–4, decide empirically |
-| 6 | Stage 3 review-queue dispositions | **closed (round 2)** 2026-09-05 — owner triage: 5 study-author honorifics (pasted articles/transcripts) cleared into `ACCEPTED_HONORIFIC_NAMES`; 2 full-name customer sign-offs redacted by the new sign-off rule. Queue 0. Remaining: git history still holds the two names in older blobs — purge needs owner decision (same precedent as the `.scan` purge) |
-| 7 | Stage 4 review-queue dispositions | **open** — 2 records (`cluster_conflict`: 2024 First String/baseline vs screener note, non-nested part_nos); owner picks or splits the cluster. Also available for audit: the 114 currency judgments carry evidence quotes in `stage4/documents.jsonl` |
-| 8 | Golden-set labeling | **open** — worksheet + adversarial scaffold generated 2026-09-07 (`processed/golden/`, `qa-pipeline golden`): 250 sampled items to label (points-to-hit 2–5, expected sources, forbidden content) + 50 adversarial to write (20 escalations / 15 claim traps / 15 out-of-scope). Nutritionist + support lead, ~2–3 days (§12 rubric in the worksheet header) |
-| 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was a single wedged index, not the service: control plane answered in ~0.6 s and a throwaway index round-tripped create → upload → search → delete in seconds, while every *document* op on `kb-main` hung with zero bytes back (`$count`, `GET /docs?search=*`, `POST /docs/search`) across five api-versions, surfacing as `503 "Operation was canceled"` at a 60 s timeout — not auth, not the SDK, not query shape, not the api-version, not the ACLs. An `index --reset` rebuild made it worse (delete never completed). Recovered by rebuilding under a new name: `index --index-name kb-main-v2` → 3,996/3,996 uploaded, 0 errors, 0 embed calls (vector cache), `documents.jsonl` byte-identical. Live smoke run: `search` returns pdsrg/product/qa with authority re-rank; `ask` answers grounded with `[n]` citations through the full §11 chain. Fallout tracked separately as items 10 and 11 |
-| 10 | Orphaned `kb-main` index | **open** — the wedged index never finished deleting: `GET /indexes/kb-main` still 404s with `"is being deleted"`, and servicestats counts it (indexesCount 2, documentCount 7,992, storageSize 213,109,550 — exactly double the live index). Invisible in the portal (the index list omits deleting-state indexes), so "gone from the UI" is not evidence it is gone. Not a blocker; it consumes quota and storage until cleared. Owner: support ticket — clean repro is *one index that can neither serve documents nor finish deleting, on a service where a throwaway index does both in seconds*. On resolution: rebuild as `kb-main` and drop the `--index` override, or keep `kb-main-v2` and flip the runtime default `IndexName` (`RuntimeOptions.cs:65`, still `"kb-main"`; the runtime README tells every command to pass `--index kb-main-v2` meanwhile) |
+| 5 | Semantic ranker on/off | week 3–4, decide empirically — measurable since entry (30) fixed the re-rank to order on the reranker score |
+| 6 | Stage 3 review-queue dispositions | **closed (round 2)** 2026-09-05, queue 0. Remaining: git history still holds two customer names in older blobs — purge needs an owner decision (same precedent as the `.scan` purge) |
+| 7 | Stage 4 review-queue dispositions | **open** — 2 records (`cluster_conflict`: non-nested part_nos); owner picks or splits the cluster. The 114 currency judgments carry evidence quotes in `stage4/documents.jsonl` |
+| 8 | Golden-set labeling | **open** — 250 sampled items to label + 50 adversarial to write (`processed/golden/`, `qa-pipeline golden`). Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header |
+| 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was one wedged index (item 10), not the service; the full §11 chain now verified live on `kb-main-v2` |
+| 10 | Orphaned `kb-main` index | **open** — never finished deleting: `GET /indexes/kb-main` 404s with `"is being deleted"` and servicestats still counts it (7,992 docs, 213 MB), while the portal omits deleting-state indexes, so "gone from the UI" is not evidence. Not a blocker; consumes quota and storage. Owner: support ticket — the clean repro is one index that can neither serve documents nor finish deleting on a service where a throwaway index does both in seconds. On resolution: rebuild as `kb-main` and drop the `--index` override, or keep `kb-main-v2` and flip the runtime default (`RuntimeOptions.cs:65`) |
+| 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07 — sources are now tagged quotable (authority 1–2) vs context-only and the answer instructions fail closed; 4/4 live runs PASS. Remaining: 4 runs is signal, not a regression suite — coverage lands with the §12 eval harness, and re-test on the frontier deployment when item 1's quota arrives |
 | 12 | Claims-audit precision under gating | **open** — gating (§11) makes a `claims_language` false positive cost an answered question rather than a trace line, and the audit's precision rests on 4 live runs. §12 must report it on the adversarial-50 before the SSE service ships; if it is poor the lever is the audit prompt, not the gate |
-| 11 | Answer agent sourced claim language from authority 3 | **fixed, pending eval coverage** 2026-09-07. Not an audit false positive as first read — the audit was right. The flagged wording ("muscle, cognitive, or anti-aging benefits") appears in exactly one corpus doc, `qa-96d4b588fdcfea8a`, **authority 3**; none of the eight retrieved authority 1–2 sources contain it, and the claims checker is scoped to authority 1–2 on purpose (§3: products.json is the legal-approved claims corpus). The answer agent had lifted claim wording from an internal expert email and attributed it `[2][8]`, where `[8]` (NO7 Preworkout, authority 2) never said it. The deterministic `product_claim_citation` check **passed** on that answer because `[8]` is authority ≤2 — the citation looks compliant while the wording is not, so only the LLM claims audit can catch this shape. Fix: make the authority rule structural instead of prose — `Prompts.ClaimsQuotable`/`ClaimsMarker` tag every rendered source `QUOTABLE FOR PRODUCT CLAIMS` (authority 1–2) or `CONTEXT ONLY` (3–4), and `AnswerInstructions` binds claims to the tag and fails closed (a claim found only in a CONTEXT ONLY source may be attributed as expert/community context, never stated as a product claim, and never paired with a QUOTABLE source's number). 3 new tests (**67 runtime**). Verified 4/4 live runs post-check PASS, including two questions that pull hard on the authority-3 anti-aging content; one run still cites the Q&A as context without lifting its claim wording. Caveat: 4 runs is signal, not a regression suite — real coverage lands with the §12 eval harness. Note the whole run is on `gpt-5-mini` (`.env` points both chat vars at it while open item 1's quota is pending), so this was a small-model instruction-following failure; re-test on the frontier deployment when quota lands |
 
 ## Decisions
 
@@ -214,38 +214,88 @@ Everything else (rules, index contract, stage design) is in the plan.
 
 ## Log
 
-Newest first. One line per work item; detail belongs in the plan, the code, or
-the artifact it describes.
+Newest first, one entry per work item, 8 wrapped lines maximum (see Writing
+entries). Detail belongs in the commit, the code, or the artifact it describes.
 
-- **2026-09-07 (30)** — Runtime review pass (§11): eight findings from a read of `DotFit.Agents` + `dotfit-agent`, fixed. **(1)** The authority re-rank ordered on `@search.score`, which stays the fused BM25/RRF score when the semantic ranker is on — so `--semantic` paid for the ranker and then discarded its ordering, and open item 5 was not measurable as posed. `AuthorityBoost.RankingScore` now takes the reranker score when the ranker ran; one weight vector still serves both modes because a multiplicative boost is scale-free. **(2)** `search`/`guardrail`/`rewrite` demanded a chat deployment they never call — `RuntimeNeeds` flags now mirror `azure_config.py`'s `require=` subsets (`Retrieval` / `SmallChat` / `Full`), every value nullable with `Require*` accessors that throw naming the variable, present-but-broken values still validated. **(3)** `CitationFormatter` saw only `[n]`, so a grouped `[1, 2]` / `[1-3]` answer extracted zero markers and failed `citation_presence` — grouped and ranged markers now flatten (3-digit cap, so a bracketed year range is not a citation). **(4)** `AzureKnowledgeSearch.BuildFilter` is static + `InternalsVisibleTo`, so the one user-input-touching piece of retrieval (`--filter` ANDed into `is_current eq true`) is tested. **(5)** Context-only notes now emit in sorted order — they reach the answer prompt and `Dictionary` order is not a contract. **(6)** `AliasTable.Norm` folds `ß`/final sigma and lowercases whole-string, so it keys like Python's `casefold()` rather than merely `ToLowerInvariant`. **(7)** Strict schemas parse once into `JsonElement` instead of renting a `JsonDocument` per model call. **(8)** README: every querying command shows `--index kb-main-v2` (open item 10's default is still `kb-main`). Also documented, not changed: `JoinDistinct` judges each alias term against the question only (word-subsumed families must both survive), and the escalation post-check branch is defensive for future callers since the pipeline templates that refusal. Streaming-before-post-check (a claims FAIL cannot retract streamed text) was raised and deferred — a §11 decision for the SSE service, not a v0 bug. 16 new tests (**83 runtime**, 338 python unchanged). Live smoke on `kb-main-v2` confirms (1): the same query ranks `pdsrg-creatinemonohydrate-028` first with `--semantic` (reranker 3.295 → boosted 3.492) but third without it (fused 0.031), i.e. the ranker now moves the order at all, and the authority weight still rides on top — `product-1227-description` (authority 1, reranker 2.801 → 3.081) clears `pdsrg-extremecreatinexxxl-039` (authority 2, reranker 2.892 → 3.066). Config subsets verified from the CLI: `search` runs with no chat deployment in the `.env` at all, `ask`/`guardrail` refuse with the missing variable named, exit 2. Full `ask` live: guardrail → rewrite → aliases → search → streamed answer → post-check **PASS**, claims compliant, grouped `[1][2][5]` citations resolved.
-- **2026-09-07 (30)** — Answer delivery gated on the post-check (§11). The
-  post-check runs on the finished answer, so live streaming means a
-  `claims_language` FAIL cannot retract text the customer has already read —
-  the exact shape of open item 11. No partial gate exists: citation markers are
-  only known at the last delta and the claims audit needs the whole answer, so
-  the answer is released whole or withheld whole, and the mode is now explicit.
-  `AskOptions.StreamMode` = `Gated` (buffer deltas, release on PASS, on FAIL
-  emit `RetractionEvent` + the templated `Prompts.WithheldMessage()` handoff and
-  never the text — the SSE service default) or `Live` (stream as generated,
-  `RetractionEvent(Mode: Live)` after the fact, CLI default, `--gated` to
-  switch). The failing draft stays in `AssistantResult.AnswerText` for tracing
-  and §12 eval; `DeliveredText`/`Withheld` say what the caller actually saw.
-  Gating costs one small-model call of latency, not the answer — generation has
-  already finished, and the audit returns early with no authority 1–2 source.
-  It also turns audit false positives into refusals, hence open item 12. 4 new
-  tests (**87 runtime**).
-- **2026-09-07 (29)** — Retrieval unblocked (§9/§11) + claim-sourcing fix. `kb-main` served no document ops at all (`$count`, `GET /docs`, `POST /docs/search` — zero bytes, `503 "Operation was canceled"` at 60 s) across five api-versions, while the control plane answered in ~0.6 s and a throwaway index round-tripped create → upload → search → delete in seconds: one wedged index, not the service (open item 9). `index --reset` could not recover it — the delete never completed — so the index was rebuilt under a new name: `index --index-name kb-main-v2`, **3,996/3,996 uploaded, 0 errors, 0 embed calls** (vector cache), `documents.jsonl` byte-identical, only `summary.json` moved. `kb-main-v2` serves `$count` in 0.67 s on both admin and query keys; the orphaned `kb-main` is open item 10. `ensure_index(reset)` now polls *through* the pending-delete 404: Azure returns 404 for both "gone" and "still deleting" and the SDK raises the same `ResourceNotFoundError`, so only the body separates them — the non-reset path refuses to create into a mid-delete index rather than corrupting it. 4 new tests (**338 python**). First live `ask` exposed the answer agent sourcing product-claim wording from an authority-3 Q&A while citing an authority-2 chunk that never said it — invisible to the deterministic `product_claim_citation` check, caught by the claims audit (open item 11). `Prompts.ClaimsQuotable`/`ClaimsMarker` now tag every rendered source `QUOTABLE FOR PRODUCT CLAIMS` (authority 1–2) or `CONTEXT ONLY` (3–4), and `AnswerInstructions` binds claims to the tag and fails closed. 3 new tests (**67 runtime**). Live smoke: `search` returns pdsrg/product/qa with authority re-rank; `ask` runs the full §11 chain (guardrail → rewrite → aliases → hybrid search → grounded streamed answer → post-check) PASS on 4/4 runs, including two questions that pull hard on the authority-3 content. All on `gpt-5-mini` — both chat vars point there while open item 1's quota is pending.
-- **2026-09-07 (28)** — Runtime v0 shipped (§11, §13 Track B): new `runtime/` .NET 10 solution — `DotFit.Agents` library + `dotfit-agent` CLI, the §11 pipeline component-for-component, no tool calls. `AgentGuardrail` (small model, strict JSON schema; **fails open by design** — the answer agent's instructions carry the full escalation policy and the post-check verifies it); `AgentQueryRewriter` (canonical question + mentions as family names, degrade-to-raw fallback); `AliasTable` loads the committed §5 artifact and mirrors its two-consumer tiers (mention path = deterministic+LLM-only, blind scan = deterministic only; word-join matcher so `PP` can't fire inside "happy"); `KnowledgeSearch` embeds the query with the same deployment and runs hybrid BM25+vector on `kb-main` (`is_current` prefilter, semantic ranker off by default — open item 5, deterministic authority re-rank 1.10/1.06/1.00/0.95/0.90 as a week-4 tuning knob); `AgentAnswerAgent` (grounded `[n]`-citation instructions, streamed); `PostChecker` deterministic rules (citation presence, product-claim → authority 1–2 citation, escalation handoff respected, unknown markers) + small-model claims-language audit (degrade-to-warning). Escalations short-circuit to a templated refusal — no LLM call on that path. `KnowledgeAssistant` streams Stage/Delta/Result events; the SSE service maps them later. Config mirrors `azure_config.py` line-for-line (walk-up `.env` discovery, query key preferred, masked repr, errors name variables only). Infra: Agent Framework 1.20.0; `Azure.AI.OpenAI` pinned prerelease 2.9.0-beta.1 **on purpose** — the GA build only offers api-version 2024-10-21 which the Foundry v2 endpoint 404s, `ServiceVersion` pins 2025-04-01-preview; Azure.Search.Documents 12.0.0. CLI: `ask --trace`, `chat`, `search --semantic --raw --json --filter`, `guardrail`, `rewrite`; exit 1 on failed post-check. Live smoke: embeddings deployment verified live (200 in 1.2s); `guardrail`/`rewrite` verified live on gpt-5-mini (real verdicts, including a conservative escalation) and the fail-open path was exercised for real during debugging; end-to-end `ask`/`search` blocked by a **service-side failure on `dotfitsearch`** — authenticated queries blackhole (curl + .NET SDK, api-versions 2024-07-01 and 2026-04-01: TLS completes, request sent, zero bytes back) while unauthenticated probes get an instant 401, and the portal Search Explorer 503s; Azure status all green → instance-specific, suspected serverless autoscale / stuck network-intent update (open item 9). It was never the ACLs: IP-allowlist and all-networks modes behaved identically, and the same machine reaches Azure OpenAI fine. **64 runtime tests** (scripted `IChatClient` fakes, no Azure).
-- **2026-09-07 (27)** — Golden-set sampling shipped (§12): new `golden` subcommand + module — pool = Stage-4 current question-bearing pairs (650: superseded + questionless excluded, duplicate questions deduped newest-wins), strata = thread-year × primary family (alias table resolves part_no→family; unknown part_no raises), year quotas by largest remainder with 2025–26 ×2 weight and a ≥1/year floor (the 2013–2022 evergreen singles stay in), coverage floors (top-10 FAQ families ≥3, top-20 topics ≥1) via atomic deficit-reducing swaps — 0 needed on the real pool, and every swap would be audited in `summary.json`; rank = sha256(seed:id), no RNG (byte-identical rerun verified from a second cwd). Full run: 650 → **250 items** (2023:74 / 2024:65 / 2025:38 / 2026:69 + 4 pre-2023 singles — recent share 43% vs 27% of pool), 29 families, splits 125/125 + 25/25 adversarial = §12's 150/150. Outputs: `sample.jsonl`, `worksheet.md` (rubric + points-to-hit / expected-sources / forbidden per item, source answers blockquoted), `adversarial.md` (50-slot scaffold), `summary.json`. Labeling is open item 8. 23 new tests. **334 tests**.
+- **2026-09-07 (31)** — Answer delivery gated on the post-check (§11) (`9751a34`).
+  No partial gate is possible — citation markers are only known at the last
+  delta and the claims audit needs the whole answer — so the mode is explicit:
+  `AskOptions.StreamMode` is `Gated` (hold deltas, on FAIL deliver the templated
+  handoff and never the text — SSE default) or `Live` (stream, retract after the
+  fact — CLI default). The failing draft stays in `AnswerText` for tracing. This
+  turns audit false positives into refusals, hence open item 12. 4 new tests
+  (**87 runtime**).
+- **2026-09-07 (30)** — Runtime review pass (§11): eight findings fixed
+  (`7f68c08`). The load-bearing one: the authority re-rank ordered on the fused
+  retrieval score even when the semantic ranker ran, so `--semantic` paid for
+  the ranker and discarded its ordering — open item 5 was not measurable as
+  posed. Also `RuntimeNeeds` now mirrors `azure_config.py`'s `require=` subsets,
+  and grouped/ranged citation markers parse. 16 new tests (**83 runtime**, 338
+  python unchanged). Live smoke on `kb-main-v2` confirms both; `ask` PASS.
+- **2026-09-07 (29)** — Retrieval unblocked (§9/§11) + claim-sourcing fix
+  (`c23eac2`, `252bf12`, `d46ab60`). `kb-main` was a single wedged index — no
+  document op returned bytes, while the control plane and a throwaway index
+  were fine — and `--reset` could not recover it, so it was rebuilt as
+  `kb-main-v2`: **3,996/3,996 uploaded, 0 errors, 0 embed calls** (open item 10
+  tracks the orphan). The first live `ask` caught the answer agent lifting claim
+  wording from an authority-3 Q&A (open item 11). 4 new python tests (**338
+  python**), 3 new runtime (**67 runtime**), all on `gpt-5-mini`.
+- **2026-09-07 (28)** — Runtime v0 shipped (§11, §13 Track B) (`0717125`,
+  `2ab90c9`): new `runtime/` .NET 10 solution — `DotFit.Agents` library +
+  `dotfit-agent` CLI, the §11 pipeline component-for-component, no tool calls.
+  Components and config contract are in `runtime/README.md`. Live smoke reached
+  `guardrail`/`rewrite` on gpt-5-mini; end-to-end `ask`/`search` was blocked by
+  what read as a service-side failure on `dotfitsearch` (open item 9, since
+  root-caused to the wedged index in entry 29). **64 runtime tests** (scripted
+  `IChatClient` fakes, no Azure).
+- **2026-09-07 (27)** — Golden-set sampling shipped (§12) (`f685456`): new
+  `golden` subcommand + module; the sampling rules and their rationale are in
+  `golden.py`'s docstring. Full run: 650-pair pool → **250 items** across 29
+  families (recent share 43% vs 27% of pool), splits 125/125 + 25/25 adversarial
+  per §12. Outputs `sample.jsonl`, `worksheet.md`, `adversarial.md`,
+  `summary.json`. Labeling is open item 8. 23 new tests. **334 tests**.
 
-- **2026-09-07 (26)** — QA Stage 4 shipped (§4): new `stage4` subcommand + module — question clustering (cosine ≥ 0.88, scan-locked; product/topic buckets; identical strings override buckets; expert notes unclustered), canonical pick (newest current member), conflict proxy (non-nested part_nos → queue, no auto-pick), 5% cluster audit, currency pass (renames never supersede per owner ruling; replacement/discontinued cues → gpt-5-mini formulation-dependence judgment, strict schema, cached in `runs/stage4_cache.jsonl`, conservative default). Full run: 1,041 records → **919 current / 106 superseded_currency / 16 superseded_dup**, 17 clusters (1 conflict), 114 judgments (106/8/0/0), queue 2; byte-identical rerun (760 embed cache hits + 114 judge cache hits, 0 API calls). Index: `qa_documents` skips `is_current=false`; `kb-main` rebuilt 4,118 → **3,996** (−122 superseded QA docs, everything else byte-identical vs HEAD), index now prunes to mirror the build (sortable `id`; `--no-prune`), `ensure_index(reset)` waits out the async deletion (the race left kb-main deleted mid-rebuild — restored same run from vector cache, 0 embed calls). Retrieval smoke PASS: superseded docs absent from the service, conflict members still retrievable, QA hits intact. 45 new tests (40 stage4 + 5 index/prune/reset-race). **311 tests**.
-- **2026-09-07 (25)** — Stage 4 calibration scan (`scripts/stage4_cluster_scan.py`, one-off): 766 questions embedded (760 unique; vectors cached for the full run), 89,451 bucketed pairs, pure-Python `math.sumprod` cosine (BLAS dot products are not bit-stable across platforms — byte-identical reruns forbid numpy here); threshold evidence: 0.88 merges only true dups, <0.86 fuses distinct questions (0.8436 "replace" vs "combine" Alln1). No tests (analysis tool). 266 tests.
-- **2026-09-07 (24)** — Alias-1.3.0 regen (§5→§4/§9): Stage 2 rerun — 2 live calls (the two scrub-fix docs) + 1,039 cache hits, 0 errors — **676** with products (+42 newly tagged; 295 more gained part_nos — 338 vs the 336 cache-replay estimate), unresolved mentions 3,474 → 2,292 (−34%), distinct part_nos steady at 50, queue 222 unchanged (168/48/1/5). Index regen + re-upload: 4,118/4,118 to `kb-main`, 0 errors, ids stable; diff confined to `products` on 338 QA docs (+`title`/`content`/`topics` on the 2 scrub-fix docs), everything else byte-identical. Live smoke PASS: 206 docs served under the `1009` (Over 50 MV) part_no filter — the `Over50` alias flows end-to-end. Bookkeeping: README Stage 2 numbers refreshed to the regen, safety re-verified on the new artifacts (0 own-answer name-span leaks incl. both live-call docs; 0 raw emails/phones in title/answer; null questions corrected to 275 = 264 + 11). Regen only, no new tests. 266 tests.
-- **2026-09-07 (23)** — Alias curation pass 2 (§5), alias table **1.3.0**: eight corpus spellings the derivation could not reach joined `CURATED_ALIASES` (`SuperOmega-3`/`Super Omega 3`→Omega-3 Fish Oil, `SuperCalcium`/`Super Calcium`→Calcium Complex, `BestPlantProtein`→Plant Protein, `All Natural WheySmooth`→WheySmooth — family name as a *suffix*, invisible to the prefix rule — `Over50`→Over 50 MV, `1-Active`/`2-Active`→Active MV per the dose-tier ruling below); new **LLM-only tier** `CURATED_LLM_ONLY_ALIASES` (`Women's`→Women's MV) resolves on the Stage 2 mention path only, never in the blind text scan, with build-time guards against a token sitting in two tiers or in a tier plus `CONTEXT_ONLY_TOKENS`. `Kids`/`VeganMV`/`1-Vegan` deliberately unaliased — their referents are discontinued, so there is no part_no to tag. Cache-replay estimate (not a regenerated run): 336 records gain part_nos, 42 newly tagged, unresolved mentions −35%; **Stage 2 + index regen pending** (2 live calls, metadata-only so no re-embed). 12 new tests. 266 tests.
+- **2026-09-07 (26)** — QA Stage 4 shipped (§4) (`c3e1d1e`, `08a326b`): new
+  `stage4` subcommand + module — clustering, canonical pick, conflict queue and
+  the currency pass, all specified in `stage4.py`. Full run: 1,041 records →
+  **919 current / 106 superseded_currency / 16 superseded_dup**, 17 clusters
+  (1 conflict), 114 judgments, queue 2; byte-identical rerun with 0 API calls.
+  `kb-main` rebuilt 4,118 → **3,996** (−122 superseded QA docs), and the index
+  now prunes to mirror the build. 45 new tests. **311 tests**.
+- **2026-09-07 (25)** — Stage 4 calibration scan
+  (`scripts/stage4_cluster_scan.py`, one-off): 766 questions embedded (760
+  unique; vectors cached for the full run), 89,451 bucketed pairs, pure-Python
+  `math.sumprod` cosine (BLAS dot products are not bit-stable across platforms
+  — byte-identical reruns forbid numpy here); threshold evidence: 0.88 merges
+  only true dups, <0.86 fuses distinct questions (0.8436 "replace" vs "combine"
+  Alln1). No tests (analysis tool). 266 tests.
+- **2026-09-07 (24)** — Alias-1.3.0 regen (§5→§4/§9) (`75346f8`): Stage 2 rerun,
+  2 live calls + 1,039 cache hits, 0 errors — **676** docs with products (+42
+  newly tagged, 338 gained part_nos), unresolved mentions 3,474 → **2,292**
+  (−34%), 50 distinct part_nos, queue 222 unchanged. Index re-upload
+  4,118/4,118 to `kb-main`, 0 errors, diff confined to `products` on 338 QA
+  docs. Live smoke PASS (206 docs under the `1009` filter — `Over50` flows end
+  to end). Safety re-verified on the new artifacts. Regen only, no new tests.
+  266 tests.
+- **2026-09-07 (23)** — Alias curation pass 2 (§5), alias table **1.3.0**:
+  eight corpus spellings the derivation could not reach joined
+  `CURATED_ALIASES` (incl. `All Natural WheySmooth`, where the family name is a
+  *suffix* and so invisible to the prefix rule), and the new **LLM-only tier**
+  `CURATED_LLM_ONLY_ALIASES` (`Women's`) resolves on the Stage 2 mention path
+  only, never in the blind scan, with build-time guards against a token sitting
+  in two tiers. `Kids`/`VeganMV`/`1-Vegan` deliberately unaliased — their
+  referents are discontinued. 12 new tests. 266 tests.
 - **2026-09-07 (22)** — Scrub fix (§4 Stage 0): bare `best` in the inline-closer alternation is also an adjective and ate prose in the first regen (`...and Best Plant Protein.` and the heading `Best Scientific Combination` both became `Best [NAME]`) — it now requires its comma, every other closer keeps the optional one (`Thanks Neal` is attested). Stage 0/1 regen: 2 lines restored, nothing else changed; inline sign-off redactions 48 → 46, all 46 genuine. Those 2 docs are now Stage 2 cache-stale. 3 new tests. 254 tests.
 - **2026-09-06 (21)** — QA canonicals indexed (§9): new `qa_documents` (one doc per pair, `authority=3`, null questions fall back to filename, `thread_date`→`DateTimeOffset` — the index's first real dates; 7 oversize answers split into paragraph-boundary parts, never truncated); `index --qa-docs` (missing file shapes without QA, podcast precedent); `kb-main` 3,067 → **4,118 docs**, 0 upload errors, retrieval smoke PASS. 7 new tests. 251 tests.
 - **2026-09-06 (20)** — Stage 2 triage round 2 (owner-approved): all 9 containment/low-conf cases dispositioned — lactose table verified value-by-value (accept), Bulk Whey via PII bulk-accept, `34 mg/serving` root-caused to a tokenizer false positive (digit↔letter split in `word_tokens`: `34mg`→`34+mg`, `B12`→`B+12`) + free cache-hit rescore (0 API calls; queue 223→222, fails 4→1), eating-disorder/sucralose/Bain/Fatty15/serving-size accepts as reviewed (minor-recall note to the prompt backlog). Queue fully dispositioned. 2 new tests. 244 tests.
-- **2026-09-06 (19)** — Stage 2 triage round 1 (owner dispositions): staff names bulk-accepted (Berlinda/Chad/Kat/Mark/Jill/Neal + staff surnames — silent-redact `SILENT_STAFF_NAMES` vocabulary, veto-able), customer-side names (James/Paul/Steve/Neil/Matt/Kendra) + Gay Riley accepted-redacted, Feldkamp added to public figures; fixes: inline closer+name rule (48 hits: `signoff_name_inline`) + `wrote:`-header rule (38 hits) in `scrub.py`, prompt 1.1.0 ([NAME] not [CUSTOMER], name-span-only evidence, transcribe-never-summarize). Verified on 228 regen docs: slice queues 60→19 and 66→27. Regen COMPLETE after the firewall fix (same day): 1,041 docs on prompt 1.1.0, 0 errors — queue 590 → **223** (168 residual-PII + 47 audit + 4 containment + 5 low-conf), containment median 0.994, 634 with products / 50 part_nos. Safety re-verified on final artifacts: 0 own-answer leaks, 0 raw emails/phones in content fields, byte-identical cache-hit rerun. 14 new tests. 242 tests.
+- **2026-09-06 (19)** — Stage 2 triage round 1 (owner dispositions): staff
+  names bulk-accepted into `SILENT_STAFF_NAMES`, customer-side names
+  accepted-redacted; new inline closer+name rule (48 hits) and `wrote:`-header
+  rule (38 hits) in `scrub.py`, prompt 1.1.0. Full regen: 1,041 docs, 0 errors
+  — queue 590 → **223** (168 residual-PII + 47 audit + 4 containment + 5
+  low-conf), containment median 0.994, 634 with products / 50 part_nos. Safety
+  re-verified on final artifacts: 0 own-answer leaks, 0 raw emails/phones,
+  byte-identical cache-hit rerun. 14 new tests. 242 tests.
 - **2026-09-06 (18)** — QA Stage 2 (§4) done: new `stage2.py` + `stage2` CLI (strict JSON-schema extraction on `gpt-5-mini`, deterministic product/currency/topics post-processing via the alias table, containment diff pass, per-doc cache checkpoints in gitignored `runs/stage2_cache.jsonl`, `--no-llm` offline fallback); full run 1,041 docs, 0 errors — 590 queued (556 residual-PII incl. staff-name bulk-triage shape, 23 audit, 9 containment, 8 low-conf), containment median 0.990, 639 with products / 50 part_nos. Safety verified: 0 own-answer leaks, byte-identical cache-hit rerun. 42 new tests. 228 tests.
 - **2026-09-05 (17)** — Index hardening: embed cache checkpoints per batch (crash keeps vectors), `citation_url` path-quoting (`Sleep Aid.pdf` → `Sleep%20Aid.pdf`; zero raw spaces), menu descriptions stamped `authority=5` (explicit last — nulls sort unpredictably); podcast top-up recorded in plan §11 (owner decision B). Regen: counts identical (1,080 chunks, 3,067 docs); re-upload pending with the next cycle. 2 new tests. 186 tests.
 - **2026-09-05 (16)** — Family canonicals pinned: regression test asserts `canonical_part_no` + membership for all 10 multi-SKU families (lowest-part_no ≈ first-published verified sane — every canonical is the hero flavor); a re-export that revoices families goes red. 1 new test. 184 tests.
@@ -333,8 +383,22 @@ the artifact it describes.
 
 ## Writing entries
 
-Update **Status** (numbers), **Open items**, and add one **Log** line per work
-item, newest first, with plan-§ refs. Add to **Decisions** only if it
-constrains future work and isn't already in the plan or AGENTS.md — and if it
-belongs in the plan, put it there and cite it here. Bug post-mortems don't
-belong in this file; the fix is in the code and the test.
+Update **Status** (numbers), **Open items**, and add one **Log** entry per work
+item, newest first, with plan-§ refs and the commit SHA.
+
+**Budget: 8 wrapped lines per log entry, hard.** Wrap at 80 columns like the
+rest of the file — a single 3,000-byte line is exactly what this rule exists to
+prevent. Keep the numbers (counts, test totals), the §refs and the open-item
+pointers; drop the mechanism, which belongs in the commit message, the
+docstring, or the artifact. Every agent run reads this file end to end, so an
+entry that outgrows the budget is charging every future run for detail git
+already has.
+
+**Open-item rows are status, not history.** When an item closes, cut the row to
+its outcome plus any remainder; a post-mortem in the table is a log entry in the
+wrong place.
+
+Add to **Decisions** only if it constrains future work and isn't already in the
+plan or AGENTS.md — and if it belongs in the plan, put it there and cite it
+here. Bug post-mortems don't belong in this file; the fix is in the code and
+the test.
