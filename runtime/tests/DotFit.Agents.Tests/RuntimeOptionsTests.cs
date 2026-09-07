@@ -192,4 +192,15 @@ public class RuntimeOptionsTests
         var e = Assert.Throws<EnvFile.EnvFileException>(() => RuntimeOptions.Load(EnvPath(root)));
         Assert.Contains(".env.example", e.Message);
     }
+
+    [Fact]
+    public void IndexDefaultMirrorsThePipelineIndexName()
+    {
+        // index_build.INDEX_NAME and this default name the same index; they
+        // drift silently otherwise (the pipeline uploads to one, the runtime
+        // queries the other). kb-main is unusable — open item 10.
+        string root = Root();
+        RuntimeOptions options = RuntimeOptions.Load(WriteEnv(root, ValidEnv));
+        Assert.Equal("kb-main-v2", options.IndexName);
+    }
 }

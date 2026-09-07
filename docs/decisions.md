@@ -174,3 +174,68 @@ the test.
   `Night Out`/`Night out` — identical descriptions) merge case-insensitively
   with the dominant spelling displayed; they would otherwise collide as
   duplicate document ids (the slug is casefolded).
+
+**Evaluation (§12)**
+
+- **The harness does not wait on labeling** (2026-09-08). Every sampled golden
+  item knows the Stage 4 record it was drawn from, and that record's §9 id is
+  `qa-<id>` — so source recall is measurable with no human label, and with it
+  the semantic-ranker question (open item 5). Only points-to-hit and
+  expected-source agreement need item 8; those report `null` with a reason
+  rather than being omitted, so the gap stays visible in every run.
+- **RAGAS-style, not RAGAS**: faithfulness decomposes the answer into
+  statements and marks each supported/unsupported against the retrieved
+  context; relevancy is a direct judgment (RAGAS generates reverse questions
+  and compares embeddings — this does not); context precision is per-passage
+  relevance. Named honestly in `evaluate.py` so the numbers are not read as
+  someone else's benchmark.
+- **Claims-audit precision is reported with its counts** (open item 12): of the
+  drafts the audit flagged, the fraction the judge agrees on. The denominator
+  is small by construction, and "1.00 (2/2)" must not read like "1.00 (40/40)".
+  A *degraded* audit is not a flag — treating "could not run" as "flagged"
+  would put every API blip in the denominator.
+- **The adversarial 50 are one behavior per item.** A question that is both an
+  escalation and a claim trap cannot be scored against a single category
+  rubric, so borderline framings were written to land on one side, and
+  escalation wins wherever both apply — that is the zero-tolerance metric.
+  §12 fixes the split at 20/15/15, so two §11 standing behaviors have no item:
+  conversation-start AI disclosure and prompt-injection resistance. Tracked as
+  coverage (open item 15), not folded into a rubric they do not fit.
+- **Retrieval probes measure retrieval, not answers** (open item 15): a probe
+  queries a PDSRG/podcast chunk with its own body text — heading path and
+  `Speaker N:` labels stripped, or the title field answers it and it measures
+  nothing — and checks the chunk comes back. A recall floor for the 72% of the
+  index that has no golden question. Closing that properly needs written
+  questions.
+
+**Podcast (§7)**
+
+- **The `archive.txt` mapping was never ambiguous, only unverified**
+  (2026-09-08, closing open item 14). Resolving all 47 ids through YouTube's
+  oEmbed endpoint matched all 47 episodes at Dice 1.00: the downloader wrote
+  the real titles out verbatim and only substituted characters Windows forbids
+  (`｜ ？ ：`). The result is frozen as `podcast.PODCAST_VIDEO_IDS` — the
+  pipeline must stay offline and deterministic, so it reads a constant, and
+  `scripts/podcast_archive_verify.py` is the session record. An episode absent
+  from the table **raises**: a silently linkless podcast document is exactly
+  the failure the item described. (`wc -l archive.txt` says 46 — the file has
+  no trailing newline. It is 47 lines of content.)
+- `citation_url` deep-links to the segment's start second, because §7.4's "as
+  covered at 14:32 in *Creatine FAQs*" is only useful if the link lands there.
+
+**Runtime (§11)**
+
+- **A model-written refusal is scored as a refusal** (2026-09-08). The
+  guardrail fails open, so on a degraded pre-check the answer agent's own
+  hard-escalation instruction is what catches an escalation — and the
+  post-check's non-escalation branch was failing that correct refusal on
+  `citation_presence`, because a refusal cites nothing. An answer that cites
+  nothing *and* hands off now takes the escalation branch and raises a warning.
+  The conjunction is what keeps it narrow: an ungrounded answer that does not
+  refuse still fails, and a cited answer that merely mentions a healthcare
+  professional is untouched.
+- **The SSE service is `Gated` with no client choice**, and its payloads are
+  narrower than the CLI's: no retrieved source `content`, no withheld draft, no
+  post-check failure reasons (`claims_language: <wording>` tells a prober
+  exactly which phrasing tripped the audit). Operator diagnostics stay on the
+  operator surface.

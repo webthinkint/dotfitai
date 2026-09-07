@@ -42,8 +42,12 @@ from typing import Any
 from azure.search.documents.indexes import models as m
 
 from .alias import strip_variant_suffix
+from .podcast import citation_url
 
-INDEX_NAME = "kb-main"
+# The §9 index. `kb-main` is the original name and is unusable — that index is
+# stuck mid-delete (open item 10), so the name cannot be recreated; the live
+# index is the rebuild. Flip back only once Azure support frees the name.
+INDEX_NAME = "kb-main-v2"
 EMBEDDING_DIMS = 3072          # text-embedding-3-large — the §9 index contract
 UPLOAD_BATCH = 200
 
@@ -241,15 +245,19 @@ def read_menu_rows(path: Path) -> list[dict]:
     raise ValueError(f"menu CSV is neither UTF-8 nor cp1252: {path}")
 
 
-def podcast_documents(segments: list[dict]) -> list[dict]:
+def podcast_documents(segments: list[dict],
+                      video_ids: dict[str, str] | None = None) -> list[dict]:
     """§7 segments → §9 docs (``authority=4``).
 
     - ``id`` gets a ``podcast-`` namespace prefix: segment ids are
       slug-based and can start with a digit (``1-expert-reacts…``).
     - ``title`` carries the mm:ss range so result lists disambiguate
       segments of one episode; ``locator`` is the citable time range.
-    - ``citation_url`` stays None until the ``archive.txt`` → YouTube
-      mapping is verified (see ``podcast.py``) — no guessed URLs.
+    - ``citation_url`` is the episode's YouTube link, deep-linked to the
+      segment's start second so §7.4's "as covered at 14:32 in *Creatine
+      FAQs*" lands where it says. The ``archive.txt`` → video mapping was
+      verified 2026-09-08 and frozen as ``podcast.PODCAST_VIDEO_IDS``; an
+      episode absent from it raises rather than silently citing linkless.
     - ``products``/``topics`` stay empty: spoken text gets no
       deterministic alias tagging (future work, same policy as the
       corpus-never-rewritten rule).
@@ -264,7 +272,8 @@ def podcast_documents(segments: list[dict]) -> list[dict]:
             "authority": 4,                      # §3: podcast transcripts
             "title": f"{s['episode_title']} ({s['start']}–{s['end']})",
             "content": s["text"],
-            "citation_url": None,
+            "citation_url": citation_url(s["source_file"], s["start_ms"],
+                                         video_ids),
             "locator": f"{s['start']}–{s['end']}",
             "products": [],
             "topics": [],
@@ -362,12 +371,13 @@ def qa_documents(records: list[dict]) -> list[dict]:
 def build_documents(chunks: list[dict], products: list[dict],
                     families: list[dict], menu_rows: list[dict],
                     podcast_segments: list[dict] | None = None,
-                    qa_records: list[dict] | None = None) -> list[dict]:
+                    qa_records: list[dict] | None = None,
+                    podcast_video_ids: dict[str, str] | None = None) -> list[dict]:
     """All §9 documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
             + product_documents(products, families)
             + menu_documents(menu_rows)
-            + podcast_documents(podcast_segments or [])
+            + podcast_documents(podcast_segments or [], podcast_video_ids)
             + qa_documents(qa_records or []))
     return sorted(docs, key=lambda d: d["id"])
 

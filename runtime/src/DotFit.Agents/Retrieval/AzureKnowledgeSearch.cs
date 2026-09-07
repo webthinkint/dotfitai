@@ -9,7 +9,7 @@ using OpenAI.Embeddings;
 namespace DotFit.Agents.Retrieval;
 
 /// <summary>
-/// Hybrid BM25 + vector search over <c>kb-main</c> (plan §9/§11): the query is
+/// Hybrid BM25 + vector search over the §9 index (plan §9/§11): the query is
 /// embedded with the same deployment the index was built with
 /// (text-embedding-3-large, 3072-dim), searched with the is_current prefilter,
 /// optionally re-ranked by the semantic ranker, then deterministically

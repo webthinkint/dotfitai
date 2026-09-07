@@ -46,7 +46,7 @@ public static class CliArgs
         Flags:
           --env <path>          .env file (default: walk up from the current directory)
           --aliases <path>      alias table JSON (default: <env dir>/processed/aliases/alias_table.json)
-          --index <name>        AI Search index (default kb-main)
+          --index <name>        AI Search index (default kb-main-v2)
           --top <n>             sources fed to the answer (default 8)
           --semantic|--no-semantic   semantic ranker on/off (default off; open item 5)
           --filter <odata>      extra OData filter, ANDed with is_current eq true
@@ -57,7 +57,11 @@ public static class CliArgs
                                 SSE service does (default here: stream live, so a
                                 failed check is visible only after the fact)
           --raw                 search: skip alias expansion
-          --json                machine-readable output (search/guardrail/rewrite)
+          --json                machine-readable output. On ask/chat this is the
+                                §12 eval-harness contract: one JSON object per
+                                question on stdout (both answer texts, sources
+                                with content, post-check, claims verdict), with
+                                the banner and any --trace lines on stderr
           -h, --help            this help
 
         The question is the free text after the flags — quotes optional:

@@ -82,12 +82,20 @@ public sealed record AssistantResult
 /// <summary>
 /// The §11 pipeline as one service — guardrail pre-check (small model) →
 /// query rewrite (small model) + deterministic alias expansion (§5 artifact) →
-/// hybrid search on kb-main (is_current filter, authority re-rank, optional
+/// hybrid search on the §9 index (is_current filter, authority re-rank, optional
 /// semantic ranker) → grounded answer with citations (chat model, streaming) →
 /// deterministic post-check (+ optional claims-language audit). No tool calls:
 /// retrieval is single-shot by design in v1.
 /// </summary>
-public sealed class KnowledgeAssistant
+public interface IKnowledgeAssistant
+{
+    /// <summary>The §11 pipeline as a stream of stage/delta/retraction/result events.</summary>
+    IAsyncEnumerable<AssistantEvent> AskStreamAsync(
+        string question, AskOptions? options = null, CancellationToken ct = default);
+}
+
+/// <inheritdoc cref="IKnowledgeAssistant" />
+public sealed class KnowledgeAssistant : IKnowledgeAssistant
 {
     private readonly IGuardrail _guardrail;
     private readonly IQueryRewriter _rewriter;

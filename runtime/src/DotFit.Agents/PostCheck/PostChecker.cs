@@ -56,17 +56,31 @@ public static class PostChecker
         if (outOfRange.Count > 0)
             warnings.Add($"unknown_citations: {string.Join(", ", outOfRange)} (not in the source list)");
 
-        if (guardrail.Escalate)
+        bool handsOff = HandoffPhrases.Any(p => answer.Contains(p, StringComparison.OrdinalIgnoreCase));
+
+        // A refusal the *answer agent* wrote, which the pre-check did not
+        // predict: it cites nothing and hands off. This is the shape the
+        // fail-open guardrail produces (plan §12 degraded-guardrail case) —
+        // the pre-check degraded to escalate=false, so the answer agent's own
+        // hard-escalation instruction caught it instead. Scored as the refusal
+        // it is: the non-escalation branch below would fail it on
+        // citation_presence, which under Gated replaces a correct refusal with
+        // the handoff template and reports a defect that is not one.
+        bool modelEscalated = !guardrail.Escalate && handsOff && markers.Count == 0;
+        if (modelEscalated)
+            warnings.Add("escalation_respected: the answer refused and handed off without the pre-check asking for it"
+                + (guardrail.Degraded ? " (pre-check was degraded)" : ""));
+
+        if (guardrail.Escalate || modelEscalated)
         {
             // The refusal must hand off and must not hand out product guidance.
-            // KnowledgeAssistant templates that refusal, so neither branch can
-            // fire from the pipeline; they hold the line for any other caller
-            // (the SSE service, the eval harness) that lets a model write it.
-            bool handsOff = HandoffPhrases.Any(p => answer.Contains(p, StringComparison.OrdinalIgnoreCase));
-            bool cites = markers.Count > 0;
+            // KnowledgeAssistant templates the pre-check's refusal, so neither
+            // branch can fire from that path; they hold the line for a
+            // model-written one and for any other caller (the SSE service, the
+            // eval harness) that lets a model write it.
             if (!handsOff)
                 failures.Add("escalation_respected: the refusal does not hand off to the support team or a healthcare professional");
-            if (cites)
+            if (markers.Count > 0)
                 failures.Add("escalation_respected: an escalated answer must not cite product guidance");
         }
         else

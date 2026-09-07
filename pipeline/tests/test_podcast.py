@@ -8,8 +8,9 @@ import re
 import pytest
 
 from qa_pipeline.podcast import (
-    MAX_WORDS, TARGET_WORDS, build_chunk, clean_title, ms_to_mmss,
-    resolve_titles, segment_episode, segment_phrases, slugify, summarize,
+    MAX_WORDS, PODCAST_VIDEO_IDS, TARGET_WORDS, build_chunk, citation_url,
+    clean_title, ms_to_mmss, resolve_titles, segment_episode, segment_phrases,
+    slugify, summarize,
 )
 
 
@@ -132,3 +133,34 @@ def test_determinism_byte_identical() -> None:
     second = json.dumps(segment_episode("ep", "Ep", "ep.mp3", payload),
                         ensure_ascii=False)
     assert first == second
+
+
+# --- §7 step 4 citation URLs (progress open item 14) --------------------------
+
+def test_citation_url_deep_links_to_the_segment_start() -> None:
+    # "as covered at 14:32 in ..." is only useful if the link lands there.
+    url = citation_url("Some Episode.mp3", 872_400, {"Some Episode": "vid123"})
+    assert url == "https://www.youtube.com/watch?v=vid123&t=872s"
+
+
+def test_citation_url_accepts_a_stem_without_the_extension() -> None:
+    assert citation_url("Some Episode", 0, {"Some Episode": "v"}).endswith("t=0s")
+
+
+def test_citation_url_clamps_a_negative_offset() -> None:
+    # start_ms comes from ASR; a negative offset must not produce "t=-1s".
+    assert citation_url("E", -50, {"E": "v"}).endswith("t=0s")
+
+
+def test_unknown_episode_raises_rather_than_citing_linkless() -> None:
+    # The failure open item 14 described was a silently absent link.
+    with pytest.raises(ValueError, match="no verified YouTube id"):
+        citation_url("Not An Episode.mp3", 0, {"E": "v"})
+
+
+def test_curated_table_covers_every_episode_exactly_once() -> None:
+    # 47 episodes, 47 verified ids, no id serving two episodes.
+    assert len(PODCAST_VIDEO_IDS) == 47
+    assert len(set(PODCAST_VIDEO_IDS.values())) == 47
+    assert all(stem and not stem.lower().endswith(".mp3")
+               for stem in PODCAST_VIDEO_IDS)

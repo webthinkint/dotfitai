@@ -11,6 +11,9 @@ sources (customer QA emails, PDSRG PDFs, `products.json`, podcasts).
   five newest log entries. Check the open-items table before claiming something
   is "next"; add one log line per work item and rotate the sixth out to
   `docs/progress-archive.md`.
+- `docs/owner-tasks/` — the open items that need a human, written for
+  non-engineers (one file per task). Update these when an item's status
+  changes; they are what the owner actually reads.
 - `docs/decisions.md` — owner/curation rulings by area (PII, Stage 4, aliases,
   PDSRG, index). Read the group for the area you are touching before changing
   behavior it constrains.
@@ -31,20 +34,30 @@ uv run qa-pipeline --help                # subcommands; <sub> --help for all fla
 ```
 
 Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`,
-`index`, `podcast`, `golden`. Path defaults are repo-root-relative, so from
-`pipeline/` pass `../data/...` / `../processed/...`. Corpus filenames contain
+`index`, `podcast`, `golden`, `eval`. Path defaults are repo-root-relative, so
+from `pipeline/` pass `../data/...` / `../processed/...`. Corpus filenames contain
 spaces, commas and `&` — always quote paths. Outputs whose input disappeared are
 pruned by default (`--no-prune` to keep), so the output tree mirrors the corpus.
 
+`eval` is the odd one out: it measures a **live service** rather than
+transforming committed inputs, so its output is not byte-reproducible and it
+costs Azure calls. Reach for `--no-answers` (retrieval only — no chat tokens),
+`--no-judge` and `--limit` before running it whole.
+
 Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`; live checks are
-`dotfit-agent` CLI verbs. See `runtime/README.md` for verbs, flags and config.
+`dotfit-agent` CLI verbs, and `dotfit-agent-service` is the SSE endpoint. See
+`runtime/README.md` for verbs, flags and config.
 
 `pipeline/scripts/` holds one-off tools, not part of the CLI: `pdsrg_gate.py` and
 `pdsrg_density_scan.py` (the gate's validated extraction strategy was folded into
 `pdsrg.py` and is why its settings look the way they do), `stage4_cluster_scan.py`
 (the scan that locks the 0.88 threshold — see `docs/decisions.md`),
-`asr_pilot.py` (the §7 transcription sweep that produced the transcripts) and the
-`chat_smoke.py` / `embedding_smoke.py` / `search_ping.py` connectivity checks.
+`asr_pilot.py` (the §7 transcription sweep that produced the transcripts),
+`podcast_archive_verify.py` (the session record behind `PODCAST_VIDEO_IDS` — it
+hits YouTube, which is why the mapping is a constant and not a lookup),
+`stage2_queue_triage.py` and `products_diff.py` (owner worksheets for open items
+13 and 2), and the `chat_smoke.py` / `embedding_smoke.py` / `search_ping.py`
+connectivity checks.
 
 ## Architecture
 
@@ -64,13 +77,14 @@ Runtime queries the index; `alias.py` feeds both `pdsrg` and query expansion.
 | `stage4.py` | dedup clustering + currency stamping | §4 |
 | `alias.py` | derived + curated alias table, QA candidate harvest | §5 |
 | `pdsrg.py` | PDF → section chunks with heading paths | §6 |
-| `podcast.py` | ASR transcripts → timed, speaker-labelled segments | §7 |
-| `index_build.py` + `embeddings.py` | `kb-main` shaping, embedding, upload | §9 |
-| `golden.py` | stratified golden-set draw + labeling worksheets | §12 |
+| `podcast.py` | ASR transcripts → timed, speaker-labelled segments; verified YouTube ids | §7 |
+| `index_build.py` + `embeddings.py` | §9 index shaping, embedding, upload | §9 |
+| `golden.py` | stratified draw, the written adversarial 50, retrieval probes | §12 |
+| `evaluate.py` | eval harness: drives the runtime, scores the golden set | §12 |
 | `azure_config.py` | root `.env` contract, `require=` subsets, masked repr | §9–11 |
 | `io_utils.py` | **every** read/write | — |
 | `cli.py` | subcommand surface, path defaults, `runs/` manifests | — |
-| `runtime/` | guardrail → rewrite → search → answer → post-check | §11 |
+| `runtime/` | guardrail → rewrite → search → answer → post-check, + SSE service | §11 |
 
 Cross-file contracts that no single docstring owns:
 

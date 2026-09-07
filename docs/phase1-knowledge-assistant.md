@@ -273,7 +273,7 @@ SKU's content is the family document; variants contribute only genuinely distinc
 
 ## 9. Azure AI Search index design
 
-**One index** (`kb-main`), vector + BM25 hybrid + semantic ranker. Per-source custom chunking is
+**One index** (`INDEX_NAME`, currently `kb-main-v2` — open item 10), vector + BM25 hybrid + semantic ranker. Per-source custom chunking is
 pushed by the Python pipeline (manual indexing, not integrated vectorization — our chunking is
 source-specific).
 
@@ -339,8 +339,13 @@ later).
 
 Built 2026-09-07 as `runtime/` (plan §13 Track B): the `DotFit.Agents` library
 implements this pipeline component-for-component, and the `dotfit-agent` CLI
-is the smoke/demo harness. The ASP.NET SSE wrapper is the next piece — it
-streams the same Stage/Delta/Retraction/Result events the CLI renders today.
+is the smoke/demo harness. The ASP.NET SSE wrapper landed 2026-09-08 as
+`DotFit.Agents.Service` — `POST /ask` streams the same Stage/Delta/Retraction/
+Result events the CLI renders, plus a `disclosure` event carrying the
+conversation-start AI-identity notice this section assigns to it. It is always
+`Gated`, with no client-selectable mode, and its payloads are narrower than the
+CLI's: no retrieved source text, no withheld draft, no post-check failure
+reasons. Before it faces customers, §12 owes it the open item 12 number.
 
 **Streaming vs. gating (decided 2026-09-07).** The post-check runs on the
 finished answer, so streaming deltas as they arrive means a `claims_language`
@@ -401,7 +406,26 @@ prefilled source candidates, `adversarial.md` scaffold for the hand-written
 - RAGAS-style: faithfulness ≥ 0.9, answer relevancy ≥ 0.85, context precision ≥ 0.8
 - Citation rate = 100% of product-claim answers cite authority 1–2
 - Escalation accuracy = **100%** on the adversarial-50 (zero tolerance)
-- Tooling: Python eval job (RAGAS or equivalent) + Langfuse tracing; results posted to PR/CI
+- **Claims-audit precision** on the adversarial-50 (added 2026-09-08, closing the
+  open item 15 gap that item 12 asked for): of the drafts the runtime's claims
+  audit flagged non-compliant, the fraction that really contain forbidden
+  content. Gating (§11) turns a false positive into a refused question, so this
+  is a release gate, not a diagnostic — and it is reported **with its counts**,
+  because a precision over a denominator of 2 is not the same claim as one over
+  40. No numeric target: the first measured value sets the baseline, and the
+  lever if it is poor is the audit prompt, not the gate.
+- **Source recall@k** — label-free, and the reason the harness does not wait on
+  the labeling pass: each sampled item knows the Stage 4 record it was drawn
+  from, whose §9 id is `qa-<id>`, so "did retrieval return the document this
+  question came from" is measurable today. Also the empirical basis for the
+  semantic-ranker decision (open item 5), run A/B.
+- **Probe recall@k over PDSRG and podcast** — those two corpora are the
+  majority of the index and every sampled question comes from the QA pool, so
+  a probe queries a chunk with its own body text (heading path and speaker
+  labels stripped) and checks it comes back. A retrieval floor, not an
+  answer-quality metric: a probe has no expected answer.
+- Tooling: Python eval job (`qa-pipeline eval`, driving the runtime through
+  `dotfit-agent ask --json`) + Langfuse tracing; results posted to PR/CI
 
 ## 13. Build order
 
@@ -450,8 +474,9 @@ Definitions live here; **current status lives in the "Open items" table in
 10. **Orphaned `kb-main` index** (opened 2026-09-07) — the first index is stuck
     mid-delete: it serves no documents and never finishes deleting, while still
     counting against service quota and storage. Needs an Azure support ticket.
-    On resolution, either rebuild as `kb-main` or keep `kb-main-v2` and flip both
-    code defaults (`index_build.py`'s `INDEX_NAME`, `RuntimeOptions.IndexName`).
+    The code half is done (2026-09-08): both defaults are `kb-main-v2` and a
+    test pins each side of the mirror, so nothing needs an `--index` override.
+    If the name is ever freed, rebuilding under it is a separate decision.
 11. ~~**Claim language sourced from authority 3** (opened 2026-09-07)~~ —
     **FIXED 2026-09-07**: the answer agent quoted claim wording from a QA answer
     instead of the approved copy, so retrieved sources are now tagged quotable
@@ -468,11 +493,12 @@ Definitions live here; **current status lives in the "Open items" table in
     does not gate — Stage 2 redacts what it flags, so flagged records index and the
     queue is an audit trail to work, not a hold. The bulk-disposition shape is in
     `docs/decisions.md`.
-14. **Podcast citation URLs** (opened 2026-09-07) — §7 step 4 renders podcast
-    citations with a YouTube link built from `archive.txt`, but that mapping is 47
-    video IDs with no titles and is unverified, so the index stamps
-    `citation_url: null` rather than guess a link. Verify the mapping — or drop the
-    link from the citation format — and re-upload the podcast documents.
+14. ~~**Podcast citation URLs** (opened 2026-09-07)~~ — **CLOSED 2026-09-08**:
+    all 47 `archive.txt` ids resolved through YouTube's oEmbed endpoint and
+    matched all 47 episodes at Dice 1.00 — the mapping was never ambiguous, only
+    unverified. Frozen as `podcast.PODCAST_VIDEO_IDS` (the pipeline stays offline,
+    so it reads a constant, not a lookup); all 1,800 segments now deep-link to
+    their start second. See `docs/decisions.md`, Podcast.
 15. **§12 evaluation coverage** (opened 2026-09-07) — three things §12 does not
     currently measure, to settle per-gap when the eval harness is built: the
     claims-audit precision item 12 asks for (there is no metric line for it);
