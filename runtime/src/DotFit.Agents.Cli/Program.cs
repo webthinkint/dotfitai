@@ -88,18 +88,20 @@ internal static class Program
     private static async Task<ExitCode> Ask(
         RuntimeOptions options, CliFlags flags, string question)
     {
-        WriteBanner(interactive: false);
+        if (!flags.Json)
+            WriteBanner(interactive: false);
         KnowledgeAssistant assistant = RuntimeFactory.CreateAssistant(options);
         return await AskOnce(assistant, flags, question).ConfigureAwait(false);
     }
 
     private static async Task<ExitCode> Chat(RuntimeOptions options, CliFlags flags)
     {
-        WriteBanner(interactive: true);
+        if (!flags.Json)
+            WriteBanner(interactive: true);
         KnowledgeAssistant assistant = RuntimeFactory.CreateAssistant(options);
         while (true)
         {
-            Console.Write("\n> ");
+            (flags.Json ? Console.Error : Console.Out).Write("\n> ");
             string? line = Console.ReadLine();
             if (line is null)
                 break;
@@ -116,27 +118,30 @@ internal static class Program
     private static async Task<ExitCode> AskOnce(
         KnowledgeAssistant assistant, CliFlags flags, string question)
     {
+        AnswerStreamMode mode = flags.Gated ? AnswerStreamMode.Gated : AnswerStreamMode.Live;
         var askOptions = new AskOptions
         {
             ClaimsCheck = !flags.NoClaimsCheck,
             Top = flags.Top,
             Semantic = flags.Semantic,
             Filter = flags.Filter,
-            StreamMode = flags.Gated ? AnswerStreamMode.Gated : AnswerStreamMode.Live,
+            StreamMode = mode,
         };
 
+        // --json owns stdout: the eval harness parses it whole, so every human
+        // rendering below is suppressed and the trace goes to stderr instead.
         AssistantResult? result = null;
         await foreach (AssistantEvent e in assistant.AskStreamAsync(question, askOptions).ConfigureAwait(false))
         {
             switch (e)
             {
                 case StageEvent s when flags.Trace:
-                    Console.WriteLine(Dim($"· {s.Stage,-10} {s.Detail}"));
+                    (flags.Json ? Console.Error : Console.Out).WriteLine(Dim($"· {s.Stage,-10} {s.Detail}"));
                     break;
-                case DeltaEvent d when !flags.NoStream:
+                case DeltaEvent d when !flags.NoStream && !flags.Json:
                     Console.Write(d.Text);
                     break;
-                case RetractionEvent x:
+                case RetractionEvent x when !flags.Json:
                     Console.WriteLine();
                     Console.WriteLine(Dim(x.Mode == AnswerStreamMode.Gated
                         ? $"⚠ answer withheld before delivery: {x.Reason}"
@@ -149,6 +154,12 @@ internal static class Program
         }
         if (result is null)
             throw new InvalidOperationException("the pipeline ended without a result");
+
+        if (flags.Json)
+        {
+            Console.WriteLine(AskJson.Serialize(result, mode));
+            return result.PostCheck.Passed ? ExitCode.Ok : ExitCode.PostCheckFailed;
+        }
 
         Console.WriteLine();
         if (flags.NoStream)
