@@ -83,6 +83,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello, Do you happen to offer samples of your protein powder. I would love to try it but the container is super expensive if I don't like it. Thank you, Jennifer
+Message: Hello, Do you happen to offer samples of your protein powder. I would love to try it but the container is super expensive if I don't like it. Thank you, [NAME]
  
 

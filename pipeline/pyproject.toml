@@ -1,7 +1,7 @@
 [project]
 name = "qa-pipeline"
 version = "0.1.0"
-description = "dotFIT QA corpus Stage 0 (PII scrub) + Stage 1 (parse & classify) — deterministic, cross-platform (Windows dev / Linux prod)."
+description = "dotFIT QA corpus pipeline (plan §4): Stage 0 (PII scrub) + Stage 1 (parse & classify) + Stage 2 (LLM structuring) — deterministic, cross-platform (Windows dev / Linux prod)."
 requires-python = ">=3.12"
 dependencies = [
     "python-docx>=1.1,<2",

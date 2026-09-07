@@ -7,7 +7,7 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-05. 186 tests green.
+Numbers verified 2026-09-06. 251 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -16,10 +16,10 @@ Numbers verified 2026-09-05. 186 tests green.
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
-| QA Stage 2 (canonicalize) | §4 | **pilot unblocked** — small chat live (item 1); implementation next | — |
+| QA Stage 2 (canonicalize) | §4 | **done** — full run 2026-09-06 on the small chat deployment (strict JSON-schema extraction + containment diff pass) | 1,041 canonical records (prompt 1.1.0); 634 with products (50 part_nos); 306 currency-cued; queue 223 (168 PII + 47 audit + 4 containment + 5 low-conf); unresolved tally feeds alias curation |
 | Podcast segmentation | §7 | **done** — `podcast` subcommand; greedy merge to ~90 s / 200-word targets (phrases atomic); Speaker-turn text is the speaker-map rewrite contract | 47 episodes → 1,800 segments (median 76 s / 251 words); rerun byte-identical |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed** — 47/47 episodes via fast-transcription (diarization on, dotFIT phrase list); 5-episode spot-check clean; remaining: speaker-map (text rewrite + re-upload, non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3 |
-| Index + retrieval | §9–11 | **index live** — `kb-main` holds 3,067 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast); podcast-filtered + unfiltered retrieval smoke PASS (authority ordering holds); remaining: QA canonical (Stage 2) source, golden-set eval, ranker toggle | `processed/index/` |
+| Index + retrieval | §9–11 | **index live** — `kb-main` holds 4,118 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 1,051 qa); QA-filtered + unfiltered retrieval smoke PASS (topical QA hits, product tags + first real `date`s flow); remaining: golden-set eval, ranker toggle | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -73,6 +73,19 @@ Everything else (rules, index contract, stage design) is in the plan.
   surnames), matched at the surname position only.
 - `answer_date` → `thread_date`: the field reads the thread's `Sent:` header,
   i.e. the enquiry's date. Stage 4 should treat it as a currency lower bound.
+- Stage 2 triage shape (2026-09-06): unresolved product mentions are a
+  *curation* signal, never a queue reason (the LLM names every brand it sees —
+  queuing on it would review-queue ~every doc); the tally in `summary.json`
+  feeds the next alias-curation pass. Residual-PII evidence spans live only in
+  the gitignored Stage 2 cache, never in committed records; the queue's 556
+  flags disposition in bulk (268 distinct spans, top-20 cover 54% — mostly
+  recurring staff first names plus genuine catches the scrub rules cannot see).
+  Round 1 (same day, owner dispositions): confirmed staff names redact silently
+  via `SILENT_STAFF_NAMES` (a future customer sharing a first name is silently
+  redacted too — harmless, veto-able); customer-side and third-party names stay
+  flag-and-redact; inline closer+name and `wrote:`-header gaps closed in `scrub.py`;
+  prompt redacts to [NAME] (never [CUSTOMER]), quotes public figures verbatim,
+  transcribes expert notes without summarizing.
 
 **Aliases (§5)**
 
@@ -142,11 +155,15 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-06 (21)** — QA canonicals indexed (§9): new `qa_documents` (one doc per pair, `authority=3`, null questions fall back to filename, `thread_date`→`DateTimeOffset` — the index's first real dates; 7 oversize answers split into paragraph-boundary parts, never truncated); `index --qa-docs` (missing file shapes without QA, podcast precedent); `kb-main` 3,067 → **4,118 docs**, 0 upload errors, retrieval smoke PASS. 7 new tests. 251 tests.
+- **2026-09-06 (20)** — Stage 2 triage round 2 (owner-approved): all 9 containment/low-conf cases dispositioned — lactose table verified value-by-value (accept), Bulk Whey via PII bulk-accept, `34 mg/serving` root-caused to a tokenizer false positive (digit↔letter split in `word_tokens`: `34mg`→`34+mg`, `B12`→`B+12`) + free cache-hit rescore (0 API calls; queue 223→222, fails 4→1), eating-disorder/sucralose/Bain/Fatty15/serving-size accepts as reviewed (minor-recall note to the prompt backlog). Queue fully dispositioned. 2 new tests. 244 tests.
+- **2026-09-06 (19)** — Stage 2 triage round 1 (owner dispositions): staff names bulk-accepted (Berlinda/Chad/Kat/Mark/Jill/Neal + staff surnames — silent-redact `SILENT_STAFF_NAMES` vocabulary, veto-able), customer-side names (James/Paul/Steve/Neil/Matt/Kendra) + Gay Riley accepted-redacted, Feldkamp added to public figures; fixes: inline closer+name rule (48 hits: `signoff_name_inline`) + `wrote:`-header rule (38 hits) in `scrub.py`, prompt 1.1.0 ([NAME] not [CUSTOMER], name-span-only evidence, transcribe-never-summarize). Verified on 228 regen docs: slice queues 60→19 and 66→27. Regen COMPLETE after the firewall fix (same day): 1,041 docs on prompt 1.1.0, 0 errors — queue 590 → **223** (168 residual-PII + 47 audit + 4 containment + 5 low-conf), containment median 0.994, 634 with products / 50 part_nos. Safety re-verified on final artifacts: 0 own-answer leaks, 0 raw emails/phones in content fields, byte-identical cache-hit rerun. 14 new tests. 242 tests.
+- **2026-09-06 (18)** — QA Stage 2 (§4) done: new `stage2.py` + `stage2` CLI (strict JSON-schema extraction on `gpt-5-mini`, deterministic product/currency/topics post-processing via the alias table, containment diff pass, per-doc cache checkpoints in gitignored `runs/stage2_cache.jsonl`, `--no-llm` offline fallback); full run 1,041 docs, 0 errors — 590 queued (556 residual-PII incl. staff-name bulk-triage shape, 23 audit, 9 containment, 8 low-conf), containment median 0.990, 639 with products / 50 part_nos. Safety verified: 0 own-answer leaks, byte-identical cache-hit rerun. 42 new tests. 228 tests.
 - **2026-09-05 (17)** — Index hardening: embed cache checkpoints per batch (crash keeps vectors), `citation_url` path-quoting (`Sleep Aid.pdf` → `Sleep%20Aid.pdf`; zero raw spaces), menu descriptions stamped `authority=5` (explicit last — nulls sort unpredictably); podcast top-up recorded in plan §11 (owner decision B). Regen: counts identical (1,080 chunks, 3,067 docs); re-upload pending with the next cycle. 2 new tests. 186 tests.
 - **2026-09-05 (16)** — Family canonicals pinned: regression test asserts `canonical_part_no` + membership for all 10 multi-SKU families (lowest-part_no ≈ first-published verified sane — every canonical is the hero flavor); a re-export that revoices families goes red. 1 new test. 184 tests.
 - **2026-09-05 (15)** — Review round 2 cleared: sign-off de-naming rule (`Thanks,`/`Regards,` + bare name below the quoted header → `[NAME]`, 43 redactions over ~34 files; expert region untouched), honorific gap capped at one newline (kills the `lean Mr`/`Thanks` false fuse) + middle-initial capture (surname-tested), 8 study-author surnames allowlisted (Williams flagged as common — veto-able). Regen: queue 7→0; names verified absent from `processed/`. 8 new tests. 183 tests.
 - **2026-09-05 (14)** — Scrub review fixes: period-optional honorific check, `Good morning` residual, profile-URL domains (`x.com`/`threads.net`/`fb.me` + left-boundary guard after a regen catch on `nxgenrx.com`), `and`-form tolerant matching (`Recover&Build` 17→19 docs), still-collapsed PDSRG grids kept atomic, nth-table ordering, explicit stage1 sort, per-file pdsrg errors, menu divergence assert, quoted-value comment parsing. Regen: queue 0→7 (all period-less honorifics, pending disposition); PDSRG/index byte-identical. 8 new tests. 175 tests.
-- **2026-09-05 (13)** — Small chat deployment live: `gpt-5-mini` smoke PASS (strict JSON-schema extraction contract for Stage 2; `REQUIRE_OPENAI_SMALL_CHAT` subset + `scripts/chat_smoke.py`). Stage 2 pilot unblocked; frontier deployment still pending quota. 167 tests.
+- **2026-09-05 (13)** — Small chat deployment live: `gpt-5-mini` smoke PASS (strict JSON-schema extraction contract for Stage 2; `REQUIRE_OPENAI_SMALL_CHAT` subset + `scripts/chat_smoke.py`). Stage 2 full run done on it (2026-09-06); frontier deployment still pending quota. 167 tests.
 - **2026-09-05 (12)** — Podcast ingestion (§7 step 4) done: `podcast_documents` (`authority=4`, mm:ss locator, null citation_url until the archive.txt→YouTube mapping is verified) + `--podcast-segments` flag; 3,067/3,067 uploaded to `kb-main` (1,800 new), 0 errors, retrieval smoke PASS. 2 new tests. 167 tests.
 - **2026-09-05 (11)** — Podcast segmentation (§7 step 3) done: new `qa_pipeline/podcast.py` + `podcast` CLI subcommand (transcripts + audio dirs in, `segments/segments.jsonl` + `summary.json` out); 47 episodes → 1,800 segments, zero word loss, rerun byte-identical. 14 new tests. 165 tests.
 - **2026-09-05 (10)** — Podcast QC (§7) PASS: 5-episode stratified spot-check all clean, no re-runs, phrase list unchanged; notes + speaker-map ground truth in `processed/podcasts/qc_notes.md`. 151 tests.

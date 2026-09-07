@@ -13,6 +13,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi dotFIT Team, We have a 13 year old client requesting a lactose free protein. Can someone clarify which one will be best suitable for him? Thank you in advance! Respectfully, Kendra Ferguson
+Message: Hi dotFIT Team, We have a 13 year old client requesting a lactose free protein. Can someone clarify which one will be best suitable for him? Thank you in advance! Respectfully, [NAME]
  
 

@@ -34,6 +34,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello, Are any of these supplements tested in clinical populations? Specifically, those with endocrine disorders/diagnoses, including overweight and obesity? If so, can you please provide references? Thank you, Krissi 
+Message: Hello, Are any of these supplements tested in clinical populations? Specifically, those with endocrine disorders/diagnoses, including overweight and obesity? If so, can you please provide references? Thank you, [NAME]
  
 

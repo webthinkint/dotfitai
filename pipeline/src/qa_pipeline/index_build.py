@@ -275,14 +275,96 @@ def podcast_documents(segments: list[dict]) -> list[dict]:
     return docs
 
 
+def qa_date(value: str | None) -> str | None:
+    """Stage 2 ``thread_date`` (``YYYY-MM-DD``) -> ``DateTimeOffset``.
+
+    QA carries the first real dates in the index (every other source stamps
+    null); AI Search needs the full offset shape, midnight UTC — the thread
+    date is day-precision by construction (plan §4: the enquiry's ``Sent:``
+    header, a currency lower bound, never a timestamp). Garbage stays null
+    rather than failing the build.
+    """
+    if not value or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return None
+    return f"{value}T00:00:00Z"
+
+
+QA_PART_CHARS = 20_000  # answer part size: title + part must clear Embedder.MAX_INPUT_CHARS
+
+
+def split_answer_parts(answer: str, max_chars: int = QA_PART_CHARS) -> list[str]:
+    """Paragraph-boundary split for answers that would overflow the embedding
+    input cap (a few expert notes are slide decks, not Q&A pairs). Greedy
+    accumulation; a single over-long paragraph hard-splits at the cap so the
+    fit is guaranteed, never silent truncation — every part indexes."""
+    paras = [p for p in answer.split("\n\n") if p.strip()]
+    parts, current = [], ""
+    for para in paras:
+        while len(para) > max_chars:  # one giant paragraph: hard-split
+            parts.append(para[:max_chars])
+            para = para[max_chars:]
+        if current and len(current) + 2 + len(para) > max_chars:
+            parts.append(current)
+            current = ""
+        current = f"{current}\n\n{para}" if current else para
+    if current.strip():
+        parts.append(current)
+    return parts or [answer]
+
+
+def qa_documents(records: list[dict]) -> list[dict]:
+    """Stage 2 canonical records (§4 Stage 5) -> §9 docs, one per Q&A pair.
+
+    No chunking (pairs are already the right size); ``question_canonical``
+    and ``answer`` are both searchable via title+content. Expert notes with
+    no canonical question fall back to the filename (a load-bearing topic
+    summary, not a rewrite). Records with no answer text are skipped — there
+    is nothing to retrieve (Stage 1 already excludes answer-less docs, so
+    this is belt-and-braces). Every record indexes (``is_current=True``):
+    supersession lives in Stage 4, which flips flags in the committed store;
+    currency cues never reach the index — they are Stage 4 input, not query
+    text. ``citation_url`` stays null (no verified link — podcast precedent).
+    """
+    docs = []
+    for r in records:
+        answer = (r.get("answer") or "").strip()
+        if not answer:
+            continue
+        question = (r.get("question_canonical") or "").strip()
+        title = question or r.get("filename") or r["source_file"]
+        base = {
+            "source_type": "qa",
+            "authority": 3,                       # §3: QA corpus
+            "citation_url": None,
+            "locator": r.get("filename"),
+            "products": [str(p) for p in (r.get("products") or [])],
+            "topics": r.get("topics") or [],
+            "date": qa_date(r.get("thread_date")),
+            "is_current": True,
+            "product_status": None,
+        }
+        parts = split_answer_parts(answer)
+        if len(parts) == 1:  # the common case keeps the stable short id
+            docs.append({"id": f"qa-{r['id']}", "title": title,
+                         "content": parts[0], **base})
+        else:
+            for n, part in enumerate(parts, 1):
+                docs.append({"id": f"qa-{r['id']}-p{n}",
+                             "title": f"{title} (part {n} of {len(parts)})",
+                             "content": part, **base})
+    return docs
+
+
 def build_documents(chunks: list[dict], products: list[dict],
                     families: list[dict], menu_rows: list[dict],
-                    podcast_segments: list[dict] | None = None) -> list[dict]:
+                    podcast_segments: list[dict] | None = None,
+                    qa_records: list[dict] | None = None) -> list[dict]:
     """All §9 documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
             + product_documents(products, families)
             + menu_documents(menu_rows)
-            + podcast_documents(podcast_segments or []))
+            + podcast_documents(podcast_segments or [])
+            + qa_documents(qa_records or []))
     return sorted(docs, key=lambda d: d["id"])
 
 

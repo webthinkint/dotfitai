@@ -374,6 +374,94 @@ class TestSignoffRedaction:
         assert "signoff_name" not in rep.redactions
 
 
+class TestInlineSignoffRedaction:
+    """One-line customer sign-offs (owner disposition 2026-09-06, Stage 2
+    triage round 1 — "Respectfully, Kendra Ferguson" and "Thanks, Matt"
+    sit on one line, which the bare-name-next-line rule cannot see)."""
+
+    HEADER = [
+        "From: someone@example.org",
+        "Sent: Tuesday, June 27, 2023 12:10 PM",
+        "Subject: Ask the Experts",
+        "",
+    ]
+
+    def test_respectfully_plus_full_name(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "Thank you in advance! Respectfully, Kendra Ferguson",
+        ])
+        assert "Kendra Ferguson" not in text
+        assert text.rstrip().endswith("Respectfully, [NAME]")
+        assert rep.redactions["signoff_name_inline"] == 1
+        assert rep.residual_pii_flag is False
+
+    def test_thanks_plus_first_name(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "Was the formula changed? Thanks, Matt",
+        ])
+        assert "Matt" not in text
+        assert text.rstrip().endswith("Thanks, [NAME]")
+        assert rep.redactions["signoff_name_inline"] == 1
+
+    def test_credential_parenthetical_survives(self):
+        text, rep = scrub_extracted(self.HEADER + [
+            "Best, Jane Smith (PhD)",
+        ])
+        assert "Best, [NAME] (PhD)" in text
+
+    def test_three_token_organization_kept_for_review(self):
+        # precision over recall: an org-looking tail stays for the LLM flag
+        text, rep = scrub_extracted(self.HEADER + [
+            "Thanks, Diabetic Support Group",
+        ])
+        assert "Diabetic Support Group" in text
+        assert "signoff_name_inline" not in rep.redactions
+
+    def test_stopword_tail_kept(self):
+        text, _ = scrub_extracted(self.HEADER + ["Thanks, everyone"])
+        assert "Thanks, everyone" in text
+
+    def test_midline_thanks_untouched(self):
+        text, _ = scrub_extracted(self.HEADER + [
+            "Thank you, Neal, for the prompt reply",
+        ])
+        assert "Thank you, Neal, for the prompt reply" in text
+
+    def test_expert_region_and_headerless_notes_untouched(self):
+        text, _ = scrub_extracted([
+            "Best, Kat Barefield, MS, RDN",
+            "Thanks for contacting us.",
+        ] + self.HEADER + ["Question: dosing?"])
+        assert "Best, Kat Barefield, MS, RDN" in text
+        text2, _ = scrub_extracted(["Thanks, Matt"])
+        assert "Thanks, Matt" in text2
+
+
+class TestWroteHeaderRedaction:
+    """Quoted attribution headers (owner disposition 2026-09-06, Stage 2
+    triage round 1 — "Neal Spruce <[EMAIL]> wrote:" inside replies)."""
+
+    def test_name_plus_bracketed_address(self):
+        text, rep = scrub_extracted([
+            "Neal Spruce <neal@example.org> wrote:",
+        ])
+        assert "Neal Spruce" not in text
+        assert "[NAME] <[EMAIL]> wrote:" in text
+        assert rep.redactions["wrote_header_name"] == 1
+
+    def test_gmail_style_on_date_prefix(self):
+        text, _ = scrub_extracted([
+            "On Wednesday, June 21, 2023 at 06:44 AM PDT, "
+            "Neal Spruce <neal@example.org> wrote:",
+        ])
+        assert "Neal Spruce" not in text
+        assert "wrote:" in text
+
+    def test_lowercase_wrote_untouched(self):
+        text, _ = scrub_extracted(["as she wrote: the dose matters"])
+        assert "as she wrote: the dose matters" in text
+
+
 class TestRecipientRedaction:
     def test_display_names_go_but_role_mailboxes_stay(self):
         text, rep = scrub_extracted([

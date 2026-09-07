@@ -15,6 +15,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi my dog ate 2 scoops of the chocolate whey protein powder. Do you know if any of the ingredients are harmful to dogs besides the chocolate? Also what percent of the protein powder is cocoa powder? Thank you, Jessica
+Message: Hi my dog ate 2 scoops of the chocolate whey protein powder. Do you know if any of the ingredients are harmful to dogs besides the chocolate? Also what percent of the protein powder is cocoa powder? Thank you, [NAME]
  
 

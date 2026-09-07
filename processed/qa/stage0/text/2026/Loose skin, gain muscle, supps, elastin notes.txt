@@ -68,7 +68,7 @@ Thank you
 
 [NAME]
 
-On Mon, May 4, 2026 at 1:32 PM Mark Rowland <[EMAIL]> wrote:
+On Mon, May 4, 2026 at 1:32 [NAME] <[EMAIL]> wrote:
 Hi [NAME],
 
 I’ve been tied up all morning.  I apologize I didn’t see your email until just now.  Is there another time today that works for you later in the day? If not, can you do it at 2PM tomorrow?
@@ -93,7 +93,7 @@ Subject: Re: Contact Us
 Hello, 
 Can we move our appt to 1;00 tomorrow instead of 2:00?
 
-On Wed, Apr 29, 2026 at 2:46 PM Mark Rowland <[EMAIL]> wrote:
+On Wed, Apr 29, 2026 at 2:46 [NAME] <[EMAIL]> wrote:
 Hi [NAME],
 
 It was a pleasure speaking with you.  Please see Neal’s response below..  I will send you a calendar invite from [EMAIL] for this coming Monday @ 2PM and we can get you set up with the dotFIT Program!

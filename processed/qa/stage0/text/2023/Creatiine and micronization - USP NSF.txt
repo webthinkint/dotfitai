@@ -12,6 +12,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: question from a member: are either of the creatine that we sell "micronized'? Thank you, Kat
+Message: question from a member: are either of the creatine that we sell "micronized'? Thank you, [NAME]
  
 

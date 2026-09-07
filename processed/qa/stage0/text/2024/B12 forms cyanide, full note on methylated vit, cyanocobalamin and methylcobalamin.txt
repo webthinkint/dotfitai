@@ -1,7 +1,7 @@
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi, Is the SuperBlend methylated? Thank you in advance! Respectfully, Kendra Ferguson
+Message: Hi, Is the SuperBlend methylated? Thank you in advance! Respectfully, [NAME]
 
 Hi [NAME],
 Thanks for contacting us. There is a lot of junk science regarding methylated vitamin forms, so we seem to be getting this question often. See below for your answer and be mindful that Only B9 (folate) and B12 are available in the market in their methylated forms and the body will convert forms as needed depending on the destination regardless of origin as long as you have enough. The Alln1 SuperBlend (and dotFIT MVMs) uses both B9/Folate (calcium L-5-methyltetrahydrofolate) and B12 (methylcobalamin) in the methylated forms.

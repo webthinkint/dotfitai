@@ -18,6 +18,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: I’m really interested in trying this product but after wasting money on other super good products I’m a bit hesitant to invest $100. Do you have a sample package I can try to see if I like your product. Thanks Jayne
+Message: I’m really interested in trying this product but after wasting money on other super good products I’m a bit hesitant to invest $100. Do you have a sample package I can try to see if I like your product. Thanks [NAME]
  
 

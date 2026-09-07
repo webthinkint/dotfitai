@@ -13,6 +13,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello! I recently purchased and tried the Allin1 SuperBlend once, but I could not stomach it at all after one sip! Is there any way to make it more palatable? It would be such a shame to waste the whole tub with all its stated nutrients. Kind regards, Lilian
+Message: Hello! I recently purchased and tried the Allin1 SuperBlend once, but I could not stomach it at all after one sip! Is there any way to make it more palatable? It would be such a shame to waste the whole tub with all its stated nutrients. Kind regards, [NAME]
  
 

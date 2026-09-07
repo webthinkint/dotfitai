@@ -16,6 +16,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello, I am weighing three different supplement options. What is the purpose of each one? 1-WheySmooth 2-AminoFormula 3-CollagenComplex Best, Hadar
+Message: Hello, I am weighing three different supplement options. What is the purpose of each one? 1-WheySmooth 2-AminoFormula 3-CollagenComplex Best, [NAME]
  
 v

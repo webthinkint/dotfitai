@@ -12,6 +12,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: What is the correct dosage for the Over 50 Multivitamin? On literature I've seen 1 tablet and on the bottle it says 2. Has the formula changed with the new packaging? Thank you, Caroline
+Message: What is the correct dosage for the Over 50 Multivitamin? On literature I've seen 1 tablet and on the bottle it says 2. Has the formula changed with the new packaging? Thank you, [NAME]
  
 

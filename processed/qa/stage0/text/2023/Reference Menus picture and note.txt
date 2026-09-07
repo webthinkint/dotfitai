@@ -14,6 +14,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: I sent a request to check my nutrition menu earlier. I didn't realize I was looking at the sample menu and not my customized menu. Please disregard my previous request. Thanks, Bhaskar
+Message: I sent a request to check my nutrition menu earlier. I didn't realize I was looking at the sample menu and not my customized menu. Please disregard my previous request. Thanks, [NAME]
  
 

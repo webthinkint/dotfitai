@@ -1,4 +1,4 @@
-# QA Corpus Pipeline — Stage 0 (PII scrub) + Stage 1 (parse & classify)
+# QA Corpus Pipeline — Stage 0 (PII scrub) + Stage 1 (parse & classify) + Stage 2 (LLM structuring)
 
 Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
 (PDSRG chunking):
@@ -15,6 +15,20 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   (`qa_email` / `expert_note` / `other`), extract metadata (year, topic
   subfolder, `thread_date` from `Sent:`, question text), route edge cases to a
   review queue. Date parsing is locale-independent by construction.
+- **Stage 2** (`stage2` subcommand) — LLM-assisted structuring on scrubbed text
+  only (small chat deployment, strict JSON-schema, no temperature knob):
+  `question_canonical`, cleaned `answer` (transcription, never generation — a
+  source-containment diff pass verifies no invented content), `products[]`
+  normalized to `part_no` via the alias table (LLM mentions mapped
+  deterministically, unioned with the deterministic alias/rename scan;
+  context-only tokens, replacements and discontinued names never tag),
+  `topics[]` (LLM + subfolder hint), `audience_flags`, `currency_cues`
+  (tolerant deterministic scan), `residual_pii_flag` (Stage 1 OR LLM — the LLM
+  redacts what it flags), `confidence` → review queue below threshold.
+  LLM responses cache in the gitignored `runs/stage2_cache.jsonl` (keyed
+  deployment|api-version|prompt|source), so same-machine reruns are free and
+  byte-identical; `--no-llm` runs the deterministic rule-based fallback (no
+  Azure calls — CI/tests/shaping).
 - **PDSRG** (`pdsrg` subcommand) — chunk the Practitioner Dietary Supplement
   Reference Guide PDFs: hybrid table extraction inherited from the validated
   gate test + the prose false-positive filter, font-based heading detection
@@ -26,9 +40,11 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   index: PDSRG chunks (pass-through — already §9-stamped), products.json §5
   section-split with family grouping (the canonical SKU's sections are the
   family documents; variants contribute only genuinely distinct sections),
-  §8 menu description docs, and §7 podcast segments (`authority=4`,
+  §8 menu description docs, §7 podcast segments (`authority=4`,
   `citation_url` null until the archive.txt → YouTube mapping is
-  verified). Vectors (`text-embedding-3-large`, 3072-dim)
+  verified), and Stage 2 QA canonicals (`authority=3`, one doc per pair —
+  answers over the embedding cap split into paragraph-boundary parts, never
+  truncated). Vectors (`text-embedding-3-large`, 3072-dim)
   embed `title + content` and cache under the gitignored
   `runs/embeddings.jsonl`, so the committed `documents.jsonl` (no vectors)
   stays byte-identical across reruns.
@@ -59,13 +75,15 @@ uv sync
 uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
-Subcommands: `stage0`, `stage1`, `run` (both), `aliases`, `pdsrg`, `index`,
-`podcast`. Options on all: `--include GLOB` (repeatable), `--limit N`
+Subcommands: `stage0`, `stage1`, `stage2`, `run` (stages 0+1), `aliases`, `pdsrg`,
+`index` (+ `--qa-docs`), `podcast`. Options on all: `--include GLOB` (repeatable), `--limit N`
 (pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
 for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
 default they are removed so the output tree always matches the corpus).
-`pdsrg` adds `--keep-references` and `--citation-base`; `podcast` takes
-`--transcripts` + `--audio` instead of `--input` (no corpus tree to prune);
+`pdsrg` adds `--keep-references` and `--citation-base`; `stage2` takes
+`--qa-docs` + `--products` instead of `--input` and adds `--min-confidence`,
+`--api-version`, `--no-llm` (rule-based fallback, no Azure calls) and `--no-cache`;
+`podcast` takes `--transcripts` + `--audio` instead of `--input` (no corpus tree to prune);
 `index` (no corpus tree to prune) has `--limit N`,
 `--no-embed` (shape only), `--no-upload` (embed, skip AI Search), `--reset`
 (drop + recreate the index) and `--index-name`.
@@ -106,6 +124,20 @@ uv run qa-pipeline run --input ../data/QAs --out ../processed/qa-pilot \
     --include "2023/*.docx" --limit 20
 ```
 
+Stage 2 pilot (5 docs, live small-chat calls) and full run:
+
+```bash
+uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage2-pilot \
+    --limit 5
+uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage2
+# offline equivalent (no Azure calls, confidence 0, everything queued):
+uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage2 \
+    --no-llm
+```
+
 ## Output layout
 
 ```
@@ -119,6 +151,32 @@ uv run qa-pipeline run --input ../data/QAs --out ../processed/qa-pilot \
 <out>/stage1/summary.json                          counts by type/year
 <out>/runs/stage0-<timestamp>.json                 run manifest (audit trail)
 ```
+
+Stage 2 outputs (relative to the `stage2 --out` root, default
+`processed/qa/stage2`):
+
+```
+<out>/documents.jsonl        one canonical record per document (sorted by
+                            source_file — byte-identical reruns)
+<out>/review_queue.jsonl    low confidence + residual PII + containment fails +
+                            LLM errors + deterministic 5% audit sample
+<out>/summary.json           counts + review reasons + unresolved-mention tally
+                            (curation signal for the alias worksheet)
+<out>/runs/stage2-<ts>.json run manifest
+<out>/runs/stage2_cache.jsonl LLM response cache (gitignored — API results,
+                            keyed deployment|api-version|prompt|source)
+```
+
+- `documents.jsonl` record: `id, source_file, year, doc_type, thread_date,
+  topic_subfolder, filename, question_original, question_canonical, answer,
+  products[] (int part_nos), products_unresolved[] (curation signal, never a
+  queue reason), topics[], audience_flags{minor, pregnancy_breastfeeding,
+  medical_condition, drug_test_athlete, weight_extreme}, currency_cues[],
+  residual_pii_flag, confidence, containment_score, needs_review, llm_error,
+  model` — the canonical input contract for Stage 4/indexing. Evidence spans
+  for residual-PII flags live only in the gitignored cache, never in records.
+- Reruns are byte-identical when LLM responses are (same-machine cache hit or
+  `--no-llm`); run manifests carry timestamps + input SHA-256s.
 
 PDSRG outputs (relative to the `pdsrg --out` root, default `processed/pdsrg`):
 
@@ -197,7 +255,30 @@ reply and blank documents are excluded from `documents.jsonl` and tallied in
 them. Filenames are neither scrubbed nor flagged (owner disposition
 2026-09-05); the former `filename_contains_redacted_name` flag is gone.
 
-## Verified corpus numbers (full run, 2026-09-05)
+## Verified corpus numbers (Stage 2 full run, 2026-09-06)
+
+- 1,041 Stage 1 docs → **1,041 canonical records** on prompt 1.1.0, 0 fallbacks,
+  0 LLM errors (~1,040 small-chat calls across chunked runs — per-doc cache
+  checkpoints make the run resumable surviving 2 timeouts and 1 Azure 403;
+  a cache-hit rerun is byte-identical with 0 calls)
+- Review queue **223** (21%, down from 590 pre-triage): 168 residual-PII flags
+  (customer-side names correctly caught; staff bulk-accepted via silent-redact
+  vocabulary), 47 deterministic 5% audit samples, 4 containment fails,
+  5 low-confidence — open for Stage 3 owner triage (triage round 1 dispositions
+  in `docs/progress.md` entry 19)
+- Quality: containment median 0.990 (answer word-recall vs source), confidence
+  median 0.9; 639 docs carry product tags (50 part_nos), 306 carry currency
+  cues, 271 null canonical questions (264 expert notes + 7 question-less)
+- Curation signal (never a queue reason): top unresolved mentions —
+  `dotFIT Multivitamin & Mineral` (166), `Over50` (164), `2-Active`/`1-Active`
+  (154/150), `Kids` (149), `Super Calcium` (145), `MVM` (129), `Super Omega 3` /
+  `SuperOmega-3` (107/72), `BestPlantProtein` (77), `VeganMV` (76) — feed for the
+  next alias-curation pass (spacing variants, MV fragments, missing products)
+- Safety: 0 own-answer evidence leaks (every flagged span redacted from its own
+  answer); no raw emails/phones introduced into content fields (the 2 matches
+  are a vendor address inside a filename — filename disposition stands)
+
+## Verified corpus numbers (Stage 0–1 full run, 2026-09-05)
 
 - 1,051 `.docx` → **1,051 scrubbed**, 0 parse errors
 - Classification: **777 qa_email**, 264 expert_note, 0 other — 10

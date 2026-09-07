@@ -52,6 +52,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi there! I'm a loyalty member, but recently became concerned about the Consumer Reports study about protein powder and want to make sure the products I consume are safe. I noticed you offer Certificates of Analysis by request on this page: https://www.dotfit.com/prop65. Could you please share them with me for the WheySmooth Natural protein powders (vanilla and chocolate)? Best, Oleh
+Message: Hi there! I'm a loyalty member, but recently became concerned about the Consumer Reports study about protein powder and want to make sure the products I consume are safe. I noticed you offer Certificates of Analysis by request on this page: https://www.dotfit.com/prop65. Could you please share them with me for the WheySmooth Natural protein powders (vanilla and chocolate)? Best, [NAME]
  
 

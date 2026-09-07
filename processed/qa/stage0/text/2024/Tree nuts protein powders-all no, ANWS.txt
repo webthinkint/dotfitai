@@ -13,6 +13,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: To whom it may concern: Does all natural Whey Smooth chocolate contain tree nuts? My son has a severe allergy. Thanks, Maria
+Message: To whom it may concern: Does all natural Whey Smooth chocolate contain tree nuts? My son has a severe allergy. Thanks, [NAME]
  
 

@@ -55,6 +55,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello Dotfit Team, I was interested in the advance brain/anti aging pills. As a 26 year old, could I still benefit from this? The instructions imply it is mostly only for older folk. Please let me know! Thank You, Huy
+Message: Hello Dotfit Team, I was interested in the advance brain/anti aging pills. As a 26 year old, could I still benefit from this? The instructions imply it is mostly only for older folk. Please let me know! Thank You, [NAME]
  
 

@@ -8,7 +8,7 @@ from qa_pipeline.embeddings import Embedder
 from qa_pipeline.index_build import (
     INDEX_NAME, build_documents, embed_text, ensure_index, index_schema,
     menu_documents, pdsrg_documents, podcast_documents, product_documents,
-    read_menu_rows, split_sections, upload_documents,
+    qa_date, qa_documents, read_menu_rows, split_sections, upload_documents,
 )
 
 
@@ -223,6 +223,86 @@ def test_build_documents_without_podcast_unchanged():
     args = (_chunks(), PRODUCTS, FAMILIES,
             [{"menu_name": "M", "menu_descr": "d", "menu_calories": "1000"}])
     assert len(build_documents(*args)) + 1 == len(build_documents(*args, _segments()))
+
+
+# --- qa_documents (Stage 2 canonicals -> §9) ------------------------------------
+
+
+def _qa_rec(**kw):
+    base = {"id": "abc123def4567890", "source_file": "2024/t.docx",
+            "doc_type": "qa_email", "thread_date": "2024-03-05",
+            "filename": "t",
+            "question_canonical": "Can I stack AF with creatine?",
+            "answer": "Yes — AF stacks fine.",
+            "products": [1213, 1216], "topics": ["creatine"],
+            "needs_review": False}
+    base.update(kw)
+    return base
+
+
+def test_qa_date_normalizes_to_offset():
+    assert qa_date("2024-03-05") == "2024-03-05T00:00:00Z"
+    assert qa_date(None) is None
+    assert qa_date("whenever") is None
+    assert qa_date("2024-03-05T10:00:00Z") is None  # day-precision only in
+
+
+def test_qa_documents_shape_and_defaults():
+    doc = qa_documents([_qa_rec()])[0]
+    assert doc["id"] == "qa-abc123def4567890"
+    assert doc["source_type"] == "qa" and doc["authority"] == 3
+    assert doc["title"] == "Can I stack AF with creatine?"
+    assert doc["content"] == "Yes — AF stacks fine."
+    assert doc["products"] == ["1213", "1216"]  # part_nos stringified
+    assert doc["topics"] == ["creatine"]
+    assert doc["date"] == "2024-03-05T00:00:00Z"
+    assert doc["is_current"] is True  # Stage 4 flips superseded later
+    assert doc["citation_url"] is None  # no verified link (podcast precedent)
+    assert doc["locator"] == "t" and doc["product_status"] is None
+
+
+def test_qa_documents_null_question_falls_back_to_filename():
+    doc = qa_documents([_qa_rec(question_canonical=None,
+                               filename="Creatine loading note")])[0]
+    assert doc["title"] == "Creatine loading note"
+
+
+def test_qa_documents_empty_answer_skipped():
+    assert qa_documents([_qa_rec(answer="  ")]) == []
+
+
+def test_qa_documents_oversize_answer_splits_into_fitting_parts():
+    from qa_pipeline.index_build import QA_PART_CHARS, embed_text, split_answer_parts
+    paras = [f"Paragraph {i} about creatine dosing. " * 200 for i in range(8)]
+    answer = "\n\n".join(paras)
+    parts = split_answer_parts(answer)
+    assert len(parts) > 1
+    assert "\n\n".join(parts) == answer  # nothing lost, nothing added
+    docs = qa_documents([_qa_rec(answer=answer)])
+    assert [d["id"] for d in docs] == \
+        [f"qa-abc123def4567890-p{n}" for n in range(1, len(docs) + 1)]
+    assert docs[0]["title"].endswith(f"(part 1 of {len(docs)})")
+    assert all(len(embed_text(d)) <= QA_PART_CHARS + 2000 for d in docs)
+    assert all(d["products"] == ["1213", "1216"] for d in docs)  # metadata shared
+
+
+def test_qa_documents_single_giant_paragraph_hard_splits():
+    from qa_pipeline.index_build import QA_PART_CHARS, split_answer_parts
+    parts = split_answer_parts("x" * (QA_PART_CHARS + 5))
+    assert len(parts) == 2 and all(len(p) <= QA_PART_CHARS for p in parts)
+
+
+def test_build_documents_with_qa_sorted_and_key_safe():
+    import re
+    args = (_chunks(), PRODUCTS, FAMILIES,
+            [{"menu_name": "M", "menu_descr": "d",
+              "menu_calories": "1000"}], _segments(), [_qa_rec()])
+    docs = build_documents(*args)
+    assert docs == sorted(docs, key=lambda d: d["id"])
+    assert "qa-abc123def4567890" in [d["id"] for d in docs]
+    bad = [d["id"] for d in docs
+           if not re.fullmatch(r"[A-Za-z0-9_\-=]+", d["id"])]
+    assert not bad
 
 
 def test_embed_text_is_title_plus_content():

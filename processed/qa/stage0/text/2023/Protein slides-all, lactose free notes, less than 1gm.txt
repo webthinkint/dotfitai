@@ -13,6 +13,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Do you all hold a meal replacement with little to no lactose? Or a vegan meal replacement? Thanks, Kenneth
+Message: Do you all hold a meal replacement with little to no lactose? Or a vegan meal replacement? Thanks, [NAME]
  
 

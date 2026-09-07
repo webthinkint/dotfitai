@@ -72,6 +72,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello Do you have multivitamis for women over 50? Do you ship to Israel? what are the shipping fees? Thank you Salome 
+Message: Hello Do you have multivitamis for women over 50? Do you ship to Israel? what are the shipping fees? Thank you [NAME]
  
 

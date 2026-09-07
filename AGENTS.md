@@ -28,9 +28,11 @@ uv run qa-pipeline index --chunks ../processed/pdsrg/chunks/chunks.jsonl \
     --menus "../data/Reference Menus/All Reference Menus Export.csv" \
     --podcast-segments ../processed/podcasts/segments/segments.jsonl \
     --out ../processed/index --no-upload   # shape + embed; drop --no-upload to upload
+uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage2
 ```
 
-Subcommands: `stage0`, `stage1`, `run`, `aliases`, `pdsrg`, `index`, `podcast`. Shared flags:
+Subcommands: `stage0`, `stage1`, `stage2`, `run`, `aliases`, `pdsrg`, `index`, `podcast`. Shared flags:
 `--include GLOB` (repeatable), `--limit N`, `--quiet`, `--fail-on-error`,
 `--no-prune` (by default outputs whose input disappeared are deleted so the
 output tree always mirrors the corpus). `pdsrg` adds `--keep-references`,

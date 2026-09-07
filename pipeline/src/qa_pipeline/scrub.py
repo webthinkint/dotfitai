@@ -138,6 +138,36 @@ _SIGNOFF_NAME_RE = re.compile(
     r"(?:\s+[A-Z][\w'’.-]+){0,2})(\s*\(.*\))?\s*$",
 )
 
+# Inline customer sign-offs (owner disposition 2026-09-06, Stage 2 triage
+# round 1: "Respectfully, Kendra Ferguson" and "Thanks, Matt" sit on ONE
+# line at end-of-line, which the bare-name-next-line rule cannot see). The
+# closer alternation mirrors CLOSER_RE plus "respectfully" (attested in the
+# triage sample); the name span is at most TWO capitalized tokens — a third
+# token is usually an organization ("Thanks, Diabetic Support Group"), and
+# missing it fails safe toward the LLM flag, never toward prose damage.
+# Same region gate as _redact_signoffs: customer region only.
+_INLINE_CLOSER_AT = re.compile(
+    r"\b(?i:thanks|thank you|many thanks|thanks so much|"
+    r"regards|kind regards|best regards|best|sincerely|cheers|"
+    r"respectfully)\s*,?\s+",
+)
+_INLINE_NAME_RE = re.compile(
+    r"^((?:(?i:mr|mrs|ms|dr)\.?\s+)?)"
+    r"([A-Z][\w'’.-]+(?:\s+[A-Z][\w'’.-]+)?)"
+    r"(\s*\(.*\))?\s*$",
+)
+
+# Quoted attribution headers (owner disposition 2026-09-06, Stage 2 triage
+# round 1: "Neal Spruce <[EMAIL]> wrote:" survives inside quoted replies).
+# Role-neutral [NAME] is safe for staff and customers alike, so this runs
+# document-wide, unlike the region-gated sign-off rules.
+_WROTE_RE = re.compile(
+    r"^(?P<pre>.*?)(?P<name>[A-Z][\w'’.-]+"
+    r"(?:\s+[A-Z][\w'’.-]+){0,2})\s+"
+    r"(?P<mail><[^<>\n]*>|[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+"
+    r"(?:\.[A-Za-z0-9\-]+)+)\s+wrote:\s*$",
+)
+
 COPYRIGHT_RE = re.compile(r"^\s*Copyright\s+\d{4}(?:[-–]\d{2,4})?\s+dotFIT", re.IGNORECASE)
 DISCLAIMER_RE = re.compile(r"^\s*Disclaimer\s*:", re.IGNORECASE)
 
@@ -172,6 +202,11 @@ ACCEPTED_HONORIFIC_NAMES = frozenset({
     # would clear silently; veto here if that trade is ever wrong.
     "Crichton", "Jastreboff", "Watto", "Williams", "Kargi",
     "Ornish", "LaFaver", "Leibel",
+    # owner disposition 2026-09-06 (Stage 2 triage round 1): quoted study
+    # author "Joachim Feldkamp, MD, PhD" carries no honorific prefix, so
+    # this entry never fires the Stage 0 rule above — it acts through the
+    # Stage 2 prompt's do-not-flag list, which shares this vocabulary.
+    "Feldkamp",
 })
 # Gap inside an honorific span: with a period, horizontal whitespace plus at
 # most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
@@ -415,6 +450,55 @@ def _redact_signoffs(lines: list[str], header_idx: int | None,
     return out
 
 
+def _redact_inline_signoffs(lines: list[str], header_idx: int | None,
+                              rep: ScrubReport) -> list[str]:
+    """``Thanks, Matt`` / ``Respectfully, Kendra Ferguson`` -> ``[NAME]``.
+
+    Same-region inline form of the sign-off rule: closer + name on ONE line
+    at end-of-line, below the quoted header only. At most two name tokens —
+    a third capitalized token is usually an organization, and missing it
+    fails safe toward the LLM flag. Stopword-led tails (``Thanks, all``)
+    are kept. Honorific/credential survive, as in _redact_signoffs.
+    """
+    if header_idx is None:
+        return lines
+    out = list(lines)
+    for i in range(header_idx, len(out)):
+        # every closer on the line is a candidate split ("Thank you in
+        # advance! Respectfully, NAME" must reach the second one); the
+        # last name-shaped tail wins — closest to end-of-line is the sign-off
+        hit = None
+        for cm in _INLINE_CLOSER_AT.finditer(out[i]):
+            nm = _INLINE_NAME_RE.match(out[i][cm.end():])
+            if nm and nm.group(2) and nm.group(2).split()[0].casefold() \
+                    not in GREETING_STOPWORDS:
+                hit = (cm.end(), nm)
+        if hit is None:
+            continue
+        pos, nm = hit
+        out[i] = (out[i][:pos] + nm.group(1) + "[NAME]"
+                  + (nm.group(3) or ""))
+        _bump(rep.redactions, "signoff_name_inline")
+    return out
+
+
+def _redact_wrote_headers(lines: list[str], rep: ScrubReport) -> list[str]:
+    """``Neal Spruce <neal@x.com> wrote:`` -> ``[NAME] <[EMAIL]> wrote:``.
+
+    Quoted attribution headers survive inside replies; the display name is a
+    person either way, so role-neutral [NAME] applies document-wide (the raw
+    address becomes [EMAIL] in the pattern pass that follows).
+    """
+    out = []
+    for line in lines:
+        m = _WROTE_RE.match(line)
+        if m and m.group("name").split()[0].casefold() not in GREETING_STOPWORDS:
+            line = line[:m.start("name")] + "[NAME]" + line[m.end("name"):]
+            _bump(rep.redactions, "wrote_header_name")
+        out.append(line)
+    return out
+
+
 def _pattern_scrub(text: str, rep: ScrubReport) -> str:
     for regex, placeholder in PATTERN_RULES:
         n = len(regex.findall(text))
@@ -470,6 +554,11 @@ def scrub_extracted(lines: list[str]) -> tuple[str, ScrubReport]:
 
     # 4b. customer sign-off de-naming (quoted region only — see _redact_signoffs)
     lines = _redact_signoffs(lines, header_idx, rep)
+
+    # 4c. inline sign-offs ("Thanks, Matt" — same region gate) and quoted
+    # "X wrote:" attribution headers (role-neutral, document-wide)
+    lines = _redact_inline_signoffs(lines, header_idx, rep)
+    lines = _redact_wrote_headers(lines, rep)
 
     # 5. pattern redaction over everything that remains
     text = "\n".join(lines)

@@ -1,4 +1,4 @@
-"""CLI entry points: ``stage0``, ``stage1``, ``run`` (both stages).
+"""CLI entry points: ``stage0``, ``stage1``, ``stage2``, ``run`` (stages 0+1).
 
 Designed for identical behavior on Windows (dev) and Linux (production):
 
@@ -12,6 +12,11 @@ Output layout (mirrors the input tree so files are traceable by path):
     <out>/stage1/review_queue.jsonl                   errors + residual PII + edge cases
     <out>/stage1/summary.json
     <out>/runs/*.json                                 run manifests (audit trail)
+
+Stage 2 (``stage2``) reads Stage 1 output + products.json and writes into its
+own out dir (default ``processed/qa/stage2/``): ``documents.jsonl`` (one
+canonical record per doc), ``review_queue.jsonl``, ``summary.json`` and
+``runs/`` (manifests + the gitignored ``stage2_cache.jsonl`` LLM cache).
 
 Per-file outputs are deterministic (no timestamps inside them); run manifests
 carry the timestamps/versioning for the audit trail.
@@ -33,7 +38,10 @@ import docx as docx_pkg
 from . import __version__
 from .alias import build_alias_table, harvest_candidates, norm as _norm, \
     write_curation_worksheet
-from .azure_config import AzureConfigError, REQUIRE_INDEX, load_azure_config
+from .azure_config import (
+    AzureConfigError, REQUIRE_INDEX, REQUIRE_OPENAI_SMALL_CHAT,
+    load_azure_config,
+)
 from .embeddings import EMBEDDING_API_VERSION, Embedder
 from .extract import extract_docx
 from .index_build import (
@@ -50,6 +58,11 @@ from .podcast import (
 )
 from .scrub import scrub_docx
 from .stage1 import classify_and_parse, load_scrub_report, review_reasons
+from .stage2 import (
+    CHAT_API_VERSION, MIN_CONFIDENCE_DEFAULT, PROMPT_VERSION, Extractor,
+    append_cache, cache_key, load_cache, review_reasons as stage2_reasons,
+    run_stage2, summarize as summarize_stage2,
+)
 
 
 def _utcnow() -> str:
@@ -308,6 +321,113 @@ def cmd_stage1(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_stage2(args: argparse.Namespace) -> int:
+    qa_docs_path = Path(args.qa_docs).resolve()
+    products_path = Path(args.products).resolve()
+    if not qa_docs_path.is_file():
+        print(f"error: --qa-docs not found: {qa_docs_path}", file=sys.stderr)
+        return 2
+    if not products_path.is_file():
+        print(f"error: --products not found: {products_path}", file=sys.stderr)
+        return 2
+    out_dir = Path(args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    docs = read_jsonl(qa_docs_path)
+    if args.include:
+        docs = [d for d in docs
+                if any(fnmatch.fnmatch(d.get("source_file", ""), pat)
+                       for pat in args.include)]
+    docs.sort(key=lambda d: d.get("source_file", ""))
+    if args.limit is not None:
+        docs = docs[: args.limit]
+
+    products = json.loads(products_path.read_text(encoding="utf-8"))
+    alias_table = build_alias_table(products)
+
+    min_conf = float(args.min_confidence)
+    api_version = args.api_version
+    cache_path = out_dir / "runs" / "stage2_cache.jsonl"
+    use_cache = not args.no_cache
+    cache = load_cache(cache_path) if use_cache else {}
+
+    llm_call = None
+    deployment = "rule-based"
+    if not args.no_llm:
+        try:
+            cfg = load_azure_config(require=REQUIRE_OPENAI_SMALL_CHAT)
+        except AzureConfigError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        deployment = cfg.small_chat_deployment
+        extractor = Extractor(cfg.openai_endpoint, cfg.openai_api_key,
+                              deployment, api_version)
+
+        def llm_call(messages: list, _ex: Extractor = extractor) -> dict:  # type: ignore[misc]
+            return _ex(messages)
+
+    def key_fn(rec: dict) -> str:
+        return cache_key(deployment, api_version, rec)
+
+    def write_fn(key: str, value: dict) -> None:
+        append_cache(cache_path, key, value)
+
+    records, stats = run_stage2(
+        docs, alias_table, llm_call, deployment, min_conf,
+        cache=cache, cache_write=(write_fn if use_cache else None),
+        cache_key_fn=key_fn)
+
+    docs_path = out_dir / "documents.jsonl"
+    with docs_path.open("w", encoding="utf-8", newline="\n") as f:
+        for rec in records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    review = [{"source_file": r["source_file"],
+               "reasons": stage2_reasons(r, min_conf)}
+              for r in records if r["needs_review"]]
+    review.sort(key=lambda r: r["source_file"])
+    with (out_dir / "review_queue.jsonl").open("w", encoding="utf-8",
+                                                   newline="\n") as f:
+        for rec in review:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    summary: dict[str, Any] = {
+        "pipeline_version": __version__,
+        "options": {
+            "min_confidence": min_conf,
+            "api_version": api_version,
+            "prompt_version": PROMPT_VERSION,
+            "deployment": deployment,
+            "no_llm": bool(args.no_llm),
+            "no_cache": bool(args.no_cache),
+            "include": args.include,
+            "limit": args.limit,
+        },
+        **summarize_stage2(records, min_conf),
+        "llm": {**stats, "deployment": deployment,
+                  "api_version": api_version,
+                  "prompt_version": PROMPT_VERSION},
+    }
+    write_json(out_dir / "summary.json", summary)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    write_json(out_dir / "runs" / f"stage2-{stamp}.json", {
+        "pipeline_version": __version__, "stage": "stage2", "utc": _utcnow(),
+        "args": {k: v for k, v in vars(args).items() if k != "func"},
+        "inputs": {"qa_docs": sha256_file(qa_docs_path),
+                   "products": sha256_file(products_path)},
+        "n_documents": len(records), "n_review": len(review),
+        "stats": stats,
+    })
+    if not args.quiet:
+        for r in records[:3]:
+            print(f"  {r['source_file']}: products={r['products']} "
+                  f"conf={r['confidence']} containment={r['containment_score']} "
+                  f"review={r['needs_review']}")
+    print(f"stage2 done: {len(records)} documents, {len(review)} in review "
+          f"queue ({stats['n_llm_calls']} LLM call(s), "
+          f"{stats['n_cache_hits']} cache hit(s), {stats['n_fallback']} fallback)")
+    return 1 if stats["n_llm_errors"] and args.fail_on_error else 0
+
+
 def cmd_aliases(args: argparse.Namespace) -> int:
     products_path = Path(args.products).resolve()
     if not products_path.is_file():
@@ -531,8 +651,15 @@ def cmd_index(args: argparse.Namespace) -> int:
         podcast_segments = []
         print(f"  note: podcast segments not found ({segments_path}) — "
               f"shaping without the podcast source")
+    qa_docs_path = Path(args.qa_docs).resolve()
+    if qa_docs_path.is_file():
+        qa_records = read_jsonl(qa_docs_path)
+    else:
+        qa_records = []
+        print(f"  note: QA canonical docs not found ({qa_docs_path}) — "
+              f"shaping without the QA source")
     docs = build_documents(chunks, products, families, menu_rows,
-                           podcast_segments)
+                           podcast_segments, qa_records)
 
     docs_path = out_dir / "documents.jsonl"
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -617,7 +744,10 @@ def cmd_index(args: argparse.Namespace) -> int:
                    "menus": sha256_file(menus_path),
                    "podcast_segments": (sha256_file(segments_path)
                                           if segments_path.is_file()
-                                          else None)},
+                                          else None),
+                   "qa_docs": (sha256_file(qa_docs_path)
+                                if qa_docs_path.is_file()
+                                else None)},
         "n_documents": len(docs), "n_embedded": len(selected),
         "n_uploaded": n_ok, "errors": errors,
     })
@@ -646,7 +776,8 @@ def cmd_run(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="qa-pipeline",
-        description="Stage 0 (PII scrub) + Stage 1 (parse & classify) for the QA corpus",
+        description="QA corpus pipeline (plan §4): Stage 0 (PII scrub), Stage 1 "
+        "(parse & classify), Stage 2 (LLM structuring)",
     )
     p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
@@ -676,6 +807,37 @@ def build_parser() -> argparse.ArgumentParser:
     s1 = sub.add_parser("stage1", help="parse & classify scrubbed text -> documents.jsonl")
     common(s1)
     s1.set_defaults(func=cmd_stage1)
+
+    s2 = sub.add_parser(
+        "stage2",
+        help="LLM-assisted structuring: stage1 docs -> canonical Q&A "
+             "(plan §4 Stage 2)")
+    s2.add_argument("--qa-docs", default="processed/qa/stage1/documents.jsonl",
+                    help="Stage 1 documents.jsonl (scrubbed input)")
+    s2.add_argument("--products", default="data/Product Data/products.json",
+                    help="path to products.json (alias table source)")
+    s2.add_argument("--out", default="processed/qa/stage2",
+                    help="output dir (default: processed/qa/stage2)")
+    s2.add_argument("--include", action="append", metavar="GLOB",
+                    help="only process docs whose source_file matches this "
+                         "glob (repeatable)")
+    s2.add_argument("--limit", type=int, default=None,
+                    help="process at most N docs, source_file order (for pilots)")
+    s2.add_argument("--min-confidence", type=float,
+                    default=MIN_CONFIDENCE_DEFAULT,
+                    help="review threshold (default: "
+                         f"{MIN_CONFIDENCE_DEFAULT})")
+    s2.add_argument("--api-version", default=CHAT_API_VERSION,
+                    help="Azure OpenAI api-version (default: "
+                         f"{CHAT_API_VERSION})")
+    s2.add_argument("--no-llm", action="store_true",
+                    help="rule-based fallback for every document (no Azure calls)")
+    s2.add_argument("--no-cache", action="store_true",
+                    help="skip the runs/stage2_cache.jsonl LLM cache")
+    s2.add_argument("--quiet", action="store_true")
+    s2.add_argument("--fail-on-error", action="store_true",
+                    help="non-zero exit if any document's LLM call fails")
+    s2.set_defaults(func=cmd_stage2)
 
     al = sub.add_parser("aliases", help="build alias table from products.json")
     al.add_argument("--products", default="data/Product Data/products.json",
@@ -725,6 +887,10 @@ def build_parser() -> argparse.ArgumentParser:
                     default="processed/podcasts/segments/segments.jsonl",
                     help="§7 segments.jsonl (missing file shapes without "
                          "the podcast source)")
+    ix.add_argument("--qa-docs",
+                    default="processed/qa/stage2/documents.jsonl",
+                    help="Stage 2 documents.jsonl (missing file shapes "
+                         "without the QA source)")
     ix.add_argument("--out", default="processed/index",
                     help="output dir (default: processed/index)")
     ix.add_argument("--index-name", default=INDEX_NAME,

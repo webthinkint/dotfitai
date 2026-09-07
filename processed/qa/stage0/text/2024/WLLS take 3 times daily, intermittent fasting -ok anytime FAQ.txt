@@ -17,6 +17,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hello, I have a client following a 16/8 intermittent fasting (IF) diet, usually having 2 meals and maybe 1 snack during this time. The client is currently taking Liver Support, and I wanted to ask for your guidance on the optimal usage for this diet. Would it be best for them to take Liver Support before their first meal at noon and then again at dinner, around 6 p.m., totaling two servings per day? Alternatively, is it advisable to have a serving in the morning even though they aren't eating, then one before their first meal at noon, and one at dinner, for a total of three servings? Thank you for your help! Best regards, Blake 
+Message: Hello, I have a client following a 16/8 intermittent fasting (IF) diet, usually having 2 meals and maybe 1 snack during this time. The client is currently taking Liver Support, and I wanted to ask for your guidance on the optimal usage for this diet. Would it be best for them to take Liver Support before their first meal at noon and then again at dinner, around 6 p.m., totaling two servings per day? Alternatively, is it advisable to have a serving in the morning even though they aren't eating, then one before their first meal at noon, and one at dinner, for a total of three servings? Thank you for your help! Best regards, [NAME]
  
 
