@@ -149,7 +149,9 @@ later and maps the same events). The §11 pipeline as components:
 artifact; the two-consumer tier rules are mirrored — mention path resolves
 deterministic+LLM-only, blind scan deterministic only) → `KnowledgeSearch`
 (hybrid on `kb-main`, `is_current` prefilter, semantic ranker off by default
-until open item 5, deterministic authority re-rank as a tuning knob) →
+until open item 5, deterministic authority re-rank as a tuning knob — it
+orders on the reranker score when the ranker ran, the fused retrieval score
+otherwise, because Azure reports the two separately) →
 `AgentAnswerAgent` (grounded `[n]`-citation instructions, streamed) →
 `PostChecker` (deterministic citation/escalation checks) + optional
 claims-language audit (small model, degrade-to-warning). Guardrail failures
@@ -157,7 +159,9 @@ open by design — the answer agent's instructions carry the full escalation
 policy and the post-check verifies it. Escalations short-circuit to a
 templated refusal (no LLM call). Config is the root `.env`, same contract as
 `azure_config.py` (walk-up discovery, query key preferred, masked repr,
-errors name variables only). `Azure.AI.OpenAI` stays prerelease **on
+errors name variables only, and `require=` subsets as the `RuntimeNeeds` flags
+enum — `search` must not demand the chat deployments that open item 1 is
+waiting on). `Azure.AI.OpenAI` stays prerelease **on
 purpose**: the GA build only offers api-version 2024-10-21, which the Foundry
 v2 resource 404s — `ServiceVersion` pins 2025-04-01-preview. Tests use
 scripted `IChatClient` fakes and synthetic fixtures — no Azure in tests;

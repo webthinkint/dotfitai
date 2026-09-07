@@ -2,9 +2,12 @@ namespace DotFit.Agents.Retrieval;
 
 /// <summary>
 /// One row of the <c>kb-main</c> index (plan §9 schema), as retrieved.
-/// <see cref="Score"/> is the service score (RRF-fused hybrid, or reranker
-/// score when semantic is on — kept separately); <see cref="BoostedScore"/>
-/// is after the deterministic authority re-rank.
+/// <see cref="Score"/> is always the service retrieval score (BM25, or the
+/// RRF fusion for a hybrid query) and <see cref="RerankerScore"/> is the
+/// semantic ranker's, populated only when the ranker ran — Azure reports the
+/// two separately. <see cref="BoostedScore"/> is after the deterministic
+/// authority re-rank, which orders on
+/// <see cref="AuthorityBoost.RankingScore"/>.
 /// </summary>
 public sealed record RetrievedDocument
 {

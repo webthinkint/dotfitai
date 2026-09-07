@@ -219,6 +219,13 @@ public sealed class KnowledgeAssistant
         return result ?? throw new InvalidOperationException("the pipeline ended without a result");
     }
 
+    /// <summary>
+    /// Append the alias terms the question does not already say. Each term is
+    /// judged against the *question* only, never against the terms already
+    /// appended: two families can be word-subsumed ("Whey Protein" inside "Best
+    /// Whey Protein") and dropping the second would lose a resolved family from
+    /// the BM25 query.
+    /// </summary>
     private static string JoinDistinct(string first, IReadOnlyList<string> rest)
     {
         var parts = new List<string> { first };

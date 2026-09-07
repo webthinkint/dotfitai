@@ -11,8 +11,20 @@ public sealed record Citation(int Index, string SourceId, string Title, string L
 /// </summary>
 public static partial class CitationFormatter
 {
-    [GeneratedRegex(@"\[(\d{1,3})\]")]
+    /// <summary>
+    /// One bracketed marker, which may carry a group: <c>[1]</c>, <c>[1, 2]</c>,
+    /// <c>[1;2]</c>, <c>[1-3]</c>. Models reach for the grouped forms unprompted,
+    /// and a marker the parser cannot see is a marker the post-check counts as
+    /// missing — which failed whole, well-grounded answers on citation_presence.
+    /// Three digits max, so a bracketed year range is not mistaken for a group.
+    /// </summary>
+    [GeneratedRegex(@"\[\s*(\d{1,3}(?:\s*[,;–—-]\s*\d{1,3})*)\s*\]")]
     private static partial Regex MarkerRegex();
+
+    private static readonly char[] RangeSeparators = ['-', '–', '—'];
+
+    /// <summary>Widest <c>[1-3]</c> span expanded rather than read as two endpoints.</summary>
+    private const int MaxRangeSpan = 20;
 
     /// <summary>Distinct marker numbers in order of first appearance.</summary>
     public static IReadOnlyList<int> ExtractMarkers(string answer)
@@ -21,10 +33,44 @@ public static partial class CitationFormatter
         var ordered = new List<int>();
         foreach (Match m in MarkerRegex().Matches(answer))
         {
-            if (int.TryParse(m.Groups[1].Value, out int n) && seen.Add(n))
-                ordered.Add(n);
+            foreach (int n in ExpandGroup(m.Groups[1].Value))
+            {
+                if (seen.Add(n))
+                    ordered.Add(n);
+            }
         }
         return ordered;
+    }
+
+    /// <summary>The numbers inside one bracket, lists and ranges flattened.</summary>
+    private static IEnumerable<int> ExpandGroup(string group)
+    {
+        foreach (string part in group.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            string p = part.Trim();
+            int sep = p.IndexOfAny(RangeSeparators);
+            if (sep > 0
+                && int.TryParse(p[..sep].Trim(), out int lo)
+                && int.TryParse(p[(sep + 1)..].Trim(), out int hi))
+            {
+                if (hi >= lo && hi - lo <= MaxRangeSpan)
+                {
+                    for (int n = lo; n <= hi; n++)
+                        yield return n;
+                }
+                else
+                {
+                    // Descending or implausibly wide: keep the endpoints, which
+                    // the out-of-range check can still flag.
+                    yield return lo;
+                    yield return hi;
+                }
+            }
+            else if (int.TryParse(p, out int single))
+            {
+                yield return single;
+            }
+        }
     }
 
     /// <summary>Marker numbers that point past the source list (a post-check warning).</summary>

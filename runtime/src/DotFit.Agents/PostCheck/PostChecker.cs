@@ -59,6 +59,9 @@ public static class PostChecker
         if (guardrail.Escalate)
         {
             // The refusal must hand off and must not hand out product guidance.
+            // KnowledgeAssistant templates that refusal, so neither branch can
+            // fire from the pipeline; they hold the line for any other caller
+            // (the SSE service, the eval harness) that lets a model write it.
             bool handsOff = HandoffPhrases.Any(p => answer.Contains(p, StringComparison.OrdinalIgnoreCase));
             bool cites = markers.Count > 0;
             if (!handsOff)

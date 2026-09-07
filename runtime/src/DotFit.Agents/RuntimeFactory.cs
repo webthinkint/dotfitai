@@ -31,27 +31,27 @@ public static class RuntimeFactory
         AzureOpenAIClientOptions.ServiceVersion.V2025_04_01_Preview;
 
     public static AzureOpenAIClient CreateOpenAiClient(RuntimeOptions options) => new(
-        options.OpenAiEndpoint,
-        new ApiKeyCredential(options.OpenAiApiKey),
+        options.RequireOpenAiEndpoint(),
+        new ApiKeyCredential(options.RequireOpenAiApiKey()),
         new AzureOpenAIClientOptions(OpenAiServiceVersion));
 
     public static SearchClient CreateSearchClient(RuntimeOptions options) => new(
-        options.SearchEndpoint, options.IndexName, new AzureKeyCredential(options.SearchKey));
+        options.RequireSearchEndpoint(), options.IndexName, new AzureKeyCredential(options.RequireSearchKey()));
 
     public static AIAgent CreateGuardrailAgent(RuntimeOptions options, AzureOpenAIClient client) =>
-        client.GetChatClient(options.SmallChatDeployment)
+        client.GetChatClient(options.RequireSmallChatDeployment())
             .AsAIAgent(name: "dotfit-guardrail", instructions: Prompts.GuardrailInstructions);
 
     public static AIAgent CreateRewriteAgent(RuntimeOptions options, AzureOpenAIClient client) =>
-        client.GetChatClient(options.SmallChatDeployment)
+        client.GetChatClient(options.RequireSmallChatDeployment())
             .AsAIAgent(name: "dotfit-rewriter", instructions: Prompts.RewriteInstructions);
 
     public static AIAgent CreateClaimsAgent(RuntimeOptions options, AzureOpenAIClient client) =>
-        client.GetChatClient(options.SmallChatDeployment)
+        client.GetChatClient(options.RequireSmallChatDeployment())
             .AsAIAgent(name: "dotfit-claims", instructions: Prompts.ClaimsInstructions);
 
     public static AIAgent CreateAnswerAgent(RuntimeOptions options, AzureOpenAIClient client) =>
-        client.GetChatClient(options.ChatDeployment)
+        client.GetChatClient(options.RequireChatDeployment())
             .AsAIAgent(name: "dotfit-assistant", instructions: Prompts.AnswerInstructions);
 
     /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
@@ -65,7 +65,7 @@ public static class RuntimeFactory
             guardrail: new AgentGuardrail(CreateGuardrailAgent(options, openAi)),
             rewriter: new AgentQueryRewriter(CreateRewriteAgent(options, openAi), FamilyNames(aliases)),
             aliases: aliases,
-            search: new AzureKnowledgeSearch(openAi, options.EmbeddingDeployment,
+            search: new AzureKnowledgeSearch(openAi, options.RequireEmbeddingDeployment(),
                 CreateSearchClient(options), settings),
             answer: new AgentAnswerAgent(CreateAnswerAgent(options, openAi)),
             settings: settings,
@@ -77,7 +77,7 @@ public static class RuntimeFactory
     {
         settings ??= new SearchSettings();
         return new AzureKnowledgeSearch(
-            CreateOpenAiClient(options), options.EmbeddingDeployment, CreateSearchClient(options), settings);
+            CreateOpenAiClient(options), options.RequireEmbeddingDeployment(), CreateSearchClient(options), settings);
     }
 
     private static IReadOnlyList<string> FamilyNames(AliasTable aliases) =>

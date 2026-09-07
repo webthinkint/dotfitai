@@ -131,4 +131,30 @@ public class AliasTableTests
         var e = t.Expand("q", ["Women’s"]); // U+2019, the corpus spelling
         Assert.Equal(["Over 50 Test"], e.Families);
     }
+
+    [Fact]
+    public void NormMatchesPythonCasefoldNotLowercase()
+    {
+        // alias.py keys on str.casefold(); ToLowerInvariant is not the same
+        // function, and a key that differs is a token that silently never hits.
+        Assert.Equal(AliasTable.Norm("STRASSE"), AliasTable.Norm("Straße"));
+        Assert.Equal(AliasTable.Norm("ΟΣ"), AliasTable.Norm("Ος"));   // final sigma folds onto sigma
+        Assert.Equal("testfamily", AliasTable.Norm("Test  Family!"));
+    }
+
+    [Fact]
+    public void ContextOnlyNotesComeOutInSortedOrder()
+    {
+        // These notes reach the answer prompt; Dictionary order is not a
+        // contract, and the prompt bytes have to be reproducible.
+        var t = AliasTable.FromJson(Table.Replace(
+            """"TT": "generic 'test tonic' — resolve contextually, never a blanket tag"""",
+            """"ZT": "z guidance", "AT": "a guidance", "TT": "t guidance""""));
+        var e = t.Expand("is ZT or TT or AT the right pick?");
+        Assert.Equal(
+            ["\"AT\" is ambiguous here: a guidance",
+             "\"TT\" is ambiguous here: t guidance",
+             "\"ZT\" is ambiguous here: z guidance"],
+            e.Notes);
+    }
 }

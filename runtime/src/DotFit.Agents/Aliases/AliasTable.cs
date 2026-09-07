@@ -98,18 +98,33 @@ public sealed class AliasTable
         foreach (var d in DiscontinuedProducts) _discontinuedByNorm[Norm(d.Name)] = d;
     }
 
-    /// <summary>The artifact's own normalization: NFKC, casefold, strip non-alphanumeric.</summary>
+    /// <summary>
+    /// The artifact's own normalization: NFKC, casefold, strip non-alphanumeric
+    /// (<c>alias.py:_norm</c>). .NET has no casefold, and casefold is not merely
+    /// lowercasing — the two disagree on a short list of characters, so the ones
+    /// that could plausibly reach a brand or corpus token are folded explicitly.
+    /// Without them a token Python keyed as <c>strasse</c> would key as
+    /// <c>straße</c> here and silently never match.
+    /// </summary>
     public static string Norm(string value)
     {
         if (value.Length == 0)
             return "";
-        string k = value.Normalize(NormalizationForm.FormKC);
+        // Whole-string ToLowerInvariant, not per char: some foldings are
+        // one-to-many (U+0130 -> "i" + U+0307) and the char overload drops that.
+        string k = value.Normalize(NormalizationForm.FormKC).ToLowerInvariant();
         var sb = new System.Text.StringBuilder(k.Length);
         foreach (char ch in k)
         {
-            char c = char.ToLowerInvariant(ch);
-            if (char.IsLetterOrDigit(c))
-                sb.Append(c);
+            switch (ch)
+            {
+                case 'ß': sb.Append("ss"); break; // casefold expands it, ToLower does not
+                case 'ς': sb.Append('σ'); break;  // final sigma folds onto sigma
+                default:
+                    if (char.IsLetterOrDigit(ch))
+                        sb.Append(ch);
+                    break;
+            }
         }
         return sb.ToString();
     }
@@ -245,7 +260,9 @@ public sealed class AliasTable
         foreach (var disc in DiscontinuedProducts)
             if (joins.Contains(Norm(disc.Name)))
                 AddNote($"{disc.Name} is discontinued. {disc.Note}".TrimEnd());
-        foreach (var (token, guidance) in ContextOnlyTokens)
+        // Sorted: every other blind-path loop walks an ordered list, and these
+        // notes reach the answer prompt — Dictionary order is not a contract.
+        foreach (var (token, guidance) in ContextOnlyTokens.OrderBy(kv => kv.Key, StringComparer.Ordinal))
             if (joins.Contains(Norm(token)))
                 AddNote($"\"{token}\" is ambiguous here: {guidance}");
 

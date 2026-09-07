@@ -21,6 +21,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The tests reach BuildFilter / KbDocument: the pure pieces of the search
+         path, which would otherwise be the one untested piece of retrieval. -->
+    <InternalsVisibleTo Include="DotFit.Agents.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
     <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
     <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />

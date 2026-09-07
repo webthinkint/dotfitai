@@ -40,7 +40,7 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
         {
             // Every source must stamp is_current — AI Search does not match null
             // against a filter (plan §9), so this is a hard contract with the index.
-            Filter = BuildFilter(p.AdditionalFilter),
+            Filter = BuildFilter(_settings.CurrentFilter, p.AdditionalFilter),
             // retrieve a wider pool than Top so the authority re-rank has room
             Size = Math.Max(p.Top * 3, 25),
             VectorSearch = new()
@@ -71,10 +71,16 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
         return AuthorityBoost.Rerank(docs, _settings.AuthorityWeights, p.Top);
     }
 
-    internal string BuildFilter(string? additional) =>
+    /// <summary>
+    /// The is_current contract ANDed with the caller's extra OData filter. The
+    /// extra filter is parenthesized: without it a top-level `or` would widen
+    /// the query past is_current and pull superseded documents back in. Static
+    /// and pure so it is testable without an Azure client.
+    /// </summary>
+    internal static string BuildFilter(string currentFilter, string? additional) =>
         string.IsNullOrWhiteSpace(additional)
-            ? _settings.CurrentFilter
-            : $"{_settings.CurrentFilter} and ({additional.Trim()})";
+            ? currentFilter
+            : $"{currentFilter} and ({additional.Trim()})";
 
     private static RetrievedDocument ToDocument(SearchResult<KbDocument> r) => new()
     {

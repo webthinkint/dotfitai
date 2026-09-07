@@ -19,12 +19,11 @@ public static class StructuredCall
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
     public static async Task<T> RunAsync<T>(
-        AIAgent agent, string userText, string schemaName, string schemaJson, CancellationToken ct = default)
+        AIAgent agent, string userText, string schemaName, JsonElement schema, CancellationToken ct = default)
     {
         var options = new AgentRunOptions
         {
-            ResponseFormat = ChatResponseFormat.ForJsonSchema(
-                JsonDocument.Parse(schemaJson).RootElement, schemaName, null),
+            ResponseFormat = ChatResponseFormat.ForJsonSchema(schema, schemaName, null),
         };
         AgentResponse response = await agent.RunAsync(userText, null, options, ct).ConfigureAwait(false);
         string text = response.Text ?? "";

@@ -31,7 +31,7 @@ public class RuntimeOptionsTests
         string root = Root();
         WriteEnv(root, ValidEnv);
         var o = RuntimeOptions.Load(EnvPath(root));
-        Assert.Equal("https://search.example.net/", o.SearchEndpoint.ToString());
+        Assert.Equal("https://search.example.net/", o.SearchEndpoint?.ToString());
         Assert.Equal("chat-model", o.ChatDeployment);
         Assert.Equal("small-model", o.SmallChatDeployment);
         Assert.Equal("embed-model", o.EmbeddingDeployment);
@@ -118,6 +118,71 @@ public class RuntimeOptionsTests
         var o = RuntimeOptions.Load(null, startDir: nested);
         Assert.Equal("chat-model", o.ChatDeployment);
         Assert.Equal(root, Path.GetDirectoryName(o.EnvFilePath));
+    }
+
+    [Fact]
+    public void RetrievalSubsetLoadsWithoutAnyChatDeployment()
+    {
+        // `search` embeds and queries; it never touches a chat deployment, and
+        // the frontier one is pending quota (open item 1).
+        string root = Root();
+        WriteEnv(root, ValidEnv
+            .Replace("AZURE_OPENAI_CHAT_DEPLOYMENT=chat-model\n", "")
+            .Replace("AZURE_OPENAI_SMALL_CHAT_DEPLOYMENT=small-model\n", ""));
+        var o = RuntimeOptions.Load(EnvPath(root), needs: RuntimeNeeds.Retrieval);
+        Assert.Equal("embed-model", o.EmbeddingDeployment);
+        Assert.Null(o.ChatDeployment);
+        Assert.Null(o.SmallChatDeployment);
+    }
+
+    [Fact]
+    public void SmallChatSubsetNeedsNoSearchService()
+    {
+        // `guardrail` / `rewrite` run one model call and read a local artifact.
+        string root = Root();
+        WriteEnv(root, ValidEnv
+            .Replace("AZURE_SEARCH_ENDPOINT=https://search.example.net\n", "")
+            .Replace("AZURE_SEARCH_ADMIN_KEY=admin-key-value\n", "")
+            .Replace("AZURE_OPENAI_EMBEDDING_DEPLOYMENT=embed-model\n", ""));
+        var o = RuntimeOptions.Load(EnvPath(root), needs: RuntimeNeeds.SmallChat);
+        Assert.Equal("small-model", o.SmallChatDeployment);
+        Assert.Null(o.SearchEndpoint);
+        Assert.Null(o.SearchKey);
+    }
+
+    [Fact]
+    public void RequireAccessorNamesTheVariableTheCallerOutgrew()
+    {
+        string root = Root();
+        WriteEnv(root, ValidEnv.Replace("AZURE_OPENAI_CHAT_DEPLOYMENT=chat-model\n", ""));
+        var o = RuntimeOptions.Load(EnvPath(root), needs: RuntimeNeeds.Retrieval);
+        var e = Assert.Throws<EnvFile.EnvFileException>(() => o.RequireChatDeployment());
+        Assert.Contains("AZURE_OPENAI_CHAT_DEPLOYMENT", e.Message);
+    }
+
+    [Fact]
+    public void PresentValuesAreValidatedEvenWhenNotRequired()
+    {
+        // A broken optional is still a broken .env (azure_config.py's rule).
+        string root = Root();
+        WriteEnv(root, ValidEnv.Replace("chat-model", "<fill-me-in>"));
+        var e = Assert.Throws<EnvFile.EnvFileException>(
+            () => RuntimeOptions.Load(EnvPath(root), needs: RuntimeNeeds.Retrieval));
+        Assert.Contains("AZURE_OPENAI_CHAT_DEPLOYMENT", e.Message);
+        Assert.DoesNotContain("fill-me-in", e.Message);
+    }
+
+    [Fact]
+    public void SmallChatSubsetNamesBothDeploymentVariablesWhenNeitherIsSet()
+    {
+        string root = Root();
+        WriteEnv(root, ValidEnv
+            .Replace("AZURE_OPENAI_CHAT_DEPLOYMENT=chat-model\n", "")
+            .Replace("AZURE_OPENAI_SMALL_CHAT_DEPLOYMENT=small-model\n", ""));
+        var e = Assert.Throws<EnvFile.EnvFileException>(
+            () => RuntimeOptions.Load(EnvPath(root), needs: RuntimeNeeds.SmallChat));
+        Assert.Contains("AZURE_OPENAI_SMALL_CHAT_DEPLOYMENT", e.Message);
+        Assert.Contains("AZURE_OPENAI_CHAT_DEPLOYMENT", e.Message);
     }
 
     [Fact]

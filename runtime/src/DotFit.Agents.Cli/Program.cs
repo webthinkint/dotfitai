@@ -57,7 +57,16 @@ internal static class Program
         try { Console.OutputEncoding = Encoding.UTF8; } catch { /* redirected output may refuse */ }
 
         var flags = command.Flags;
-        RuntimeOptions options = RuntimeOptions.Load(flags.EnvPath);
+        // Load only the slice of the .env this verb actually uses: `search` must
+        // not demand a chat deployment (open item 1 quota), and the single-stage
+        // verbs need neither the search service nor the embedding deployment.
+        RuntimeNeeds needs = command.Verb switch
+        {
+            CliArgs.Search => RuntimeNeeds.Retrieval,
+            CliArgs.Guardrail or CliArgs.Rewrite => RuntimeNeeds.SmallChat,
+            _ => RuntimeNeeds.Full,
+        };
+        RuntimeOptions options = RuntimeOptions.Load(flags.EnvPath, needs: needs);
         if (flags.IndexName is not null)
             options = options with { IndexName = flags.IndexName };
         if (flags.AliasesPath is not null)
@@ -182,12 +191,14 @@ internal static class Program
                 Console.WriteLine(Dim($"· aliases    families: {string.Join(", ", expansion.Families)}"));
         }
 
-        IKnowledgeSearch search = RuntimeFactory.CreateSearch(options);
+        var settings = new SearchSettings();
+        IKnowledgeSearch search = RuntimeFactory.CreateSearch(options, settings);
         var parameters = new SearchParameters
         {
             QueryText = queryText,
-            Top = flags.Top ?? new SearchSettings().DefaultTop,
-            Semantic = flags.Semantic ?? false,
+            Top = flags.Top ?? settings.DefaultTop,
+            VectorCandidates = settings.VectorCandidates,
+            Semantic = flags.Semantic ?? settings.SemanticDefault,
             AdditionalFilter = flags.Filter,
         };
         IReadOnlyList<RetrievedDocument> docs = await search.SearchAsync(parameters).ConfigureAwait(false);

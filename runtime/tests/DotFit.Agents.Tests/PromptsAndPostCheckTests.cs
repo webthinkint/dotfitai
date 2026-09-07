@@ -112,6 +112,18 @@ public class PostCheckerTests
     }
 
     [Fact]
+    public void GroupedCitationsSatisfyTheCitationChecks()
+    {
+        // The whole answer is cited, just grouped — the post-check used to read
+        // that as "cites none of the retrieved sources" and fail it.
+        var sources = new List<Retrieval.RetrievedDocument> { TestDocs.Product(), TestDocs.Pdsrg() };
+        var expansion = new AliasExpansion(["Test Family"], ["Test Family"], [9001], []);
+        var result = PostChecker.Check(Clear, NoMentions, expansion, sources, "both sources agree [1, 2]");
+        Assert.True(result.Passed);
+        Assert.Empty(result.Warnings);
+    }
+
+    [Fact]
     public void ProductClaimMustCiteApprovedCopy()
     {
         var sources = new List<Retrieval.RetrievedDocument> { TestDocs.Qa(), TestDocs.Product() };
