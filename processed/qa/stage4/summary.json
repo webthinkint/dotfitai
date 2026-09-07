@@ -1,0 +1,52 @@
+{
+ "pipeline_version": "0.1.0",
+ "options": {
+  "similarity_threshold": 0.88,
+  "min_judge_confidence": 0.7,
+  "api_version": "2025-04-01-preview",
+  "currency_prompt_version": "1.0.0",
+  "deployment": "gpt-5-mini",
+  "no_llm": false,
+  "no_cache": false,
+  "include": null,
+  "limit": null
+ },
+ "n_documents": 1041,
+ "by_stage4_status": {
+  "current": 919,
+  "superseded_currency": 106,
+  "superseded_dup": 16
+ },
+ "n_current": 919,
+ "by_currency_judgment": {
+  "dependent": 106,
+  "independent": 8
+ },
+ "n_clusters": 17,
+ "n_conflict_clusters": 1,
+ "n_audit_clusters": 0,
+ "n_review_queue": 2,
+ "review_reasons": {
+  "cluster_conflict": 2
+ },
+ "embedding": {
+  "deployment": "text-embedding-3-large",
+  "api_version": "2025-04-01-preview",
+  "n_cache_hits": 760,
+  "n_api_calls": 0
+ },
+ "judge": {
+  "n_judge_calls": 0,
+  "n_judge_cache_hits": 114,
+  "n_judge_errors": 0,
+  "n_judged": 114,
+  "n_no_llm": 0,
+  "n_unique_questions": 760,
+  "n_clusters": 17,
+  "n_conflict_clusters": 1,
+  "n_audit_clusters": 0,
+  "deployment": "gpt-5-mini",
+  "api_version": "2025-04-01-preview",
+  "currency_prompt_version": "1.0.0"
+ }
+}

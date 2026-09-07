@@ -7,7 +7,7 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-07. 266 tests green (2026-09-07).
+Numbers verified 2026-09-07. 311 tests green (2026-09-07).
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -17,9 +17,10 @@ Numbers verified 2026-09-07. 266 tests green (2026-09-07).
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.3.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
 | QA Stage 2 (canonicalize) | §4 | **done** — full run 2026-09-06 on the small chat deployment (strict JSON-schema extraction + containment diff pass); alias-1.3.0 regen 2026-09-07 | 1,041 canonical records (prompt 1.1.0); 676 with products (50 part_nos); 306 currency-cued; queue 222 (168 PII + 48 audit + 1 containment + 5 low-conf) |
+| QA Stage 4 (dedup & currency) | §4 | **done** — `stage4` subcommand (2026-09-07); byte-identical rerun verified | 919 current / 106 superseded_currency / 16 superseded_dup; 17 clusters (1 conflict); 114 judgments (106 dependent / 8 independent / 0 low-conf); queue 2 (cluster conflict) |
 | Podcast segmentation | §7 | **done** — `podcast` subcommand; greedy merge to ~90 s / 200-word targets (phrases atomic); Speaker-turn text is the speaker-map rewrite contract | 47 episodes → 1,800 segments (median 76 s / 251 words); rerun byte-identical |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed** — 47/47 episodes via fast-transcription (diarization on, dotFIT phrase list); 5-episode spot-check clean; remaining: speaker-map (text rewrite + re-upload, non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3 |
-| Index + retrieval | §9–11 | **index live** — `kb-main` holds 4,118 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 1,051 qa) with the 1.3.0 product tags uploaded; QA-filtered + unfiltered retrieval smoke PASS (topical QA hits, product tags + first real `date`s flow); remaining: golden-set eval, ranker toggle | `processed/index/` |
+| Index + retrieval | §9–11 | **index live** — `kb-main` holds 3,996 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 929 qa; Stage-4-superseded QA docs pruned from the service, not just the artifact); QA-filtered + unfiltered retrieval smoke PASS; index now mirrors documents.jsonl by construction (sortable id + post-upload prune); remaining: golden-set eval, ranker toggle | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -35,6 +36,7 @@ regenerated run.
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | week 3–4, decide empirically |
 | 6 | Stage 3 review-queue dispositions | **closed (round 2)** 2026-09-05 — owner triage: 5 study-author honorifics (pasted articles/transcripts) cleared into `ACCEPTED_HONORIFIC_NAMES`; 2 full-name customer sign-offs redacted by the new sign-off rule. Queue 0. Remaining: git history still holds the two names in older blobs — purge needs owner decision (same precedent as the `.scan` purge) |
+| 7 | Stage 4 review-queue dispositions | **open** — 2 records (`cluster_conflict`: 2024 First String/baseline vs screener note, non-nested part_nos); owner picks or splits the cluster. Also available for audit: the 114 currency judgments carry evidence quotes in `stage4/documents.jsonl` |
 
 ## Decisions
 
@@ -86,6 +88,40 @@ Everything else (rules, index contract, stage design) is in the plan.
   flag-and-redact; inline closer+name and `wrote:`-header gaps closed in `scrub.py`;
   prompt redacts to [NAME] (never [CUSTOMER]), quotes public figures verbatim,
   transcribes expert notes without summarizing.
+
+**Stage 4 (§4)**
+
+- **Renames never supersede** (owner ruling 2026-09-07, after challenging the
+  plan's stale "pre-reformulation names" wording): LeanMR→LeanMeal and every
+  legacy rename is an identity mapping — same product, same formula. A rename
+  cue is a dated-name signal (runtime can say "LeanMR, now LeanMeal"), and
+  Stage 2 already expanded renames to successor part_nos — all 192 rename-cued
+  records carry them, so superseding would have deleted real current content
+  from the index. Only replacement (19 records) and discontinued (97) cues
+  can supersede, via the formulation-dependence judgment.
+- **Threshold 0.88 is scan-locked** (`scripts/stage4_cluster_scan.py`):
+  at 0.88 every sampled merge is a true duplicate and the corpus yields 17
+  clusters / 36 records; below 0.86 distinct questions fuse ("replace" vs
+  "combine" Alln1+ActiveMV at 0.8436). The tie-breaker is asymmetry: a wrong
+  merge removes a distinct answer from the index, a wrong miss only leaves a
+  harmless duplicate retrievable.
+- **Conflict proxy**: deterministic code cannot judge prose, so "materially
+  disagree" = non-nested part_no sets → queue the cluster, no auto-pick,
+  members stay indexed pending disposition; 5% deterministic audit sample of
+  auto-resolved clusters; `clusters.jsonl` is the committed session record.
+- **Conservative default when no judgment is usable** (no-llm mode, API
+  error, low confidence): superseded + queued — §4 says "superseded unless
+  formulation-independent", so the burden of proof sits on independence.
+  114 live judgments: 106 dependent / 8 independent / 0 low-confidence / 0
+  errors.
+- **The index mirrors documents.jsonl by construction**: Stage-4-superseded
+  docs are pruned from AI Search, not just skipped at upload. Two infra fixes
+  earned en route: the `id` key field is now `sortable` (skip-pagination
+  without order_by is unspecified — it could miss or repeat ids), and
+  `ensure_index(reset=True)` now polls the async deletion before create —
+  the 2026-09-07 rebuild raced it, failed with a bare "could not be created",
+  and left the service with **no** index until the fixed rebuild re-uploaded
+  from the vector cache (no embedding cost).
 
 **Aliases (§5)**
 
@@ -174,6 +210,8 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-07 (26)** — QA Stage 4 shipped (§4): new `stage4` subcommand + module — question clustering (cosine ≥ 0.88, scan-locked; product/topic buckets; identical strings override buckets; expert notes unclustered), canonical pick (newest current member), conflict proxy (non-nested part_nos → queue, no auto-pick), 5% cluster audit, currency pass (renames never supersede per owner ruling; replacement/discontinued cues → gpt-5-mini formulation-dependence judgment, strict schema, cached in `runs/stage4_cache.jsonl`, conservative default). Full run: 1,041 records → **919 current / 106 superseded_currency / 16 superseded_dup**, 17 clusters (1 conflict), 114 judgments (106/8/0/0), queue 2; byte-identical rerun (760 embed cache hits + 114 judge cache hits, 0 API calls). Index: `qa_documents` skips `is_current=false`; `kb-main` rebuilt 4,118 → **3,996** (−122 superseded QA docs, everything else byte-identical vs HEAD), index now prunes to mirror the build (sortable `id`; `--no-prune`), `ensure_index(reset)` waits out the async deletion (the race left kb-main deleted mid-rebuild — restored same run from vector cache, 0 embed calls). Retrieval smoke PASS: superseded docs absent from the service, conflict members still retrievable, QA hits intact. 45 new tests (40 stage4 + 5 index/prune/reset-race). **311 tests**.
+- **2026-09-07 (25)** — Stage 4 calibration scan (`scripts/stage4_cluster_scan.py`, one-off): 766 questions embedded (760 unique; vectors cached for the full run), 89,451 bucketed pairs, pure-Python `math.sumprod` cosine (BLAS dot products are not bit-stable across platforms — byte-identical reruns forbid numpy here); threshold evidence: 0.88 merges only true dups, <0.86 fuses distinct questions (0.8436 "replace" vs "combine" Alln1). No tests (analysis tool). 266 tests.
 - **2026-09-07 (24)** — Alias-1.3.0 regen (§5→§4/§9): Stage 2 rerun — 2 live calls (the two scrub-fix docs) + 1,039 cache hits, 0 errors — **676** with products (+42 newly tagged; 295 more gained part_nos — 338 vs the 336 cache-replay estimate), unresolved mentions 3,474 → 2,292 (−34%), distinct part_nos steady at 50, queue 222 unchanged (168/48/1/5). Index regen + re-upload: 4,118/4,118 to `kb-main`, 0 errors, ids stable; diff confined to `products` on 338 QA docs (+`title`/`content`/`topics` on the 2 scrub-fix docs), everything else byte-identical. Live smoke PASS: 206 docs served under the `1009` (Over 50 MV) part_no filter — the `Over50` alias flows end-to-end. Bookkeeping: README Stage 2 numbers refreshed to the regen, safety re-verified on the new artifacts (0 own-answer name-span leaks incl. both live-call docs; 0 raw emails/phones in title/answer; null questions corrected to 275 = 264 + 11). Regen only, no new tests. 266 tests.
 - **2026-09-07 (23)** — Alias curation pass 2 (§5), alias table **1.3.0**: eight corpus spellings the derivation could not reach joined `CURATED_ALIASES` (`SuperOmega-3`/`Super Omega 3`→Omega-3 Fish Oil, `SuperCalcium`/`Super Calcium`→Calcium Complex, `BestPlantProtein`→Plant Protein, `All Natural WheySmooth`→WheySmooth — family name as a *suffix*, invisible to the prefix rule — `Over50`→Over 50 MV, `1-Active`/`2-Active`→Active MV per the dose-tier ruling below); new **LLM-only tier** `CURATED_LLM_ONLY_ALIASES` (`Women's`→Women's MV) resolves on the Stage 2 mention path only, never in the blind text scan, with build-time guards against a token sitting in two tiers or in a tier plus `CONTEXT_ONLY_TOKENS`. `Kids`/`VeganMV`/`1-Vegan` deliberately unaliased — their referents are discontinued, so there is no part_no to tag. Cache-replay estimate (not a regenerated run): 336 records gain part_nos, 42 newly tagged, unresolved mentions −35%; **Stage 2 + index regen pending** (2 live calls, metadata-only so no re-embed). 12 new tests. 266 tests.
 - **2026-09-07 (22)** — Scrub fix (§4 Stage 0): bare `best` in the inline-closer alternation is also an adjective and ate prose in the first regen (`...and Best Plant Protein.` and the heading `Best Scientific Combination` both became `Best [NAME]`) — it now requires its comma, every other closer keeps the optional one (`Thanks Neal` is attested). Stage 0/1 regen: 2 lines restored, nothing else changed; inline sign-off redactions 48 → 46, all 46 genuine. Those 2 docs are now Stage 2 cache-stale. 3 new tests. 254 tests.
