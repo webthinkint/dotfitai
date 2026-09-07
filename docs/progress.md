@@ -38,6 +38,12 @@ regenerated run.
 
 ## Open items (§14)
 
+The ones that need a *person* rather than code are written up in plain
+language for non-engineers in `docs/owner-tasks/` — one document per task,
+with what it is, why it matters and how long it takes. Keep the two in step:
+this table is the engineering status, that folder is what gets handed to an
+owner.
+
 | # | Item | Status |
 |---|---|---|
 | 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05, credentials in local `.env`; `text-embedding-3-large` and `gpt-5-mini` deployed and smoke-verified. Remaining: quota increase for the frontier chat deployment |

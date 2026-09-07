@@ -11,6 +11,9 @@ sources (customer QA emails, PDSRG PDFs, `products.json`, podcasts).
   five newest log entries. Check the open-items table before claiming something
   is "next"; add one log line per work item and rotate the sixth out to
   `docs/progress-archive.md`.
+- `docs/owner-tasks/` — the open items that need a human, written for
+  non-engineers (one file per task). Update these when an item's status
+  changes; they are what the owner actually reads.
 - `docs/decisions.md` — owner/curation rulings by area (PII, Stage 4, aliases,
   PDSRG, index). Read the group for the area you are touching before changing
   behavior it constrains.
