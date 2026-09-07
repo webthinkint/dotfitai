@@ -9,172 +9,76 @@ sources (customer QA emails, PDSRG PDFs, `products.json`, podcasts).
   docstrings, commit messages, and progress entries; keep citing them.
 - `docs/progress.md` — living status tracker, newest first. Check the open-items
   table before claiming something is "next"; add one log line per work item.
+- **Module docstrings are the detail.** Every module opens with its §ref, its
+  contract and the rulings baked into it; `runtime/README.md` does the same for
+  the .NET side. Read the file you are about to touch — this document is a map,
+  not a substitute.
 
 ## Commands
 
-All from `pipeline/` (uv-managed, Python 3.12 pinned in `.python-version`):
+From `pipeline/` (uv-managed, Python 3.12 pinned in `.python-version`):
 
 ```bash
 uv sync                                  # only prerequisite is uv itself
 uv run pytest                            # full suite; must be green before committing
 uv run pytest tests/test_pdsrg.py -k chunk_section -x   # one test / one file
-uv run qa-pipeline run    --input ../data/QAs --out ../processed/qa   # stage0 + stage1
-uv run qa-pipeline pdsrg  --input "../data/Practitioner Dietary Supplement Reference Guide" \
-    --products "../data/Product Data/products.json" --out ../processed/pdsrg
-uv run qa-pipeline aliases --products "../data/Product Data/products.json" \
-    --out ../processed/aliases --qa-docs ../processed/qa/stage1/documents.jsonl
-uv run qa-pipeline index --chunks ../processed/pdsrg/chunks/chunks.jsonl \
-    --products "../data/Product Data/products.json" \
-    --menus "../data/Reference Menus/All Reference Menus Export.csv" \
-    --podcast-segments ../processed/podcasts/segments/segments.jsonl \
-    --qa-docs ../processed/qa/stage4/documents.jsonl \
-    --out ../processed/index --no-upload   # shape + embed; drop --no-upload to upload
-uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage2
-uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage4
-uv run qa-pipeline golden --qa-docs ../processed/qa/stage4/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/golden
+uv run qa-pipeline --help                # subcommands; <sub> --help for all flags
 ```
 
-Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`, `index`, `podcast`, `golden`. Shared flags:
-`--include GLOB` (repeatable), `--limit N`, `--quiet`, `--fail-on-error`,
-`--no-prune` (by default outputs whose input disappeared are deleted so the
-output tree always mirrors the corpus). `pdsrg` adds `--keep-references`,
-`--citation-base`. `index` has no corpus tree to prune; it adds `--no-embed`,
-`--no-upload`, `--reset`, `--no-prune` (service-side mirror), `--index-name`.
-`stage4` mirrors `stage2`'s flags (`--no-llm` = conservative supersession;
-clustering still embeds).
+Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`,
+`index`, `podcast`, `golden`. Path defaults are repo-root-relative, so from
+`pipeline/` pass `../data/...` / `../processed/...`. Corpus filenames contain
+spaces, commas and `&` — always quote paths. Outputs whose input disappeared are
+pruned by default (`--no-prune` to keep), so the output tree mirrors the corpus.
 
-Corpus filenames contain spaces, commas and `&` — always quote paths.
+Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`; live checks are
+`dotfit-agent` CLI verbs. See `runtime/README.md` for verbs, flags and config.
 
-`scripts/pdsrg_gate.py` and `scripts/pdsrg_density_scan.py` are one-off
-analysis tools, not part of the CLI; the gate's validated extraction strategy
-was folded into `pdsrg.py` and is the reason its settings look the way they do.
+`scripts/pdsrg_gate.py` and `scripts/pdsrg_density_scan.py` are one-off analysis
+tools, not part of the CLI; the gate's validated extraction strategy was folded
+into `pdsrg.py` and is why its settings look the way they do.
 
 ## Architecture
 
-Two independent corpora feed a shared alias vocabulary.
+Two independent corpora feed a shared alias vocabulary, then a shared index.
 
-**QA corpus (`data/QAs/**/*.docx` → `processed/qa/`)** — a strict two-stage
-contract; Stage 1 only ever reads Stage 0 output, never the raw docs.
+QA: `data/QAs/**/*.docx` → stage0 → stage1 → stage2 → stage4 → `index`
+PDSRG: PDF → `pdsrg` → `index`; products.json + menus + podcasts → `index`
+Runtime queries the index; `alias.py` feeds both `pdsrg` and query expansion.
 
-- `extract.py` — `.docx` → lines. Goes below `paragraph.text` (which drops
-  hyperlink runs) to raw `w:t` nodes; tables flatten to pipe-joined rows.
-  Never raises: corrupt files return `ExtractResult(ok=False)` and are routed
-  to the queue.
-- `structure.py` — shared structural detection for the corpus's three document
-  shapes (email thread, free-form expert note, labeled Q&A / forwarded thread
-  where the reply sits *below* the quoted block). Both Stage 0 (signature
-  cutting) and Stage 1 (section split) need the customer-header position, so it
-  lives here once.
-- `scrub.py` (Stage 0) — structural redaction + greeting de-naming + pattern
-  redaction; emits scrubbed text and a per-file report. The placeholder
-  vocabulary (`[EMAIL] [PHONE] [CUSTOMER] [NAME] [SIGNATURE]` …) is a contract
-  Stage 1 and human reviewers parse — don't change tokens casually.
-- `stage1.py` — section split, classify (`qa_email` / `expert_note` / `other`),
-  metadata. `thread_date` is the enquiry's `Sent:` header, **not** the expert's
-  reply date; Stage 4 must treat it as a currency lower bound. Date parsing is
-  locale-independent by construction.
-- Output contract for Stage 2: `stage1/documents.jsonl` (sorted by
-  `source_file`), plus `review_queue.jsonl`, `summary.json`, and the *committed*
-  `stage0/errors.json` (the queue reads that, not the gitignored `runs/`).
-- **Stage 4** (`stage4.py`, plan §4) dedups the canonicals and stamps retrieval
-  currency: question clustering (cosine ≥ 0.88 scan-locked; shared
-  product/topic buckets; identical strings override buckets; pure-Python
-  cosine — BLAS isn't bit-stable), newest-wins canonical pick among
-  currency-current members, non-nested part_no sets as the conflict proxy
-  (queue, no auto-pick), 5% cluster audit, and the currency pass: renames
-  never supersede (identity — Stage 2 already expanded their part_nos);
-  replacement/discontinued cues supersede only when a cached gpt-5-mini
-  judgment says the guidance is formulation-dependent (conservative default:
-  superseded). Output `stage4/documents.jsonl` (everything retained) +
-  `clusters.jsonl` worksheet + queue; the index consumes it, skips
-  `is_current=false`, and prunes those docs service-side.
+| File | Owns | Plan |
+|---|---|---|
+| `extract.py` | `.docx` → lines; never raises | §4 |
+| `structure.py` | shared shape detection (Stage 0 + Stage 1 both need it) | §4 |
+| `scrub.py` | Stage 0 PII scrub + per-file report | §4 |
+| `stage1.py` | section split, classify, metadata | §4 |
+| `stage2.py` | LLM canonicalization, product normalization | §4 |
+| `stage4.py` | dedup clustering + currency stamping | §4 |
+| `alias.py` | derived + curated alias table, QA candidate harvest | §5 |
+| `pdsrg.py` | PDF → section chunks with heading paths | §6 |
+| `index_build.py` + `embeddings.py` | `kb-main` shaping, embedding, upload | §9 |
+| `golden.py` | stratified golden-set draw + labeling worksheets | §12 |
+| `azure_config.py` | root `.env` contract, `require=` subsets, masked repr | §9–11 |
+| `io_utils.py` | **every** read/write | — |
+| `runtime/` | guardrail → rewrite → search → answer → post-check | §11 |
 
-**PDSRG corpus (PDF → `processed/pdsrg/chunks/chunks.jsonl`)** — `pdsrg.py`:
-pdfplumber hybrid table extraction (`lines` strategy, trivial + prose
-false-positives dropped, collapse signature re-extracted with `text` to restore
-ultra-wide dosage grids), font-based heading detection across four layout
-templates (incl. a slide-deck path), section chunking with heading-path
-prefixes (~650/800 tokens, tables atomic), product/category/topic metadata from
-`STEM_META`. References sections are excluded by default.
+Cross-file contracts that no single docstring owns:
 
-**Alias table (`alias.py`)** — two layers: deterministic derivation from
-`products.json` (family = longname minus trailing ` - <variant>`; legacy names
-from `(formerly X)` markers) plus a curated overlay. It also harvests candidates
-from the QA corpus into a review worksheet. Consumed by `pdsrg.py` to tag chunks
-with `part_no`s and by query-side expansion — **never used to rewrite corpus
-text**.
-
-The curated overlay is tiered **by which consumer may resolve a token**, because
-the two differ in context: Stage 2's `normalize_products` maps LLM mention
-strings (the model already judged it a product mention *in that document*),
-while `deterministic_product_tags` scans raw text blind. `CURATED_ALIASES` is
-safe for both; `CURATED_LLM_ONLY_ALIASES` is the mention path only, for tokens
-that are also ordinary English (`Women's` vs `women's health`);
-`CONTEXT_ONLY_TOKENS` (PP, MVM) is resolved by neither. One token, one tier —
-the build raises on overlap. Adding a token to the wrong tier is how blind
-false tags get in.
-
-**Golden set (`golden.py`, plan §12)** — stratified draw from the Stage 4
-current question-bearing pairs into the §12 labeling artifacts
-(`processed/golden/`: `sample.jsonl`, `worksheet.md`, `adversarial.md`,
-`summary.json`). Tunables are constants in the module (sizes, recent-year
-weight, coverage floors); selection order is sha256(seed:id) — no RNG, no
-timestamps, byte-identical from any cwd. The worksheet and adversarial
-scaffold are inputs for the human labeling pass (open item 8), not eval
-outputs; the harness that scores answers is later work.
-
-**Index build (`index_build.py` + `embeddings.py`, plan §9)** — shapes PDSRG
-chunks (already §9-stamped), products.json families (§5 section-split: the
-canonical SKU's sections are the family documents; variants contribute only
-genuinely distinct sections) and §8 menu descriptions into the `kb-main`
-schema (3072-dim vectors, int8 quantization + rescoring, `stored=false`).
-Vectors are API results: they embed `title + content` and cache in the
-gitignored `runs/embeddings.jsonl` (keyed by deployment|api-version|text), so
-the committed `documents.jsonl` carries no vectors and reruns are
-byte-identical. `azure_config.py` reads the gitignored root `.env` — with
-`require=` subsets, since the two chat deployments are pending quota — and
-never echoes values (masked repr; errors name variables only).
-
-**`io_utils.py`** is the single choke point for every read/write (explicit
-UTF-8, `newline="\n"`, POSIX-normalized ids, sorted iteration). New file I/O
-goes through it, otherwise the cross-platform guarantee silently breaks.
-
-**Runtime (`runtime/`, .NET 10 — plan §11)** — `DotFit.Agents` library +
-`dotfit-agent` CLI (the testing/demo harness; the ASP.NET SSE service comes
-later and maps the same events). The §11 pipeline as components:
-`AgentGuardrail` → `AgentQueryRewriter` → `AliasTable` (the committed §5
-artifact; the two-consumer tier rules are mirrored — mention path resolves
-deterministic+LLM-only, blind scan deterministic only) → `KnowledgeSearch`
-(hybrid on `kb-main`, `is_current` prefilter, semantic ranker off by default
-until open item 5, deterministic authority re-rank as a tuning knob — it
-orders on the reranker score when the ranker ran, the fused retrieval score
-otherwise, because Azure reports the two separately) →
-`AgentAnswerAgent` (grounded `[n]`-citation instructions, streamed) →
-`PostChecker` (deterministic citation/escalation checks) + optional
-claims-language audit (small model, degrade-to-warning). **Delivery is an
-explicit mode** (§11 "streaming vs. gating"): every check is terminal by
-construction, so `AskOptions.StreamMode` is either `Gated` — deltas held until
-the post-check passes, a failure delivering the templated
-`Prompts.WithheldMessage()` and never the answer text (the SSE service default)
-— or `Live`, which streams as generated and can only emit a `RetractionEvent`
-after the fact (the CLI default; not for customers). The failing draft is kept
-in `AnswerText` for tracing, `DeliveredText` is what the caller saw. Guardrail failures
-open by design — the answer agent's instructions carry the full escalation
-policy and the post-check verifies it. Escalations short-circuit to a
-templated refusal (no LLM call). Config is the root `.env`, same contract as
-`azure_config.py` (walk-up discovery, query key preferred, masked repr,
-errors name variables only, and `require=` subsets as the `RuntimeNeeds` flags
-enum — `search` must not demand the chat deployments that open item 1 is
-waiting on). `Azure.AI.OpenAI` stays prerelease **on
-purpose**: the GA build only offers api-version 2024-10-21, which the Foundry
-v2 resource 404s — `ServiceVersion` pins 2025-04-01-preview. Tests use
-scripted `IChatClient` fakes and synthetic fixtures — no Azure in tests;
-live checks are CLI commands
-(`dotfit-agent ask|chat|search|guardrail|rewrite`, exit 1 on a failed
-post-check).
+- **The two-stage contract**: Stage 1 only ever reads Stage 0 output, never the
+  raw docs. Same for each later stage: input is the previous stage's committed
+  `documents.jsonl`, plus the committed `stage0/errors.json` for the queue (not
+  the gitignored `runs/`).
+- **The placeholder vocabulary** (`[EMAIL] [PHONE] [CUSTOMER] [NAME]
+  [SIGNATURE]` …) is parsed by Stage 1 and by human reviewers — don't change
+  tokens casually.
+- **`thread_date` is the enquiry's `Sent:` header**, not the expert's reply
+  date; Stage 4 must treat it as a currency lower bound.
+- **The alias table is never used to rewrite corpus text** — only to tag and to
+  expand queries. Its curated overlay is tiered by *which consumer may resolve a
+  token* (mention path vs. blind scan); the tiers and the raise-on-overlap check
+  are in `alias.py`, and `runtime/` mirrors them. Wrong tier = blind false tags.
+- **`io_utils.py` is the choke point.** New file I/O that bypasses it silently
+  breaks the cross-platform byte guarantee.
 
 ## Working rules that bite
 
@@ -193,14 +97,14 @@ post-check).
   is only a currency cue. Separate alias-table sections.
 - **Corpus attestation**: an alias must appear in the corpus in the form the
   corpus writes it. A 0-doc worksheet row means the alias is wrong.
-- **PII**: `data/QAs/` is read-only and holds real customer mail; nothing unscrubbed
-  leaves Stage 0. Redaction is conservative — what cannot be redacted without
-  eating prose is *flagged*, never guessed — and beware trigger words that are
-  also ordinary English (bare `best` as a sign-off closer ate `Best Plant
-  Protein` and a `Best Scientific Combination` heading before it was made
-  comma-gated; a redaction rule earns its keep on the regen diff, not on the
-  fixture). A review queue of 0 is a claim to be earned, not a target. Tests use synthetic fixtures (`tests/conftest.py`,
-  example.com / 555 numbers) — never paste real corpus text into tests or docs.
+- **PII**: `data/QAs/` is read-only and holds real customer mail; nothing
+  unscrubbed leaves Stage 0. Redaction is conservative — what cannot be redacted
+  without eating prose is *flagged*, never guessed — and beware trigger words
+  that are also ordinary English (bare `best` as a closer ate `Best Plant
+  Protein` before it was comma-gated). A redaction rule earns its keep on the
+  regen diff, not on the fixture. A review queue of 0 is a claim to be earned,
+  not a target. Tests use synthetic fixtures (`tests/conftest.py`, example.com /
+  555 numbers) — never paste real corpus text into tests or docs.
 - **`products.json` is the legal-approved claims corpus** — quote it, never
   paraphrase claims.
 - `processed/` is committed but derived: regenerate, don't hand-edit. Numbers
