@@ -10,6 +10,20 @@ using Microsoft.Agents.AI;
 
 namespace DotFit.Agents;
 
+/// <summary>
+/// When the caller may see the answer text (plan §11, "streaming vs. gating").
+/// <see cref="Live"/> emits deltas as the model produces them, so a failed
+/// post-check can only be reported after the text has been read — the
+/// diagnostic mode, and the CLI default. <see cref="Gated"/> withholds every
+/// delta until the post-check has run and releases the answer only on PASS —
+/// the customer-facing mode, and the SSE service default.
+/// </summary>
+public enum AnswerStreamMode
+{
+    Live,
+    Gated,
+}
+
 /// <summary>Per-question options for the assistant pipeline.</summary>
 public sealed record AskOptions
 {
@@ -17,6 +31,7 @@ public sealed record AskOptions
     public int? Top { get; init; }
     public bool? Semantic { get; init; }
     public string? Filter { get; init; }
+    public AnswerStreamMode StreamMode { get; init; } = AnswerStreamMode.Live;
 }
 
 /// <summary>Streamed pipeline events (the SSE service maps these later).</summary>
@@ -27,6 +42,15 @@ public sealed record StageEvent(string Stage, string Detail) : AssistantEvent;
 
 /// <summary>A streamed answer fragment.</summary>
 public sealed record DeltaEvent(string Text) : AssistantEvent;
+
+/// <summary>
+/// The answer did not survive the post-check. On <see cref="AnswerStreamMode.Gated"/>
+/// nothing has been emitted yet and the delta that follows is the handoff
+/// message; on <see cref="AnswerStreamMode.Live"/> the caller has already seen
+/// the text and must retract what it rendered. Either way the failing text is
+/// kept in <see cref="AssistantResult.AnswerText"/> for tracing and §12 eval.
+/// </summary>
+public sealed record RetractionEvent(string Reason, AnswerStreamMode Mode) : AssistantEvent;
 
 /// <summary>The final assembled result — always the last event.</summary>
 public sealed record ResultEvent(AssistantResult Result) : AssistantEvent;
@@ -40,11 +64,19 @@ public sealed record AssistantResult
     public required AliasExpansion Expansion { get; init; }
     public required IReadOnlyList<RetrievedDocument> Sources { get; init; }
     public required string AnswerText { get; init; }
+    /// <summary>
+    /// What the caller actually received — the concatenated deltas. Equal to
+    /// <see cref="AnswerText"/> except on a gated post-check failure, where the
+    /// answer is withheld and the handoff message is delivered instead.
+    /// </summary>
+    public required string DeliveredText { get; init; }
     public required IReadOnlyList<Citation> Citations { get; init; }
     public required string RenderedCitations { get; init; }
     public required PostCheckResult PostCheck { get; init; }
     public required IReadOnlyDictionary<string, double> StageSeconds { get; init; }
     public bool Escalated => Guardrail.Escalate;
+    /// <summary>True when the generated answer was suppressed before the caller saw it.</summary>
+    public bool Withheld => DeliveredText != AnswerText;
 }
 
 /// <summary>
@@ -115,6 +147,7 @@ public sealed class KnowledgeAssistant
                 Expansion = AliasExpansion.Empty,
                 Sources = [],
                 AnswerText = refusal,
+                DeliveredText = refusal,
                 Citations = [],
                 RenderedCitations = "",
                 PostCheck = PostChecker.Check(verdict,
@@ -165,7 +198,9 @@ public sealed class KnowledgeAssistant
                       "correct it politely and answer only from approved copy.");
         string userMessage = Prompts.BuildAnswerUserMessage(question, sources, notes);
 
-        yield return new StageEvent("answer", $"streaming from {sources.Count} source(s)");
+        bool gated = options.StreamMode == AnswerStreamMode.Gated;
+        yield return new StageEvent("answer",
+            $"{(gated ? "generating (gated)" : "streaming")} from {sources.Count} source(s)");
 
         sw.Restart();
         var answerText = new System.Text.StringBuilder();
@@ -174,7 +209,10 @@ public sealed class KnowledgeAssistant
             if (update.Text is { Length: > 0 } delta)
             {
                 answerText.Append(delta);
-                yield return new DeltaEvent(delta);
+                // Gated: the deltas are held until the post-check has run. Stage
+                // events still flow, so the caller has something live to render.
+                if (!gated)
+                    yield return new DeltaEvent(delta);
             }
         }
         timings["answer"] = sw.Elapsed.TotalSeconds;
@@ -190,6 +228,28 @@ public sealed class KnowledgeAssistant
         yield return new StageEvent("post-check",
             postCheck.Passed ? "PASS" : $"FAIL ({string.Join("; ", postCheck.Failures)})");
 
+        // --- stage 7: release or withhold -----------------------------------------
+        // The checks that matter are terminal by construction — citation markers
+        // are only known at the last delta, and the claims audit is the only check
+        // that catches claim wording lifted from a CONTEXT ONLY source. So there is
+        // no partial gate to run: the answer is either released whole or withheld
+        // whole. A gated failure delivers the handoff message and never the text;
+        // a live failure can only retract what the caller already rendered.
+        string delivered = answer;
+        if (!postCheck.Passed)
+        {
+            yield return new RetractionEvent(string.Join("; ", postCheck.Failures), options.StreamMode);
+            if (gated)
+            {
+                delivered = Prompts.WithheldMessage();
+                yield return new DeltaEvent(delivered);
+            }
+        }
+        else if (gated && answer.Length > 0)
+        {
+            yield return new DeltaEvent(answer);
+        }
+
         IReadOnlyList<Citation> citations = CitationFormatter.Collect(answer, sources);
         yield return new ResultEvent(new AssistantResult
         {
@@ -199,6 +259,7 @@ public sealed class KnowledgeAssistant
             Expansion = expansion,
             Sources = sources,
             AnswerText = answer,
+            DeliveredText = delivered,
             Citations = citations,
             RenderedCitations = CitationFormatter.RenderBlock(citations),
             PostCheck = postCheck,

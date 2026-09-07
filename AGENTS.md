@@ -154,7 +154,14 @@ orders on the reranker score when the ranker ran, the fused retrieval score
 otherwise, because Azure reports the two separately) →
 `AgentAnswerAgent` (grounded `[n]`-citation instructions, streamed) →
 `PostChecker` (deterministic citation/escalation checks) + optional
-claims-language audit (small model, degrade-to-warning). Guardrail failures
+claims-language audit (small model, degrade-to-warning). **Delivery is an
+explicit mode** (§11 "streaming vs. gating"): every check is terminal by
+construction, so `AskOptions.StreamMode` is either `Gated` — deltas held until
+the post-check passes, a failure delivering the templated
+`Prompts.WithheldMessage()` and never the answer text (the SSE service default)
+— or `Live`, which streams as generated and can only emit a `RetractionEvent`
+after the fact (the CLI default; not for customers). The failing draft is kept
+in `AnswerText` for tracing, `DeliveredText` is what the caller saw. Guardrail failures
 open by design — the answer agent's instructions carry the full escalation
 policy and the post-check verifies it. Escalations short-circuit to a
 templated refusal (no LLM call). Config is the root `.env`, same contract as

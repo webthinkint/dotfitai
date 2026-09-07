@@ -188,6 +188,20 @@ public static class Prompts
     }
 
     /// <summary>
+    /// Delivered instead of the answer when a gated run fails the post-check
+    /// (<see cref="DotFit.Agents.AnswerStreamMode.Gated"/>). Templated for the same reason as
+    /// <see cref="RefusalMessage"/> — the fallback for a failed check must not
+    /// itself be a model call that can fail the same check. Deliberately does
+    /// not name the failure: the customer gets a handoff, the trace gets the
+    /// detail.
+    /// </summary>
+    public static string WithheldMessage() =>
+        "I wasn't able to give you a sourced answer I'm confident in on that one, so I'd " +
+        "rather not guess. Please contact the dotFIT support team and they'll take good " +
+        "care of you.\n\n" +
+        "(I'm an AI assistant — nutrition guidance, not medical advice.)";
+
+    /// <summary>
     /// Whether a source may supply product-claim wording (§3: products.json is
     /// the legal-approved claims corpus, the PDSRG the practitioner authority).
     /// Authority 3-4 — customer Q&amp;A, podcasts, menus — is context, never

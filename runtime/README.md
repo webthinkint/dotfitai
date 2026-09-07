@@ -63,4 +63,11 @@ dotnet run --project src/DotFit.Agents.Cli -- rewrite "LeanMR dosage"
 `--semantic` (ranker on — open item 5; the re-rank then orders on the ranker's
 score, not the fused retrieval score), `--filter <odata>` (ANDed with
 `is_current eq true`), `--raw` (skip alias expansion), `--json`,
-`--no-stream`, `--no-claims-check`, `--trace`.
+`--no-stream`, `--no-claims-check`, `--gated`, `--trace`.
+
+`--gated` switches `ask`/`chat` from the CLI default (`Live` — stream deltas as
+generated, report a post-check failure after the fact) to the mode the SSE
+service will use (`Gated` — hold every delta until the post-check has run, and
+on failure deliver the templated handoff instead of the answer, never the
+answer text). See plan §11 "streaming vs. gating"; with `--trace`, a withheld
+draft is still printed for diagnosis.

@@ -76,4 +76,11 @@ public class CliArgsTests
         var e = Assert.Throws<CliUsageException>(() => CliArgs.Parse(["help"]));
         Assert.Contains("dotfit-agent", e.Message);
     }
+
+    [Fact]
+    public void GatedIsOffByDefaultAndOptIn()
+    {
+        Assert.False(CliArgs.Parse(["ask", "q"]).Flags.Gated);
+        Assert.True(CliArgs.Parse(["ask", "--gated", "q"]).Flags.Gated);
+    }
 }

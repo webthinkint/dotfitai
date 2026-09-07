@@ -1,4 +1,5 @@
 using DotFit.Agents.Aliases;
+using DotFit.Agents.Answering;
 using DotFit.Agents.Guardrails;
 using DotFit.Agents.PostCheck;
 using DotFit.Agents.Rewrite;
@@ -174,5 +175,115 @@ public class KnowledgeAssistantTests
         AssistantResult result = await assistant.AskAsync("anything");
         Assert.True(result.Guardrail.Degraded);
         Assert.Equal(answer.Reply, result.AnswerText);
+    }
+
+    /// <summary>A claims checker that always reports the answer non-compliant.</summary>
+    private static IClaimsLanguageChecker NonCompliantClaims() =>
+        new AgentClaimsLanguageChecker(new ChatClientAgent(
+            new ScriptedChatClient("""{"compliant":false,"violations":["unapproved claim"],"evidence":["none"]}"""),
+            new ChatClientAgentOptions { Name = "claims" }));
+
+    [Fact]
+    public async Task GatedModeHoldsEveryDeltaUntilThePostCheckHasRun()
+    {
+        var answer = new FakeAnswerAgent { Reply = "Test Product supports energy metabolism [1]." };
+        var assistant = Build(
+            rewriteReply: """{"canonical_question":"q","product_mentions":["Test Family"],"topics":[],"confidence":1}""",
+            search: new FakeKnowledgeSearch { Results = [TestDocs.Product()] }, answer: answer);
+
+        var order = new List<string>();
+        var deltas = new System.Text.StringBuilder();
+        AssistantResult? result = null;
+        await foreach (var e in assistant.AskStreamAsync("what is Test Family for?",
+            new AskOptions { StreamMode = AnswerStreamMode.Gated }))
+        {
+            switch (e)
+            {
+                case StageEvent s: order.Add($"stage:{s.Stage}"); break;
+                case DeltaEvent d: order.Add("delta"); deltas.Append(d.Text); break;
+                case RetractionEvent: order.Add("retraction"); break;
+                case ResultEvent r: result = r.Result; break;
+            }
+        }
+
+        // no delta may precede the post-check stage event
+        Assert.True(order.IndexOf("delta") > order.IndexOf("stage:post-check"));
+        Assert.DoesNotContain("retraction", order);
+        Assert.NotNull(result);
+        Assert.Equal(answer.Reply, deltas.ToString());
+        Assert.Equal(answer.Reply, result!.DeliveredText);
+        Assert.False(result.Withheld);
+        Assert.True(result.PostCheck.Passed);
+    }
+
+    [Fact]
+    public async Task GatedFailureWithholdsTheAnswerAndDeliversTheHandoff()
+    {
+        var answer = new FakeAnswerAgent { Reply = "Test Product cures everything [1]." };
+        var assistant = Build(
+            rewriteReply: """{"canonical_question":"q","product_mentions":["Test Family"],"topics":[],"confidence":1}""",
+            search: new FakeKnowledgeSearch { Results = [TestDocs.Product()] },
+            answer: answer, claims: NonCompliantClaims());
+
+        var deltas = new System.Text.StringBuilder();
+        RetractionEvent? retraction = null;
+        AssistantResult? result = null;
+        await foreach (var e in assistant.AskStreamAsync("what does Test Family do?",
+            new AskOptions { StreamMode = AnswerStreamMode.Gated }))
+        {
+            switch (e)
+            {
+                case DeltaEvent d: deltas.Append(d.Text); break;
+                case RetractionEvent x: retraction = x; break;
+                case ResultEvent r: result = r.Result; break;
+            }
+        }
+
+        Assert.NotNull(retraction);
+        Assert.Equal(AnswerStreamMode.Gated, retraction!.Mode);
+        Assert.Contains("unapproved claim", retraction.Reason);
+        // the caller never saw the failing text; it survives for tracing and §12 eval
+        Assert.DoesNotContain("cures everything", deltas.ToString());
+        Assert.Equal(Prompts.WithheldMessage(), deltas.ToString());
+        Assert.NotNull(result);
+        Assert.Equal(answer.Reply, result!.AnswerText);
+        Assert.Equal(Prompts.WithheldMessage(), result.DeliveredText);
+        Assert.True(result.Withheld);
+        Assert.Contains("dotFIT support team", result.DeliveredText);
+        Assert.False(result.PostCheck.Passed);
+    }
+
+    [Fact]
+    public async Task LiveFailureDeliversTheAnswerThenRetractsIt()
+    {
+        var answer = new FakeAnswerAgent { Reply = "Test Product cures everything [1]." };
+        var assistant = Build(
+            rewriteReply: """{"canonical_question":"q","product_mentions":["Test Family"],"topics":[],"confidence":1}""",
+            search: new FakeKnowledgeSearch { Results = [TestDocs.Product()] },
+            answer: answer, claims: NonCompliantClaims());
+
+        var deltas = new System.Text.StringBuilder();
+        RetractionEvent? retraction = null;
+        AssistantResult? result = null;
+        await foreach (var e in assistant.AskStreamAsync("what does Test Family do?"))  // Live is the default
+        {
+            switch (e)
+            {
+                case DeltaEvent d:
+                    Assert.Null(retraction);   // deltas all arrive before the retraction
+                    deltas.Append(d.Text);
+                    break;
+                case RetractionEvent x: retraction = x; break;
+                case ResultEvent r: result = r.Result; break;
+            }
+        }
+
+        Assert.NotNull(retraction);
+        Assert.Equal(AnswerStreamMode.Live, retraction!.Mode);
+        // live mode cannot unsay it: the text was delivered, the event only says so
+        Assert.Equal(answer.Reply, deltas.ToString());
+        Assert.Equal(answer.Reply, result!.DeliveredText);
+        Assert.False(result.Withheld);
+        Assert.False(result.PostCheck.Passed);
     }
 }

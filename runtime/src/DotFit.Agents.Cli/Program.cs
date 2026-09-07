@@ -122,6 +122,7 @@ internal static class Program
             Top = flags.Top,
             Semantic = flags.Semantic,
             Filter = flags.Filter,
+            StreamMode = flags.Gated ? AnswerStreamMode.Gated : AnswerStreamMode.Live,
         };
 
         AssistantResult? result = null;
@@ -135,6 +136,12 @@ internal static class Program
                 case DeltaEvent d when !flags.NoStream:
                     Console.Write(d.Text);
                     break;
+                case RetractionEvent x:
+                    Console.WriteLine();
+                    Console.WriteLine(Dim(x.Mode == AnswerStreamMode.Gated
+                        ? $"⚠ answer withheld before delivery: {x.Reason}"
+                        : $"⚠ answer already delivered — retract: {x.Reason}"));
+                    break;
                 case ResultEvent r:
                     result = r.Result;
                     break;
@@ -145,13 +152,15 @@ internal static class Program
 
         Console.WriteLine();
         if (flags.NoStream)
-            Console.WriteLine(result.AnswerText);
-        if (result.Citations.Count > 0)
+            Console.WriteLine(result.DeliveredText);
+        if (result.Citations.Count > 0 && !result.Withheld)
         {
             Console.WriteLine();
             Console.WriteLine(result.RenderedCitations);
         }
         Console.WriteLine(Dim(PostCheckLine(result)));
+        if (result.Withheld && flags.Trace)   // the harness still wants to read what failed
+            Console.WriteLine(Dim($"withheld draft:\n{result.AnswerText}"));
         if (flags.Trace)
             Console.WriteLine(Dim(string.Join(" · ",
                 result.StageSeconds.OrderBy(kv => kv.Value).Select(kv => $"{kv.Key} {kv.Value:0.00}s"))));

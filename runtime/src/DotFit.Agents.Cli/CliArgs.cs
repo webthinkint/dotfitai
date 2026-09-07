@@ -8,6 +8,8 @@ public sealed record CliFlags
     public bool Trace { get; init; }
     public bool NoStream { get; init; }
     public bool NoClaimsCheck { get; init; }
+    /// <summary>ask/chat: hold the answer until the post-check passes (the service default).</summary>
+    public bool Gated { get; init; }
     public int? Top { get; init; }
     public bool? Semantic { get; init; }
     public string? Filter { get; init; }
@@ -51,6 +53,9 @@ public static class CliArgs
           --trace               print per-stage trace lines
           --no-stream           print the answer only once complete
           --no-claims-check     skip the claims-language post-check
+          --gated               hold the answer until the post-check passes, as the
+                                SSE service does (default here: stream live, so a
+                                failed check is visible only after the fact)
           --raw                 search: skip alias expansion
           --json                machine-readable output (search/guardrail/rewrite)
           -h, --help            this help
@@ -76,6 +81,7 @@ public static class CliArgs
         string? env = null, aliases = null, index = null, filter = null;
         int? top = null;
         bool trace = false, noStream = false, noClaims = false, json = false, raw = false;
+        bool gated = false;
         bool? semantic = null;
 
         for (int i = 1; i < args.Length; i++)
@@ -92,6 +98,7 @@ public static class CliArgs
                 case "--trace": trace = true; break;
                 case "--no-stream": noStream = true; break;
                 case "--no-claims-check": noClaims = true; break;
+                case "--gated": gated = true; break;
                 case "--json": json = true; break;
                 case "--raw": raw = true; break;
                 case "--semantic": semantic = true; break;
@@ -120,7 +127,7 @@ public static class CliArgs
         return new CliCommand(verb, text, new CliFlags
         {
             EnvPath = env, AliasesPath = aliases, IndexName = index,
-            Trace = trace, NoStream = noStream, NoClaimsCheck = noClaims,
+            Trace = trace, NoStream = noStream, NoClaimsCheck = noClaims, Gated = gated,
             Top = top, Semantic = semantic, Filter = filter, Json = json, Raw = raw,
         });
     }

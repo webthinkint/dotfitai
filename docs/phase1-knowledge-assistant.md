@@ -333,7 +333,36 @@ macros/calories in v1 (that's the planner/tool work, later).
 Built 2026-09-07 as `runtime/` (plan §13 Track B): the `DotFit.Agents` library
 implements this pipeline component-for-component, and the `dotfit-agent` CLI
 is the smoke/demo harness. The ASP.NET SSE wrapper is the next piece — it
-streams the same Stage/Delta/Result events the CLI renders today.
+streams the same Stage/Delta/Retraction/Result events the CLI renders today.
+
+**Streaming vs. gating (decided 2026-09-07).** The post-check runs on the
+finished answer, so streaming deltas as they arrive means a `claims_language`
+FAIL cannot retract text the customer has already read. There is no partial
+gate available: citation markers are only known at the last delta, and the
+claims audit — the only check that catches claim wording lifted from a CONTEXT
+ONLY source (open item 11) — needs the whole answer. So the answer is released
+whole or withheld whole, and the mode is explicit (`AskOptions.StreamMode`):
+
+- **`Gated` — the customer-facing default, and what the SSE service will use.**
+  Deltas are buffered; stage events still stream, so the widget has something
+  live to render. On PASS the answer is released; on FAIL nothing of it is ever
+  emitted — a `RetractionEvent` is followed by the templated
+  `Prompts.WithheldMessage()` handoff. The fallback is templated for the same
+  reason the escalation refusal is: the answer to a failed check must not be
+  another model call that can fail the same check. The failing draft stays in
+  `AssistantResult.AnswerText` for tracing and §12 eval; `DeliveredText` is
+  what the caller saw.
+- **`Live` — the CLI/harness default.** Deltas stream as generated; a failure
+  emits `RetractionEvent(Mode: Live)` after the fact, and a client on this mode
+  must render the answer as provisional until the post-check event. Not for the
+  customer widget.
+
+This costs the gated path one small-model call of latency, not the whole
+answer: generation has already finished when the gate runs, and the claims
+audit returns early when no authority 1–2 source was retrieved. The cost of
+gating is that `claims_language` false positives now turn into refusals, so
+§12 must report the audit's precision on the adversarial-50 before the service
+ships (open item 12).
 
 ## 12. Golden set & evaluation
 
@@ -396,3 +425,8 @@ Definitions live here; **current status lives in the table at the bottom of
    `filename_contains_redacted_name` flag is removed; (c) the 6 no-answer and 4 blank
    documents are excluded from `documents.jsonl` and tallied in `summary.json` instead of
    queued. Review queue: 35 → 0.
+12. **Claims-audit precision** (opened 2026-09-07) — gating (§11 "streaming vs.
+    gating") makes a `claims_language` false positive cost an answered question
+    rather than a trace line, and the audit's precision is currently unmeasured
+    (4 live runs). §12 must report it on the adversarial-50 before the SSE
+    service ships; if it is poor, the lever is the audit prompt, not the gate.
