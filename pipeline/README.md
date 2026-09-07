@@ -53,7 +53,7 @@ covered under Usage and Output layout.
   heading-path prefixes (~650/800 tokens target/max, tables atomic), product /
   category / topic metadata, per-doc review outlines. References sections are
   excluded by default (`--keep-references` to include).
-- **Index** (`index` subcommand) — shape and upload the §9 `kb-main` AI Search
+- **Index** (`index` subcommand) — shape and upload the §9 AI Search
   index: PDSRG chunks (pass-through — already §9-stamped), products.json §5
   section-split with family grouping (the canonical SKU's sections are the
   family documents; variants contribute only genuinely distinct sections),
@@ -68,19 +68,29 @@ covered under Usage and Output layout.
 - **Golden set** (`golden` subcommand) — the §12 sampling pass over the
   Stage 4 canonicals: 250 items stratified by enquiry year × product family
   (2025–2026 weighted ×2 for currency, ≥1 per present year, FAQ-family and
-  evergreen-topic coverage floors), split 125/125 plus a 25/25 adversarial
-  scaffold = §12's 150 dev / 150 test. Outputs the labeling artifacts
-  (`sample.jsonl`, `worksheet.md` with the rubric and prefilled source
-  candidates, `adversarial.md`, `summary.json` allocation audit); selection
-  order is sha256(seed:id) — no RNG, byte-identical reruns from any cwd.
+  evergreen-topic coverage floors), split 125/125, plus the 50 **written**
+  adversarial items (`CURATED_ADVERSARIAL`, 25/25) = §12's 150 dev / 150 test,
+  plus 120 PDSRG/podcast retrieval probes (open item 15 — those corpora have
+  no golden question). Outputs `sample.jsonl`, `worksheet.md` (rubric +
+  prefilled source candidates), `adversarial.jsonl` / `adversarial.md`,
+  `probes.jsonl`, `summary.json`; selection order is sha256(seed:id) — no RNG,
+  byte-identical reruns from any cwd.
+- **Eval** (`eval` subcommand) — the §12 harness. Drives the .NET runtime as a
+  subprocess over `dotfit-agent --json` and scores source recall@k, probe
+  recall, citation rate, escalation accuracy, claims-audit precision (open item
+  12) and the RAGAS-style judged metrics. **The one subcommand that measures a
+  live service**, so its output is not byte-reproducible: metrics land in a
+  committed `summary.json` + `report.md`, per-item rows in the gitignored
+  `runs/`. `--no-answers` skips the expensive tier, `--no-judge` the LLM calls,
+  `--ranker-ab` answers open item 5.
 
 Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
 the QA stages consume only `data/QAs/**/*.docx`.
 
-**Index name:** `INDEX_NAME` still defaults to `kb-main`, which is the orphaned
-index (progress open item 10). Until that resolves, pass
-`--index-name kb-main-v2` — the live index — on every `index` run. The runtime
-carries the same default and the same caveat (`runtime/README.md`).
+**Index name:** `INDEX_NAME` is `kb-main-v2`, the live index — no override
+needed. `kb-main` is the orphan (progress open item 10): it is stuck
+mid-delete, so the *name* cannot be recreated either. `RuntimeOptions.IndexName`
+mirrors this constant and a test pins each side; change both or neither.
 
 ## Tooling
 
@@ -106,7 +116,7 @@ uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
 Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run` (stages 0+1), `aliases`, `pdsrg`,
-`index` (+ `--qa-docs`), `podcast`, `golden`. Options on all: `--include GLOB` (repeatable), `--limit N`
+`index` (+ `--qa-docs`), `podcast`, `golden`, `eval`. Options on all: `--include GLOB` (repeatable), `--limit N`
 (pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
 for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
 default they are removed so the output tree always matches the corpus).
@@ -357,3 +367,23 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
 
 Earlier entries in `docs/progress-archive.md` quote per-*document* pattern counts: the
 counter incremented once per pattern per file until 2026-09-02 (2).
+
+§12 evaluation (plan §12) — measures the live runtime, so build the agent first:
+
+```bash
+cd ../runtime && dotnet build && cd ../pipeline
+
+# cheap: retrieval only, no chat tokens, both ranker settings (open item 5)
+uv run qa-pipeline eval \
+  --agent ../runtime/src/DotFit.Agents.Cli/bin/Debug/net10.0/dotfit-agent.exe \
+  --split dev --no-answers --no-judge --ranker-ab
+
+# full dev sweep: answers + LLM judge (real Azure spend)
+uv run qa-pipeline eval \
+  --agent ../runtime/src/DotFit.Agents.Cli/bin/Debug/net10.0/dotfit-agent.exe \
+  --split dev
+```
+
+Point `--agent` at the built binary, not `dotnet run` — `dotnet run` writes
+build output to stdout, which is where the JSON contract lives. `--split test`
+is the held-back release check; keep tuning on `dev`.

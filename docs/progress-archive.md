@@ -5,6 +5,55 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`, and each cites the commit that holds the detail.
 
+- **2026-09-08 (34)** — Harness foundation (`d47aacc`, `fea97a1`, `6deadaa`).
+  `ask --json` is now the §12 eval contract: one JSON object on stdout, the
+  banner and `--trace` to stderr, both
+  answer texts (the withheld draft included, for scoring) and sources with
+  `content`. Index defaults flipped to `kb-main-v2` in both `index_build` and
+  `RuntimeOptions`, with a test pinning each side of the mirror — item 10's code
+  half is done, the support ticket is not. Found and fixed a real defect via the
+  degraded-guardrail case (item 15): a model-written refusal after a fail-open
+  pre-check was failing `citation_presence`, which under `Gated` replaces a
+  correct refusal with the handoff. 12 new tests (**99 runtime**).
+- **2026-09-07 (33)** — Documentation review pass (docs only): the plan's §14 was
+  missing definitions for items 7–11 and carried a stale close date on 3; §4
+  Stage 5's "no chunking" and §3's corpus arithmetic (1,103 − 51 − 1 = 1,051)
+  were both wrong against the artifacts. Three gaps between shipped behavior and
+  the trackers became **open items 13–15**: the Stage 2 queue (222), null podcast
+  `citation_url` (1,800 segments), and §12's coverage (no precision metric, no
+  PDSRG/podcast stratum, no degraded-guardrail case). `AGENTS.md` gained
+  `podcast.py`/`cli.py` rows, `pipeline/README.md` the `kb-main` warning. 338 tests.
+- **2026-09-07 (32)** — `progress.md` split three ways so the per-session read
+  stops growing: this file keeps the status table, open items and the newest
+  five log entries; owner rulings moved verbatim to `docs/decisions.md`, rotated
+  entries to `docs/progress-archive.md`. Table rows lost their narrative —
+  mechanism to the docstrings that already own it, history to the log. **36 KB →
+  10 KB** read every session, nothing deleted. Cross-refs repointed in
+  `AGENTS.md`, the plan, `pipeline/README.md`, `alias.py`, `stage4.py`. Docs
+  only. 338 tests.
+- **2026-09-07 (31)** — Answer delivery gated on the post-check (§11) (`9751a34`).
+  No partial gate is possible — citation markers are only known at the last
+  delta and the claims audit needs the whole answer — so the mode is explicit:
+  `AskOptions.StreamMode` is `Gated` (hold deltas, on FAIL deliver the templated
+  handoff and never the text — SSE default) or `Live` (stream, retract after the
+  fact — CLI default). The failing draft stays in `AnswerText` for tracing. This
+  turns audit false positives into refusals, hence open item 12. 4 new tests
+  (**87 runtime**).
+- **2026-09-07 (30)** — Runtime review pass (§11): eight findings fixed
+  (`7f68c08`). The load-bearing one: the authority re-rank ordered on the fused
+  retrieval score even when the semantic ranker ran, so `--semantic` paid for
+  the ranker and discarded its ordering — open item 5 was not measurable as
+  posed. Also `RuntimeNeeds` now mirrors `azure_config.py`'s `require=` subsets,
+  and grouped/ranged citation markers parse. 16 new tests (**83 runtime**, 338
+  python unchanged). Live smoke on `kb-main-v2` confirms both; `ask` PASS.
+- **2026-09-07 (29)** — Retrieval unblocked (§9/§11) + claim-sourcing fix
+  (`c23eac2`, `252bf12`, `d46ab60`). `kb-main` was a single wedged index — no
+  document op returned bytes, while the control plane and a throwaway index
+  were fine — and `--reset` could not recover it, so it was rebuilt as
+  `kb-main-v2`: **3,996/3,996 uploaded, 0 errors, 0 embed calls** (open item 10
+  tracks the orphan). The first live `ask` caught the answer agent lifting claim
+  wording from an authority-3 Q&A (open item 11). 4 new python tests (**338
+  python**), 3 new runtime (**67 runtime**), all on `gpt-5-mini`.
 - **2026-09-07 (28)** — Runtime v0 shipped (§11, §13 Track B) (`0717125`,
   `2ab90c9`): new `runtime/` .NET 10 solution — `DotFit.Agents` library +
   `dotfit-agent` CLI, the §11 pipeline component-for-component, no tool calls.
