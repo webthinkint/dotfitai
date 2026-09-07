@@ -20,7 +20,9 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   `question_canonical`, cleaned `answer` (transcription, never generation — a
   source-containment diff pass verifies no invented content), `products[]`
   normalized to `part_no` via the alias table (LLM mentions mapped
-  deterministically, unioned with the deterministic alias/rename scan;
+  deterministically, unioned with the blind alias/rename text scan;
+  `CURATED_LLM_ONLY_ALIASES` resolve on the mention path only — the model
+  supplies the context that tells `Women's MV` from `women's health`;
   context-only tokens, replacements and discontinued names never tag),
   `topics[]` (LLM + subfolder hint), `audience_flags`, `currency_cues`
   (tolerant deterministic scan), `residual_pii_flag` (Stage 1 OR LLM — the LLM
@@ -273,7 +275,11 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
   `dotFIT Multivitamin & Mineral` (166), `Over50` (164), `2-Active`/`1-Active`
   (154/150), `Kids` (149), `Super Calcium` (145), `MVM` (129), `Super Omega 3` /
   `SuperOmega-3` (107/72), `BestPlantProtein` (77), `VeganMV` (76) — feed for the
-  next alias-curation pass (spacing variants, MV fragments, missing products)
+  next alias-curation pass (spacing variants, MV fragments, missing products).
+  Curation pass 2 (2026-09-07, alias table 1.3.0) resolved the family spellings
+  and the dose tiers and gated `Women's` to the mention path; `Kids`/`VeganMV`
+  stay unresolved by design (discontinued — no part_no). **These counts predate
+  that pass**; rerun `stage2` to refresh them
 - Safety: 0 own-answer evidence leaks (every flagged span redacted from its own
   answer); no raw emails/phones introduced into content fields (the 2 matches
   are a vendor address inside a filename — filename disposition stands)

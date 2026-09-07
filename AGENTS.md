@@ -88,6 +88,16 @@ from the QA corpus into a review worksheet. Consumed by `pdsrg.py` to tag chunks
 with `part_no`s and by query-side expansion — **never used to rewrite corpus
 text**.
 
+The curated overlay is tiered **by which consumer may resolve a token**, because
+the two differ in context: Stage 2's `normalize_products` maps LLM mention
+strings (the model already judged it a product mention *in that document*),
+while `deterministic_product_tags` scans raw text blind. `CURATED_ALIASES` is
+safe for both; `CURATED_LLM_ONLY_ALIASES` is the mention path only, for tokens
+that are also ordinary English (`Women's` vs `women's health`);
+`CONTEXT_ONLY_TOKENS` (PP, MVM) is resolved by neither. One token, one tier —
+the build raises on overlap. Adding a token to the wrong tier is how blind
+false tags get in.
+
 **Index build (`index_build.py` + `embeddings.py`, plan §9)** — shapes PDSRG
 chunks (already §9-stamped), products.json families (§5 section-split: the
 canonical SKU's sections are the family documents; variants contribute only
@@ -110,8 +120,9 @@ goes through it, otherwise the cross-platform guarantee silently breaks.
   from a *different working directory* too — paths in outputs are relative to
   the input root, never the cwd. Timestamps live only in `runs/` manifests.
 - **Curation lives in Python constants**, JSON outputs are derived:
-  `CURATED_ALIASES`, `CURATED_LEGACY`, `CURATED_REPLACEMENTS`,
-  `CONTEXT_ONLY_TOKENS` (`alias.py`), `STEM_META` (`pdsrg.py`),
+  `CURATED_ALIASES`, `CURATED_LLM_ONLY_ALIASES`, `CURATED_LEGACY`,
+  `CURATED_REPLACEMENTS`, `CONTEXT_ONLY_TOKENS` (`alias.py`),
+  `SILENT_STAFF_NAMES` (`stage2.py`), `STEM_META` (`pdsrg.py`),
   `ACCEPTED_HONORIFIC_NAMES`, `GREETING_NAME_TOKENS`, `ROLE_MAILBOXES`
   (`scrub.py`). Unknown stems / unattested names must **raise**, not silently
   produce untagged chunks.
@@ -122,8 +133,11 @@ goes through it, otherwise the cross-platform guarantee silently breaks.
   corpus writes it. A 0-doc worksheet row means the alias is wrong.
 - **PII**: `data/QAs/` is read-only and holds real customer mail; nothing unscrubbed
   leaves Stage 0. Redaction is conservative — what cannot be redacted without
-  eating prose is *flagged*, never guessed. A review queue of 0 is a claim to be
-  earned, not a target. Tests use synthetic fixtures (`tests/conftest.py`,
+  eating prose is *flagged*, never guessed — and beware trigger words that are
+  also ordinary English (bare `best` as a sign-off closer ate `Best Plant
+  Protein` and a `Best Scientific Combination` heading before it was made
+  comma-gated; a redaction rule earns its keep on the regen diff, not on the
+  fixture). A review queue of 0 is a claim to be earned, not a target. Tests use synthetic fixtures (`tests/conftest.py`,
   example.com / 555 numbers) — never paste real corpus text into tests or docs.
 - **`products.json` is the legal-approved claims corpus** — quote it, never
   paraphrase claims.

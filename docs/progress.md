@@ -7,7 +7,12 @@ the status view, not a narrative — see "Writing entries" at the bottom.
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-06. 251 tests green.
+Numbers verified 2026-09-06. 266 tests green (2026-09-07).
+
+> **Regen pending (2026-09-07).** The scrub `best` fix and alias table 1.3.0
+> landed after the last full run, so the QA Stage 2 and Index rows below are
+> the previous run's verified output, not the current code's. Rerun `stage2`
+> (2 live calls, 1,039 cache hits) + `index` and replace those numbers.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -15,11 +20,11 @@ Numbers verified 2026-09-06. 251 tests green.
 | QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0 (round 2 cleared); 10 unanswerable excluded (6 no-answer, 4 blank) |
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
-| Alias table | §5 | **done**, v1.2.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested |
-| QA Stage 2 (canonicalize) | §4 | **done** — full run 2026-09-06 on the small chat deployment (strict JSON-schema extraction + containment diff pass) | 1,041 canonical records (prompt 1.1.0); 634 with products (50 part_nos); 306 currency-cued; queue 223 (168 PII + 47 audit + 4 containment + 5 low-conf); unresolved tally feeds alias curation |
+| Alias table | §5 | **done**, v1.3.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
+| QA Stage 2 (canonicalize) | §4 | **done** — full run 2026-09-06 on the small chat deployment (strict JSON-schema extraction + containment diff pass) | *stale, regen pending* — 1,041 canonical records (prompt 1.1.0); 634 with products (50 part_nos); 306 currency-cued; queue 222 (168 PII + 48 audit + 1 containment + 5 low-conf) |
 | Podcast segmentation | §7 | **done** — `podcast` subcommand; greedy merge to ~90 s / 200-word targets (phrases atomic); Speaker-turn text is the speaker-map rewrite contract | 47 episodes → 1,800 segments (median 76 s / 251 words); rerun byte-identical |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed** — 47/47 episodes via fast-transcription (diarization on, dotFIT phrase list); 5-episode spot-check clean; remaining: speaker-map (text rewrite + re-upload, non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3 |
-| Index + retrieval | §9–11 | **index live** — `kb-main` holds 4,118 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 1,051 qa); QA-filtered + unfiltered retrieval smoke PASS (topical QA hits, product tags + first real `date`s flow); remaining: golden-set eval, ranker toggle | `processed/index/` |
+| Index + retrieval | §9–11 | **index live** — `kb-main` holds 4,118 docs (1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 1,051 qa); QA-filtered + unfiltered retrieval smoke PASS (topical QA hits, product tags + first real `date`s flow); remaining: **re-upload for the 1.3.0 product tags** (metadata only — no re-embed), golden-set eval, ranker toggle | `processed/index/` |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`.
 Per-run counts live in each `summary.json`; numbers quoted here must match a
@@ -31,7 +36,7 @@ regenerated run.
 |---|---|---|
 | 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05 (AI Search, Azure OpenAI, AI Speech); credentials in local `.env`; `text-embedding-3-large` deployed and smoke-verified (3072-dim, `scripts/embedding_smoke.py`); `gpt-5-mini` deployed as the small chat model and smoke-verified (strict JSON-schema extraction, `scripts/chat_smoke.py` — no temperature knob, GPT-5-family default only). Remaining: quota increase for the frontier chat deployment |
 | 2 | products.json freshness owner | **open** — 8 PDSRG-only gaps closed 2026-09-01. Remaining: name the owner, set monthly diff cadence |
-| 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record |
+| 3 | Alias-table curation session | **closed** 2026-09-01 — outcomes in `CURATED_ALIASES` / `CONTEXT_ONLY_TOKENS`; worksheet is the session record. Pass 2 (2026-09-07) added the family spellings + the LLM-only tier off the Stage 2 unresolved tally; that tally (still ~2.3K mentions, led by `MVM`, `Kids` and third-party peptide names) is the input to any pass 3 |
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | week 3–4, decide empirically |
 | 6 | Stage 3 review-queue dispositions | **closed (round 2)** 2026-09-05 — owner triage: 5 study-author honorifics (pasted articles/transcripts) cleared into `ACCEPTED_HONORIFIC_NAMES`; 2 full-name customer sign-offs redacted by the new sign-off rule. Queue 0. Remaining: git history still holds the two names in older blobs — purge needs owner decision (same precedent as the `.scan` purge) |
@@ -107,6 +112,25 @@ Everything else (rules, index contract, stage design) is in the plan.
   from LeanMeal product copy (confirmed by N.K.).
 - Every alias must be corpus-attested in the form the corpus writes it; a
   0-doc worksheet row means the alias is wrong (the MuscleDefender lesson).
+- **Three tiers, by who is allowed to resolve a token** (2026-09-07). The
+  alias table has two consumers with different context: `normalize_products`
+  maps *LLM mention strings* (the model already judged the mention to be a
+  product in that document), while `deterministic_product_tags` scans raw
+  text blind. So: `CURATED_ALIASES` = safe for both; `CURATED_LLM_ONLY_ALIASES`
+  = the mention path only, for tokens that are also ordinary English;
+  `CONTEXT_ONLY_TOKENS` = resolved by neither, per-document topic guidance.
+  `Women's` is the founding case — 264 corpus occurrences, but `women's
+  health` / `women's hospital` / `women's sports` are attested too, so a blind
+  scan would mis-tag. A token may sit in exactly one tier; the build raises
+  otherwise.
+- Dose tiers collapse to the product (owner ruling 2026-09-07): `1-Active` /
+  `2-Active` are one- and two-a-day **Active MV**, not separate SKUs. The
+  tablet count is dosage guidance that lives in the answer text; the product
+  filter carries the product.
+- A discontinued referent gets no alias (2026-09-07): `Kids`, `VeganMV` and
+  `1-Vegan` recur in the program-note boilerplate but point at KidsMV /
+  VeganMV, which have no part_no. They stay unresolved — that is the honest
+  answer, not a gap to close.
 - Shakers / SportMixer are gear and excluded — hence 51 *indexed* SKUs of 56.
 
 **PDSRG (§6)**
@@ -155,6 +179,8 @@ Everything else (rules, index contract, stage design) is in the plan.
 Newest first. One line per work item; detail belongs in the plan, the code, or
 the artifact it describes.
 
+- **2026-09-07 (23)** — Alias curation pass 2 (§5), alias table **1.3.0**: eight corpus spellings the derivation could not reach joined `CURATED_ALIASES` (`SuperOmega-3`/`Super Omega 3`→Omega-3 Fish Oil, `SuperCalcium`/`Super Calcium`→Calcium Complex, `BestPlantProtein`→Plant Protein, `All Natural WheySmooth`→WheySmooth — family name as a *suffix*, invisible to the prefix rule — `Over50`→Over 50 MV, `1-Active`/`2-Active`→Active MV per the dose-tier ruling below); new **LLM-only tier** `CURATED_LLM_ONLY_ALIASES` (`Women's`→Women's MV) resolves on the Stage 2 mention path only, never in the blind text scan, with build-time guards against a token sitting in two tiers or in a tier plus `CONTEXT_ONLY_TOKENS`. `Kids`/`VeganMV`/`1-Vegan` deliberately unaliased — their referents are discontinued, so there is no part_no to tag. Cache-replay estimate (not a regenerated run): 336 records gain part_nos, 42 newly tagged, unresolved mentions −35%; **Stage 2 + index regen pending** (2 live calls, metadata-only so no re-embed). 12 new tests. 266 tests.
+- **2026-09-07 (22)** — Scrub fix (§4 Stage 0): bare `best` in the inline-closer alternation is also an adjective and ate prose in the first regen (`...and Best Plant Protein.` and the heading `Best Scientific Combination` both became `Best [NAME]`) — it now requires its comma, every other closer keeps the optional one (`Thanks Neal` is attested). Stage 0/1 regen: 2 lines restored, nothing else changed; inline sign-off redactions 48 → 46, all 46 genuine. Those 2 docs are now Stage 2 cache-stale. 3 new tests. 254 tests.
 - **2026-09-06 (21)** — QA canonicals indexed (§9): new `qa_documents` (one doc per pair, `authority=3`, null questions fall back to filename, `thread_date`→`DateTimeOffset` — the index's first real dates; 7 oversize answers split into paragraph-boundary parts, never truncated); `index --qa-docs` (missing file shapes without QA, podcast precedent); `kb-main` 3,067 → **4,118 docs**, 0 upload errors, retrieval smoke PASS. 7 new tests. 251 tests.
 - **2026-09-06 (20)** — Stage 2 triage round 2 (owner-approved): all 9 containment/low-conf cases dispositioned — lactose table verified value-by-value (accept), Bulk Whey via PII bulk-accept, `34 mg/serving` root-caused to a tokenizer false positive (digit↔letter split in `word_tokens`: `34mg`→`34+mg`, `B12`→`B+12`) + free cache-hit rescore (0 API calls; queue 223→222, fails 4→1), eating-disorder/sucralose/Bain/Fatty15/serving-size accepts as reviewed (minor-recall note to the prompt backlog). Queue fully dispositioned. 2 new tests. 244 tests.
 - **2026-09-06 (19)** — Stage 2 triage round 1 (owner dispositions): staff names bulk-accepted (Berlinda/Chad/Kat/Mark/Jill/Neal + staff surnames — silent-redact `SILENT_STAFF_NAMES` vocabulary, veto-able), customer-side names (James/Paul/Steve/Neil/Matt/Kendra) + Gay Riley accepted-redacted, Feldkamp added to public figures; fixes: inline closer+name rule (48 hits: `signoff_name_inline`) + `wrote:`-header rule (38 hits) in `scrub.py`, prompt 1.1.0 ([NAME] not [CUSTOMER], name-span-only evidence, transcribe-never-summarize). Verified on 228 regen docs: slice queues 60→19 and 66→27. Regen COMPLETE after the firewall fix (same day): 1,041 docs on prompt 1.1.0, 0 errors — queue 590 → **223** (168 residual-PII + 47 audit + 4 containment + 5 low-conf), containment median 0.994, 634 with products / 50 part_nos. Safety re-verified on final artifacts: 0 own-answer leaks, 0 raw emails/phones in content fields, byte-identical cache-hit rerun. 14 new tests. 242 tests.
