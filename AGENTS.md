@@ -142,6 +142,29 @@ never echoes values (masked repr; errors name variables only).
 UTF-8, `newline="\n"`, POSIX-normalized ids, sorted iteration). New file I/O
 goes through it, otherwise the cross-platform guarantee silently breaks.
 
+**Runtime (`runtime/`, .NET 10 — plan §11)** — `DotFit.Agents` library +
+`dotfit-agent` CLI (the testing/demo harness; the ASP.NET SSE service comes
+later and maps the same events). The §11 pipeline as components:
+`AgentGuardrail` → `AgentQueryRewriter` → `AliasTable` (the committed §5
+artifact; the two-consumer tier rules are mirrored — mention path resolves
+deterministic+LLM-only, blind scan deterministic only) → `KnowledgeSearch`
+(hybrid on `kb-main`, `is_current` prefilter, semantic ranker off by default
+until open item 5, deterministic authority re-rank as a tuning knob) →
+`AgentAnswerAgent` (grounded `[n]`-citation instructions, streamed) →
+`PostChecker` (deterministic citation/escalation checks) + optional
+claims-language audit (small model, degrade-to-warning). Guardrail failures
+open by design — the answer agent's instructions carry the full escalation
+policy and the post-check verifies it. Escalations short-circuit to a
+templated refusal (no LLM call). Config is the root `.env`, same contract as
+`azure_config.py` (walk-up discovery, query key preferred, masked repr,
+errors name variables only). `Azure.AI.OpenAI` stays prerelease **on
+purpose**: the GA build only offers api-version 2024-10-21, which the Foundry
+v2 resource 404s — `ServiceVersion` pins 2025-04-01-preview. Tests use
+scripted `IChatClient` fakes and synthetic fixtures — no Azure in tests;
+live checks are CLI commands
+(`dotfit-agent ask|chat|search|guardrail|rewrite`, exit 1 on a failed
+post-check).
+
 ## Working rules that bite
 
 - **Determinism is testable and tested**: reruns must be byte-identical, and

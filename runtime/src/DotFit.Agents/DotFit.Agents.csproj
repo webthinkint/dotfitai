@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>DotFit.Agents</RootNamespace>
+    <!--
+      dotFIT knowledge assistant runtime (plan §11). Package notes:
+      - Microsoft.Agents.AI / .OpenAI 1.20.0 — GA Agent Framework; ChatClientAgent
+        over an IChatClient, RunAsync/RunStreamingAsync, AgentRunOptions.ResponseFormat.
+      - Azure.AI.OpenAI stays on the prerelease line ON PURPOSE: the stable GA
+        build only offers api-version 2024-10-21, which the Foundry v2 resource
+        404s (see pipeline chat_smoke.py / plan §10); the prerelease line exposes
+        ServiceVersion.V2025_04_01_Preview, the version the pipeline smokes
+        verified live. Swap to stable only when it carries a v2-compatible default.
+      - Azure.Search.Documents 12.0.0 — hybrid BM25+vector queries (VectorizedQuery),
+        semantic ranker config, OData filters.
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
+    <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
+    <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.20.0" />
+  </ItemGroup>
+
+</Project>

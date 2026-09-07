@@ -330,6 +330,11 @@ managed conditions (diabetes etc.), eating-disorder signals, under-18, medicatio
 extreme calorie targets, self-harm → refuse + hand off to human contact. No arithmetic on
 macros/calories in v1 (that's the planner/tool work, later).
 
+Built 2026-09-07 as `runtime/` (plan §13 Track B): the `DotFit.Agents` library
+implements this pipeline component-for-component, and the `dotfit-agent` CLI
+is the smoke/demo harness. The ASP.NET SSE wrapper is the next piece — it
+streams the same Stage/Delta/Result events the CLI renders today.
+
 ## 12. Golden set & evaluation
 
 **Composition (~300 items):**

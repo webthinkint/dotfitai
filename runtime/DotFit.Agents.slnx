@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DotFit.Agents.Cli/DotFit.Agents.Cli.csproj" />
+    <Project Path="src/DotFit.Agents/DotFit.Agents.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DotFit.Agents.Tests/DotFit.Agents.Tests.csproj" />
+  </Folder>
+</Solution>

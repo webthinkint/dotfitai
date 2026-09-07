@@ -1,6 +1,9 @@
 tmp/
 .env
 /.scan_*.txt
+runtime/**/bin/
+runtime/**/obj/
+runtime/**/*.user
 /data/QAs
 /data/Suppbeast Podcast
 /processed/qa/runs
