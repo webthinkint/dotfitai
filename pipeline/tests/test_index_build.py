@@ -514,6 +514,105 @@ def test_ensure_index_reset_waits_for_deletion_and_retries_create(monkeypatch):
     assert fake.deleted is False
 
 
+class _PendingDeleteIndexes:
+    """The real async-delete shape: while the delete runs, Azure 404s with
+    "is being deleted" — the *same* exception type as a clean miss. Only
+    after it completes does the body become "No index ... was found"."""
+
+    def __init__(self, polls_pending=3, delete_raises=False):
+        self.polls_pending = polls_pending
+        self.deleted = False
+        self.delete_raises = delete_raises
+        self.create_attempts = 0
+        self.calls: list = []
+
+    def _pending(self):
+        from azure.core.exceptions import ResourceNotFoundError
+        return ResourceNotFoundError(
+            "The index with the name 'kb-main' in the service 'x' is being deleted.")
+
+    def _gone(self):
+        from azure.core.exceptions import ResourceNotFoundError
+        return ResourceNotFoundError(
+            "No index with the name 'kb-main' was found in the service 'x'.")
+
+    def delete_index(self, name):
+        self.calls.append(("delete", name))
+        self.deleted = True
+        if self.delete_raises:
+            raise self._pending()
+
+    def get_index(self, name):
+        self.calls.append(("get", name))
+        if not self.deleted:
+            return object()
+        if self.polls_pending > 0:
+            self.polls_pending -= 1
+            raise self._pending()
+        raise self._gone()
+
+    def create_or_update_index(self, index):
+        self.create_attempts += 1
+        self.calls.append(("create", index.name))
+        self.deleted = False
+
+
+def test_ensure_index_reset_polls_through_pending_delete_404(monkeypatch):
+    """A 404 saying "is being deleted" is not "gone" — creating into it is the
+    2026-09-08 incident that lost kb-main."""
+    import azure.search.documents.indexes as ixmod
+
+    fake = _PendingDeleteIndexes(polls_pending=3)
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    assert ensure_index("x", "k", "kb-main", reset=True,
+                        poll_seconds=0.0) == "recreated"
+    # every pending 404 was polled through, and create came only after the
+    # body finally said "was found" — i.e. 4 gets before the first create
+    gets_before_create = [c for c in fake.calls[:[
+        i for i, c in enumerate(fake.calls) if c[0] == "create"][0]]
+        if c[0] == "get"]
+    assert len(gets_before_create) == 4
+    assert fake.create_attempts == 1
+
+
+def test_ensure_index_reset_polls_when_delete_itself_404s_pending(monkeypatch):
+    """delete_index can itself raise the pending 404 (a delete already in
+    flight); that must still poll, not fall straight through to create."""
+    import azure.search.documents.indexes as ixmod
+
+    fake = _PendingDeleteIndexes(polls_pending=2, delete_raises=True)
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    assert ensure_index("x", "k", "kb-main", reset=True,
+                        poll_seconds=0.0) == "recreated"
+    first_create = [i for i, c in enumerate(fake.calls) if c[0] == "create"][0]
+    assert any(c[0] == "get" for c in fake.calls[:first_create])
+
+
+def test_ensure_index_reset_times_out_on_a_wedged_delete(monkeypatch):
+    """kb-main's actual state: the delete never completes. Time out rather
+    than create into a half-deleted index."""
+    import azure.search.documents.indexes as ixmod
+
+    fake = _PendingDeleteIndexes(polls_pending=10**9)
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    with pytest.raises(TimeoutError, match="still present"):
+        ensure_index("x", "k", "kb-main", reset=True,
+                     poll_seconds=0.0, timeout=0.0)
+    assert fake.create_attempts == 0
+
+
+def test_ensure_index_no_reset_refuses_to_create_into_a_pending_delete(monkeypatch):
+    """Non-reset path: a pending-delete 404 must raise, not create."""
+    import azure.search.documents.indexes as ixmod
+
+    fake = _PendingDeleteIndexes(polls_pending=10**9)
+    fake.deleted = True
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    with pytest.raises(RuntimeError, match="mid-delete"):
+        ensure_index("x", "k", "kb-main")
+    assert fake.create_attempts == 0
+
+
 class _FakeResult:
     def __init__(self, key, ok):
         self.key = key

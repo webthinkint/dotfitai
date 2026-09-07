@@ -429,6 +429,19 @@ def index_schema(name: str = INDEX_NAME) -> m.SearchIndex:
                           vector_search=vector_search, semantic_search=semantic)
 
 
+def _deletion_pending(exc: Exception) -> bool:
+    """True when a 404 means "still deleting", not "gone".
+
+    Azure answers `GET /indexes/<name>` with 404 for both a clean miss and an
+    in-flight delete, and the SDK raises the same `ResourceNotFoundError` for
+    each — only the body separates them ("The index ... is being deleted."
+    vs "No index with the name ... was found."). Reading the pending 404 as
+    "gone" is what let the 2026-09-08 rebuild create into a half-deleted
+    index; the delete then never completed and kb-main was lost.
+    """
+    return "being deleted" in str(exc).lower()
+
+
 def ensure_index(search_endpoint: str, admin_key: str, name: str,
                  reset: bool = False, poll_seconds: float = 2.0,
                  timeout: float = 120.0) -> str:
@@ -439,7 +452,9 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
     Deletion is asynchronous server-side — a reset must poll the old index
     away before creating the new one, or create fails with a bare "could not
     be created" (the 2026-09-07 rebuild race) and the service is left with
-    NO index at all.
+    NO index at all. The poll distinguishes the two 404 bodies via
+    `_deletion_pending`; a delete that never finishes raises rather than
+    creating into it.
     """
     import time
     from azure.core.credentials import AzureKeyCredential
@@ -450,15 +465,18 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
     if reset:
         try:
             client.delete_index(name)
-        except ResourceNotFoundError:
-            pass
+        except ResourceNotFoundError as exc:
+            pending = _deletion_pending(exc)
         else:
+            pending = True
+        if pending:
             deadline = time.monotonic() + timeout
             while True:
                 try:
                     client.get_index(name)
-                except ResourceNotFoundError:
-                    break
+                except ResourceNotFoundError as exc:
+                    if not _deletion_pending(exc):
+                        break
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
                         f"index {name} still present {timeout:g}s after "
@@ -477,7 +495,12 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
     try:
         client.get_index(name)
         return "exists"
-    except ResourceNotFoundError:
+    except ResourceNotFoundError as exc:
+        if _deletion_pending(exc):
+            raise RuntimeError(
+                f"index {name} is mid-delete server-side — creating into it "
+                "is what corrupts the index; wait for the delete to finish "
+                "or build under --index-name") from exc
         client.create_or_update_index(index_schema(name))
         return "created"
 
