@@ -27,17 +27,22 @@ uv run qa-pipeline index --chunks ../processed/pdsrg/chunks/chunks.jsonl \
     --products "../data/Product Data/products.json" \
     --menus "../data/Reference Menus/All Reference Menus Export.csv" \
     --podcast-segments ../processed/podcasts/segments/segments.jsonl \
+    --qa-docs ../processed/qa/stage4/documents.jsonl \
     --out ../processed/index --no-upload   # shape + embed; drop --no-upload to upload
 uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
     --products "../data/Product Data/products.json" --out ../processed/qa/stage2
+uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage4
 ```
 
-Subcommands: `stage0`, `stage1`, `stage2`, `run`, `aliases`, `pdsrg`, `index`, `podcast`. Shared flags:
+Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`, `index`, `podcast`. Shared flags:
 `--include GLOB` (repeatable), `--limit N`, `--quiet`, `--fail-on-error`,
 `--no-prune` (by default outputs whose input disappeared are deleted so the
 output tree always mirrors the corpus). `pdsrg` adds `--keep-references`,
 `--citation-base`. `index` has no corpus tree to prune; it adds `--no-embed`,
-`--no-upload`, `--reset`, `--index-name`.
+`--no-upload`, `--reset`, `--no-prune` (service-side mirror), `--index-name`.
+`stage4` mirrors `stage2`'s flags (`--no-llm` = conservative supersession;
+clustering still embeds).
 
 Corpus filenames contain spaces, commas and `&` — always quote paths.
 
@@ -72,6 +77,18 @@ contract; Stage 1 only ever reads Stage 0 output, never the raw docs.
 - Output contract for Stage 2: `stage1/documents.jsonl` (sorted by
   `source_file`), plus `review_queue.jsonl`, `summary.json`, and the *committed*
   `stage0/errors.json` (the queue reads that, not the gitignored `runs/`).
+- **Stage 4** (`stage4.py`, plan §4) dedups the canonicals and stamps retrieval
+  currency: question clustering (cosine ≥ 0.88 scan-locked; shared
+  product/topic buckets; identical strings override buckets; pure-Python
+  cosine — BLAS isn't bit-stable), newest-wins canonical pick among
+  currency-current members, non-nested part_no sets as the conflict proxy
+  (queue, no auto-pick), 5% cluster audit, and the currency pass: renames
+  never supersede (identity — Stage 2 already expanded their part_nos);
+  replacement/discontinued cues supersede only when a cached gpt-5-mini
+  judgment says the guidance is formulation-dependent (conservative default:
+  superseded). Output `stage4/documents.jsonl` (everything retained) +
+  `clusters.jsonl` worksheet + queue; the index consumes it, skips
+  `is_current=false`, and prunes those docs service-side.
 
 **PDSRG corpus (PDF → `processed/pdsrg/chunks/chunks.jsonl`)** — `pdsrg.py`:
 pdfplumber hybrid table extraction (`lines` strategy, trivial + prose

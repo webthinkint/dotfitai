@@ -39,14 +39,14 @@ from . import __version__
 from .alias import build_alias_table, harvest_candidates, norm as _norm, \
     write_curation_worksheet
 from .azure_config import (
-    AzureConfigError, REQUIRE_INDEX, REQUIRE_OPENAI_SMALL_CHAT,
-    load_azure_config,
+    AzureConfigError, REQUIRE_INDEX, REQUIRE_OPENAI_EMBEDDING,
+    REQUIRE_OPENAI_SMALL_CHAT, load_azure_config,
 )
 from .embeddings import EMBEDDING_API_VERSION, Embedder
 from .extract import extract_docx
 from .index_build import (
-    INDEX_NAME, build_documents, embed_text, ensure_index, read_menu_rows,
-    upload_documents,
+    INDEX_NAME, build_documents, delete_documents, embed_text, ensure_index,
+    list_index_ids, read_menu_rows, upload_documents,
 )
 from .io_utils import (
     configure_stdio, doc_id, iter_docx, read_jsonl, rel_posix, sha256_file,
@@ -62,6 +62,11 @@ from .stage2 import (
     CHAT_API_VERSION, MIN_CONFIDENCE_DEFAULT, PROMPT_VERSION, Extractor,
     append_cache, cache_key, load_cache, review_reasons as stage2_reasons,
     run_stage2, summarize as summarize_stage2,
+)
+from .stage4 import (
+    CURRENCY_PROMPT_VERSION, CURRENCY_SCHEMA, MIN_JUDGE_CONFIDENCE_DEFAULT,
+    SIMILARITY_THRESHOLD, currency_cache_key, run_stage4,
+    summarize as summarize_stage4,
 )
 
 
@@ -428,6 +433,139 @@ def cmd_stage2(args: argparse.Namespace) -> int:
     return 1 if stats["n_llm_errors"] and args.fail_on_error else 0
 
 
+def cmd_stage4(args: argparse.Namespace) -> int:
+    qa_docs_path = Path(args.qa_docs).resolve()
+    products_path = Path(args.products).resolve()
+    if not qa_docs_path.is_file():
+        print(f"error: --qa-docs not found: {qa_docs_path}", file=sys.stderr)
+        return 2
+    if not products_path.is_file():
+        print(f"error: --products not found: {products_path}", file=sys.stderr)
+        return 2
+    out_dir = Path(args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    docs = read_jsonl(qa_docs_path)
+    if args.include:
+        docs = [d for d in docs
+                if any(fnmatch.fnmatch(d.get("source_file", ""), pat)
+                       for pat in args.include)]
+    docs.sort(key=lambda d: d.get("source_file", ""))
+    if args.limit is not None:
+        docs = docs[: args.limit]
+
+    alias_table = build_alias_table(
+        json.loads(products_path.read_text(encoding="utf-8")))
+
+    require = REQUIRE_OPENAI_EMBEDDING if args.no_llm else (
+        REQUIRE_OPENAI_EMBEDDING + REQUIRE_OPENAI_SMALL_CHAT)
+    try:
+        cfg = load_azure_config(require=require)
+    except AzureConfigError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+
+    api_version = args.api_version
+    embedder = Embedder(
+        cfg.openai_endpoint, cfg.openai_api_key, cfg.embedding_deployment,
+        EMBEDDING_API_VERSION, cache_path=out_dir / "runs" / "embeddings.jsonl",
+    )
+
+    def embed_call(texts: list[str]) -> list[list[float]]:
+        return embedder.embed(texts)
+
+    judge_call = None
+    deployment = "rule-based"
+    if not args.no_llm:
+        deployment = cfg.small_chat_deployment
+        judge = Extractor(cfg.openai_endpoint, cfg.openai_api_key,
+                          deployment, api_version,
+                          schema=CURRENCY_SCHEMA,
+                          schema_name="qa_stage4_currency")
+
+        def judge_call(messages: list, _j: Extractor = judge) -> dict:  # type: ignore[misc]
+            return _j(messages)
+
+    cache_path = out_dir / "runs" / "stage4_cache.jsonl"
+    use_cache = not args.no_cache
+    cache = load_cache(cache_path) if use_cache else {}
+
+    def key_fn(rec: dict) -> str:
+        return currency_cache_key(deployment, api_version, rec)
+
+    def write_fn(key: str, value: dict) -> None:
+        append_cache(cache_path, key, value)
+
+    min_judge = float(args.min_judge_confidence)
+    records, worksheet, review, stats = run_stage4(
+        docs, alias_table, embed_call, judge_call, deployment,
+        threshold=SIMILARITY_THRESHOLD, min_judge_confidence=min_judge,
+        cache=cache, cache_write=(write_fn if use_cache else None),
+        cache_key_fn=key_fn)
+    embedder.save_cache()
+
+    docs_path = out_dir / "documents.jsonl"
+    with docs_path.open("w", encoding="utf-8", newline="\n") as f:
+        for rec in records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    with (out_dir / "clusters.jsonl").open("w", encoding="utf-8",
+                                             newline="\n") as f:
+        for row in worksheet:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    with (out_dir / "review_queue.jsonl").open("w", encoding="utf-8",
+                                                 newline="\n") as f:
+        for rec in review:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    summary: dict[str, Any] = {
+        "pipeline_version": __version__,
+        "options": {
+            "similarity_threshold": SIMILARITY_THRESHOLD,
+            "min_judge_confidence": min_judge,
+            "api_version": api_version,
+            "currency_prompt_version": CURRENCY_PROMPT_VERSION,
+            "deployment": deployment,
+            "no_llm": bool(args.no_llm),
+            "no_cache": bool(args.no_cache),
+            "include": args.include,
+            "limit": args.limit,
+        },
+        **summarize_stage4(records, worksheet),
+        "embedding": {
+            "deployment": cfg.embedding_deployment,
+            "api_version": EMBEDDING_API_VERSION,
+            "n_cache_hits": embedder.n_cache_hits,
+            "n_api_calls": embedder.n_api_calls,
+        },
+        "judge": {**stats, "deployment": deployment,
+                  "api_version": api_version,
+                  "currency_prompt_version": CURRENCY_PROMPT_VERSION},
+    }
+    write_json(out_dir / "summary.json", summary)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    write_json(out_dir / "runs" / f"stage4-{stamp}.json", {
+        "pipeline_version": __version__, "stage": "stage4", "utc": _utcnow(),
+        "args": {k: v for k, v in vars(args).items() if k != "func"},
+        "inputs": {"qa_docs": sha256_file(qa_docs_path),
+                   "products": sha256_file(products_path)},
+        "n_documents": len(records), "n_clusters": len(worksheet),
+        "n_review": len(review), "stats": stats,
+    })
+    if not args.quiet:
+        for w in worksheet[:3]:
+            canon = w["canonical"]["source_file"] if w["canonical"] else "(none)"
+            print(f"  cluster {w['cluster_id']}: {w['size']} members, "
+                  f"canonical {canon}, conflict={w['conflict']}")
+    print(f"stage4 done: {len(records)} records, "
+          f"{stats['n_clusters']} cluster(s) ({stats['n_conflict_clusters']} "
+          f"conflict, {stats['n_audit_clusters']} audit), "
+          f"{summarize_stage4(records, worksheet)['n_current']} current, "
+          f"{len(review)} in review queue "
+          f"({stats['n_judge_calls']} judge call(s), "
+          f"{stats['n_judge_cache_hits']} judge cache hit(s))")
+    return 1 if stats["n_judge_errors"] and args.fail_on_error else 0
+
+
 def cmd_aliases(args: argparse.Namespace) -> int:
     products_path = Path(args.products).resolve()
     if not products_path.is_file():
@@ -734,6 +872,23 @@ def cmd_index(args: argparse.Namespace) -> int:
         "index": args.index_name, "index_status": index_status,
         "n_uploaded": n_ok, "n_selected": len(selected), "errors": errors[:20],
     }
+    # prune: the index mirrors documents.jsonl (the corpus-mirror convention).
+    # Skipped under --limit — a partial upload must not delete the rest.
+    if not args.no_prune and args.limit is None:
+        present = list_index_ids(cfg.search_endpoint, cfg.search_admin_key,
+                                 args.index_name)
+        doomed = sorted(set(present) - {d["id"] for d in selected})
+        if doomed:
+            n_del, del_errors = delete_documents(
+                cfg.search_endpoint, cfg.search_admin_key, args.index_name,
+                doomed)
+            summary["prune"] = {"n_present": len(present),
+                                "n_deleted": n_del,
+                                "errors": del_errors[:20]}
+            errors.extend(del_errors)
+        else:
+            summary["prune"] = {"n_present": len(present), "n_deleted": 0,
+                                "errors": []}
     write_json(out_dir / "summary.json", summary)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     write_json(out_dir / "runs" / f"index-{stamp}.json", {
@@ -753,6 +908,9 @@ def cmd_index(args: argparse.Namespace) -> int:
     })
     print(f"index done: {len(docs)} shaped, {n_ok}/{len(selected)} uploaded to "
           f"{args.index_name} ({index_status}); errors: {len(errors)}")
+    if summary.get("prune"):
+        print(f"  prune: {summary['prune']['n_deleted']} deleted, "
+              f"{summary['prune']['n_present']} were present")
     for e in errors[:10]:
         print(f"  ERROR {e['key']}: {e['error']}")
     return 1 if errors and args.fail_on_error else 0
@@ -839,6 +997,39 @@ def build_parser() -> argparse.ArgumentParser:
                     help="non-zero exit if any document's LLM call fails")
     s2.set_defaults(func=cmd_stage2)
 
+    s4 = sub.add_parser(
+        "stage4",
+        help="deduplication + currency filter: stage2 canonicals -> "
+             "is_current stamps (plan §4 Stage 4)")
+    s4.add_argument("--qa-docs", default="processed/qa/stage2/documents.jsonl",
+                    help="Stage 2 documents.jsonl (canonical input)")
+    s4.add_argument("--products", default="data/Product Data/products.json",
+                    help="path to products.json (alias table source)")
+    s4.add_argument("--out", default="processed/qa/stage4",
+                    help="output dir (default: processed/qa/stage4)")
+    s4.add_argument("--include", action="append", metavar="GLOB",
+                    help="only process docs whose source_file matches this "
+                         "glob (repeatable)")
+    s4.add_argument("--limit", type=int, default=None,
+                    help="process at most N docs, source_file order (for pilots)")
+    s4.add_argument("--min-judge-confidence", type=float,
+                    default=MIN_JUDGE_CONFIDENCE_DEFAULT,
+                    help="currency-judgment review threshold (default: "
+                         f"{MIN_JUDGE_CONFIDENCE_DEFAULT})")
+    s4.add_argument("--api-version", default=CHAT_API_VERSION,
+                    help="Azure OpenAI api-version (default: "
+                         f"{CHAT_API_VERSION})")
+    s4.add_argument("--no-llm", action="store_true",
+                    help="conservative currency fallback: every "
+                         "gone-or-replaced cue superscedes + queues (no "
+                         "chat calls; clustering still embeds)")
+    s4.add_argument("--no-cache", action="store_true",
+                    help="skip the runs/stage4_cache.jsonl judgment cache")
+    s4.add_argument("--quiet", action="store_true")
+    s4.add_argument("--fail-on-error", action="store_true",
+                    help="non-zero exit if any currency judgment fails")
+    s4.set_defaults(func=cmd_stage4)
+
     al = sub.add_parser("aliases", help="build alias table from products.json")
     al.add_argument("--products", default="data/Product Data/products.json",
                     help="path to products.json")
@@ -888,8 +1079,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="§7 segments.jsonl (missing file shapes without "
                          "the podcast source)")
     ix.add_argument("--qa-docs",
-                    default="processed/qa/stage2/documents.jsonl",
-                    help="Stage 2 documents.jsonl (missing file shapes "
+                    default="processed/qa/stage4/documents.jsonl",
+                    help="Stage 4 documents.jsonl (missing file shapes "
                          "without the QA source)")
     ix.add_argument("--out", default="processed/index",
                     help="output dir (default: processed/index)")
@@ -904,6 +1095,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="embed (cached) but skip AI Search upload (dry-run)")
     ix.add_argument("--reset", action="store_true",
                     help="drop + recreate the index before upload")
+    ix.add_argument("--no-prune", action="store_true",
+                    help="keep index documents that are no longer in "
+                         "documents.jsonl (default: delete them so the "
+                         "index mirrors the build; skipped under --limit)")
     ix.add_argument("--quiet", action="store_true")
     ix.add_argument("--fail-on-error", action="store_true")
     ix.set_defaults(func=cmd_index)

@@ -320,15 +320,19 @@ def qa_documents(records: list[dict]) -> list[dict]:
     no canonical question fall back to the filename (a load-bearing topic
     summary, not a rewrite). Records with no answer text are skipped — there
     is nothing to retrieve (Stage 1 already excludes answer-less docs, so
-    this is belt-and-braces). Every record indexes (``is_current=True``):
-    supersession lives in Stage 4, which flips flags in the committed store;
-    currency cues never reach the index — they are Stage 4 input, not query
-    text. ``citation_url`` stays null (no verified link — podcast precedent).
+    this is belt-and-braces). Stage 4-superseded records
+    (``is_current=false``) are skipped: §4 keeps them in the committed store
+    (the "what happened to X" audit trail) but only ``is_current=true``
+    canonicals proceed to the index. Currency cues never reach the index —
+    they are Stage 4 input, not query text. ``citation_url`` stays null (no
+    verified link — podcast precedent).
     """
     docs = []
     for r in records:
         answer = (r.get("answer") or "").strip()
         if not answer:
+            continue
+        if not r.get("is_current", True):
             continue
         question = (r.get("question_canonical") or "").strip()
         title = question or r.get("filename") or r["source_file"]
@@ -399,7 +403,7 @@ def index_schema(name: str = INDEX_NAME) -> m.SearchIndex:
         ),
     )])
     fields = [
-        m.SimpleField(name="id", type="Edm.String", key=True),
+        m.SimpleField(name="id", type="Edm.String", key=True, sortable=True),
         m.SimpleField(name="source_type", type="Edm.String",
                       filterable=True, facetable=True),
         m.SimpleField(name="authority", type="Edm.Int32",
@@ -426,12 +430,18 @@ def index_schema(name: str = INDEX_NAME) -> m.SearchIndex:
 
 
 def ensure_index(search_endpoint: str, admin_key: str, name: str,
-                 reset: bool = False) -> str:
+                 reset: bool = False, poll_seconds: float = 2.0,
+                 timeout: float = 120.0) -> str:
     """Create the index if missing (or delete + recreate with *reset*).
 
     Single-resource GET, never a list call: the serverless tier rejects
     index enumeration outright ("cannot enumerate resources without paging").
+    Deletion is asynchronous server-side — a reset must poll the old index
+    away before creating the new one, or create fails with a bare "could not
+    be created" (the 2026-09-07 rebuild race) and the service is left with
+    NO index at all.
     """
+    import time
     from azure.core.credentials import AzureKeyCredential
     from azure.core.exceptions import ResourceNotFoundError
     from azure.search.documents.indexes import SearchIndexClient
@@ -442,8 +452,28 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
             client.delete_index(name)
         except ResourceNotFoundError:
             pass
-        client.create_or_update_index(index_schema(name))
-        return "recreated"
+        else:
+            deadline = time.monotonic() + timeout
+            while True:
+                try:
+                    client.get_index(name)
+                except ResourceNotFoundError:
+                    break
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"index {name} still present {timeout:g}s after "
+                        "deletion — aborting before create")
+                time.sleep(poll_seconds)
+        delay = 1.0
+        for attempt in range(5):
+            try:
+                client.create_or_update_index(index_schema(name))
+                return "recreated"
+            except Exception:  # noqa: BLE001 — residual propagation races
+                if attempt == 4:
+                    raise
+                time.sleep(delay)
+                delay = min(delay * 2, 15.0)
     try:
         client.get_index(name)
         return "exists"
@@ -467,6 +497,51 @@ def upload_documents(search_endpoint: str, admin_key: str, index_name: str,
                    for d, v in zip(docs[start:start + batch],
                                    vectors[start:start + batch])]
         for r in client.merge_or_upload_documents(payload):
+            if getattr(r, "succeeded", False):
+                n_ok += 1
+            else:
+                errors.append({"key": getattr(r, "key", None),
+                               "error": str(getattr(r, "error_message", r))[:200]})
+    return n_ok, errors
+
+
+def list_index_ids(search_endpoint: str, admin_key: str, index_name: str,
+                   page: int = 1000) -> list[str]:
+    """Every document id currently in the index, sorted (paginated scan).
+
+    Prune's source of truth: what the index physically holds vs the freshly
+    uploaded documents.jsonl. ``id`` must be sortable (schema) — skip-based
+    pagination without order_by is unspecified and cannot be trusted to
+    neither miss nor repeat ids.
+    """
+    from azure.core.credentials import AzureKeyCredential
+    from azure.search.documents import SearchClient
+
+    client = SearchClient(search_endpoint, index_name, AzureKeyCredential(admin_key))
+    ids: set[str] = set()
+    skip = 0
+    while True:
+        page_ids = [r["id"] for r in client.search(
+            search_text="*", select=["id"], top=page, skip=skip,
+            order_by=["id"])]
+        ids.update(page_ids)
+        if len(page_ids) < page:
+            return sorted(ids)
+        skip += page
+
+
+def delete_documents(search_endpoint: str, admin_key: str, index_name: str,
+                     keys: list[str], batch: int = UPLOAD_BATCH
+                     ) -> tuple[int, list[dict]]:
+    """Delete *keys* from the index in batches; returns (n_deleted, errors)."""
+    from azure.core.credentials import AzureKeyCredential
+    from azure.search.documents import SearchClient
+
+    client = SearchClient(search_endpoint, index_name, AzureKeyCredential(admin_key))
+    n_ok, errors = 0, []
+    for start in range(0, len(keys), batch):
+        payload = [{"id": k} for k in keys[start:start + batch]]
+        for r in client.delete_documents(payload):
             if getattr(r, "succeeded", False):
                 n_ok += 1
             else:

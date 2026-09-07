@@ -31,6 +31,18 @@ Implements §4 Stages 0–1 of `docs/phase1-knowledge-assistant.md` and §6
   deployment|api-version|prompt|source), so same-machine reruns are free and
   byte-identical; `--no-llm` runs the deterministic rule-based fallback (no
   Azure calls — CI/tests/shaping).
+- **Stage 4** (`stage4` subcommand) — deduplication & currency filter on the
+  Stage 2 canonicals (§4): near-duplicate question clustering (cosine ≥ 0.88
+  on `question_canonical` embeddings — scan-locked threshold — compared only
+  within shared-product/topic buckets), newest-wins canonical pick among
+  currency-current members, non-nested part_no sets as the conflict proxy
+  (queue the cluster, no auto-pick), 5% deterministic cluster audit, and the
+  currency pass: renames never supersede (identity mappings — the cue stays
+  as a dated-name signal); replacement/discontinued cues get a gpt-5-mini
+  formulation-dependence judgment (strict schema, cached, conservative
+  default superseded). Outputs `documents.jsonl` (everything retained, with
+  `cluster_id` / `stage4_status` / `superseded_by` / `currency_judgment` /
+  `is_current`), `clusters.jsonl` (the owner's worksheet), `review_queue.jsonl`.
 - **PDSRG** (`pdsrg` subcommand) — chunk the Practitioner Dietary Supplement
   Reference Guide PDFs: hybrid table extraction inherited from the validated
   gate test + the prose false-positive filter, font-based heading detection
@@ -77,7 +89,7 @@ uv sync
 uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
 ```
 
-Subcommands: `stage0`, `stage1`, `stage2`, `run` (stages 0+1), `aliases`, `pdsrg`,
+Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run` (stages 0+1), `aliases`, `pdsrg`,
 `index` (+ `--qa-docs`), `podcast`. Options on all: `--include GLOB` (repeatable), `--limit N`
 (pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
 for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
@@ -85,10 +97,14 @@ default they are removed so the output tree always matches the corpus).
 `pdsrg` adds `--keep-references` and `--citation-base`; `stage2` takes
 `--qa-docs` + `--products` instead of `--input` and adds `--min-confidence`,
 `--api-version`, `--no-llm` (rule-based fallback, no Azure calls) and `--no-cache`;
+`stage4` mirrors `stage2` (`--min-judge-confidence`, `--no-llm` = conservative
+supersession + queue; clustering still embeds);
 `podcast` takes `--transcripts` + `--audio` instead of `--input` (no corpus tree to prune);
 `index` (no corpus tree to prune) has `--limit N`,
 `--no-embed` (shape only), `--no-upload` (embed, skip AI Search), `--reset`
-(drop + recreate the index) and `--index-name`.
+(drop + recreate the index — waits out the async deletion), `--no-prune`
+(keep service-side docs absent from the build; default prunes them) and
+`--index-name`.
 
 PDSRG chunking (plan §6):
 
@@ -138,6 +154,14 @@ uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
 uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
     --products "../data/Product Data/products.json" --out ../processed/qa/stage2 \
     --no-llm
+```
+
+Stage 4 (consumes Stage 2 canonicals; embeddings from the question surface,
+judgments from the small chat deployment — both cached):
+
+```bash
+uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
+    --products "../data/Product Data/products.json" --out ../processed/qa/stage4
 ```
 
 ## Output layout

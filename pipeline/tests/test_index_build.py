@@ -271,6 +271,22 @@ def test_qa_documents_empty_answer_skipped():
     assert qa_documents([_qa_rec(answer="  ")]) == []
 
 
+def test_qa_documents_stage4_superseded_skipped():
+    """§4: superseded answers stay in the committed store, never the index."""
+    live = _qa_rec()
+    dup = _qa_rec(id="dup0000000000000", source_file="2023/dup.docx",
+                  is_current=False)
+    docs = qa_documents([dup, live])
+    assert [d["id"] for d in docs] == ["qa-abc123def4567890"]
+    assert docs[0]["is_current"] is True
+
+
+def test_qa_documents_is_current_defaults_true_for_legacy_input():
+    """Stage 2-only input (no Stage 4 stamp) still indexes unchanged."""
+    doc = qa_documents([_qa_rec()])[0]  # _qa_rec carries no is_current key
+    assert doc["is_current"] is True
+
+
 def test_qa_documents_oversize_answer_splits_into_fitting_parts():
     from qa_pipeline.index_build import QA_PART_CHARS, embed_text, split_answer_parts
     paras = [f"Paragraph {i} about creatine dosing. " * 200 for i in range(8)]
@@ -448,6 +464,56 @@ def test_ensure_index_get_based_create_exists_and_reset(monkeypatch):
     assert ("create", "kb-main") in fake3.calls
 
 
+class _SlowDeleteIndexes:
+    """Deletion is async: get_index keeps answering for a few polls, and the
+    first create still races (the 2026-09-07 kb-main incident shape)."""
+
+    def __init__(self, polls_before_gone=3, create_failures=1):
+        self.deleted = False
+        self.polls_before_gone = polls_before_gone
+        self.create_failures = create_failures
+        self.create_attempts = 0
+        self.calls: list = []
+
+    def delete_index(self, name):
+        self.calls.append(("delete", name))
+        self.deleted = True
+
+    def get_index(self, name):
+        self.calls.append(("get", name))
+        if not self.deleted:
+            return object()
+        if self.polls_before_gone > 0:
+            self.polls_before_gone -= 1
+            return object()
+        from azure.core.exceptions import ResourceNotFoundError
+        raise ResourceNotFoundError("not found")
+
+    def create_or_update_index(self, index):
+        self.create_attempts += 1
+        self.calls.append(("create", index.name))
+        if self.create_attempts <= self.create_failures:
+            raise RuntimeError("could not be created")
+        self.deleted = False
+
+
+def test_ensure_index_reset_waits_for_deletion_and_retries_create(monkeypatch):
+    import azure.search.documents.indexes as ixmod
+
+    fake = _SlowDeleteIndexes(polls_before_gone=3, create_failures=1)
+    monkeypatch.setattr(ixmod, "SearchIndexClient", lambda *a, **k: fake)
+    assert ensure_index("x", "k", "kb-main", reset=True,
+                        poll_seconds=0.0) == "recreated"
+    # create only after the get that finally 404'd...
+    last_get = max(i for i, c in enumerate(fake.calls) if c[0] == "get")
+    first_create = min(i for i, c in enumerate(fake.calls) if c[0] == "create")
+    assert last_get < first_create
+    # ...and the raced create was retried to success
+    assert fake.create_attempts == 2
+    # never left in the deleted state without a create attempt succeeding
+    assert fake.deleted is False
+
+
 class _FakeResult:
     def __init__(self, key, ok):
         self.key = key
@@ -456,13 +522,50 @@ class _FakeResult:
 
 
 class _FakeSearch:
-    def __init__(self):
+    def __init__(self, ids=None):
         self.batches: list = []
+        self.ids = list(ids or [])          # what a paginated scan returns
+        self.deleted: list = []
 
     def merge_or_upload_documents(self, docs):
         self.batches.append(docs)
         return [_FakeResult(d["id"], ok=(i % 2 == 0))
                 for i, d in enumerate(docs)]
+
+    def search(self, *, search_text, select, top, skip, order_by):
+        assert search_text == "*" and select == ["id"] and order_by == ["id"]
+        return [{"id": i} for i in self.ids[skip:skip + top]]
+
+    def delete_documents(self, docs):
+        self.batches.append(docs)
+        self.deleted.extend(d["id"] for d in docs)
+        return [_FakeResult(d["id"], True) for d in docs]
+
+
+def test_list_index_ids_paginates_and_sorts(monkeypatch):
+    import azure.search.documents as smod
+    import qa_pipeline.index_build as ixmod
+
+    fake = _FakeSearch(ids=[f"d{i:05d}" for i in range(2500, 0, -1)])
+    monkeypatch.setattr(smod, "SearchClient", lambda *a, **k: fake)
+    out = ixmod.list_index_ids("https://x.search.windows.net", "k", "kb",
+                               page=1000)
+    assert len(out) == 2500
+    assert out == sorted(out)
+
+
+def test_delete_documents_batches_and_reports(monkeypatch):
+    import azure.search.documents as smod
+    import qa_pipeline.index_build as ixmod
+
+    fake = _FakeSearch()
+    monkeypatch.setattr(smod, "SearchClient", lambda *a, **k: fake)
+    n_ok, errors = ixmod.delete_documents(
+        "https://x.search.windows.net", "k", "kb",
+        [f"k{i}" for i in range(5)], batch=2)
+    assert [len(b) for b in fake.batches] == [2, 2, 1]
+    assert n_ok == 5 and errors == []
+    assert fake.deleted == [f"k{i}" for i in range(5)]
 
 
 def test_upload_documents_batches_payload_and_error_count(monkeypatch):

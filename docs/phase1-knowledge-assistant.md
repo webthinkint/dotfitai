@@ -156,23 +156,37 @@ source spans; a diff pass (source containment check) verifies no invented conten
 
 ### Stage 4 — deduplication & currency filter
 
-Only now (post-structuring), in this order:
+Built 2026-09-07 (`stage4` subcommand). Only now (post-structuring), in this order:
 
-1. **Cluster**: near-duplicate canonical questions (embedding similarity ≥ threshold) within the
-   same product/topic.
-2. **Canonical pick**: newest wins by default.
-3. **Conflict check**: if cluster members materially disagree (not merely older), route the
-   cluster to the review queue instead of auto-picking.
-4. **Currency rules**: answers whose `currency_cues` reference pre-reformulation names
-   (LeanMR → LeanMeal, MuscleDefender → GlutamineComplex, NO7 Rage → NO7 Preworkout, …)
-   are flagged `superseded` unless the content is formulation-independent. The alias table
-   drives this automatically, and distinguishes **renames** (identity mappings, safe to
-   expand to the successor's `part_no`s) from **replacements** (a different formula took
-   over the slot — currency cue and query redirect only).
+1. **Cluster**: near-duplicate canonical questions (cosine ≥ 0.88 on `question_canonical`
+   embeddings — scan-locked threshold, progress 2026-09-07 (25)) within the same
+   product/topic bucket (shared part_no or topic, casefolded); identical question strings
+   merge regardless of bucket. Expert notes (no canonical question) are not clustered —
+   there is no question to dedup on.
+2. **Canonical pick**: newest `thread_date` wins among currency-current members; null
+   dates lose; ties break on `source_file`. An all-superseded cluster emits no canonical.
+3. **Conflict check**: non-nested member `part_no` sets are the deterministic
+   "materially disagree" proxy — the cluster routes to the review queue instead of
+   auto-picking (members stay indexed pending disposition; a member's own currency
+   supersession still stands). A deterministic 5% audit sample of auto-resolved clusters
+   joins the queue; every cluster is in the committed `clusters.jsonl` worksheet (the
+   owner's session record).
+4. **Currency rules** — the alias-table classes drive everything, and **renames never
+   supersede** (owner ruling 2026-09-07: LeanMR → LeanMeal and every legacy rename is an
+   identity mapping — same product, same formula; the cue stays on the record as a
+   dated-name signal for the runtime, and Stage 2 already expanded it to the successor's
+   part_nos). Only **replacements** (a different formula took over the slot — currency
+   cue and query redirect only) and **discontinued** (no successor) cues can supersede,
+   and only when the answer's guidance is formulation-*dependent*: a gpt-5-mini
+   judgment (strict schema, cached, conservative default superseded, low confidence
+   queued) separates genuine product guidance from incidental mentions.
    ~~+ "Reformulated with Careflow (2025)"~~ — **dropped** 2026-09-01 (2): absent from
    LeanMeal product copy, verified in products.json.
-5. **Output**: everything retained in the structured store (audit trail); only
-   `is_current = true` canonical items proceed to the index **and** the golden set.
+5. **Output**: everything retained in `stage4/documents.jsonl` with `cluster_id`,
+   `stage4_status` (`current` / `superseded_dup` / `superseded_currency`),
+   `superseded_by`, `currency_judgment` (+ evidence) and the §9 `is_current` boolean;
+   only `is_current = true` canonicals proceed to the index (the build **prunes**
+   superseded docs from AI Search as well) **and** the golden set.
 
 ### Stage 5 — indexing
 

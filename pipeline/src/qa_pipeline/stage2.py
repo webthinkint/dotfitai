@@ -585,17 +585,25 @@ class _ChatAPI(Protocol):
 
 
 class Extractor:
-    """Small-chat structuring client with retries. Never echoes key material."""
+    """Small-chat JSON-schema client with retries. Never echoes key material.
+
+    *schema*/*schema_name* default to the Stage 2 contract; Stage 4's
+    currency judge injects its own (same wire format, different schema).
+    """
 
     def __init__(self, endpoint: str, api_key: str, deployment: str,
                  api_version: str, max_retries: int = MAX_RETRIES,
-                 client: _ChatAPI | None = None):
+                 client: _ChatAPI | None = None,
+                 schema: dict[str, Any] | None = None,
+                 schema_name: str = "qa_stage2"):
         self.endpoint = endpoint
         self.api_key = api_key
         self.deployment = deployment
         self.api_version = api_version
         self.max_retries = max_retries
         self._client = client  # injectable for tests
+        self.schema = schema if schema is not None else STAGE2_SCHEMA
+        self.schema_name = schema_name
         self.n_api_calls = 0
 
     def __call__(self, messages: list[dict[str, str]]) -> dict[str, Any]:
@@ -608,8 +616,9 @@ class Extractor:
                     messages=messages,
                     response_format={
                         "type": "json_schema",
-                        "json_schema": {"name": "qa_stage2", "strict": True,
-                                        "schema": STAGE2_SCHEMA},
+                        "json_schema": {"name": self.schema_name,
+                                        "strict": True,
+                                        "schema": self.schema},
                     },
                 )
                 self.n_api_calls += 1
