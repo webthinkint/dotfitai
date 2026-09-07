@@ -308,7 +308,7 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
   0 errors — 338 docs gained part_nos (42 newly tagged), unresolved mentions
   3,474 → 2,292 (−34%)
 - Review queue **222** (21%, down from 590 pre-triage), fully dispositioned
-  (rounds 1–2, `docs/progress.md` entries 19–20): 168 residual-PII flags
+  (rounds 1–2, `docs/progress-archive.md` entries 19–20): 168 residual-PII flags
   (customer-side names correctly caught; staff bulk-accepted via silent-redact
   vocabulary), 48 deterministic 5% audit samples, 1 containment fail,
   5 low-confidence
@@ -347,5 +347,5 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
 - DOI strings like `10.1007/s13197-011-0571` are correctly *not* matched as
   phones; the address rule was corpus-verified with zero false positives
 
-Earlier entries in `docs/progress.md` quote per-*document* pattern counts: the
+Earlier entries in `docs/progress-archive.md` quote per-*document* pattern counts: the
 counter incremented once per pattern per file until 2026-09-02 (2).

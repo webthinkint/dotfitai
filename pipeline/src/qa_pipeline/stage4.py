@@ -18,7 +18,7 @@ table and stamps every record with its retrieval currency:
   gpt-5-mini formulation-independence call for replacement/discontinued cues:
   ``independent`` / ``dependent`` / ``low_confidence`` / ``no_llm`` / error.
 
-Owner rulings baked in (2026-09-07, progress.md Decisions):
+Owner rulings baked in (2026-09-07, docs/decisions.md):
 
 - **Renames never supersede.** A rename (LeanMR→LeanMeal and the other
   legacy entries) is an identity mapping — same product, same formula — so a

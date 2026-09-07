@@ -408,7 +408,7 @@ prefilled source candidates, `adversarial.md` scaffold for the hand-written
 
 ## 14. Open items
 
-Definitions live here; **current status lives in the table at the bottom of
+Definitions live here; **current status lives in the "Open items" table in
 `docs/progress.md`**, which is updated per work item.
 
 1. **Region + SKU pricing** for Azure OpenAI / AI Search (needs an Azure sub decision).

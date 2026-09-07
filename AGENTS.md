@@ -7,8 +7,13 @@ sources (customer QA emails, PDSRG PDFs, `products.json`, podcasts).
 
 - `docs/phase1-knowledge-assistant.md` — the plan. `§N` refs are cited in code
   docstrings, commit messages, and progress entries; keep citing them.
-- `docs/progress.md` — living status tracker, newest first. Check the open-items
-  table before claiming something is "next"; add one log line per work item.
+- `docs/progress.md` — living status tracker: status table, open items, and the
+  five newest log entries. Check the open-items table before claiming something
+  is "next"; add one log line per work item and rotate the sixth out to
+  `docs/progress-archive.md`.
+- `docs/decisions.md` — owner/curation rulings by area (PII, Stage 4, aliases,
+  PDSRG, index). Read the group for the area you are touching before changing
+  behavior it constrains.
 - **Module docstrings are the detail.** Every module opens with its §ref, its
   contract and the rulings baked into it; `runtime/README.md` does the same for
   the .NET side. Read the file you are about to touch — this document is a map,
