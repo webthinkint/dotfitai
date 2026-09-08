@@ -61,6 +61,7 @@ owner.
 | 13 | Stage 2 review-queue dispositions | **open, triaged** — 222 flagged records, **203 of them `is_current` and live in the index** (154 residual-PII). `scripts/stage2_queue_triage.py` splits them into the 3 that must be read (residual-PII flag, no placeholder in the committed text) and 219 that bulk-disposition (165 placeholder-backed + 48 audit + 5 low-conf + 1 containment). Owner pass |
 | 14 | Podcast citation URLs | **closed** 2026-09-08 — all 47 ids resolved via YouTube oEmbed and matched all 47 episodes at Dice 1.00; frozen as `PODCAST_VIDEO_IDS`, 1,800/1,800 segments deep-linked to their start second, re-uploaded with 0 embed calls and verified live |
 | 15 | §12 evaluation coverage | **mostly closed** 2026-09-08 — the precision metric is in §12's list; PDSRG/podcast have 120 retrieval probes; the degraded-guardrail path is pinned by tests and fixed a real defect. **Remaining**: probes measure retrieval only, so end-to-end coverage of those two corpora still needs written questions, and two §11 standing behaviors (conversation-start disclosure, prompt-injection) have no adversarial item because §12 fixes the split at 20/15/15 |
+| 16 | Customer names in `question_original` | **open** 2026-09-08 — `scrub.py` redacts greeting-position and sign-off names but not web-form self-introductions, so **10 Stage 4 records** carry a self-introduced customer name in `question_original` (9 of them full names); only **2** have `residual_pii_flag` and only 3 are in the Stage 2 queue at all, so item 13's pass will not catch the rest. **Not served**: `index_build` ships `question_canonical` only and the pattern has 0 hits there — the exposure is the committed `processed/` tree, not the index. Fix is a Stage 0 rule + regen. The count is one probe (`my name is`), not an audit |
 
 ## Log
 
@@ -69,6 +70,14 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+- **2026-09-08 (41)** — Tracker convention change + one new open item (docs
+  only). Log entries no longer cite commit SHAs, here and in
+  `progress-archive.md`, and the **Writing entries** rule dropped the
+  requirement; entries touched by the removal were re-wrapped to the documented
+  80 columns and the 8-line budget. New **item 16**: 10 Stage 4 records keep a
+  self-introduced customer name in `question_original` (9 full names, only 2
+  flagged) — committed `processed/` only, 0 hits in the indexed field. 404
+  tests, unchanged.
 - **2026-09-08 (40)** — Stage 4 review queue closed (§4): **item 7
   dispositioned, queue 2 → 0**. The corpus's one `cluster_conflict` is ruled
   **split** — the pair is two turns of one email thread, and Stage 1 keeps only
@@ -101,14 +110,6 @@ artifact it describes.
   segments deep-link to their start second; re-uploaded 3,996/3,996, **0 embed
   calls**, 0 errors, live-verified. Correction: `wc -l` says 46 — the file has
   no trailing newline. 5 new tests.
-- **2026-09-08 (36)** — §12 eval harness shipped — `evaluate.py` + `qa-pipeline
-  eval` over `ask --json`. **It does not wait on item 8**: each item's source
-  doc id is `qa-<id>` (250/250), so source recall is label-free. Scores
-  source/probe recall, citation rate, escalation accuracy, claims-audit
-  precision (item 12) and RAGAS-*style* judged metrics; label-dependent ones
-  report `null` with a reason. First live sweep (dev, n=12): sample recall@8
-  **100% ranker-off vs 83.3% ranker-on**, probes 100%, escalation **10/10**. 35
-  new tests (**391 python**). Item 5 has data now.
 
 ## Writing entries
 
