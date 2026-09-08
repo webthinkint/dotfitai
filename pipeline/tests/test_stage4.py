@@ -9,7 +9,10 @@ import pytest
 
 from qa_pipeline.alias import build_alias_table
 from qa_pipeline.stage2 import is_audit_sample
+from qa_pipeline import stage4 as stage4_mod
 from qa_pipeline.stage4 import (
+    CURATED_CLUSTER_DISPOSITIONS,
+    DISPOSITION_SPLIT,
     STATUS_CURRENT,
     STATUS_SUPERSEDED_CURRENCY,
     STATUS_SUPERSEDED_DUP,
@@ -18,6 +21,7 @@ from qa_pipeline.stage4 import (
     currency_cache_key,
     currency_messages,
     cue_descriptions,
+    disposition_for,
     normalize_vector,
     pick_canonical,
     products_conflict,
@@ -523,6 +527,112 @@ class TestRunStage4:
             run_stage4([rec], alias_table, _embed_map({}), None, "rule-based")
 
 
+# --- curated cluster dispositions (§4 step 3, owner ruling) ----------------------
+
+class TestClusterDispositions:
+    """A ruled cluster stops being queued and never dedups its members."""
+
+    def _pair(self):
+        ids = sorted([_no_audit_id("x"), _no_audit_id("y")])
+        a = _s2rec(ids[0], "2023/a.docx", question="Q one?",
+                   topics=["creatine"], products=[1213],
+                   thread_date="2023-01-01")
+        b = _s2rec(ids[1], "2024/b.docx", question="Q two?",
+                   topics=["creatine"], products=[1020],
+                   thread_date="2024-01-01")
+        return ids, a, b
+
+    def _rule(self, monkeypatch, cluster_id, members,
+              disposition=DISPOSITION_SPLIT):
+        monkeypatch.setattr(stage4_mod, "CURATED_CLUSTER_DISPOSITIONS", {
+            cluster_id: {"disposition": disposition,
+                         "members": sorted(members),
+                         "source": "test"}})
+
+    def test_split_keeps_both_and_empties_the_queue(self, alias_table,
+                                                     monkeypatch):
+        ids, a, b = self._pair()
+        self._rule(monkeypatch, ids[0], ids)
+        out, ws, review, stats = run_stage4(
+            [a, b], alias_table,
+            _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+            None, "rule-based")
+        assert all(r["stage4_status"] == STATUS_CURRENT for r in out)
+        assert all(r["superseded_by"] is None for r in out)
+        assert all(r["is_current"] is True for r in out)
+        assert review == []                       # the ruling clears the queue
+        assert ws[0]["conflict"] is True          # the detection still stands
+        assert ws[0]["disposition"] == DISPOSITION_SPLIT
+        assert ws[0]["canonical"] is None
+        assert stats["n_conflict_clusters"] == 1
+        assert stats["n_dispositioned_clusters"] == 1
+
+    def test_split_blocks_dedup_even_without_conflict(self, alias_table,
+                                                       monkeypatch):
+        ids, a, b = self._pair()
+        b["products"] = [1213, 1020]              # nested: no conflict proxy
+        self._rule(monkeypatch, ids[0], ids)
+        out, ws, review, _ = run_stage4(
+            [a, b], alias_table,
+            _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+            None, "rule-based")
+        assert ws[0]["conflict"] is False
+        assert ws[0]["canonical"] is None         # split beats the auto-pick
+        assert all(r["stage4_status"] == STATUS_CURRENT for r in out)
+        assert review == []
+
+    def test_unruled_cluster_still_queues(self, alias_table, monkeypatch):
+        ids, a, b = self._pair()
+        monkeypatch.setattr(stage4_mod, "CURATED_CLUSTER_DISPOSITIONS", {})
+        _, ws, review, _ = run_stage4(
+            [a, b], alias_table,
+            _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+            None, "rule-based")
+        assert ws[0]["disposition"] is None
+        assert [row["reasons"] for row in review] == [["cluster_conflict"],
+                                                       ["cluster_conflict"]]
+
+    def test_membership_change_raises(self, alias_table, monkeypatch):
+        ids, a, b = self._pair()
+        self._rule(monkeypatch, ids[0], [ids[0], "f" * 16])
+        with pytest.raises(ValueError, match="no longer covers it"):
+            run_stage4([a, b], alias_table,
+                       _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+                       None, "rule-based")
+
+    def test_stale_ruling_raises_on_a_whole_corpus_run(self, alias_table,
+                                                        monkeypatch):
+        ids, a, b = self._pair()
+        self._rule(monkeypatch, "e" * 16, ["e" * 16, "f" * 16])
+        with pytest.raises(ValueError, match="stale Stage 4 cluster"):
+            run_stage4([a, b], alias_table,
+                       _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+                       None, "rule-based", strict_dispositions=True)
+
+    def test_partial_run_tolerates_a_missing_ruled_cluster(self, alias_table,
+                                                            monkeypatch):
+        ids, a, b = self._pair()
+        self._rule(monkeypatch, "e" * 16, ["e" * 16, "f" * 16])
+        _, ws, _, stats = run_stage4(
+            [a, b], alias_table,
+            _embed_map({"Q one?": V_SAME, "Q two?": V_NEAR}),
+            None, "rule-based", strict_dispositions=False)
+        assert stats["n_dispositioned_clusters"] == 0
+
+    def test_disposition_for_is_none_when_unruled(self):
+        assert disposition_for("z" * 16, [_s2rec("z" * 16, "z.docx")]) is None
+
+    def test_shipped_ruling_is_the_firststring_split(self):
+        """Pins the owner ruling itself, not just the mechanism."""
+        assert list(CURATED_CLUSTER_DISPOSITIONS) == ["79c663016afc2345"]
+        entry = CURATED_CLUSTER_DISPOSITIONS["79c663016afc2345"]
+        assert entry["disposition"] == DISPOSITION_SPLIT
+        assert entry["members"] == ["79c663016afc2345", "8be45e86eb76c09f"]
+        assert entry["members"] == sorted(entry["members"])
+        assert entry["members"][0] == "79c663016afc2345"  # cluster_id = min id
+        assert "2026-09-08" in entry["source"]
+
+
 # --- summarize -------------------------------------------------------------------
 
 class TestSummarize:
@@ -537,10 +647,15 @@ class TestSummarize:
              "stage4_review_reasons": ["currency_low_confidence"],
              "stage4_needs_review": True},
         ]
-        out = summarize(recs, [{"conflict": False, "audit": True}])
+        out = summarize(recs, [{"conflict": False, "audit": True,
+                                "disposition": None},
+                               {"conflict": True, "audit": False,
+                                "disposition": DISPOSITION_SPLIT}])
         assert out["n_documents"] == 3
         assert out["n_current"] == 1
         assert out["by_stage4_status"]["superseded_dup"] == 1
         assert out["by_currency_judgment"] == {"dependent": 1}
         assert out["n_review_queue"] == 1
         assert out["n_audit_clusters"] == 1
+        assert out["n_conflict_clusters"] == 1
+        assert out["n_dispositioned_clusters"] == 1

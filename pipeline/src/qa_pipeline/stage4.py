@@ -39,10 +39,19 @@ Conflict routing (§4 step 3): a cluster whose members' part_no sets are
 non-nested "materially disagree" by proxy — deterministic code cannot judge
 prose — so the cluster is routed to the review queue *instead of auto-picking*
 (no member is dedup-superseded pending disposition; a member's own currency
-supersession still stands). A deterministic 5% audit sample of auto-resolved
-clusters joins the queue (§4 Stage 3 audit precedent), and every multi-member
-cluster lands in the committed ``clusters.jsonl`` worksheet — the session
-record for owner review, the alias-worksheet precedent.
+supersession still stands). Once the owner rules on a queued cluster the ruling
+lands in :data:`CURATED_CLUSTER_DISPOSITIONS` and the cluster stops being
+queued; ``split`` (owner ruling 2026-09-08, the corpus's only conflict) means
+the members are distinct questions, so no member ever supersedes another and
+both stay retrievable. The ruling pins its exact membership: if the cluster
+reshapes or stops forming, Stage 4 raises rather than re-applying a ruling
+nobody made for it (only a whole-corpus run can prove a ruling stale, so the
+CLI passes ``strict_dispositions`` off for ``--include`` / ``--limit`` runs,
+and it is off by default for library callers). A deterministic 5% audit sample
+of auto-resolved clusters joins the queue (§4 Stage 3 audit precedent), and
+every multi-member cluster lands in the committed ``clusters.jsonl``
+worksheet — the session record for owner review, the alias-worksheet
+precedent.
 
 Determinism: outputs carry no timestamps and no vectors (vectors are API
 results cached in the gitignored ``runs/embeddings.jsonl``; judgments cache in
@@ -278,6 +287,56 @@ def products_conflict(members: list[dict[str, Any]]) -> bool:
     return False
 
 
+DISPOSITION_SPLIT = "split"
+
+# Owner dispositions for queued clusters (§4 step 3; docs/decisions.md). Keyed
+# by ``cluster_id`` (= min member id); ``members`` pins the exact membership
+# the ruling was made on, so a corpus change that reshapes the cluster raises
+# rather than silently re-applying a ruling nobody made for it.
+CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {
+    # 2026-09-08, open item 7 — the corpus's only cluster_conflict. The two
+    # records are consecutive turns of ONE email thread: 8be45e86 is the
+    # webform enquiry (why FirstString, 1 g protein per lb LBM, whether the
+    # pre-workout serving is mandatory), and 79c66301 is the same customer's
+    # follow-up ("what else with FirstString") answered with creatine + the
+    # Level 1 plan, quoting the whole prior reply beneath it. Stage 1 keeps
+    # only the *new* expert reply as the answer, so the newer record is a
+    # delta, not a superset: superseding the older one would drop the only
+    # direct answer to the pre-workout half while leaving that clause standing
+    # in the newer record's canonical question. The non-nested part_nos are an
+    # artifact of the two boilerplate blocks (the older enumerates MVs by
+    # demographic, hence 1007 Women's MV; the newer names ActiveMV) — the
+    # answers never contradict each other. Split: both stay retrievable,
+    # neither supersedes the other.
+    "79c663016afc2345": {
+        "disposition": DISPOSITION_SPLIT,
+        "members": ["79c663016afc2345", "8be45e86eb76c09f"],
+        "source": "owner ruling 2026-09-08 (Stage 4 queue, open item 7)",
+    },
+}
+
+
+def disposition_for(cluster_id: str,
+                    members: list[dict[str, Any]]) -> str | None:
+    """Curated owner disposition for *cluster_id*, or None if unruled.
+
+    Raises if the cluster still forms but with different members than the
+    ruling was made on — corpus attestation, the alias-table rule: a curated
+    entry that no longer describes reality must fail loudly.
+    """
+    entry = CURATED_CLUSTER_DISPOSITIONS.get(cluster_id)
+    if entry is None:
+        return None
+    ruled = list(entry["members"])
+    actual = sorted(m["id"] for m in members)
+    if ruled != actual:
+        raise ValueError(
+            f"Stage 4 cluster {cluster_id} was dispositioned for members "
+            f"{ruled} but now clusters {actual}; the owner ruling no longer "
+            "covers it — re-read the members and re-rule.")
+    return str(entry["disposition"])
+
+
 # --- record stamping ---------------------------------------------------------------
 
 def _stamp(rec: dict[str, Any], **fields: Any) -> dict[str, Any]:
@@ -292,6 +351,7 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
                threshold: float = SIMILARITY_THRESHOLD,
                min_judge_confidence: float = MIN_JUDGE_CONFIDENCE_DEFAULT,
                audit_rate: float = AUDIT_RATE,
+               strict_dispositions: bool = False,
                cache: dict[str, dict[str, Any]] | None = None,
                cache_write: Any | None = None,
                cache_key_fn: Any | None = None,
@@ -381,14 +441,19 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
 
     by_id = {r["id"]: r for r in stamped}
     worksheet: list[dict[str, Any]] = []
+    ruled_clusters: set[str] = set()
     for members in clusters:
         cluster_id = min(m["id"] for m in members)
         conflict = products_conflict(members)
-        audit = is_audit_sample(cluster_id, audit_rate) and not conflict
+        disposition = disposition_for(cluster_id, members)
+        if disposition is not None:
+            ruled_clusters.add(cluster_id)
+        audit = (is_audit_sample(cluster_id, audit_rate)
+                 and not conflict and disposition is None)
         for m in members:
             m["cluster_id"] = cluster_id
         canonical = None
-        if not conflict:
+        if not conflict and disposition != DISPOSITION_SPLIT:
             candidates = [m for m in members
                           if m["stage4_status"] == STATUS_CURRENT]
             if candidates:
@@ -397,7 +462,8 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
                     if m["id"] != canonical["id"]:
                         m["stage4_status"] = STATUS_SUPERSEDED_DUP
                         m["superseded_by"] = canonical["id"]
-        reasons = (["cluster_conflict"] if conflict else []) + \
+        reasons = (["cluster_conflict"]
+                   if conflict and disposition is None else []) + \
                   (["cluster_audit"] if audit else [])
         if reasons:
             for m in members:
@@ -408,6 +474,7 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
             "size": len(members),
             "conflict": conflict,
             "audit": audit,
+            "disposition": disposition,
             "canonical": ({"id": canonical["id"],
                            "source_file": canonical["source_file"],
                            "thread_date": canonical.get("thread_date")}
@@ -419,9 +486,19 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
                          "products": m.get("products") or []}
                         for m in members],
         })
+    if strict_dispositions:
+        stale = sorted(set(CURATED_CLUSTER_DISPOSITIONS) - ruled_clusters)
+        if stale:
+            raise ValueError(
+                "stale Stage 4 cluster disposition(s) — no such cluster in "
+                f"this run: {', '.join(stale)}. The ruled cluster no longer "
+                "forms; re-read the records and re-rule rather than deleting "
+                "the entry silently.")
     stats["n_clusters"] = len(clusters)
     stats["n_conflict_clusters"] = sum(1 for w in worksheet if w["conflict"])
     stats["n_audit_clusters"] = sum(1 for w in worksheet if w["audit"])
+    stats["n_dispositioned_clusters"] = sum(
+        1 for w in worksheet if w["disposition"] is not None)
 
     # -- finalize review flags + the §9 contract boolean
     for r in stamped:
@@ -461,6 +538,8 @@ def summarize(records: list[dict[str, Any]],
         "by_currency_judgment": dict(sorted(judgments.items())),
         "n_clusters": len(worksheet),
         "n_conflict_clusters": sum(1 for w in worksheet if w["conflict"]),
+        "n_dispositioned_clusters": sum(
+            1 for w in worksheet if w.get("disposition") is not None),
         "n_audit_clusters": sum(1 for w in worksheet if w["audit"]),
         "n_review_queue": sum(1 for r in records if r["stage4_needs_review"]),
         "review_reasons": dict(sorted(reasons.items())),

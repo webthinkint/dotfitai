@@ -513,6 +513,9 @@ def cmd_stage4(args: argparse.Namespace) -> int:
     records, worksheet, review, stats = run_stage4(
         docs, alias_table, embed_call, judge_call, deployment,
         threshold=SIMILARITY_THRESHOLD, min_judge_confidence=min_judge,
+        # a partial run legitimately lacks the ruled clusters; only a
+        # whole-corpus run can prove an owner disposition has gone stale
+        strict_dispositions=not (args.include or args.limit is not None),
         cache=cache, cache_write=(write_fn if use_cache else None),
         cache_key_fn=key_fn)
     embedder.save_cache()
@@ -567,11 +570,14 @@ def cmd_stage4(args: argparse.Namespace) -> int:
     if not args.quiet:
         for w in worksheet[:3]:
             canon = w["canonical"]["source_file"] if w["canonical"] else "(none)"
+            ruled = (f", disposition={w['disposition']}"
+                     if w.get("disposition") else "")
             print(f"  cluster {w['cluster_id']}: {w['size']} members, "
-                  f"canonical {canon}, conflict={w['conflict']}")
+                  f"canonical {canon}, conflict={w['conflict']}{ruled}")
     print(f"stage4 done: {len(records)} records, "
           f"{stats['n_clusters']} cluster(s) ({stats['n_conflict_clusters']} "
-          f"conflict, {stats['n_audit_clusters']} audit), "
+          f"conflict, {stats['n_dispositioned_clusters']} dispositioned, "
+          f"{stats['n_audit_clusters']} audit), "
           f"{summarize_stage4(records, worksheet)['n_current']} current, "
           f"{len(review)} in review queue "
           f"({stats['n_judge_calls']} judge call(s), "

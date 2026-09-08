@@ -24,11 +24,10 @@
  },
  "n_clusters": 17,
  "n_conflict_clusters": 1,
+ "n_dispositioned_clusters": 1,
  "n_audit_clusters": 0,
- "n_review_queue": 2,
- "review_reasons": {
-  "cluster_conflict": 2
- },
+ "n_review_queue": 0,
+ "review_reasons": {},
  "embedding": {
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
@@ -45,6 +44,7 @@
   "n_clusters": 17,
   "n_conflict_clusters": 1,
   "n_audit_clusters": 0,
+  "n_dispositioned_clusters": 1,
   "deployment": "gpt-5-mini",
   "api_version": "2025-04-01-preview",
   "currency_prompt_version": "1.0.0"

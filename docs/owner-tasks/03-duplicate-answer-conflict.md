@@ -1,75 +1,73 @@
 # Task 3 — Pick between two near-identical answers
 
 **Who:** nutritionist
-**Effort:** 15 minutes
+**Effort:** done
 **Blocking:** no
 **Tracked as:** open item 7
 
-## What this is
+## Status: closed, 8 September 2026 — split, both kept
+
+Nothing further is needed from you. This file is kept as the record of what was
+decided and why.
+
+## What this was
 
 The same question gets asked many times over the years, and we do not want the
 assistant retrieving four versions of one answer. So the system groups
 near-identical questions and keeps the newest as the canonical one.
 
 It does that automatically — except when it cannot tell whether two answers
-actually *agree*. In that case it refuses to choose and asks a person. That has
-happened exactly once, on one pair of records.
+actually *agree*. In that case it refuses to choose and asks a person. That
+happened exactly once, on one pair of records, both from 2024 and both about
+FirstString for muscle gain.
 
-## The pair
+## What we found when we looked
 
-Both are the same question, from 2024, about FirstString protein for muscle
-gain:
+The two records are not two separate enquiries. They are **two turns of the
+same email thread, from the same customer**:
 
-**Record A — 4 September 2024**
+- **16 August** — the customer writes in through the web form: they plan to
+  take FirstString to gain muscle mass while doing calisthenics and interval
+  training, what else should they take, and do they have to take the
+  pre-workout serving exactly as recommended? The reply explains *why*
+  FirstString is the right protein, that they need about 1 g of protein per
+  pound of lean body mass, and — importantly — that if they cannot manage the
+  pre-workout shake, they should just make sure they hit their daily protein
+  total.
+- **4 September** — they reply to that same email asking what else to take
+  with FirstString. The answer adds Creatine Monohydrate and the Level 1
+  Performance/Size plan. The whole August reply is quoted underneath it.
 
-> I plan to use FirstString to gain muscle mass. What else should I take with
-> it to help build muscle, and do I have to take the pre-workout serving as
-> recommended?
+So the September email *is* the fuller document. That was the reason to think
+these should be merged.
 
-The answer is a full Level 1 performance plan: Active MV, Super Omega-3, Super
-Calcium, FirstString, plus Creatine Monohydrate, with dosing for each.
+## Why we still kept both
 
-**Record B — 16 August 2024**
+Because the system does not store the September email the way you read it. When
+it splits an email into "the question" and "the expert's answer", the quoted
+August reply goes into the question half — it is part of the thread history, not
+part of the new answer. So the answer it holds for the September record is only
+the new paragraph: creatine, plus the Level 1 plan.
 
-> I plan to take FirstString to gain muscle mass while doing calisthenics and
-> interval training; what else can I take with it to help, and do I have to
-> take the pre-workout serving exactly as recommended?
+That means dropping the August record would have deleted the only place the
+assistant can find the answer to *"do I have to take the pre-workout serving?"*
+— while the September record's stored question still ends with that exact
+question. We would have been left with one record that asks about pre-workout
+timing and an answer that never addresses it. That is worse than having a
+duplicate.
 
-The answer is about *why* FirstString is the right protein — its macronutrient
-makeup, hitting 1 g protein per lb of lean body mass, timing around workouts —
-and then points to the baseline programme.
+The two products lists that triggered the whole thing turned out not to be a
+disagreement at all. The August answer lists our multivitamins by who should
+take which ("if female under 50 use Women's"), which is why Women's MV appears
+in it; the September answer names ActiveMV because that is what the Level 1 plan
+specifies. Neither contradicts the other.
 
-## Why the computer would not decide
+## What happens now
 
-It compares the products each answer recommends. Usually one list is a subset of
-the other, which means they agree and the fuller one wins. Here they overlap but
-neither contains the other: record A lists six products record B does not, and
-record B lists one product (part number 1007) that record A does not.
+Both records stay searchable. Neither replaces the other. The unresolved pile
+for this part of the system is now zero.
 
-Overlapping-but-not-nested is the one shape the system treats as "these might
-genuinely disagree — ask a human."
-
-## What we need
-
-One of two answers:
-
-**Option 1 — Split them.** Treat them as two different questions and keep both
-searchable. They read as different questions to us: one asks "what's the plan",
-the other asks "why this protein and does timing matter". A customer could
-legitimately want either.
-
-**Option 2 — Merge them,** and tell us which is canonical. The other stops being
-retrievable.
-
-**Our suggestion is Option 1, split.** The project's own rule for these cases is
-that mistakes are not symmetric: wrongly merging deletes a real answer from the
-assistant permanently, while wrongly keeping both just leaves a duplicate that
-someone might retrieve. The cheap mistake is the better one to make. But this is
-your call, not ours — you know whether these are really the same question.
-
-## What happens if this waits
-
-Nothing breaks. Both records stay searchable in the meantime, which is the safe
-state. This is the smallest item on the list; it is here because leaving it open
-indefinitely means the "unresolved" pile never reaches zero and stops being
-meaningful.
+If the same customer's thread ever needs to read as a single answer, the fix is
+on our side, not yours: we would stitch the quoted reply back into the September
+record before it is stored. We did not do that here because it changes how every
+email in the corpus is split, and this one pair does not justify it.

@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-08. Python 396 tests green; runtime 111 tests green.
+Numbers verified 2026-09-08. Python 404 tests green; runtime 111 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -21,7 +21,7 @@ Numbers verified 2026-09-08. Python 396 tests green; runtime 111 tests green.
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.3.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
 | QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, alias-1.3.0 regen 2026-09-07 | 1,041 canonical records (prompt 1.1.0); 676 with products (50 part_nos); 306 currency-cued; queue 222 (168 PII + 48 audit + 1 containment + 5 low-conf) — dispositions are item 13 |
-| QA Stage 4 — dedup & currency | §4 | **done** 2026-09-07 | 919 current / 106 superseded_currency / 16 superseded_dup; 17 clusters (1 conflict); 114 judgments (106 dependent / 8 independent / 0 low-conf); queue 2 (cluster conflict) |
+| QA Stage 4 — dedup & currency | §4 | **done** 2026-09-07, dispositioned 2026-09-08 | 919 current / 106 superseded_currency / 16 superseded_dup; 17 clusters (1 conflict, ruled **split**); 114 judgments (106 dependent / 8 independent / 0 low-conf); **queue 0** |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
 | Golden set | §12 | **complete except labeling** 2026-09-08 — the 250 are sampled, the 50 adversarial are **written** (`CURATED_ADVERSARIAL`), the probes are built. Remaining: label the 250 (item 8) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
@@ -52,7 +52,7 @@ owner.
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | **open, now measurable** — `qa-pipeline eval --ranker-ab` reports source recall@k both ways. First signal (dev, n=12) is **against** the ranker: 100% off vs 83.3% on. n=12 is a smoke, not the call — rerun on the full dev split before deciding |
 | 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05, queue 0 |
-| 7 | Stage 4 review-queue dispositions | **open** — 2 `cluster_conflict` records (non-nested part_nos); owner picks or splits the cluster. Evidence quotes are in `stage4/documents.jsonl` |
+| 7 | Stage 4 review-queue dispositions | **closed** 2026-09-08, queue 0 — the one `cluster_conflict` cluster ruled **split**: both members stay `is_current`, neither supersedes. Ruling and reasoning in `docs/decisions.md`; pinned by `CURATED_CLUSTER_DISPOSITIONS` |
 | 8 | Golden-set labeling | **open, narrowed** — the 50 adversarial are written (2026-09-08); what remains is labeling the **250** with points-to-hit and expected sources. Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header. Until then the harness reports those two metrics as `null` with a reason |
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
 | 10 | Orphaned `kb-main` index | **open** — stuck mid-delete: `GET /indexes/kb-main` 404s with `"is being deleted"` while servicestats still counts it (7,992 docs, 213 MB), and the portal omits deleting-state indexes, so "gone from the UI" is not evidence. Not a blocker; consumes quota and storage. Owner: support ticket — the clean repro is one index that can neither serve documents nor finish deleting on a service where a throwaway index does both in seconds. The code half is done (2026-09-08): both `index_build.INDEX_NAME` and `RuntimeOptions.IndexName` default to `kb-main-v2`, a test pins each side, and no command needs `--index`. Remaining is the support ticket and, if the name is freed, deciding whether to rebuild under it |
@@ -69,7 +69,15 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
-- **2026-09-08 (39)** — Owner worksheets for two stalled items (`1580825`).
+- **2026-09-08 (40)** — Stage 4 review queue closed (§4): **item 7
+  dispositioned, queue 2 → 0**. The corpus's one `cluster_conflict` is ruled
+  **split** — the pair is two turns of one email thread, and Stage 1 keeps only
+  the new expert reply, so the newer record is a delta, not a superset
+  (reasoning in `docs/decisions.md`). Both members stay `is_current`. Rulings
+  live in `CURATED_CLUSTER_DISPOSITIONS`, membership-attested. Stage 4
+  regenerated, rerun byte-identical, 0 API calls; index untouched. 8 new tests
+  (**404 python**).
+- **2026-09-08 (39)** — Owner worksheets for two stalled items.
   `stage2_queue_triage.py` groups item 13's 222 rows into one that must be read
   (**3** residual-PII flags with no placeholder in the committed text) and four
   that bulk-disposition (165 / 48 / 5 / 1), and reports the number that matters:
@@ -77,45 +85,37 @@ artifact it describes.
   them residual-PII — the figure already tracked). `products_diff.py` diffs two
   `products.json` exports by §5 section, so item 2's monthly pass sees changed
   *claims*, not changed bytes. Naming that owner is still item 2. 396 tests.
-- **2026-09-08 (38)** — SSE service shipped (§11) (`c94f828`) — the piece the
-  plan called next. `DotFit.Agents.Service`: `POST /ask` streams
+- **2026-09-08 (38)** — SSE service shipped (§11) — the piece the plan called
+  next. `DotFit.Agents.Service`: `POST /ask` streams
   `disclosure`/`stage`/`delta`/`retraction`/`result`, `GET /healthz`, config
   validated at **startup** so a bad `.env` fails the boot. Always `Gated`, no
   client choice; payloads narrower than the CLI's — no source `content`, no
   withheld draft, no failure reasons. Both paths smoked live, which caught
   camelCase request binding against snake_case responses: `conversation_id`
   never bound, so every turn re-announced. 14 new tests (**111 runtime**).
-- **2026-09-08 (37)** — Podcast citation URLs (`fea97a1`) — **item 14 closed**.
-  All 47 `archive.txt` ids resolved through YouTube oEmbed and matched all 47
-  episodes at **Dice 1.00**: the mapping was never ambiguous, only unverified
-  (the downloader wrote the titles out verbatim). Frozen as
-  `PODCAST_VIDEO_IDS`; `scripts/podcast_archive_verify.py` is the session
-  record. All **1,800** segments deep-link to their start second; re-uploaded
-  3,996/3,996, **0 embed calls**, 0 errors, live-verified. Correction: `wc -l`
-  says 46 — the file has no trailing newline. 5 new tests.
-- **2026-09-08 (36)** — §12 eval harness shipped (`76fcec6`) — `evaluate.py` +
-  `qa-pipeline eval` over `ask --json`. **It does not wait on item 8**: each
-  item's source doc id is `qa-<id>` (250/250), so source recall is label-free.
-  Scores source/probe recall, citation rate, escalation accuracy, claims-audit
+- **2026-09-08 (37)** — Podcast citation URLs — **item 14 closed**. All 47
+  `archive.txt` ids resolved through YouTube oEmbed and matched all 47 episodes
+  at **Dice 1.00**: the mapping was never ambiguous, only unverified (the
+  downloader wrote the titles out verbatim). Frozen as `PODCAST_VIDEO_IDS`;
+  `scripts/podcast_archive_verify.py` is the session record. All **1,800**
+  segments deep-link to their start second; re-uploaded 3,996/3,996, **0 embed
+  calls**, 0 errors, live-verified. Correction: `wc -l` says 46 — the file has
+  no trailing newline. 5 new tests.
+- **2026-09-08 (36)** — §12 eval harness shipped — `evaluate.py` + `qa-pipeline
+  eval` over `ask --json`. **It does not wait on item 8**: each item's source
+  doc id is `qa-<id>` (250/250), so source recall is label-free. Scores
+  source/probe recall, citation rate, escalation accuracy, claims-audit
   precision (item 12) and RAGAS-*style* judged metrics; label-dependent ones
   report `null` with a reason. First live sweep (dev, n=12): sample recall@8
-  **100% ranker-off vs 83.3% ranker-on**, probes 100%, escalation **10/10**.
-  35 new tests (**391 python**). Item 5 has data now.
-- **2026-09-08 (35)** — Golden-set inputs completed (§12) (`76fcec6`). The **50
-  adversarial items are written** (`CURATED_ADVERSARIAL`, 20/15/15, one
-  behavior per item) and derive `adversarial.md` plus a new
-  `adversarial.jsonl`; counts, uniqueness and category drift now raise. Added
-  **120 retrieval probes** over PDSRG + podcast (39 + 47 strata, ≥1 each) — the
-  corpora that are 72% of the index and had no golden item (item 15). The 250
-  sample, worksheet and summary regenerated byte-identical. Still owner work:
-  labeling the 250 (item 8). 18 new tests (**356 python**).
+  **100% ranker-off vs 83.3% ranker-on**, probes 100%, escalation **10/10**. 35
+  new tests (**391 python**). Item 5 has data now.
 
 ## Writing entries
 
 Update **Status** (numbers), **Open items**, and add one **Log** entry per work
-item, newest first, with plan-§ refs and the commit SHA. Then **rotate**: move
-whatever falls past the newest five to the top of `docs/progress-archive.md`, so
-this file's length stays flat instead of growing one entry per work item.
+item, newest first, with plan-§ refs. Then **rotate**: move whatever falls past
+the newest five to the top of `docs/progress-archive.md`, so this file's length
+stays flat instead of growing one entry per work item.
 
 **Budget: 8 wrapped lines per log entry, hard.** Wrap at 80 columns like the
 rest of the file — a single 3,000-byte line is exactly what this rule exists to

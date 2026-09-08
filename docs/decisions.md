@@ -79,6 +79,30 @@ the test.
   disagree" = non-nested part_no sets → queue the cluster, no auto-pick,
   members stay indexed pending disposition; 5% deterministic audit sample of
   auto-resolved clusters; `clusters.jsonl` is the committed session record.
+- **The one conflict cluster is split, not merged** (owner ruling 2026-09-08,
+  open item 7, cluster `79c663016afc2345`): the two records are consecutive
+  turns of *one* email thread — `8be45e86` is the webform enquiry (why
+  FirstString, 1 g protein per lb LBM, whether the pre-workout serving is
+  mandatory) and `79c66301` is the same customer's follow-up, answered with
+  creatine + the Level 1 plan and quoting the whole prior reply beneath it.
+  The .docx is a superset; the *record* is not, because Stage 1 keeps only the
+  new expert reply as the answer. Superseding the older record would therefore
+  drop the only direct answer to the pre-workout half ("if for some reason you
+  can't take the pre-workout shake…") while leaving that clause standing in the
+  surviving record's canonical question — a record that promises guidance it no
+  longer contains, which is worse than a retrievable duplicate. The non-nested
+  part_nos were an artifact of the two boilerplate blocks (the older enumerates
+  MVs by demographic, hence 1007 Women's MV; the newer names ActiveMV); the
+  answers never contradict each other. Both stay `is_current`.
+- **Dispositions are curated constants, attested against the corpus**:
+  `CURATED_CLUSTER_DISPOSITIONS` (`stage4.py`) keys the ruling by `cluster_id`
+  and pins the exact membership it was made on. If the cluster reshapes or
+  stops forming, a whole-corpus run **raises** rather than re-applying a ruling
+  nobody made for it — the alias-table attestation rule. `--include` /
+  `--limit` runs skip the staleness check, where a missing cluster is expected.
+  `clusters.jsonl` keeps `conflict: true` alongside `disposition: "split"`: the
+  detection is a fact and stays in the audit trail, the ruling only changes the
+  routing.
 - **Conservative default when no judgment is usable** (no-llm mode, API
   error, low confidence): superseded + queued — §4 says "superseded unless
   formulation-independent", so the burden of proof sits on independence.
