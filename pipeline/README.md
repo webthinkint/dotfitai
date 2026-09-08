@@ -88,9 +88,10 @@ Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
 the QA stages consume only `data/QAs/**/*.docx`.
 
 **Index name:** `INDEX_NAME` is `kb-main-v2`, the live index — no override
-needed. `kb-main` is the orphan (progress open item 10): it is stuck
-mid-delete, so the *name* cannot be recreated either. `RuntimeOptions.IndexName`
-mirrors this constant and a test pins each side; change both or neither.
+needed. `kb-main`, the original index, was lost to a wedged delete (progress
+open item 10, closed 2026-09-08); the name is free again but the default stays
+`kb-main-v2` — a rename is cosmetic. `RuntimeOptions.IndexName` mirrors this
+constant and a test pins each side; change both or neither.
 
 ## Tooling
 

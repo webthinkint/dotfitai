@@ -273,7 +273,7 @@ SKU's content is the family document; variants contribute only genuinely distinc
 
 ## 9. Azure AI Search index design
 
-**One index** (`INDEX_NAME`, currently `kb-main-v2` — open item 10), vector + BM25 hybrid + semantic ranker. Per-source custom chunking is
+**One index** (`INDEX_NAME` = `kb-main-v2`), vector + BM25 hybrid + semantic ranker. Per-source custom chunking is
 pushed by the Python pipeline (manual indexing, not integrated vectorization — our chunking is
 source-specific).
 
@@ -471,12 +471,11 @@ Definitions live here; **current status lives in the "Open items" table in
 9. ~~**Runtime live smoke** (opened 2026-09-07)~~ — **CLOSED 2026-09-07**: the
    end-to-end `ask`/`search` failure was the wedged index (item 10), not the
    service.
-10. **Orphaned `kb-main` index** (opened 2026-09-07) — the first index is stuck
-    mid-delete: it serves no documents and never finishes deleting, while still
-    counting against service quota and storage. Needs an Azure support ticket.
-    The code half is done (2026-09-08): both defaults are `kb-main-v2` and a
-    test pins each side of the mirror, so nothing needs an `--index` override.
-    If the name is ever freed, rebuilding under it is a separate decision.
+10. ~~**Orphaned `kb-main` index** (opened 2026-09-07)~~ — **CLOSED 2026-09-08**:
+    the delete completed server-side — clean-miss 404, and servicestats counts
+    only `kb-main-v2` (3,996 docs, ~110 MB). No ticket needed; the defaults stay
+    `kb-main-v2` on both sides (a test pins each), since moving back to the old
+    name would be cosmetic.
 11. ~~**Claim language sourced from authority 3** (opened 2026-09-07)~~ —
     **FIXED 2026-09-07**: the answer agent quoted claim wording from a QA answer
     instead of the approved copy, so retrieved sources are now tagged quotable

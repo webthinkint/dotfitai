@@ -198,7 +198,8 @@ public class RuntimeOptionsTests
     {
         // index_build.INDEX_NAME and this default name the same index; they
         // drift silently otherwise (the pipeline uploads to one, the runtime
-        // queries the other). kb-main is unusable — open item 10.
+        // queries the other). Named for the wedged delete that lost kb-main —
+        // open item 10, closed.
         string root = Root();
         RuntimeOptions options = RuntimeOptions.Load(WriteEnv(root, ValidEnv));
         Assert.Equal("kb-main-v2", options.IndexName);

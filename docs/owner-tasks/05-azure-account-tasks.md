@@ -3,7 +3,7 @@
 **Who:** whoever holds the Azure account
 **Effort:** about an hour of actual work, then waiting on Microsoft
 **Blocking:** partly — see each item
-**Tracked as:** open items 1 and 10
+**Tracked as:** item 1 (section 5a). Item 10 (section 5b) resolved 2026-09-08
 
 Both of these are account administration rather than engineering. Neither needs
 anyone to touch the code.
@@ -33,9 +33,25 @@ some answer-quality findings may change — possibly for the better.
 
 ---
 
-## 5b — Get a stuck search index removed
+## 5b — ~~Get a stuck search index removed~~ — **resolved, no ticket needed**
 
-**Blocking: no.** It costs money and quota, and nothing else.
+**Update 2026-09-08:** the deletion finally finished on its own, so the ticket
+below is no longer needed. We checked the way this document recommends — the
+service statistics, not the portal:
+
+- the index query now answers plainly "no index with the name `kb-main` was
+  found" (before, it answered that the index "is being deleted"), and
+- the statistics count exactly **one** index, **3,996 documents, ~110 MB** —
+  the replacement only. The stuck copy's ~7,992 documents / 213 MB no longer
+  count against the account's storage and quota.
+
+Nothing to do. Everything stays on the replacement index `kb-main-v2`; moving
+back to the old name would be purely cosmetic. The portal lesson at the bottom
+still stands for next time.
+
+---
+
+**For the record — the original problem (2026-09-07 to 2026-09-08):**
 
 The searchable database is called an "index". We built one, called `kb-main`. It
 broke in an unusual way: it stopped returning any documents, and when we deleted

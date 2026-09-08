@@ -5,6 +5,14 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (37)** — Podcast citation URLs — **item 14 closed**. All 47
+  `archive.txt` ids resolved through YouTube oEmbed and matched all 47 episodes
+  at **Dice 1.00**: the mapping was never ambiguous, only unverified (the
+  downloader wrote the titles out verbatim). Frozen as `PODCAST_VIDEO_IDS`;
+  `scripts/podcast_archive_verify.py` is the session record. All **1,800**
+  segments deep-link to their start second; re-uploaded 3,996/3,996, **0 embed
+  calls**, 0 errors, live-verified. Correction: `wc -l` says 46 — the file has
+  no trailing newline. 5 new tests.
 - **2026-09-08 (36)** — §12 eval harness shipped — `evaluate.py` + `qa-pipeline
   eval` over `ask --json`. **It does not wait on item 8**: each item's source
   doc id is `qa-<id>` (250/250), so source recall is label-free. Scores

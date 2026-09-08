@@ -44,9 +44,10 @@ from azure.search.documents.indexes import models as m
 from .alias import strip_variant_suffix
 from .podcast import citation_url
 
-# The §9 index. `kb-main` is the original name and is unusable — that index is
-# stuck mid-delete (open item 10), so the name cannot be recreated; the live
-# index is the rebuild. Flip back only once Azure support frees the name.
+# The §9 index. `kb-main` was the original name — its delete wedged mid-flight
+# (open item 10, closed 2026-09-08: the orphan is gone, the name is free again)
+# and the corpus was rebuilt under `-v2`. The default stays `-v2`; a rename is
+# cosmetic and is pinned by tests on both sides of the runtime mirror.
 INDEX_NAME = "kb-main-v2"
 EMBEDDING_DIMS = 3072          # text-embedding-3-large — the §9 index contract
 UPLOAD_BATCH = 200

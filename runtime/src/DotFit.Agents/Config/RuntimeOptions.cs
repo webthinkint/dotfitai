@@ -63,10 +63,11 @@ public sealed record RuntimeOptions
     /// <summary>The subset this instance was loaded for.</summary>
     public RuntimeNeeds Needs { get; init; } = RuntimeNeeds.Full;
     /// <summary>
-    /// The §9 index. <c>kb-main</c> is the original name and is unusable — that
-    /// index is stuck mid-delete (progress open item 10), so the name cannot be
-    /// recreated; this mirrors <c>index_build.INDEX_NAME</c> and the two must
-    /// stay in step. Flip back only once Azure support frees the name.
+    /// The §9 index. <c>kb-main</c> was the original name — its delete wedged
+    /// mid-flight (progress open item 10, closed 2026-09-08: the orphan is
+    /// gone, the name is free again), so the rebuild lives under <c>-v2</c> and
+    /// the default stays. This mirrors <c>index_build.INDEX_NAME</c>; a test
+    /// pins each side, so the two must not drift.
     /// </summary>
     public string IndexName { get; init; } = "kb-main-v2";
     /// <summary>Alias table artifact (plan §5 output) — default lives beside the .env.</summary>

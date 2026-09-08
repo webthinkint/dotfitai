@@ -25,7 +25,7 @@ Numbers verified 2026-09-08. Python 404 tests green; runtime 111 tests green.
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
 | Golden set | §12 | **complete except labeling** 2026-09-08 — the 250 are sampled, the 50 adversarial are **written** (`CURATED_ADVERSARIAL`), the probes are built. Remaining: label the 250 (item 8) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
-| Index + retrieval | §9–11 | **live** on `kb-main-v2`, now the code default on both sides (item 10's code half done). Remaining: the ranker call on a full sweep (item 5) | 3,996 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 929 qa; re-uploaded 2026-09-08 with 0 embed calls; filtered + unfiltered smoke PASS |
+| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides (item 10 closed — the orphan finished deleting). Remaining: the ranker call on a full sweep (item 5) | 3,996 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 929 qa; re-uploaded 2026-09-08 with 0 embed calls; filtered + unfiltered smoke PASS |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 111 tests |
 | SSE service | §11 | **built + live** 2026-09-08 — `POST /ask` streams disclosure/stage/delta/retraction/result; always `Gated`; config validated at startup. Remaining: item 12's number before it ships to customers | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
 | §12 eval harness | §12 | **built + live** 2026-09-08 — `qa-pipeline eval` over `ask --json`; label-free metrics run today, label-dependent ones report `null` with a reason | first dev sweep (n=12): sample recall@8 100% (ranker off) / 83.3% (on), probes 100%, escalation 10/10 |
@@ -55,7 +55,7 @@ owner.
 | 7 | Stage 4 review-queue dispositions | **closed** 2026-09-08, queue 0 — the one `cluster_conflict` cluster ruled **split**: both members stay `is_current`, neither supersedes. Ruling and reasoning in `docs/decisions.md`; pinned by `CURATED_CLUSTER_DISPOSITIONS` |
 | 8 | Golden-set labeling | **open, narrowed** — the 50 adversarial are written (2026-09-08); what remains is labeling the **250** with points-to-hit and expected sources. Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header. Until then the harness reports those two metrics as `null` with a reason |
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
-| 10 | Orphaned `kb-main` index | **open** — stuck mid-delete: `GET /indexes/kb-main` 404s with `"is being deleted"` while servicestats still counts it (7,992 docs, 213 MB), and the portal omits deleting-state indexes, so "gone from the UI" is not evidence. Not a blocker; consumes quota and storage. Owner: support ticket — the clean repro is one index that can neither serve documents nor finish deleting on a service where a throwaway index does both in seconds. The code half is done (2026-09-08): both `index_build.INDEX_NAME` and `RuntimeOptions.IndexName` default to `kb-main-v2`, a test pins each side, and no command needs `--index`. Remaining is the support ticket and, if the name is freed, deciding whether to rebuild under it |
+| 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
 | 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07 — sources are tagged quotable (authority 1–2) vs context-only and the answer instructions fail closed; 4/4 live runs PASS. Remaining: 4 runs is signal, not a regression suite — coverage lands with the §12 eval harness, and re-test on the frontier deployment when item 1's quota arrives |
 | 12 | Claims-audit precision under gating | **open, now instrumented** — the harness reports it on the adversarial-50 with its counts (a small denominator is not a strong claim), scoring the *draft* the audit saw. Still unmeasured on a full sweep: the first run flagged nothing, so precision is `null`, not good. Needed before the SSE service faces customers |
 | 13 | Stage 2 review-queue dispositions | **open, triaged** — 222 flagged records, **203 of them `is_current` and live in the index** (154 residual-PII). `scripts/stage2_queue_triage.py` splits them into the 3 that must be read (residual-PII flag, no placeholder in the committed text) and 219 that bulk-disposition (165 placeholder-backed + 48 audit + 5 low-conf + 1 containment). Owner pass |
@@ -70,6 +70,13 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+- **2026-09-08 (42)** — Open item 10 **closed — no ticket needed**: the orphaned
+  `kb-main` finished deleting. `GET /indexes/kb-main` now returns the clean-miss
+  404, not the wedged "is being deleted" body, and servicestats counts only the
+  live index (1 index, 3,996 docs, ~110 MB — the orphan's 7,992 docs / 213 MB
+  no longer counted; verified via statistics, not the portal, which hides
+  deleting-state indexes). The name is free but `kb-main-v2` stays the default
+  on both sides — a rename is cosmetic. Docs and status comments updated.
 - **2026-09-08 (41)** — Tracker convention change + one new open item (docs
   only). Log entries no longer cite commit SHAs, here and in
   `progress-archive.md`, and the **Writing entries** rule dropped the
@@ -102,15 +109,6 @@ artifact it describes.
   withheld draft, no failure reasons. Both paths smoked live, which caught
   camelCase request binding against snake_case responses: `conversation_id`
   never bound, so every turn re-announced. 14 new tests (**111 runtime**).
-- **2026-09-08 (37)** — Podcast citation URLs — **item 14 closed**. All 47
-  `archive.txt` ids resolved through YouTube oEmbed and matched all 47 episodes
-  at **Dice 1.00**: the mapping was never ambiguous, only unverified (the
-  downloader wrote the titles out verbatim). Frozen as `PODCAST_VIDEO_IDS`;
-  `scripts/podcast_archive_verify.py` is the session record. All **1,800**
-  segments deep-link to their start second; re-uploaded 3,996/3,996, **0 embed
-  calls**, 0 errors, live-verified. Correction: `wc -l` says 46 — the file has
-  no trailing newline. 5 new tests.
-
 ## Writing entries
 
 Update **Status** (numbers), **Open items**, and add one **Log** entry per work

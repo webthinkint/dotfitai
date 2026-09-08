@@ -48,8 +48,9 @@ Values that *are* present are validated either way — a broken optional is
 still a broken `.env`.
 
 **Index name:** the default is `kb-main-v2`, the live index — no `--index`
-override needed. `kb-main` is the orphan (progress open item 10): stuck
-mid-delete, so the *name* cannot be recreated either. This default mirrors
+override needed. `kb-main`, the original index, was lost to a wedged delete
+(progress open item 10, closed 2026-09-08); the name is free again but the
+default stays `kb-main-v2` — a rename is cosmetic. This default mirrors
 `index_build.INDEX_NAME`; a test pins each side, so change both or neither.
 
 Note: `Azure.AI.OpenAI` is pinned to the prerelease line **on purpose** — the
