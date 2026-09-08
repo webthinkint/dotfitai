@@ -234,13 +234,25 @@ public static class Prompts
         ? "QUOTABLE FOR PRODUCT CLAIMS"
         : "CONTEXT ONLY";
 
-    /// <summary>Customer-facing source label per §3/§9 source type.</summary>
+    /// <summary>
+    /// Model-facing source label per §3/§9 source type — what the answer agent
+    /// sees on each numbered source, and therefore what it echoes when it
+    /// attributes an answer in prose. That echo is why these read as
+    /// provenance rather than as the name of the corpus they came from: the
+    /// literal corpus name surfaced in answers as "dotFIT's customer Q&amp;As
+    /// typically recommend ...", which tells a customer how the corpus was
+    /// assembled instead of where the guidance comes from. The customer-facing
+    /// citation line is <see cref="SourceKind"/>, which is separate and
+    /// deliberately still literal. Quotability is carried by
+    /// <see cref="ClaimsMarker"/>, never by this label, so rewording here
+    /// cannot move a source across the §3 claims line.
+    /// </summary>
     public static string SourceLabel(string sourceType, int authority) => sourceType switch
     {
         "product" => $"dotFIT approved product copy (authority {authority})",
         "pdsrg" => $"Practitioner Dietary Supplement Reference Guide (authority {authority})",
-        "qa" => $"dotFIT customer Q&A (authority {authority})",
-        "podcast" => $"dotFIT podcast transcript (authority {authority})",
+        "qa" => $"dotFIT nutrition knowledge base (authority {authority})",
+        "podcast" => $"dotFIT expert discussion transcript (authority {authority})",
         "menu_desc" => $"dotFIT menu description (authority {authority})",
         _ => $"{sourceType} (authority {authority})",
     };

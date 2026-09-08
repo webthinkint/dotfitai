@@ -20,7 +20,7 @@ public class PromptsTests
         Assert.StartsWith("Customer question: What is Test Product?", message);
         Assert.Contains("[1] First Product — dotFIT approved product copy (authority 1) — QUOTABLE FOR PRODUCT CLAIMS", message);
         Assert.Contains("url: https://example.com/products/test", message);
-        Assert.Contains("[2] customer q — dotFIT customer Q&A (authority 3) — CONTEXT ONLY", message);
+        Assert.Contains("[2] customer q — dotFIT nutrition knowledge base (authority 3) — CONTEXT ONLY", message);
         Assert.Contains("dated: 2025-03-01", message);
         Assert.Contains("Notes:\n- note one", message);
     }
@@ -90,10 +90,25 @@ public class PromptsTests
     {
         Assert.Contains("approved product copy", Prompts.SourceLabel("product", 1));
         Assert.Contains("Practitioner Dietary Supplement Reference Guide", Prompts.SourceLabel("pdsrg", 2));
-        Assert.Contains("customer Q&A", Prompts.SourceLabel("qa", 3));
-        Assert.Contains("podcast transcript", Prompts.SourceLabel("podcast", 4));
+        Assert.Contains("nutrition knowledge base", Prompts.SourceLabel("qa", 3));
+        Assert.Contains("expert discussion transcript", Prompts.SourceLabel("podcast", 4));
         Assert.Contains("menu description", Prompts.SourceLabel("menu_desc", 5));
         Assert.Contains("weird (authority 7)", Prompts.SourceLabel("weird", 7));
+    }
+
+    [Fact]
+    public void SourceLabelsDescribeProvenanceNotThePipelineCorpus()
+    {
+        // The label is what the model echoes when it attributes an answer, so
+        // it must not name the corpus the chunk was harvested from: the answer
+        // agent was writing "dotFIT's customer Q&As typically recommend ...".
+        // SourceKind, the customer-facing citation line, stays literal.
+        foreach (string sourceType in new[] { "product", "pdsrg", "qa", "podcast", "menu_desc" })
+        {
+            Assert.DoesNotContain("Q&A", Prompts.SourceLabel(sourceType, 3));
+            Assert.DoesNotContain("customer", Prompts.SourceLabel(sourceType, 3));
+        }
+        Assert.Equal("customer Q&A", Prompts.SourceKind("qa"));
     }
 }
 

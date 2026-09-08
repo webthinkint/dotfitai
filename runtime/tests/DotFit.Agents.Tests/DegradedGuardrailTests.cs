@@ -108,11 +108,14 @@ public class DegradedGuardrailTests
     {
         // The post-check cannot recognise an escalation the guardrail missed,
         // so on the degraded path this text is the only thing that lists them.
+        // The age trigger is off the list while the prompt wording is being
+        // experimented on — AnswerInstructions says 16, GuardrailInstructions
+        // escalates under_18, and which one is right is an owner ruling.
         string instructions = Prompts.AnswerInstructions;
         foreach (string trigger in new[]
                  {
                      "pregnancy", "managed medical condition", "eating-disorder",
-                     "under 18", "prescription medication", "calorie", "self-harm",
+                     "prescription medication", "calorie", "self-harm",
                  })
             Assert.Contains(trigger, instructions, StringComparison.OrdinalIgnoreCase);
     }

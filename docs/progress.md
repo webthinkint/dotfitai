@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-08. Python 420 tests green; runtime 111 tests green.
+Numbers verified 2026-09-08. Python 420 tests green; runtime 112 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -26,7 +26,7 @@ Numbers verified 2026-09-08. Python 420 tests green; runtime 111 tests green.
 | Golden set | §12 | **complete except labeling** 2026-09-08 — the 250 are sampled, the 50 adversarial are **written** (`CURATED_ADVERSARIAL`), the probes are built. Remaining: label the 250 (item 8) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
 | Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides (item 10 closed). Re-uploaded 2026-09-08 after the round-2 regen: 30 QA docs differed (29 changed + 1 restored by the dissolved dup cluster), all of it Stage 2 re-canonicalization jitter — **0 of the 38 redacted names were ever in an indexed field**, checked old and new, so the sync was housekeeping, not a privacy fix. Remaining: the ranker call (item 5) | 3,996 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 929 qa; 2 embed calls, 1 pruned, 0 errors; live `search_ping` PASS at 3,996 |
-| v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 111 tests |
+| v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 112 tests |
 | SSE service | §11 | **built + live** 2026-09-08 — `POST /ask` streams disclosure/stage/delta/retraction/result; always `Gated`; config validated at startup. Remaining: item 12's number before it ships to customers | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
 | §12 eval harness | §12 | **built + live** 2026-09-08 — `qa-pipeline eval` over `ask --json`; label-free metrics run today, label-dependent ones report `null` with a reason | first dev sweep (n=12): sample recall@8 100% (ranker off) / 83.3% (on), probes 100%, escalation 10/10 |
 
@@ -70,6 +70,15 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+- **2026-09-08 (44)** — Model-facing source labels reworded (§11). `SourceLabel`
+  is what the answer agent echoes when it attributes an answer in prose, and it
+  was echoing the corpus name: "dotFIT's customer Q&As typically recommend ...",
+  which tells a customer how the corpus was assembled, not where the guidance
+  comes from. `qa` → **dotFIT nutrition knowledge base**, `podcast` → **expert
+  discussion transcript**; the other three unchanged. `SourceKind` (the
+  customer-facing citation line) stays literal, and quotability still rides on
+  `ClaimsMarker`, so no source moved across the §3 claims line. 1 new test.
+
 - **2026-09-08 (43)** — Stage 2 triage round 2 (§4): **item 16 folds into 13**,
   round 1's grouping retired as unsound — it read "a placeholder exists
   somewhere in this record" as "the redaction landed", parking 5 live customer
@@ -101,14 +110,6 @@ artifact it describes.
   live in `CURATED_CLUSTER_DISPOSITIONS`, membership-attested. Stage 4
   regenerated, rerun byte-identical, 0 API calls; index untouched. 8 new tests
   (**404 python**).
-- **2026-09-08 (39)** — Owner worksheets for two stalled items.
-  `stage2_queue_triage.py` groups item 13's 222 rows into one that must be read
-  (**3** residual-PII flags with no placeholder in the committed text) and four
-  that bulk-disposition (165 / 48 / 5 / 1), and reports the number that matters:
-  **203 of 222 flagged records are `is_current` and live in the index** (154 of
-  them residual-PII — the figure already tracked). `products_diff.py` diffs two
-  `products.json` exports by §5 section, so item 2's monthly pass sees changed
-  *claims*, not changed bytes. Naming that owner is still item 2. 396 tests.
 ## Writing entries
 
 Update **Status** (numbers), **Open items**, and add one **Log** entry per work

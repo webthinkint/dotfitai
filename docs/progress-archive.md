@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (39)** — Owner worksheets for two stalled items.
+  `stage2_queue_triage.py` groups item 13's 222 rows into one that must be read
+  (**3** residual-PII flags with no placeholder in the committed text) and four
+  that bulk-disposition (165 / 48 / 5 / 1), and reports the number that matters:
+  **203 of 222 flagged records are `is_current` and live in the index** (154 of
+  them residual-PII — the figure already tracked). `products_diff.py` diffs two
+  `products.json` exports by §5 section, so item 2's monthly pass sees changed
+  *claims*, not changed bytes. Naming that owner is still item 2. 396 tests.
+
 - **2026-09-08 (38)** — SSE service shipped (§11) — the piece the plan called
   next. `DotFit.Agents.Service`: `POST /ask` streams
   `disclosure`/`stage`/`delta`/`retraction`/`result`, `GET /healthz`, config
