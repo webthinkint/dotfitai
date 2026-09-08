@@ -72,8 +72,8 @@
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
   "n_docs": 3996,
-  "n_cache_hits": 3996,
-  "n_api_calls": 0,
+  "n_cache_hits": 3966,
+  "n_api_calls": 2,
   "dims": 3072
  },
  "upload": {
@@ -84,8 +84,8 @@
   "errors": []
  },
  "prune": {
-  "n_present": 3996,
-  "n_deleted": 0,
+  "n_present": 3997,
+  "n_deleted": 1,
   "errors": []
  }
 }

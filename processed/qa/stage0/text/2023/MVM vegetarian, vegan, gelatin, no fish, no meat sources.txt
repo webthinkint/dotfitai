@@ -42,6 +42,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi! I'd love to know if the Active MV and the Women's MV are vegetarians (not vegan). Do they have gelatin in them or any other fish/meat ingredients? Thanks! Eliya
+Message: Hi! I'd love to know if the Active MV and the Women's MV are vegetarians (not vegan). Do they have gelatin in them or any other fish/meat ingredients? Thanks! [NAME]
  
 

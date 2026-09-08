@@ -5,6 +5,14 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (38)** — SSE service shipped (§11) — the piece the plan called
+  next. `DotFit.Agents.Service`: `POST /ask` streams
+  `disclosure`/`stage`/`delta`/`retraction`/`result`, `GET /healthz`, config
+  validated at **startup** so a bad `.env` fails the boot. Always `Gated`, no
+  client choice; payloads narrower than the CLI's — no source `content`, no
+  withheld draft, no failure reasons. Both paths smoked live, which caught
+  camelCase request binding against snake_case responses: `conversation_id`
+  never bound, so every turn re-announced. 14 new tests (**111 runtime**).
 - **2026-09-08 (37)** — Podcast citation URLs — **item 14 closed**. All 47
   `archive.txt` ids resolved through YouTube oEmbed and matched all 47 episodes
   at **Dice 1.00**: the mapping was never ambiguous, only unverified (the

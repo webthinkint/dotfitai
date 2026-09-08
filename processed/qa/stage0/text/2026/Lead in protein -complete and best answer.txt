@@ -20,6 +20,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: I have ordered your products for years and love them!! I use the protein powder daily. I have been reading a lot about lead poisoning in protein powders. I know you are 3rd party tested. Could you please address the issue of lead in your powders? Do you test for lead? How many servings daily is considered safe or maybe just a few servings weekly? Thnak you, Suzanne Huber
+Message: I have ordered your products for years and love them!! I use the protein powder daily. I have been reading a lot about lead poisoning in protein powders. I know you are 3rd party tested. Could you please address the issue of lead in your powders? Do you test for lead? How many servings daily is considered safe or maybe just a few servings weekly? Thnak you, [NAME]
  
 

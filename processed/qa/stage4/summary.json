@@ -14,15 +14,15 @@
  "n_documents": 1041,
  "by_stage4_status": {
   "current": 919,
-  "superseded_currency": 106,
-  "superseded_dup": 16
+  "superseded_currency": 107,
+  "superseded_dup": 15
  },
  "n_current": 919,
  "by_currency_judgment": {
-  "dependent": 106,
-  "independent": 8
+  "dependent": 107,
+  "independent": 7
  },
- "n_clusters": 17,
+ "n_clusters": 16,
  "n_conflict_clusters": 1,
  "n_dispositioned_clusters": 1,
  "n_audit_clusters": 0,
@@ -41,7 +41,7 @@
   "n_judged": 114,
   "n_no_llm": 0,
   "n_unique_questions": 760,
-  "n_clusters": 17,
+  "n_clusters": 16,
   "n_conflict_clusters": 1,
   "n_audit_clusters": 0,
   "n_dispositioned_clusters": 1,

@@ -58,6 +58,46 @@ the test.
   flag-and-redact; inline closer+name and `wrote:`-header gaps closed in `scrub.py`;
   prompt redacts to [NAME] (never [CUSTOMER]), quotes public figures verbatim,
   transcribes expert notes without summarizing.
+- Stage 2 triage round 2 (2026-09-08): the round-1 grouping was **unsound and
+  is replaced**. It called a record "redaction landed" when *any* placeholder
+  appeared anywhere in it, which does not answer whether *this* flag's span
+  survived — 5 records carrying a live customer name sat in the bulk-sign-off
+  pile on the strength of an unrelated `[EMAIL]` in their header. The script
+  now groups on **evidence-span survival**, joining the gitignored Stage 2
+  cache on answer text; the span still never appears in any committed
+  artifact, only the group it produced. Three `scrub.py` gaps closed on the
+  regen diff (27 names across 25 files, no prose damage): the `wrote:`
+  attribution name is matched case-insensitively (a lowercase display name
+  escaped it whole; the `<addr> wrote:` anchor carries the rule); the inline
+  closer alternation learned the corpus's misspellings (`Thnak you,` — a
+  customer mistyping their own sign-off is the norm, not the exception); and
+  a new rule reads a name dangling at the end of a `Question:`/`Message:`
+  web-form field, the shape with **no closer to key on at all**, gated by
+  terminal punctuation + a two-token cap + closer/digit rejection. Unresolved
+  spans 6 → 2.
+- **Zane is staff** (owner ruling 2026-09-08): the SuppBeast co-host, named by
+  customers writing in about the show, a public figure across 427 podcast
+  mentions, and sharing Neal's already-listed surname. Added to
+  `SILENT_STAFF_NAMES` and to `GREETING_NAME_TOKENS` so the two staff
+  vocabularies do not drift. **The greeting side is zero-diff on this corpus**
+  (his 7 attestations are mid-prose or bare-lead, never after a Hi/Hey/Dear),
+  and the Stage 2 side **does not take effect until `PROMPT_VERSION` is
+  bumped** — `cache_key` keys on the version, not the prompt text, so the
+  constant is a recorded ruling that lands on the next full re-canonicalization
+  rather than a change to the committed artifacts. Deliberately not forced: a
+  bump is 1,041 LLM calls and would re-canonicalize every question, churning
+  the Stage 4 clusters and the golden set's current pairs to clear one audit
+  row that does not gate.
+- Residual PII after round 2 — one remaining **open owner call** plus the Zane
+  ruling above: two records name a third party inside a customer's own
+  sentence (one `is_current`, one not), which no deterministic rule can reach
+  without eating prose.
+- Committed-tree residue (2026-09-08, **open**): 121 flagged records are clean
+  in the Stage 2/4 record but still carry the flagged span in the committed
+  `processed/qa/stage0/text`. Not served — `index_build` ships
+  `question_canonical`, and Stage 0 text is not an index input — so this is a
+  "what may live in git" ruling, not an exposure in the assistant. It needs
+  one decision covering all 121, not 121 reads.
 
 **Stage 4 (§4)**
 

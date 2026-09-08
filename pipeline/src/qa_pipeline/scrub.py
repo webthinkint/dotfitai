@@ -93,7 +93,12 @@ GREETING_LEAD_RE = re.compile(
 # this curated, corpus-attested vocabulary are redacted without a terminator
 # ("Hey <name> and happy Sunday" -> "Hey [NAME] and happy Sunday"). An
 # unknown name in the same position is still flagged, never guessed at.
-GREETING_NAME_TOKENS = frozenset({"neal", "kat", "spruce", "eve"})
+# "zane" added with the Stage 2 staff ruling (2026-09-08): the SuppBeast
+# co-host gets the same greeting-position treatment as Neal. Zero-diff on this
+# corpus — his 7 attestations are all mid-prose or bare-lead ("Zane, I got the
+# answer"), never after a Hi/Hey/Dear lead — so it is future-proofing, not a
+# regen catch, and it is here so the two staff vocabularies do not drift.
+GREETING_NAME_TOKENS = frozenset({"neal", "kat", "spruce", "eve", "zane"})
 _NAME_ALT = r"(?:" + "|".join(sorted(GREETING_NAME_TOKENS)) + r")\b"
 GREETING_LOOSE_RE = re.compile(
     # group 1 = the lead; group 2 = optional honorific + the name span, so
@@ -152,10 +157,17 @@ _SIGNOFF_NAME_RE = re.compile(
 # Combination" both became "Best [NAME]" — review 2026-09-07). A sign-off
 # writes "Best, Matt"; a sentence writes "Best Plant Protein". Every other
 # closer keeps the optional comma ("Thanks Neal" is attested).
+# The misspelled closers are deliberate, not sloppiness (Stage 2 triage round
+# 2, 2026-09-08): "Thnak you, <full name>" reached the index because the
+# alternation only knew the correct spellings, and a customer typing their own
+# sign-off is exactly the moment they mistype. Only forms attested in the
+# corpus are listed — an invented variant is a false-positive surface with no
+# recall to show for it.
 _INLINE_CLOSER_AT = re.compile(
     r"\b(?:(?i:thanks|thank you|many thanks|thanks so much|"
     r"regards|kind regards|best regards|sincerely|cheers|"
-    r"respectfully)\s*,?|(?i:best)\s*,)\s+",
+    r"respectfully|thnak you|thnaks|thanx|thx|tks|thankyou|thank u|"
+    r"tanks)\s*,?|(?i:best)\s*,)\s+",
 )
 _INLINE_NAME_RE = re.compile(
     r"^((?:(?i:mr|mrs|ms|dr)\.?\s+)?)"
@@ -167,11 +179,67 @@ _INLINE_NAME_RE = re.compile(
 # round 1: "Neal Spruce <[EMAIL]> wrote:" survives inside quoted replies).
 # Role-neutral [NAME] is safe for staff and customers alike, so this runs
 # document-wide, unlike the region-gated sign-off rules.
+# The display name is matched case-INSENSITIVELY (triage round 2, 2026-09-08:
+# a mail client rendered it lowercase and the whole name escaped). Whatever
+# sits in the display-name slot of "<addr> wrote:" is a person by
+# construction, so the structural anchor carries the rule and the capital is
+# not load-bearing; the anchor is also what keeps prose out, since a name
+# here must be immediately followed by an address and "wrote:".
 _WROTE_RE = re.compile(
-    r"^(?P<pre>.*?)(?P<name>[A-Z][\w'’.-]+"
-    r"(?:\s+[A-Z][\w'’.-]+){0,2})\s+"
+    r"^(?P<pre>.*?)(?P<name>[A-Za-z][\w'’.-]+"
+    r"(?:\s+[A-Za-z][\w'’.-]+){0,2})\s+"
     r"(?P<mail><[^<>\n]*>|[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+"
     r"(?:\.[A-Za-z0-9\-]+)+)\s+wrote:\s*$",
+)
+
+# Web-form body fields ("Question:", "Message:") carry the customer's own
+# words, so a name dangling after the last sentence is their sign-off — the
+# form has no separate signature block for it to live in. This is the shape
+# with NO closer to key on at all (triage round 2, 2026-09-08: a full name
+# after a closing quote, "... Have a good week!" <name>), which is why
+# _INLINE_CLOSER_AT cannot see it and why the anchor here is the field label
+# plus end-of-line instead.
+#
+# Three guards keep it off prose, and together they take the corpus-wide fire
+# count to 20 lines with no false positive (regen scan 2026-09-08):
+#   - it must follow sentence-terminal punctuation (optionally a closing quote
+#     and an em-dash lead-in), so a trailing product name inside a sentence
+#     never qualifies;
+#   - at most two capitalized tokens, mirroring _INLINE_NAME_RE — a third is
+#     usually an organization;
+#   - CLOSER_TOKENS and digits are rejected in _redact_form_field_signoffs.
+# A closer may trail the name ("... objection. Thanks. <name> Thanks."), so
+# one is allowed after the capture without becoming part of it.
+_FORM_FIELD_LABELS = r"(?:Question|Message|Comments?)"
+_CLOSER_ALT = (r"(?i:thanks|thank you|thankyou|thanx|thx|regards|best|"
+               r"sincerely|cheers|respectfully)")
+FORM_FIELD_SIGNOFF_RE = re.compile(
+    r"^" + _FORM_FIELD_LABELS + r"\s*:.*[.!?][\"'’”)]*\s+(?:[-–—]\s*)?"
+    r"([A-Z][A-Za-z'’.-]+(?:\s+(?!" + _CLOSER_ALT + r"\b)"
+    r"[A-Z][A-Za-z'’.-]*\.?)?)"
+    r"(?:\s+" + _CLOSER_ALT + r"[.!,]*)?\s*$",
+)
+# Rejected in the capture: a sign-off tail that is only a closer is not a
+# name. Superset of the closer alternation plus the words that trail one
+# ("Thank you", "Thanks again", "in advance", "so much").
+CLOSER_TOKENS = frozenset({
+    "thanks", "thank", "thankyou", "thanx", "thx", "tks", "tanks", "thnak",
+    "thnaks", "regards", "best", "sincerely", "cheers", "respectfully",
+    "warmly", "you", "u", "again", "advance", "much", "so", "in",
+})
+
+# Self-introductions (was open item 16, folded into the round-2 triage
+# 2026-09-08): the *opening* mirror of the sign-off rules — "My name is Jane
+# Doe and I run a studio". Sign-off rules read the end of the field, greeting
+# rules read the salutation, and this shape is neither, which is why 10
+# `is_current` records carried a self-introduced customer name.
+# "my name is" is about as unambiguous an anchor as the corpus offers, so the
+# rule runs document-wide and role-neutral like _WROTE_RE; the capitalization
+# requirement is what ends the span ("my name is Bart in your superblend"
+# stops at Bart), and the two-token cap mirrors _INLINE_NAME_RE.
+SELF_INTRO_RE = re.compile(
+    r"\b(?i:my name is)\s+((?:(?i:mr|mrs|ms|dr)\.?\s+)?)"
+    r"([A-Z][A-Za-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+)?)",
 )
 
 COPYRIGHT_RE = re.compile(r"^\s*Copyright\s+\d{4}(?:[-–]\d{2,4})?\s+dotFIT", re.IGNORECASE)
@@ -488,6 +556,60 @@ def _redact_inline_signoffs(lines: list[str], header_idx: int | None,
     return out
 
 
+def _redact_form_field_signoffs(lines: list[str],
+                                  rep: ScrubReport) -> list[str]:
+    """``Question: ... good week!" Jane Doe`` -> ``... good week!" [NAME]``.
+
+    The closer-less sign-off: a name dangling at the end of a web-form body
+    field. Not region-gated — the ``Question:``/``Message:`` label *is* the
+    region, since those fields only ever hold the enquirer's own words.
+    Candidates made only of closer words, or carrying a digit (``N07 Rage``),
+    are prose or product and are left alone.
+    """
+    out = []
+    for line in lines:
+        m = FORM_FIELD_SIGNOFF_RE.match(line)
+        if m:
+            cand = m.group(1)
+            tokens = [t.strip(".,!?'’\"").casefold() for t in cand.split()]
+            if (not any(ch.isdigit() for ch in cand)
+                    and not any(t in CLOSER_TOKENS or t in GREETING_STOPWORDS
+                                for t in tokens)):
+                line = line[:m.start(1)] + "[NAME]" + line[m.end(1):]
+                _bump(rep.redactions, "signoff_name_form_field")
+        out.append(line)
+    return out
+
+
+def _redact_self_introductions(lines: list[str],
+                                 rep: ScrubReport) -> list[str]:
+    """``My name is Jane Doe and ...`` -> ``My name is [NAME] and ...``.
+
+    The honorific and any credential survive, as everywhere else. Public
+    figures clear at the SURNAME position, the same test the honorific
+    residual check uses — a clinician quoted in a pasted article introduces
+    himself in the quote, and the owner ruled those are quoted verbatim.
+    """
+    out = []
+    for line in lines:
+        pos = 0
+        pieces = []
+        for m in SELF_INTRO_RE.finditer(line):
+            name = m.group(2)
+            tokens = name.split()
+            if (tokens[0].casefold() in GREETING_STOPWORDS
+                    or tokens[-1] in ACCEPTED_HONORIFIC_NAMES):
+                continue
+            pieces.append(line[pos:m.start(2)])
+            pieces.append("[NAME]")
+            pos = m.end(2)
+            _bump(rep.redactions, "self_introduction_name")
+        if pieces:
+            line = "".join(pieces) + line[pos:]
+        out.append(line)
+    return out
+
+
 def _redact_wrote_headers(lines: list[str], rep: ScrubReport) -> list[str]:
     """``Neal Spruce <neal@x.com> wrote:`` -> ``[NAME] <[EMAIL]> wrote:``.
 
@@ -561,9 +683,14 @@ def scrub_extracted(lines: list[str]) -> tuple[str, ScrubReport]:
     # 4b. customer sign-off de-naming (quoted region only — see _redact_signoffs)
     lines = _redact_signoffs(lines, header_idx, rep)
 
-    # 4c. inline sign-offs ("Thanks, Matt" — same region gate) and quoted
-    # "X wrote:" attribution headers (role-neutral, document-wide)
+    # 4c. inline sign-offs ("Thanks, Matt" — same region gate), closer-less
+    # web-form sign-offs, and quoted "X wrote:" attribution headers (both
+    # role-neutral and document-wide, anchored structurally rather than by
+    # region). Inline runs first so its [NAME] already occupies the tail the
+    # form-field rule would otherwise re-examine.
     lines = _redact_inline_signoffs(lines, header_idx, rep)
+    lines = _redact_form_field_signoffs(lines, rep)
+    lines = _redact_self_introductions(lines, rep)
     lines = _redact_wrote_headers(lines, rep)
 
     # 5. pattern redaction over everything that remains

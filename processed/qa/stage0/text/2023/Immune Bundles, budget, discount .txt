@@ -138,6 +138,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi Can you please tell me if your Vitamin D product contains Vitamin K with it? Thx Erin 
+Message: Hi Can you please tell me if your Vitamin D product contains Vitamin K with it? Thx [NAME]
  
 

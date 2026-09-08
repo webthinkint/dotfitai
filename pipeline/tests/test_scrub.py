@@ -484,6 +484,134 @@ class TestWroteHeaderRedaction:
         text, _ = scrub_extracted(["as she wrote: the dose matters"])
         assert "as she wrote: the dose matters" in text
 
+    def test_lowercase_display_name_is_still_a_name(self):
+        # regression (triage round 2, 2026-09-08): a mail client rendered the
+        # display name lowercase and the whole name escaped the rule. The
+        # "<addr> wrote:" anchor carries it; the capital is not load-bearing.
+        text, rep = scrub_extracted([
+            "On Monday, April 27, 2026, 6:25 PM, "
+            "jane doe <jane@example.org> wrote:",
+        ])
+        assert "jane doe" not in text
+        assert "On Monday, April 27, 2026, 6:25 PM, [NAME] <[EMAIL]> wrote:" \
+            in text
+        assert rep.redactions["wrote_header_name"] == 1
+
+
+class TestFormFieldSignoffRedaction:
+    """Closer-less sign-offs in web-form body fields (triage round 2,
+    2026-09-08: a full name after a closing quote reached the index because
+    there was no closer for the inline rule to key on)."""
+
+    def test_name_after_closing_quote(self):
+        text, rep = scrub_extracted([
+            'Question: A member asked "can I stack these?" Have a good '
+            'week!" Jane D',
+        ])
+        assert "Jane D" not in text
+        assert text.rstrip().endswith('week!" [NAME]')
+        assert rep.redactions["signoff_name_form_field"] == 1
+
+    def test_name_with_no_closer_at_all(self):
+        text, rep = scrub_extracted([
+            "Message: Thank you in advance for any advice. Jane Doe",
+        ])
+        assert "Jane Doe" not in text
+        assert rep.redactions["signoff_name_form_field"] == 1
+
+    def test_em_dash_lead_in(self):
+        text, _ = scrub_extracted([
+            "Question: what would you recommend? Thank you so much! - Jane Doe",
+        ])
+        assert "Jane Doe" not in text
+
+    def test_trailing_closer_after_the_name(self):
+        text, _ = scrub_extracted([
+            "Question: how do we answer this objection. Thanks. Jane Thanks.",
+        ])
+        assert text.rstrip().endswith("Thanks. [NAME] Thanks.")
+
+    def test_closer_only_tail_is_not_a_name(self):
+        text, rep = scrub_extracted([
+            "Question: does it stay in the system longer? Thanks.",
+        ])
+        assert "Thanks." in text
+        assert "signoff_name_form_field" not in rep.redactions
+
+    def test_product_with_a_digit_is_not_a_name(self):
+        # "N07 Rage" is a product; a digit in the tail means it is not a name
+        text, rep = scrub_extracted([
+            "Question: how many calories are in it? N07 Rage",
+        ])
+        assert "N07 Rage" in text
+        assert "signoff_name_form_field" not in rep.redactions
+
+    def test_sentence_internal_product_name_untouched(self):
+        # the terminal-punctuation gate: a capitalized product ending the
+        # sentence is inside it, not dangling after it
+        text, rep = scrub_extracted([
+            "Question: should I take the All Natural Whey Protein?",
+            "Message: I already use Best Plant Protein.",
+        ])
+        assert "All Natural Whey Protein?" in text
+        assert "Best Plant Protein." in text
+        assert "signoff_name_form_field" not in rep.redactions
+
+    def test_other_labels_are_not_form_fields(self):
+        text, rep = scrub_extracted([
+            "Subject: we spoke about this. Jane Doe",
+        ])
+        assert "Jane Doe" in text
+        assert "signoff_name_form_field" not in rep.redactions
+
+
+class TestSelfIntroductionRedaction:
+    """Self-introductions (was open item 16, folded into triage round 2,
+    2026-09-08): the opening mirror of the sign-off rules — neither a
+    salutation nor a closer, so nothing else saw it."""
+
+    def test_full_name_mid_sentence(self):
+        text, rep = scrub_extracted([
+            "Message: My name is Jane Doe and I am the dietitian at a gym.",
+        ])
+        assert "Jane Doe" not in text
+        assert "My name is [NAME] and I am the dietitian at a gym." in text
+        assert rep.redactions["self_introduction_name"] == 1
+
+    def test_sentence_period_survives(self):
+        # regression: the name span must not swallow the sentence terminator
+        text, _ = scrub_extracted(["my name is Jane Doe. I plan on taking it."])
+        assert "my name is [NAME]. I plan on taking it." in text
+
+    def test_first_name_only_stops_at_lowercase(self):
+        text, _ = scrub_extracted([
+            "My name is Jane in your product there is an ingredient",
+        ])
+        assert "My name is [NAME] in your product" in text
+
+    def test_honorific_and_credential_survive(self):
+        text, _ = scrub_extracted(["My name is Dr. Jane Doe, RDN."])
+        assert "My name is Dr. [NAME], RDN." in text
+
+    def test_accepted_public_figure_is_quoted_verbatim(self):
+        # owner ruling: clinicians quoted in pasted articles introduce
+        # themselves inside the quote and are not customers
+        text, rep = scrub_extracted(["My name is Hamid Djalilian."])
+        assert "Hamid Djalilian" in text
+        assert "self_introduction_name" not in rep.redactions
+
+    def test_two_introductions_on_one_line(self):
+        text, rep = scrub_extracted([
+            "My name is Jane Doe. My name is Jane Doe again.",
+        ])
+        assert "Jane Doe" not in text
+        assert rep.redactions["self_introduction_name"] == 2
+
+    def test_stopword_tail_is_not_a_name(self):
+        text, rep = scrub_extracted(["My name is Team Support"])
+        assert "Team Support" in text
+        assert "self_introduction_name" not in rep.redactions
+
 
 class TestRecipientRedaction:
     def test_display_names_go_but_role_mailboxes_stay(self):

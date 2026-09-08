@@ -491,7 +491,9 @@ class TestPromptContract:
         from qa_pipeline.stage2 import (
             ACCEPTED_HONORIFIC_NAMES, SILENT_STAFF_NAMES, SYSTEM_PROMPT,
         )
-        for name in ("Berlinda", "Chad", "Spruce", "Barefield"):
+        # "Zane": the SuppBeast co-host, owner ruling 2026-09-08 (triage
+        # round 2) — same standing as Neal, whose surname he shares
+        for name in ("Berlinda", "Chad", "Spruce", "Barefield", "Zane"):
             assert name in SILENT_STAFF_NAMES
             assert name in SYSTEM_PROMPT
         # customers/users per the same triage stay flaggable, never silent

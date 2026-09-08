@@ -82,8 +82,16 @@ AUDIENCE_KEYS = (
 # content), and anything fuller still flags. Veto here if that trade is ever
 # wrong. Deliberately EXCLUDED (customer-side per the same triage): James,
 # Paul, Steve, Neil, Matt, Kendra, Ferguson, Gay, Riley, Jessica.
+# "Zane" added by owner ruling 2026-09-08 (triage round 2): the SuppBeast
+# co-host, named by customers writing in about the show ("Neal and Zane"), and
+# a public figure across 427 podcast mentions — the same standing as Neal,
+# whose surname "Spruce" he shares and which is already here.
+# NOTE this constant only reaches the model through SYSTEM_PROMPT, and
+# ``cache_key`` keys on PROMPT_VERSION rather than the prompt text — so an
+# edit here changes nothing until PROMPT_VERSION is bumped and the corpus
+# re-canonicalized. The ruling is recorded now; it lands on that run.
 SILENT_STAFF_NAMES = frozenset({
-    "Berlinda", "Chad", "Kat", "Mark", "Jill", "Neal",
+    "Berlinda", "Chad", "Kat", "Mark", "Jill", "Neal", "Zane",
     "Spruce", "Rowland", "Barefield",
 })
 

@@ -17,7 +17,7 @@ going.** Only two of them block anything.
 | # | Task | Who | Effort | Blocking? |
 |---|---|---|---|---|
 | [1](01-golden-set-labeling.md) | Write down the right answer for 250 real questions | Nutritionist + support lead | 2–3 days | **Yes** — this is how we prove the assistant is accurate |
-| [2](02-privacy-review-queue.md) | Confirm a privacy check on 222 old emails | Support lead | Half a day | **Yes** — 203 of them are already searchable |
+| [2](02-privacy-review-queue.md) | Confirm a privacy check on 220 old emails | Support lead | ~2 hours | **Yes** — 201 of them are already searchable |
 | [3](03-duplicate-answer-conflict.md) | Pick between two near-identical answers | Nutritionist | 15 minutes | No |
 | [4](04-product-copy-freshness.md) | Own the monthly product-copy check | Named owner needed | 30 min to set up | No, but risk grows |
 | [5](05-azure-account-tasks.md) | Two Azure account chores | Whoever holds the Azure account | 1 hour + waiting | Partly |
@@ -25,10 +25,11 @@ going.** Only two of them block anything.
 
 ## If you only do two things
 
-**Task 2 first** (half a day). It is a privacy confirmation, and 203 of the 222
-records involved are already live and searchable. Nothing is known to be wrong;
-we need it confirmed rather than assumed. Almost all of it is a bulk sign-off —
-only **3 records** genuinely need reading.
+**Task 2 first** (~2 hours). It is a privacy confirmation, and 201 of the 220
+records involved are already live and searchable. Almost all of it is a bulk
+sign-off: **2 records** need reading and **one ruling** covers another 121 at
+once. Re-scoped 2026-09-08 after the first triage turned out to be sorting the
+records by the wrong question — the task document explains what changed.
 
 **Then task 1** (2–3 days). Until it is done we can measure whether the
 assistant *finds* the right material, but not whether its answers are *right*.

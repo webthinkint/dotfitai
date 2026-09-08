@@ -56,6 +56,6 @@ Reply-To: [EMAIL]
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi! I've been ordering your chocolate lean MR protein for a couple years. I get a shipment monthly, and I feel like the taste is a little different this past shipment? Not quite as sweet. Was the protein powder changed at all? Thanks! Joanna
+Message: Hi! I've been ordering your chocolate lean MR protein for a couple years. I get a shipment monthly, and I feel like the taste is a little different this past shipment? Not quite as sweet. Was the protein powder changed at all? Thanks! [NAME]
  
 

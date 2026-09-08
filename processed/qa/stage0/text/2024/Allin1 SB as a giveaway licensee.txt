@@ -13,6 +13,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: My name is Jessie, and I run a boutique fitness studio in Cordova, TN. I am hosting a Galentines Day party on Feb. 13 for my members. I am putting together a giveaway, and I thought you would be a great inclusion into it. I have used your products for a very long time and have always loved it. I thought you would be a perfect fit for our giveaway. Would you be able to contribute anything? Thank you in advance and I look forward to hearing from you. 
+Message: My name is [NAME], and I run a boutique fitness studio in Cordova, TN. I am hosting a Galentines Day party on Feb. 13 for my members. I am putting together a giveaway, and I thought you would be a great inclusion into it. I have used your products for a very long time and have always loved it. I thought you would be a perfect fit for our giveaway. Would you be able to contribute anything? Thank you in advance and I look forward to hearing from you. 
  
 

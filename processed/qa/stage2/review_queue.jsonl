@@ -38,7 +38,6 @@
 {"source_file": "2023/Injury program level-3, complete list and foreign pickup note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2023/Kid's MVM recommendations with full note from prenatal to ActiveMV.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2023/Lean mr& wheysmooth together.docx", "reasons": ["residual_pii_flag"]}
-{"source_file": "2023/Lean pack 90, all at once or ind, full note, take as long as needed.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2023/LeanMR recipe section.docx", "reasons": ["audit_sample"]}
 {"source_file": "2023/LeanMR taste and smell difference, short note.docx", "reasons": ["audit_sample"]}
 {"source_file": "2023/LeanMR taste change note.docx", "reasons": ["residual_pii_flag"]}
@@ -51,7 +50,6 @@
 {"source_file": "2023/Muscle gain package supp instructions, descriptions, gain instructions, monitoring, mealtimes.docx", "reasons": ["audit_sample"]}
 {"source_file": "2023/Nick palombo - build muscle lose fat different programs.docx", "reasons": ["audit_sample"]}
 {"source_file": "2023/No seed oil dotFIT foods, bars, powders.docx", "reasons": ["residual_pii_flag"]}
-{"source_file": "2023/Non dairy protein, BPP in baseline, casein note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2023/Over 50 in baseline with over 65 yr note and Algorithms table.docx", "reasons": ["audit_sample"]}
 {"source_file": "2023/Peanut allergy, cross contamination, egg, shelfish, full label law note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2023/Phosphorous in Aminoformula or BPP - check with manufacture -dialysis.docx", "reasons": ["residual_pii_flag"]}
@@ -109,7 +107,6 @@
 {"source_file": "2024/Creatine flavor extensions, FAQs, extreme creatine, full note.docx", "reasons": ["audit_sample"]}
 {"source_file": "2024/Creatine in baseline with FS, to support all goals with screener note and belrinda.docx", "reasons": ["audit_sample"]}
 {"source_file": "2024/Creatine position FAQ, youth 13yr, youth baseline prog PDSRG note.docx", "reasons": ["residual_pii_flag"]}
-{"source_file": "2024/Creatine- adding it to your program - older people with AF, no stacking.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Diabetic, dotFIT program, doc not lean mr Kat, etc..docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Erythritol cardil issues.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Expired drugs - good for long time, expiration dates.docx", "reasons": ["residual_pii_flag"]}
@@ -146,6 +143,7 @@
 {"source_file": "2024/Testosterone and all cause mortality.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Tree nuts protein powders-all no, ANWS.docx", "reasons": ["audit_sample"]}
 {"source_file": "2024/UltraProbiotic -more than 1 daily.docx", "reasons": ["audit_sample"]}
+{"source_file": "2024/Unflavored protein, flavor packs no more -cost effective.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Updated SB formula note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2024/Vitamin D & K together, synergy of dF supps, why no K in V-D.docx", "reasons": ["audit_sample"]}
 {"source_file": "2024/WLLS, liver health, doctors note, PDSRG, clinical note.docx", "reasons": ["audit_sample"]}
@@ -160,6 +158,7 @@
 {"source_file": "2025/Caffeine vasodialator notes.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2025/Carbs at night versus day time.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2025/Citric acid sources .docx", "reasons": ["residual_pii_flag"]}
+{"source_file": "2025/Clinical needs -reference to Kat& attending Doctors.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2025/Coffee, exercise caffenie ok and good.docx", "reasons": ["audit_sample"]}
 {"source_file": "2025/College & pro sport inquiry, Nick connect.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2025/Creatine gummies don't work.docx", "reasons": ["residual_pii_flag"]}
@@ -184,9 +183,9 @@
 {"source_file": "2026/Food Noise - Definitions and GLP-1s.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Isotretinoin-accutane, and vitamin A intake-info.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Juan 150lbs Suppbesast.docx", "reasons": ["residual_pii_flag"]}
+{"source_file": "2026/Juan's Bloodwork.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/KidsMV replacement -pics and note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Lactose in dF Protein Powders.docx", "reasons": ["audit_sample"]}
-{"source_file": "2026/Lead in protein -complete and best answer.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Lead testing uncovers ‘deeply concerning issue' in spirulina.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Loose skin, gain muscle, supps, elastin notes.docx", "reasons": ["audit_sample"]}
 {"source_file": "2026/LoseBodyfat, ProgramExerciseNote withMark, baseline.docx", "reasons": ["residual_pii_flag"]}
@@ -205,7 +204,6 @@
 {"source_file": "2026/Peptides HRT, & GLP FAQs  -all-2026/Peptide graph.docx", "reasons": ["audit_sample"]}
 {"source_file": "2026/Peptides HRT, & GLP FAQs  -all-2026/Peptide status and good info-LA Times.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Peptides HRT, & GLP FAQs  -all-2026/SARMs , Peptides and steroids.docx", "reasons": ["residual_pii_flag"]}
-{"source_file": "2026/Post workout carbs.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Protein & SB sweetness, full note, focus groups.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Protein-muscle full effect total-.18-.25.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Reverse dieting.docx", "reasons": ["residual_pii_flag"]}

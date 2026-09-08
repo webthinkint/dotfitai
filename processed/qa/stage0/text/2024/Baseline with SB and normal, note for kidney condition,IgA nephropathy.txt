@@ -56,6 +56,6 @@ Subject: Contact Us
 Name: [CUSTOMER]
 Email: [EMAIL]
 Phone: [PHONE]
-Message: Hi Team, We have an 18 yr old client who potentially has IgA nephropathy or thin basement membrane nephropathy. His trainer has prescribed active MV, protein, aminos, and creatine. Due to his condition, will the dotFIT products be safe for him to use? Thank you in advance! Kendra
+Message: Hi Team, We have an 18 yr old client who potentially has IgA nephropathy or thin basement membrane nephropathy. His trainer has prescribed active MV, protein, aminos, and creatine. Due to his condition, will the dotFIT products be safe for him to use? Thank you in advance! [NAME]
  
 
