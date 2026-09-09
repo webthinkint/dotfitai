@@ -5,7 +5,7 @@
   "min_judge_confidence": 0.7,
   "api_version": "2025-04-01-preview",
   "currency_prompt_version": "1.0.0",
-  "deployment": "gpt-5-mini",
+  "deployment": "gpt-5.6-luna",
   "no_llm": false,
   "no_cache": false,
   "include": null,
@@ -13,25 +13,28 @@
  },
  "n_documents": 1041,
  "by_stage4_status": {
-  "current": 919,
-  "superseded_currency": 107,
-  "superseded_dup": 15
+  "current": 923,
+  "superseded_currency": 104,
+  "superseded_dup": 14
  },
- "n_current": 919,
+ "n_current": 923,
  "by_currency_judgment": {
-  "dependent": 107,
-  "independent": 7
+  "dependent": 104,
+  "independent": 10
  },
  "n_clusters": 16,
- "n_conflict_clusters": 1,
+ "n_conflict_clusters": 3,
  "n_dispositioned_clusters": 1,
- "n_audit_clusters": 0,
- "n_review_queue": 0,
- "review_reasons": {},
+ "n_audit_clusters": 1,
+ "n_review_queue": 6,
+ "review_reasons": {
+  "cluster_audit": 2,
+  "cluster_conflict": 4
+ },
  "embedding": {
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
-  "n_cache_hits": 760,
+  "n_cache_hits": 758,
   "n_api_calls": 0
  },
  "judge": {
@@ -40,12 +43,12 @@
   "n_judge_errors": 0,
   "n_judged": 114,
   "n_no_llm": 0,
-  "n_unique_questions": 760,
+  "n_unique_questions": 758,
   "n_clusters": 16,
-  "n_conflict_clusters": 1,
-  "n_audit_clusters": 0,
+  "n_conflict_clusters": 3,
+  "n_audit_clusters": 1,
   "n_dispositioned_clusters": 1,
-  "deployment": "gpt-5-mini",
+  "deployment": "gpt-5.6-luna",
   "api_version": "2025-04-01-preview",
   "currency_prompt_version": "1.0.0"
  }

@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-08. Python 420 tests green; runtime 112 tests green.
+Numbers verified 2026-09-09. Python 421 tests green; runtime 112 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -20,15 +20,15 @@ Numbers verified 2026-09-08. Python 420 tests green; runtime 112 tests green.
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.3.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
-| QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, alias-1.3.0 regen 2026-09-07, scrub round-2 regen 2026-09-08 | 1,041 canonical records (prompt 1.1.0); 677 with products (50 part_nos); 306 currency-cued; queue 220 (166 PII + 48 audit + 1 containment + 5 low-conf) — dispositions are item 13 |
-| QA Stage 4 — dedup & currency | §4 | **done** 2026-09-07, dispositioned 2026-09-08, regen 2026-09-08 | 919 current / 107 superseded_currency / 15 superseded_dup; 16 clusters (1 conflict, ruled **split**); 114 judgments (107 dependent / 7 independent / 0 low-conf); **queue 0** |
+| QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (50 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 6 low-conf) — dispositions are item 13; Zane ruling landed |
+| QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (**3 conflict** — 1 ruled split, 2 new → item 7; 1 audit); 114 judgments (104 dependent / 10 independent); queue 6 |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
 | Golden set | §12 | **complete except labeling** 2026-09-08 — the 250 are sampled, the 50 adversarial are **written** (`CURATED_ADVERSARIAL`), the probes are built. Remaining: label the 250 (item 8) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
-| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides (item 10 closed). Re-uploaded 2026-09-08 after the round-2 regen: 30 QA docs differed (29 changed + 1 restored by the dissolved dup cluster), all of it Stage 2 re-canonicalization jitter — **0 of the 38 redacted names were ever in an indexed field**, checked old and new, so the sync was housekeeping, not a privacy fix. Remaining: the ranker call (item 5) | 3,996 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 929 qa; 2 embed calls, 1 pruned, 0 errors; live `search_ping` PASS at 3,996 |
+| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen: 0 errors, all Stage 2 re-canonicalization. Ranker ruled **off** — item 5 closed | 4,002 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 935 qa; 57 embed calls (3,090 cached), 7 pruned, 0 errors; live `search_ping` PASS at 4,002 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 112 tests |
 | SSE service | §11 | **built + live** 2026-09-08 — `POST /ask` streams disclosure/stage/delta/retraction/result; always `Gated`; config validated at startup. Remaining: item 12's number before it ships to customers | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
-| §12 eval harness | §12 | **built + live** 2026-09-08 — `qa-pipeline eval` over `ask --json`; label-free metrics run today, label-dependent ones report `null` with a reason | first dev sweep (n=12): sample recall@8 100% (ranker off) / 83.3% (on), probes 100%, escalation 10/10 |
+| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-09 on gpt-5.6-luna (125/60/25): sample recall@8 99.2% off / 75.2% on; probes 98.3% / 100% on; escalation 10/10; points-hit 0.9; answers first measured — 51/125 withheld on claims_language (item 17), faithfulness 0.57 |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
 `processed/golden/`, `processed/index/`, `processed/eval/` (the one that
@@ -46,22 +46,23 @@ owner.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **partial** — services provisioned 2026-09-05, credentials in local `.env`; `text-embedding-3-large` and `gpt-5-mini` deployed and smoke-verified. Remaining: quota increase for the frontier chat deployment |
+| 1 | Azure region + SKU | **closed** 2026-09-09 — quota arrived; both chat roles now `gpt-5.6-luna` (one deployment, 333K TPM; embedding unchanged), smoke-verified end to end; corpus regen + re-measure done (owner task 5a resolved) |
 | 2 | products.json freshness owner | **open** — the blocker is naming the owner and the cadence; the instrument exists since 2026-09-08 (`scripts/products_diff.py`, diffs two exports by §5 section so the review sees changed *claims*) |
 | 3 | Alias-table curation session | **closed** 2026-09-07 (pass 2) — outcomes are the `alias.py` curated constants, the worksheet is the session record. A pass 3 starts from the 2,292 unresolved Stage 2 mentions |
 | 4 | PPTX disposition | parked |
-| 5 | Semantic ranker on/off | **open, now measurable** — `qa-pipeline eval --ranker-ab` reports source recall@k both ways. First signal (dev, n=12) is **against** the ranker: 100% off vs 83.3% on. n=12 is a smoke, not the call — rerun on the full dev split before deciding |
+| 5 | Semantic ranker on/off | **closed** 2026-09-09 — **off**. Full dev split: sample recall@8 99.2% off vs 75.2% on (n=125); the ranker's only win is one podcast probe (59/60 → 60/60). The off default stands; `--semantic` remains a flag |
 | 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05, queue 0 |
-| 7 | Stage 4 review-queue dispositions | **closed** 2026-09-08, queue 0 — the one `cluster_conflict` cluster ruled **split**: both members stay `is_current`, neither supersedes. Ruling and reasoning in `docs/decisions.md`; pinned by `CURATED_CLUSTER_DISPOSITIONS` |
+| 7 | Stage 4 review-queue dispositions | **reopened** 2026-09-09 — the luna regen's sharper canonical questions pushed **two new pairs** over the 0.88 threshold: LeanMR+creatine (reads like two turns of one thread — the FirstString shape) and Lean Pack 90 all-at-once (same question a year apart, answers agree). Queue 6 (4 conflict + 2 audit); both pairs written up in owner task 3 |
 | 8 | Golden-set labeling | **open, narrowed** — the 50 adversarial are written (2026-09-08); what remains is labeling the **250** with points-to-hit and expected sources. Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header. Until then the harness reports those two metrics as `null` with a reason |
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
 | 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
-| 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07 — sources are tagged quotable (authority 1–2) vs context-only and the answer instructions fail closed; 4/4 live runs PASS. Remaining: 4 runs is signal, not a regression suite — coverage lands with the §12 eval harness, and re-test on the frontier deployment when item 1's quota arrives |
-| 12 | Claims-audit precision under gating | **open, now instrumented** — the harness reports it on the adversarial-50 with its counts (a small denominator is not a strong claim), scoring the *draft* the audit saw. Still unmeasured on a full sweep: the first run flagged nothing, so precision is `null`, not good. Needed before the SSE service faces customers |
-| 13 | Stage 2 review-queue dispositions (**absorbed item 16** 2026-09-08) | **open, re-triaged** — 220 flagged records, **201 of them `is_current` and live in the index**. Round 2 rebuilt the grouping on *evidence-span survival* (the round-1 placeholder census hid 5 live customer names in the bulk pile) and closed 4 `scrub.py` gaps: 38 names redacted across 36 files, **unresolved spans 6 → 3**, item 16's self-introductions 10 → 0. The Zane row is **ruled staff** (see `docs/decisions.md`) — its queue row clears at the next `PROMPT_VERSION` bump, not before. What is left for a person: **2** third-party prose mentions no rule can reach (1 indexed), **1** committed-tree ruling covering all **121** `text_residue` records at once, and **215** bulk (42 resolved + 48 audit + 5 low-conf + 1 containment) |
+| 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07, re-measured on the frontier 2026-09-09 — the dev sweep's audit saw no authority-3 sourcing; the residual claims-language concern on luna is item 17 |
+| 12 | Claims-audit precision under gating | **open, first number in** — dev adversarial-25 (2026-09-09): 1 flag, 0 true → precision 0.0 at denominator 1 (the small-denominator caveat stands). The same sweep showed the gate withholding 41% of sample answers — both this metric and that behavior ride on item 17's prompt fix. Needed before the SSE service faces customers |
+| 13 | Stage 2 review-queue dispositions (**absorbed item 16** 2026-09-08) | **open, queue shifted by the luna regen** — 220 → 234 (182 PII + 47 audit + 6 low-conf); the Zane row cleared (ruling landed with prompt 1.2.0); a round-3 regroup on the new queue is pending. Standing human items: 2 third-party prose mentions no rule can reach (1 indexed), 1 committed-tree ruling over the `text_residue` records, the bulk pile |
 | 14 | Podcast citation URLs | **closed** 2026-09-08 — all 47 ids resolved via YouTube oEmbed and matched all 47 episodes at Dice 1.00; frozen as `PODCAST_VIDEO_IDS`, 1,800/1,800 segments deep-linked to their start second, re-uploaded with 0 embed calls and verified live |
 | 15 | §12 evaluation coverage | **mostly closed** 2026-09-08 — the precision metric is in §12's list; PDSRG/podcast have 120 retrieval probes; the degraded-guardrail path is pinned by tests and fixed a real defect. **Remaining**: probes measure retrieval only, so end-to-end coverage of those two corpora still needs written questions, and two §11 standing behaviors (conversation-start disclosure, prompt-injection) have no adversarial item because §12 fixes the split at 20/15/15 |
 | 16 | Customer names in `question_original` | **closed into item 13** 2026-09-08 — it was the same defect seen through a different probe: the scrub had no rule for a name that is neither a salutation nor a closer. `SELF_INTRO_RE` closed it (11 spans redacted, the one public figure on `ACCEPTED_HONORIFIC_NAMES` correctly quoted verbatim) and the `my name is` probe is now 0. Residual-PII work continues under item 13; do not re-open this row |
+| 17 | Answer-prompt tuning for `gpt-5.6-luna` | **open** — the frontier model paraphrases claims where gpt-5-mini quoted, so the claims-language gate withholds 51/125 dev answers (41%) and judged faithfulness is 0.57 (threshold 0.9). Retrieval (99.2% with the ranker off) and guardrails (escalation 10/10) are fine. Tighten the §11 answer instructions, then re-sweep; blocks customer-facing SSE together with item 12 |
 
 ## Log
 
@@ -69,6 +70,27 @@ Newest first, one entry per work item, 8 wrapped lines maximum (see Writing
 entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
+
+- **2026-09-09 (47)** — Dev eval sweep on gpt-5.6-luna (§12): item 5 **closed
+  — ranker off** (sample recall@8 99.2% vs 75.2% on, n=125; the ranker's only
+  win is one podcast probe), escalation 10/10, points-hit 0.9, item 12 has
+  its first number (1 flag / 0 true — denominator 1). Answers measured for
+  the first time: the claims-language gate withheld 51/125 drafts → **new
+  item 17** (answer-prompt tuning). 520 agent calls; labels still item 8.
+
+- **2026-09-09 (46)** — Full corpus regen on gpt-5.6-luna (§4): item 1 closed
+  (quota arrived; both chat roles switched, embedding unchanged). Stage 2
+  prompt 1.2.0 — the Zane ruling landed; queue 220 → 234 (182 PII + 47 audit
+  + 6 low-conf), round-3 regroup pending (item 13). Stage 4: 923/104/14, two
+  new cluster conflicts → **item 7 reopened** (owner task 3 carries both
+  pairs). Index re-uploaded: 4,002 docs, 0 errors. Both stages byte-identical
+  on rerun.
+
+- **2026-09-09 (45)** — `stage2 --workers`: bounded thread pool for the
+  canonicalization pass; workers never touch shared state, so completion
+  order cannot reach the output (records sort; the cache is key-addressed).
+  The 1,041-doc luna pass ran ~20× faster (≈25 min at 8 workers, inside the
+  deployment's 333K TPM). 1 new test (**421 python**); runtime 112 unchanged.
 
 - **2026-09-08 (44)** — Model-facing source labels reworded (§11). `SourceLabel`
   is what the answer agent echoes when it attributes an answer in prose, and it
@@ -87,29 +109,7 @@ artifact it describes.
   regen diff — **38 names / 36 files / 0 prose changes**, unresolved 6 → 3, of
   which Zane ruled **staff** (lands on the next `PROMPT_VERSION` bump). Rerun
   byte-identical; index re-uploaded, 3,996 docs, 0 errors. **420 python**.
-- **2026-09-08 (42)** — Open item 10 **closed — no ticket needed**: the orphaned
-  `kb-main` finished deleting. `GET /indexes/kb-main` now returns the clean-miss
-  404, not the wedged "is being deleted" body, and servicestats counts only the
-  live index (1 index, 3,996 docs, ~110 MB — the orphan's 7,992 docs / 213 MB
-  no longer counted; verified via statistics, not the portal, which hides
-  deleting-state indexes). The name is free but `kb-main-v2` stays the default
-  on both sides — a rename is cosmetic. Docs and status comments updated.
-- **2026-09-08 (41)** — Tracker convention change + one new open item (docs
-  only). Log entries no longer cite commit SHAs, here and in
-  `progress-archive.md`, and the **Writing entries** rule dropped the
-  requirement; entries touched by the removal were re-wrapped to the documented
-  80 columns and the 8-line budget. New **item 16**: 10 Stage 4 records keep a
-  self-introduced customer name in `question_original` (9 full names, only 2
-  flagged) — committed `processed/` only, 0 hits in the indexed field. 404
-  tests, unchanged.
-- **2026-09-08 (40)** — Stage 4 review queue closed (§4): **item 7
-  dispositioned, queue 2 → 0**. The corpus's one `cluster_conflict` is ruled
-  **split** — the pair is two turns of one email thread, and Stage 1 keeps only
-  the new expert reply, so the newer record is a delta, not a superset
-  (reasoning in `docs/decisions.md`). Both members stay `is_current`. Rulings
-  live in `CURATED_CLUSTER_DISPOSITIONS`, membership-attested. Stage 4
-  regenerated, rerun byte-identical, 0 API calls; index untouched. 8 new tests
-  (**404 python**).
+
 ## Writing entries
 
 Update **Status** (numbers), **Open items**, and add one **Log** entry per work

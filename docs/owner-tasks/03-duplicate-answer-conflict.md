@@ -1,14 +1,60 @@
 # Task 3 — Pick between two near-identical answers
 
 **Who:** nutritionist
-**Effort:** done
-**Blocking:** no
+**Effort:** about 20 minutes
+**Blocking:** no — the affected answers stay searchable either way
 **Tracked as:** open item 7
 
-## Status: closed, 8 September 2026 — split, both kept
+## Status: reopened 9 September 2026 — two new pairs, same kind of call
 
-Nothing further is needed from you. This file is kept as the record of what was
-decided and why.
+The August decision below stands. But we re-transcribed every question with
+the new, larger AI model that day, and the sharper transcriptions made two
+*new* pairs look near-identical to the grouping step — pairs it had kept apart
+before. When the system cannot tell whether two answers agree, it refuses to
+choose and asks a person, which is what happened here. Both members of each
+pair are still searchable while these wait.
+
+### Pair A — LeanMR + creatine, 27 January and 9 February 2023
+
+- **27 Jan** — customer asks whether LeanMR can be mixed with creatine
+  monohydrate, and whether the daily creatine drink should go before or after
+  a workout. The reply covers creatine timing and usage.
+- **9 Feb** — asks whether LeanMR, creatine **and AminoFormula** can all be
+  taken together. The reply adds new guidance: don't mix the LeanMR with the
+  AminoFormula, because a meal replacement and an amino-acid formula serve
+different slots in the day.
+
+Worth knowing: these look like they may be **two turns of the same email
+thread** — same subject area, thirteen days apart, the second question a
+superset of the first. That is the same shape as the FirstString pair below,
+which was ruled *split* for exactly that reason. If you read them the same
+way, the ruling is quick.
+
+### Pair B — Lean Pack 90 all-at-once, January 2023 and July 2024
+
+- **Jan 2023** — "can I take all Lean Pack 90 products daily or individually
+  over the 90 days?" The reply quotes the FAQ: yes, either way.
+- **Jul 2024** — "can I take all three products in Lean Pack 90 at the same
+time?" The reply: either way works — all at once on a tight timeline, or as
+  directed over the 90 days.
+
+These are the **same question asked a year apart, and the answers agree**.
+This pair may genuinely deserve the *supersede* ruling (keep the newer as the
+canonical answer, retire the older from search) — but note the 2023 record
+carries the fuller FAQ text inside it, so it is worth a glance before
+retiring anything.
+
+### What a ruling means
+
+- **Split** — two different questions after all: both stay searchable,
+  neither replaces the other. (The August FirstString ruling.)
+- **Supersede** — same question, newer answer wins: the older record stops
+  appearing in search.
+
+Tell us "A split, B supersede" (or whatever you decide) and the ruling gets
+pinned by exact records, so it survives every future rebuild.
+
+## The August decision (kept as the record)
 
 ## What this was
 

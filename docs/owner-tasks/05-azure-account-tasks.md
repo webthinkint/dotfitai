@@ -10,26 +10,22 @@ anyone to touch the code.
 
 ---
 
-## 5a — Request more capacity for the larger model
+## 5a — ~~Request more capacity for the larger model~~ — **resolved 9 September 2026**
 
-**Blocking: partly.** Everything works today; the quality ceiling is lower than
-it should be.
+The capacity increase came through. The same day, both model roles were
+switched to the new frontier deployment (`gpt-5.6-luna`, quota 333K tokens /
+333 requests per minute) and everything the small model had been measuring was
+re-run on it:
 
-The assistant uses two AI models: a small fast one for routine steps (checking
-whether a question is medical, tidying up the search query) and a larger one for
-writing the actual answer.
+- the whole corpus was re-transcribed with the larger model (1,041 answers);
+- the knowledge index was rebuilt from that (4,002 documents, live);
+- the quality measurements were repeated on the new model.
 
-Right now **both jobs are being done by the small model**, because we do not
-have capacity approved for the larger one. The system was designed for this and
-runs fine — but answer quality is being held back by a model chosen for speed.
-
-**What to do:** request a quota increase for the larger chat model in the Azure
-portal, in the same region as the rest of the setup.
-
-**Why it is worth doing before launch:** the tests we run tell us the assistant
-finds the right material and refuses the right questions. Those results were
-measured on the small model. When capacity arrives we should re-run them, since
-some answer-quality findings may change — possibly for the better.
+Nothing further is needed from you here. One operational note for the future:
+the larger model is slower per answer than the small one, so full-corpus
+re-transcriptions now run with several requests in parallel — the account's
+token limits comfortably allow it, and a sequential rerun would take hours
+longer for the same result.
 
 ---
 

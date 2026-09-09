@@ -5,6 +5,30 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (42)** — Open item 10 **closed — no ticket needed**: the orphaned
+  `kb-main` finished deleting. `GET /indexes/kb-main` now returns the clean-miss
+  404, not the wedged "is being deleted" body, and servicestats counts only the
+  live index (1 index, 3,996 docs, ~110 MB — the orphan's 7,992 docs / 213 MB
+  no longer counted; verified via statistics, not the portal, which hides
+  deleting-state indexes). The name is free but `kb-main-v2` stays the default
+  on both sides — a rename is cosmetic. Docs and status comments updated.
+- **2026-09-08 (41)** — Tracker convention change + one new open item (docs
+  only). Log entries no longer cite commit SHAs, here and in
+  `progress-archive.md`, and the **Writing entries** rule dropped the
+  requirement; entries touched by the removal were re-wrapped to the documented
+  80 columns and the 8-line budget. New **item 16**: 10 Stage 4 records keep a
+  self-introduced customer name in `question_original` (9 full names, only 2
+  flagged) — committed `processed/` only, 0 hits in the indexed field. 404
+  tests, unchanged.
+- **2026-09-08 (40)** — Stage 4 review queue closed (§4): **item 7
+  dispositioned, queue 2 → 0**. The corpus's one `cluster_conflict` is ruled
+  **split** — the pair is two turns of one email thread, and Stage 1 keeps only
+  the new expert reply, so the newer record is a delta, not a superset
+  (reasoning in `docs/decisions.md`). Both members stay `is_current`. Rulings
+  live in `CURATED_CLUSTER_DISPOSITIONS`, membership-attested. Stage 4
+  regenerated, rerun byte-identical, 0 API calls; index untouched. 8 new tests
+  (**404 python**).
+
 - **2026-09-08 (39)** — Owner worksheets for two stalled items.
   `stage2_queue_triage.py` groups item 13's 222 rows into one that must be read
   (**3** residual-PII flags with no placeholder in the committed text) and four

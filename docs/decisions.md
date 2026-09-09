@@ -87,7 +87,10 @@ the test.
   rather than a change to the committed artifacts. Deliberately not forced: a
   bump is 1,041 LLM calls and would re-canonicalize every question, churning
   the Stage 4 clusters and the golden set's current pairs to clear one audit
-  row that does not gate.
+  row that does not gate. **Landed 2026-09-09**: the gpt-5.6-luna switch forced
+  a full re-canonicalization anyway, so the bump to 1.2.0 rode along and this
+  ruling is now in the committed artifacts. The predicted cluster churn was
+  real — two new conflict pairs, ruled separately (owner task 3).
 - Residual PII after round 2 — one remaining **open owner call** plus the Zane
   ruling above: two records name a third party inside a customer's own
   sentence (one `is_current`, one not), which no deterministic rule can reach
