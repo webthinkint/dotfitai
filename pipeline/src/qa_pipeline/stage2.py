@@ -47,6 +47,7 @@ import json
 import re
 import time
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -57,7 +58,9 @@ from .scrub import ACCEPTED_HONORIFIC_NAMES
 # --- tunables (curation lives in constants — AGENTS.md) ----------------------
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
-PROMPT_VERSION = "1.1.0"  # part of the cache key: a prompt edit must miss cache
+PROMPT_VERSION = "1.2.0"  # part of the cache key: a prompt edit must miss cache
+# 1.1.0 → 1.2.0: gpt-5.6-luna regen — the first run after SILENT_STAFF_NAMES
+# gained "Zane" (owner ruling 2026-09-08), so the silent redaction lands here
 MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue (plan §4 Stage 3)
 CONTAINMENT_THRESHOLD = 0.85  # answer word-recall against source, below -> review
 AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample (plan §4 Stage 3)
@@ -653,65 +656,97 @@ def run_stage2(docs: list[dict[str, Any]], alias_table: dict[str, Any],
                min_confidence: float = MIN_CONFIDENCE_DEFAULT,
                cache: dict[str, dict[str, Any]] | None = None,
                cache_write: Any | None = None,
-               cache_key_fn: Any | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+               cache_key_fn: Any | None = None,
+               workers: int = 1) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Structure *docs* (sorted by source_file) -> (records, stats).
 
     *llm_call* maps messages -> parsed LLM JSON (None = rule-based fallback
     for every document). *cache* maps cache keys -> validated LLM outputs and
     *cache_write* persists new entries; *cache_key_fn* maps a Stage 1 record
     to its cache key (CLI wires the deployment-scoped key).
+
+    *workers* > 1 fans the per-document LLM calls out to a bounded thread
+    pool (the Azure client is thread-safe; a throughput-bound corpus pass
+    finishes hours sooner). Shared state stays single-threaded by design:
+    a worker returns what happened for its document, and only the calling
+    thread appends records, bumps stats and persists cache entries — so
+    completion order can never reach the output (records are sorted by
+    ``source_file``; the cache is key-addressed). A parallel rerun over a
+    warm cache is byte-identical to the sequential one.
     """
     families = [f["family"] for f in alias_table["families"]]
     lookup = build_product_lookup(alias_table)
     cache = cache if cache is not None else {}
     records: list[dict[str, Any]] = []
     stats = {"n_llm_calls": 0, "n_cache_hits": 0, "n_fallback": 0, "n_llm_errors": 0}
-    for rec in sorted(docs, key=lambda d: d["source_file"]):
-        source_len = len(_source_text(rec))
-        if source_len > MAX_SOURCE_CHARS:
-            records.append(mark_review(
-                fallback_record(rec, alias_table, lookup, "source_too_long"), min_confidence))
-            stats["n_fallback"] += 1
-            continue
+
+    def _one(rec: dict[str, Any]) -> tuple[dict[str, Any], str, str | None, dict[str, Any] | None]:
+        """Process one document; never mutates shared run state.
+
+        Returns (record, outcome, cache_key, validated_llm_output) with
+        outcome one of "fallback" / "fallback_error" / "cache_hit" /
+        "llm_call" — the calling thread applies the side effects.
+        """
+        if len(_source_text(rec)) > MAX_SOURCE_CHARS:
+            return (mark_review(
+                fallback_record(rec, alias_table, lookup, "source_too_long"), min_confidence),
+                "fallback", None, None)
         if llm_call is None:
-            records.append(mark_review(
-                fallback_record(rec, alias_table, lookup, "no_llm_mode"), min_confidence))
-            stats["n_fallback"] += 1
-            continue
+            return (mark_review(
+                fallback_record(rec, alias_table, lookup, "no_llm_mode"), min_confidence),
+                "fallback", None, None)
         key = cache_key_fn(rec) if cache_key_fn else None
         cached = cache.get(key) if key else None
         if cached is not None:
             try:
                 validated = validate_llm_output(cached)
             except ValueError as e:
-                records.append(mark_review(
+                return (mark_review(
                     fallback_record(rec, alias_table, lookup,
-                                    f"cached_output_invalid: {e}"), min_confidence))
-                stats["n_fallback"] += 1
-                stats["n_llm_errors"] += 1
-                continue
-            records.append(mark_review(
+                                    f"cached_output_invalid: {e}"), min_confidence),
+                    "fallback_error", None, None)
+            return (mark_review(
                 build_record(rec, validated, alias_table, lookup, families,
-                             model, min_confidence), min_confidence))
-            stats["n_cache_hits"] += 1
-            continue
+                             model, min_confidence), min_confidence),
+                "cache_hit", None, None)
         try:
             raw = llm_call(build_messages(rec, families))
             validated = validate_llm_output(raw)
         except Exception as e:  # noqa: BLE001 — one bad doc must not kill the run
-            records.append(mark_review(
+            return (mark_review(
                 fallback_record(rec, alias_table, lookup,
-                                f"{type(e).__name__}: {e}"[:300]), min_confidence))
+                                f"{type(e).__name__}: {e}"[:300]), min_confidence),
+                "fallback_error", None, None)
+        return (mark_review(
+            build_record(rec, validated, alias_table, lookup, families,
+                         model, min_confidence), min_confidence),
+            "llm_call", key, validated)
+
+    def _apply(result: tuple[dict[str, Any], str, str | None, dict[str, Any] | None]) -> None:
+        record, outcome, key, validated = result
+        if outcome == "fallback":
+            stats["n_fallback"] += 1
+        elif outcome == "fallback_error":
             stats["n_fallback"] += 1
             stats["n_llm_errors"] += 1
-            continue
-        if key and cache_write:
-            cache[key] = validated
-            cache_write(key, validated)
-        records.append(mark_review(
-            build_record(rec, validated, alias_table, lookup, families,
-                         model, min_confidence), min_confidence))
-        stats["n_llm_calls"] += 1
+        elif outcome == "cache_hit":
+            stats["n_cache_hits"] += 1
+        else:  # "llm_call"
+            if key and cache_write:
+                cache[key] = validated  # type: ignore[index]
+                cache_write(key, validated)
+            stats["n_llm_calls"] += 1
+        records.append(record)
+
+    ordered = sorted(docs, key=lambda d: d["source_file"])
+    if workers > 1 and llm_call is not None:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(_one, rec) for rec in ordered]
+            for fut in as_completed(futures):
+                _apply(fut.result())
+    else:
+        for rec in ordered:
+            _apply(_one(rec))
     records.sort(key=lambda r: r["source_file"])
     return records, stats
 

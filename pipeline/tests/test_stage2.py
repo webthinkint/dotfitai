@@ -420,6 +420,38 @@ class TestRunStage2:
                          "n_fallback": 0, "n_llm_errors": 0}
         assert len(written) == 2
 
+    def test_parallel_workers_match_sequential(self, alias_table):
+        import time as _time
+        letters = "abcdef"
+        sections = {c: f"section marker {c} for the answer body" for c in letters}
+        docs = [_rec(source_file=f"2024/{c}.docx", id=c * 16,
+                     expert_section=sections[c])
+                for c in reversed(letters)]  # scrambled input on purpose
+        done: list[str] = []
+
+        def slow_call(messages):  # later files finish first -> reversed completion
+            user = messages[-1]["content"]
+            c = next(x for x in letters if sections[x] in user)
+            _time.sleep((len(letters) - 1 - letters.index(c)) * 0.06)
+            done.append(c)
+            return _llm()
+
+        written: list[str] = []
+        par, pstats = run_stage2(
+            docs, alias_table, slow_call, "gpt-5.6-luna",
+            cache={}, cache_write=lambda k, v: written.append(k),
+            cache_key_fn=lambda r: f"key-{r['source_file']}", workers=6)
+        assert [r["source_file"] for r in par] == [f"2024/{c}.docx" for c in letters]
+        assert sorted(done) == list(letters) and done != list(letters)  # out of order
+        assert pstats == {"n_llm_calls": 6, "n_cache_hits": 0,
+                          "n_fallback": 0, "n_llm_errors": 0}
+        assert len(written) == 6  # every completed call checkpointed
+        seq, sstats = run_stage2(
+            docs, alias_table, _canned({}), "gpt-5.6-luna",
+            cache={}, cache_write=None,
+            cache_key_fn=lambda r: f"key-{r['source_file']}")
+        assert par == seq and pstats == sstats  # completion order never reaches bytes
+
     def test_cache_hits_skip_the_llm(self, alias_table):
         docs = [_rec()]
         first, _ = run_stage2(docs, alias_table, _canned({}), "m",
@@ -510,7 +542,7 @@ class TestPromptContract:
 
     def test_prompt_version_bumped(self):
         from qa_pipeline.stage2 import PROMPT_VERSION
-        assert PROMPT_VERSION == "1.1.0"
+        assert PROMPT_VERSION == "1.2.0"
 
 
 class TestMessages:

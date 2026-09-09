@@ -393,7 +393,7 @@ def cmd_stage2(args: argparse.Namespace) -> int:
     records, stats = run_stage2(
         docs, alias_table, llm_call, deployment, min_conf,
         cache=cache, cache_write=(write_fn if use_cache else None),
-        cache_key_fn=key_fn)
+        cache_key_fn=key_fn, workers=max(1, args.workers))
 
     docs_path = out_dir / "documents.jsonl"
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -417,6 +417,7 @@ def cmd_stage2(args: argparse.Namespace) -> int:
             "deployment": deployment,
             "no_llm": bool(args.no_llm),
             "no_cache": bool(args.no_cache),
+            "workers": max(1, args.workers),
             "include": args.include,
             "limit": args.limit,
         },
@@ -1156,6 +1157,10 @@ def build_parser() -> argparse.ArgumentParser:
     s2.add_argument("--api-version", default=CHAT_API_VERSION,
                     help="Azure OpenAI api-version (default: "
                          f"{CHAT_API_VERSION})")
+    s2.add_argument("--workers", type=int, default=1,
+                    help="concurrent LLM calls for the canonicalization pass "
+                         "(default 1 = sequential; output is order-independent "
+                         "— records are sorted and the cache is key-addressed)")
     s2.add_argument("--no-llm", action="store_true",
                     help="rule-based fallback for every document (no Azure calls)")
     s2.add_argument("--no-cache", action="store_true",
