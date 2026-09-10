@@ -199,7 +199,19 @@ the test.
   `1-Vegan` recur in the program-note boilerplate but point at KidsMV /
   VeganMV, which have no part_no. They stay unresolved — that is the honest
   answer, not a gap to close.
-- Shakers / SportMixer are gear and excluded — hence 51 *indexed* SKUs of 56.
+- Shakers / SportMixer are gear and excluded — hence 53 *indexed* SKUs of 58
+  (1470/1471 dotBAR flavors added 2026-09-10).
+- **products.json drops are ad hoc, never scheduled** (owner ruling
+  2026-09-10, open item 2 closed). A new export arrives whenever an update is
+  known; the response is the drop chain, not a calendar: `products_diff`
+  old-vs-new (the claims report the owner sees), `aliases` regen, `stage2`
+  regen (cache — product tags re-resolve), `stage4` regen, `index` embed +
+  upload + prune, `search_ping`. New flavors of an existing family join it
+  via `CURATED_FAMILIES` — the strip-suffix derivation leaves them singleton
+  families otherwise (the 2026-09-10 gap: 1470 Chocolate Raspberry Crisp /
+  1471 Mint Fudge dotBAR). Unattested-in-QA flavor names are fine there:
+  attestation governs alias *tokens*, and these tag no record the corpus
+  does not already tag as dotBAR.
 
 **PDSRG (§6)**
 

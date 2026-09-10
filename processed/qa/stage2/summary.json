@@ -7,7 +7,7 @@
   "deployment": "gpt-5.6-luna",
   "no_llm": false,
   "no_cache": false,
-  "workers": 8,
+  "workers": 1,
   "include": null,
   "limit": null
  },
@@ -70,6 +70,8 @@
   1456,
   1457,
   1462,
+  1470,
+  1471,
   1480,
   1482,
   1600,

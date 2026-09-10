@@ -19,13 +19,13 @@ Numbers verified 2026-09-10. Python 455 tests green; runtime 143 tests green.
 | QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0; 10 unanswerable excluded (6 no-answer, 4 blank) |
 | PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
-| Alias table | §5 | **done**, v1.3.0 | 51 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
-| QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (50 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
+| Alias table | §5 | **done**, v1.3.0, regen 2026-09-10 (products.json drop) | 53 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
+| QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (52 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
 | QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (**3 conflict** — 1 ruled split, 2 new → item 7; 1 audit); 114 judgments (104 dependent / 10 independent); queue 6 |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
 | Golden set | §12 | **complete except labeling** 2026-09-08, multi-turn set added 2026-09-10 (item 19). Remaining: label the 250 (item 8). The sampled 250 predate the luna Stage 4 regen — pool 650 then, 653 now — so a re-draw is a decision, not a refresh (it moves item 8's target) — `golden --written-only` now rebuilds the written 50/20 without one, which is how the item 23 rubric rewrite landed (golden_version 1.1.0). **Decision pack ready 2026-09-10**: owner task 8, with a preview draw in `pipeline/out/golden-preview/` (208/250 stay, 42 swap; deterministic) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
-| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen: 0 errors, all Stage 2 re-canonicalization. Ranker ruled **off** — item 5 closed | 4,002 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 935 qa; 57 embed calls (3,090 cached), 7 pruned, 0 errors; live `search_ping` PASS at 4,002 |
+| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization) and 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors). Ranker ruled **off** — item 5 closed | 4,006 docs — 1,080 pdsrg / 181 product / 10 menu / 1,800 podcast / 935 qa; 1 embed call (4,002 cached), 0 pruned, 0 errors; live `search_ping` PASS at 4,006 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12) | `runtime/`, 143 tests |
 | SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. Remaining before public traffic: items 12/17 | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
 | §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. Measured on the drawn 250 — a re-draw (owner call) would re-measure the sample tier |
@@ -47,7 +47,7 @@ owner.
 | # | Item | Status |
 |---|---|---|
 | 1 | Azure region + SKU | **closed** 2026-09-09 — quota arrived; both chat roles now `gpt-5.6-luna` (one deployment, 333K TPM; embedding unchanged), smoke-verified end to end; corpus regen + re-measure done (owner task 5a resolved) |
-| 2 | products.json freshness owner | **open** — the blocker is naming the owner and the cadence; the instrument exists since 2026-09-08 (`scripts/products_diff.py`, diffs two exports by §5 section so the review sees changed *claims*) |
+| 2 | products.json freshness owner | **closed** 2026-09-10 — owner ruled: exports arrive **ad hoc** when updates are known, no schedule; at each drop engineering runs the recorded chain (diff → aliases → stage2 → stage4 → index → ping, in `docs/decisions.md` §5). First drop processed same day: dotBAR flavors 1470/1471 → one dotBAR family, index 4,002 → 4,006, live-verified |
 | 3 | Alias-table curation session | **closed** 2026-09-07 (pass 2) — outcomes are the `alias.py` curated constants, the worksheet is the session record. A pass 3 starts from the 2,292 unresolved Stage 2 mentions |
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | **closed** 2026-09-09 — **off**. Full dev split: sample recall@8 99.2% off vs 75.2% on (n=125); the ranker's only win is one podcast probe (59/60 → 60/60). The off default stands; `--semantic` remains a flag |
@@ -78,6 +78,15 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+
+- **2026-09-10 (58)** — products.json drop processed, item 2 **closed** (§5).
+  Owner ruling: exports arrive ad hoc when updates are known — no schedule;
+  each drop runs diff → aliases → stage2 → stage4 → index → ping (cache on
+  the stage2 leg), now the recorded chain in decisions.md §5. First drop:
+  SKUs 1470/1471 joined dotBAR via `CURATED_FAMILIES` (flavor singletons were
+  the derivation gap); 2 QA records re-tagged, 0 LLM calls; index 4,002 →
+  **4,006** (1 embed call, 0 errors), new flavors retrievable live. 2 pins
+  updated (**455 py / 143 runtime**).
 
 - **2026-09-10 (57)** — Owner decision pack for the golden re-draw (§12,
   item 8): owner task 8 written, preview drawn to gitignored
@@ -115,15 +124,6 @@ artifact it describes.
   as the claim. `golden --written-only` rebuilt the written sets with the drawn
   250 untouched — a re-draw is item 8's call. 9 tests (**453 py / 143
   runtime**); re-sweep owed for items 12/17.
-
-- **2026-09-10 (53)** — The guardrail judges the conversation, not the turn
-  (§11/§12, item 19 — **closed**). History reaches the guardrail as well as the
-  rewrite, so "I'm 14" three turns back escalates "how much creatine?"; the
-  same prompt holds the opposite line — one trigger must not refuse every later
-  turn — and `history_trigger` records which reading a refusal rests on. §12
-  gained a **20-item multi-turn set** beside the 50 (10 delayed triggers / 5
-  delayed claim traps / **5 controls**), scored off the runtime's own flags, no
-  judge. Live spot-check 5/6; sweep owed. 28 tests (**444 py / 143 runtime**).
 
 ## Writing entries
 

@@ -1,80 +1,51 @@
-# Task 4 — Own the monthly product-copy check
+# Task 4 — Keep the product copy current (decided)
 
-**Who:** needs a named person
-**Effort:** 30 minutes to set up, then ~15 minutes a month
-**Blocking:** no, but the risk grows quietly
-**Tracked as:** open item 2
+**Who:** was "needs a named person" — **decided 2026-09-10**: nobody owns a
+schedule, because there is no schedule
+**Effort:** none on your side unless a drop changes *claims* (rare)
+**Status:** **decided** — this document is now the record of the arrangement
+**Tracked as:** open item 2 (closed)
 
-## What this is
+## The ruling
 
-When the assistant makes a claim about a product — what it does, what is in it,
-how to take it — it quotes the approved website copy word for word. It never
-rewords it. That is deliberate: the approved copy is what legal has signed off,
-and a paraphrase is a new claim nobody approved.
+Product-copy exports arrive **whenever an update is known** — a new product, a
+reworded page, a renamed flavor — and not on any calendar. When one arrives,
+engineering runs the update chain the same day; nothing waits on a monthly
+tick, and nothing runs pointlessly when nothing changed.
 
-That copy lives in a file that was exported from the website once. The website
-keeps changing. The file does not.
+The quiet risk this closes is real but was never going to be solved by a
+rota: the assistant quotes approved website copy word for word, so it stays
+accurate for exactly as long as that copy is current. An export that arrives
+when something actually changed serves that better than a fixed cadence.
 
-So the risk is quiet: marketing updates a product page, legal approves new
-wording, and the assistant carries on confidently quoting last quarter's text as
-though it were current. Nothing errors. Nothing looks wrong.
+## What happens at each drop
 
-## What we need
+1. **A before/after report is produced first.** The comparison tool shows
+   what actually changed, in the terms that matter: changed claim sections
+   (the one that matters — that is approved wording moving), added and
+   removed products, renames it asks you to confirm, and changed web
+   addresses.
+2. **Engineering runs the update chain** — the product names, the answer
+   corpus and the live search index are regenerated from the new file. This
+   is now a recorded, repeatable procedure, and the first drop (two new
+   dotBAR flavors, 10 September) ran it end to end: new flavors retrievable
+   live the same day.
+3. **Your eyes are needed only for two things**, and only if the report
+   shows them:
+   - **Changed claims** — you confirm the new wording is the approved one
+     (the export is supposed to reflect the website, but the check is cheap).
+   - **A removed or renamed product** — the tool cannot tell a rename from a
+     reformulation, and the distinction matters (a rename is the same product
+     with a new name; a reformulation is a different product, and old advice
+     may no longer hold). Removed products are **never deleted** — customers
+     still ask "what happened to X?", so removal is a conversation, not a
+     deletion.
 
-Two decisions, not a project:
-
-1. **Who owns it.** One named person who re-exports the product file and runs
-   the comparison.
-2. **How often.** Monthly is the proposal. If product copy changes less often
-   than that, quarterly is fine — the point is that it is scheduled rather than
-   remembered.
-
-## The tool exists
-
-You are not being asked to eyeball two files. There is a comparison tool that
-reports what actually changed, in the terms that matter:
+## The tool, for reference
 
 ```
 cd pipeline
 uv run python scripts/products_diff.py OLD-products.json NEW-products.json
 ```
 
-It reports, in priority order:
-
-- **Changed claim sections** — which products had their approved wording move,
-  and which section. This is the one that matters: a changed description is
-  changed approved copy, and the assistant needs to be updated before it quotes
-  the old version again.
-- **Added and removed products** — a new product needs its names taught to the
-  system so customers' shorthand still finds it. A removed product needs a
-  decision rather than a deletion (see below).
-- **Renamed products** — the tool flags these but cannot tell a rename from a
-  reformulation that kept the same product number. It says so, and asks you to
-  confirm. That distinction matters: a rename is the same product with a new
-  name, and the assistant should say "LeanMR, now LeanMeal". A reformulation is
-  a different product, and old advice about it may no longer hold.
-- **Changed web addresses** — every one is a link the assistant gives customers.
-
-It also tells you how many documents need re-processing as a result, which is
-what the engineering side needs to know.
-
-## A note on discontinued products
-
-When a product goes away, the instinct is to delete it. Please do not.
-
-Customers still ask "what happened to X?" and "what do I take instead?" The
-system deliberately keeps discontinued products searchable, marked as
-discontinued, with guidance about what replaces them. Removing them means the
-assistant cannot answer a question customers definitely ask.
-
-So a removed product is a conversation, not a deletion.
-
-## What happens if this waits
-
-The assistant keeps quoting the copy it has. It stays accurate for exactly as
-long as the website does not change.
-
-The failure mode is silent and gets worse with time — there is no alarm for
-"this claim is eighteen months out of date." Right now the file is recent enough
-that this is low risk. That is precisely why it is worth assigning while it is
-cheap.
+It writes nothing; it is the report described above, ready to hand over.

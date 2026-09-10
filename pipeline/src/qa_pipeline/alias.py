@@ -61,9 +61,11 @@ CURATED_FAMILIES: dict[int, str] = {
     1369: "WheySmooth", 1370: "WheySmooth", 1399: "WheySmooth",
     1374: "WheySmooth", 1375: "WheySmooth",
     1391: "WheySmooth", 1392: "WheySmooth",
-    # dotBARs: one family of flavor variations
+    # dotBARs: one family of flavor variations (2026-09-10: +1470
+    # Chocolate Raspberry Crisp, +1471 Mint Fudge — new flavors, same bar)
     1456: "dotBAR", 1457: "dotBAR", 1462: "dotBAR",
     1480: "dotBAR", 1482: "dotBAR",
+    1470: "dotBAR", 1471: "dotBAR",
 }
 
 # family names that must come out of base derivation (asserted, not overridden)

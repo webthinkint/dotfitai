@@ -15,7 +15,7 @@ What is left is not mostly code. Eight things have needed a decision or a pass
 from a person, and this folder explains each one in plain language: what it is,
 why it matters, what we need, and how long it should take.
 
-**Three are now done** (5, 7, and half of 6) and are kept as the record rather
+**Four are now done** (4, 5, 7, and half of 6) and are kept as the record rather
 than as work. Of the rest, **two block a public launch** and none block the
 stakeholder preview — that is the point of the task 7 ruling.
 
@@ -26,7 +26,7 @@ stakeholder preview — that is the point of the task 7 ruling.
 | [1](01-golden-set-labeling.md) | Write down the right answer for 250 real questions | Nutritionist + support lead | 2–3 days | **Public launch** — this is how we prove the assistant is accurate |
 | [2](02-privacy-review-queue.md) | Confirm a privacy check on 234 old emails | Support lead | ~half a day | **Yes** — 211 of them are already searchable |
 | [3](03-duplicate-answer-conflict.md) | Rule on two pairs of near-identical answers | Nutritionist | ~20 minutes | No |
-| [4](04-product-copy-freshness.md) | Own the monthly product-copy check | Named owner needed | 30 min to set up | No, but risk grows |
+| [4](04-product-copy-freshness.md) | ~~Own the monthly product-copy check~~ | — | **Decided 2026-09-10** — drops are ad hoc, chain runs same day | No |
 | [5](05-azure-account-tasks.md) | ~~Two Azure account chores~~ | — | — | **Done** 2026-09-09 |
 | [6](06-decisions-after-testing.md) | Choices that needed a test run first | Project owner | Read a report | 6a **decided**; 6b before public launch |
 | [7](07-stakeholder-release-scope.md) | What the stakeholder preview may say | Project owner | **Decided 2026-09-10** | No — preview ships at any state |

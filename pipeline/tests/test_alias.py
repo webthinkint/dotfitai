@@ -407,7 +407,8 @@ class TestRealCorpusSanity:
             pytest.skip("real products.json not present")
         products = json.loads(products_path.read_text(encoding="utf-8"))
         table = build_alias_table(products)
-        assert table["n_products"] == 56  # sku 1000 Antioxidant added 2026-09-01
+        assert table["n_products"] == 58  # +1000 Antioxidant 2026-09-01; +1470/+1471
+        # dotBAR flavors 2026-09-10
         assert table["n_families"] >= 31
         renames = {r["deprecated"] for r in table["legacy_renames"]}
         assert {"LeanMR", "MuscleDefender", "NO7 Rage", "SuperiorAntioxidant",
@@ -448,7 +449,7 @@ class TestRealCorpusSanity:
             "Plant Protein": (1300, [1300, 1301]),
             "Pre & Post Workout Formula": (1367, [1367, 1368]),
             "WheySmooth": (1369, [1369, 1370, 1374, 1375, 1391, 1392, 1399]),
-            "dotBAR": (1456, [1456, 1457, 1462, 1480, 1482]),
+            "dotBAR": (1456, [1456, 1457, 1462, 1470, 1471, 1480, 1482]),
         }
         assert {f for f, fam in fams.items() if fam["n_variants"] > 1} == set(expected)
         for family, (canon, pns) in expected.items():

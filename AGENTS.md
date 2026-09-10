@@ -57,8 +57,9 @@ Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`; live checks are
 `asr_pilot.py` (the §7 transcription sweep that produced the transcripts),
 `podcast_archive_verify.py` (the session record behind `PODCAST_VIDEO_IDS` — it
 hits YouTube, which is why the mapping is a constant and not a lookup),
-`stage2_queue_triage.py` and `products_diff.py` (owner worksheets for open items
-13 and 2), and the `chat_smoke.py` / `embedding_smoke.py` / `search_ping.py`
+`stage2_queue_triage.py` and `products_diff.py` (owner worksheets — the triage
+is open item 13's instrument; the diff runs at every products.json drop per
+the item 2 ruling), and the `chat_smoke.py` / `embedding_smoke.py` / `search_ping.py`
 connectivity checks.
 
 ## Architecture

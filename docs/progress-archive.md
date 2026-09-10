@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (53)** — The guardrail judges the conversation, not the turn
+  (§11/§12, item 19 — **closed**). History reaches the guardrail as well as the
+  rewrite, so "I'm 14" three turns back escalates "how much creatine?"; the
+  same prompt holds the opposite line — one trigger must not refuse every later
+  turn — and `history_trigger` records which reading a refusal rests on. §12
+  gained a **20-item multi-turn set** beside the 50 (10 delayed triggers / 5
+  delayed claim traps / **5 controls**), scored off the runtime's own flags, no
+  judge. Live spot-check 5/6; sweep owed. 28 tests (**444 py / 143 runtime**).
+
 - **2026-09-10 (52)** — Multi-turn conversations (§11, item 18 — **closed**).
   `POST /ask` takes `history` (`role`/`text`, oldest first, current question
   excluded; unknown role is a 400, not a dropped turn), `AskOptions.History`

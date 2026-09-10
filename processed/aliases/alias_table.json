@@ -2,8 +2,8 @@
  "version": "1.3.0",
  "source": "data/Product Data/products.json",
  "normalization": "NFKC, casefold, strip non-alphanumeric",
- "n_products": 56,
- "n_products_indexed": 51,
+ "n_products": 58,
+ "n_products_indexed": 53,
  "n_families": 31,
  "families": [
   {
@@ -269,10 +269,12 @@
     1456,
     1457,
     1462,
+    1470,
+    1471,
     1480,
     1482
    ],
-   "n_variants": 5
+   "n_variants": 7
   }
  ],
  "deterministic_aliases": [
