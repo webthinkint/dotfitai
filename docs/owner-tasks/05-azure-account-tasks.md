@@ -1,12 +1,14 @@
-# Task 5 — Two Azure account chores
+# Task 5 — Two Azure account chores — **BOTH DONE**
 
 **Who:** whoever holds the Azure account
-**Effort:** about an hour of actual work, then waiting on Microsoft
-**Blocking:** partly — see each item
-**Tracked as:** item 1 (section 5a). Item 10 (section 5b) resolved 2026-09-08
+**Status:** **nothing to do.** 5a resolved 9 September 2026, 5b resolved
+8 September 2026.
+**Tracked as:** open items 1 and 10, both closed
 
-Both of these are account administration rather than engineering. Neither needs
-anyone to touch the code.
+Kept as the record, and for one operational lesson worth not relearning: the
+Azure portal hides indexes that are mid-deletion, so "it's not in the portal"
+is not evidence an index is gone. Check the service statistics instead. The
+detail is at the bottom.
 
 ---
 

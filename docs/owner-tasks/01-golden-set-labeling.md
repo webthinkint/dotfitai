@@ -2,7 +2,8 @@
 
 **Who:** a nutritionist and the support lead, working together
 **Effort:** 2–3 days
-**Blocking:** yes — this is how we prove the assistant is accurate
+**Blocking:** yes for a public launch — this is how we prove the assistant is
+accurate. It does *not* hold up the stakeholder preview (see task 7).
 **Tracked as:** open item 8
 
 ## What this is
@@ -123,3 +124,11 @@ questions.
 What we cannot do is prove the answers are *good*, or notice if a change makes
 them worse. For an internal trial that is tolerable. Before customers use it,
 it is not.
+
+That distinction now matters in practice: as of 10 September the assistant goes
+to a stakeholder and partner audience on the dotFIT website, deliberately
+without waiting for any measurement (task 7). Their reactions are useful, but
+they are not a substitute for this — a handful of people saying "that looked
+right" is not the same as a scorecard you can re-run after every change. If
+anything, the preview makes this more valuable, because it is what would catch a
+change that quietly makes the preview worse.

@@ -1,35 +1,39 @@
-# Task 6 — Three choices that need a test run first
+# Task 6 — Three choices that needed a test run first
 
 **Who:** project owner
-**Effort:** reading a report and making three calls
-**Blocking:** no — and not ready for you yet
-**Tracked as:** open items 5, 12 and 15
+**Effort:** reading a report and making the remaining calls
+**Blocking:** no
+**Tracked as:** open items 5 (closed), 12 and 15
 
-This one is here so it is not a surprise later. **There is nothing to decide
-today.** Each of these needs a full test run first, which is engineering work,
-not yours. When those numbers exist, three questions come to you.
+**Updated 10 September 2026.** The full test run happened on 9 September, so
+this document is no longer a heads-up — two of the three have numbers now.
+**6a is decided and needs nothing from you.** 6b has its first real numbers and
+they are more interesting than expected. 6c is unchanged.
 
 ---
 
-## 6a — Is the "semantic ranker" worth paying for?
+## 6a — Is the "semantic ranker" worth paying for? — **DECIDED: no**
 
 Azure offers an optional extra step that re-orders search results using a
-smarter, slower, chargeable model. We built the assistant so it can be switched
-on or off, and deliberately did not guess which is better.
+smarter, slower, chargeable model. We built the assistant so it could be
+switched on or off, and deliberately did not guess.
 
-**Early signal, and please treat it as weak:** in a first small test of 12
-questions, the assistant found the right source document **100% of the time
-with the ranker off, and 83% with it on**. That points against paying for it.
+The full run settled it, and not narrowly. Over 125 questions the assistant
+found the right source document **99.2% of the time with the ranker off, and
+75.2% with it on**. The paid option was substantially *worse*. Its only win
+anywhere was a single podcast lookup.
 
-But 12 questions is a smoke test, not evidence. It needs the full run before
-anyone acts on it. Mentioned here only so the eventual result is not surprising.
+**Decided: leave it off.** No cost, better results, and nothing is needed from
+you. The switch still exists if that ever changes.
 
-**The question for you, later:** turn it on, or leave it off? A cost question
-with a quality trade-off, once we know what the trade-off actually is.
+The early 12-question smoke test pointed the same way, which is reassuring —
+but the reason we waited for 125 is that it could just as easily have pointed
+the wrong way. It is worth knowing that the small test was right by luck as
+much as by design.
 
 ---
 
-## 6b — Is the claims safety check too aggressive?
+## 6b — Is the claims safety check too aggressive? (and: is it aggressive enough?)
 
 This is the most important of the three, and the reason it deserves attention.
 
@@ -48,17 +52,35 @@ time.
 So we need to know how often it is right when it fires. The measurement is built
 and runs against the 50 deliberately hostile test questions.
 
-**Where it stands:** in the first run, the check did not fire at all. So we have
-no false alarms — and also no evidence it works. Zero out of zero is not a
-reassuring result, it is an absent one. This needs the full run.
+**Where it stands after the full run — it is failing in both directions at
+once.** This is the part worth your attention.
 
-**The question for you, later:** if the check turns out to be trigger-happy, do
-we soften it? Our engineering view is that the fix should be the wording of the
-check itself, not removing the withholding — a customer seeing an unapproved
-claim is worse than a customer being handed to support. But how much
-false-alarm rate is acceptable is a business judgement.
+*Too aggressive:* the check withheld **51 of 125 answers**. Four out of every
+ten customers would have got a handoff instead of an answer we had.
 
-**This one should be settled before customers use the assistant.**
+*Not aggressive enough:* separately, of the deliberately-hostile questions where
+a reviewing model found genuinely non-compliant wording in the answer, the check
+caught **none of them** — and all of those answers were delivered.
+
+Those two findings sound contradictory and are not. We found the reason, and it
+was our mistake rather than the model's: the check was only being shown dotFIT's
+approved product copy, not the customer Q&A and podcast material the answer had
+actually been written from. So it saw answers citing sources it could not read,
+and called them unsupported — while having no basis at all to judge the ones
+that mattered. One of the withheld answers was a single sentence about how many
+carbohydrates are in an apple.
+
+**That has been fixed** (10 September) and is being re-measured. So the numbers
+above are the *before* picture, and we expect the false-alarm rate to fall
+sharply. What we cannot predict yet is the other direction.
+
+**The question for you, once the new numbers land:** the same one as before, but
+now informed. Our engineering view is unchanged — the fix belongs in the check,
+not in removing the withholding, because a customer seeing an unapproved claim
+is worse than a customer being handed to support.
+
+**This should be settled before the assistant is opened to real customers.** It
+does **not** hold up the stakeholder preview — see task 7.
 
 ---
 
@@ -89,3 +111,16 @@ is currently tested:
 
 Both were left out because the test set has a fixed composition agreed earlier,
 and we did not want to quietly change what was agreed to fit them in.
+
+**A third gap, new as of 10 September.** The assistant is about to gain
+follow-up questions — being able to answer "what about the chocolate one?"
+using what was said earlier in the conversation. Every test we have asks a
+single question in isolation, including the safety tests. That matters most for
+refusals: "I'm 14" in one message and "how much creatine should I take?" three
+messages later is currently two unrelated questions, and the second one has
+nothing to refuse on.
+
+The engineering side is handling the capability. What may need you is the same
+question as above: a handful of realistic *multi-message* conversations that
+should end in a refusal, so we can prove it works rather than assert it. If 6c
+gets a yes, this belongs in the same sitting.

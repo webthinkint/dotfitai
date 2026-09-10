@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (43)** — Stage 2 triage round 2 (§4): **item 16 folds into 13**,
+  round 1's grouping retired as unsound — it read "a placeholder exists
+  somewhere in this record" as "the redaction landed", parking 5 live customer
+  names in the bulk pile. Grouping is **evidence-span survival** now (joins the
+  gitignored cache, still prints no span). Four `scrub.py` gaps closed on the
+  regen diff — **38 names / 36 files / 0 prose changes**, unresolved 6 → 3, of
+  which Zane ruled **staff** (lands on the next `PROMPT_VERSION` bump). Rerun
+  byte-identical; index re-uploaded, 3,996 docs, 0 errors. **420 python**.
+
 - **2026-09-08 (42)** — Open item 10 **closed — no ticket needed**: the orphaned
   `kb-main` finished deleting. `GET /indexes/kb-main` now returns the clean-miss
   404, not the wedged "is being deleted" body, and servicestats counts only the

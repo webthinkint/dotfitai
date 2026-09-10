@@ -306,3 +306,15 @@ the test.
   post-check failure reasons (`claims_language: <wording>` tells a prober
   exactly which phrasing tripped the audit). Operator diagnostics stay on the
   operator surface.
+- **The stakeholder preview is never blocked on a metric** (owner ruling,
+  2026-09-10, open item 21 — closed). The website server calls the service and
+  relays the SSE stream to a stakeholder/partner audience, and that release may
+  ship at any state so the project can be tested continuously. Items 12 and 17
+  therefore gate **public customer traffic only**; the "before the SSE service
+  faces customers" line stands, and the preview audience is not customers.
+  Two consequences, and they are the price of the ruling: the
+  claim-wording caveat is a **standing** condition on every preview release
+  rather than a one-off note (it lives in `docs/website-integration.md`), and
+  per-request verdict logging (item 20) stops being nice-to-have — if any state
+  may ship, the record of what the preview audience was actually shown is the
+  only way to reconstruct a complaint.
