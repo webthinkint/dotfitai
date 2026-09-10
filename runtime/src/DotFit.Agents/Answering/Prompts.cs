@@ -124,6 +124,12 @@ public static class Prompts
         A statement you cannot find in any of the provided sources is a violation
         only if it is a product claim. Otherwise leave it alone.
 
+        A source list may contain no QUOTABLE source at all. That is not a reason
+        to pass the answer: judge it the same way. General nutrition information
+        is still fine, and context cited as context is still fine, but there is no
+        approved wording available, so any product claim presented as dotFIT's own
+        is unsupported.
+
         violations: short quotes of the offending phrasing from the answer.
         evidence: one entry per violation, in the same order, each starting with the
         source number you checked it against — "[4] the copy says ..." — or "none"

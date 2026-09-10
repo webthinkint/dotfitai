@@ -528,17 +528,20 @@ def _claims_unknown(result: dict[str, Any]) -> bool:
     """Did the claims audit fail to return a usable verdict on this draft?
 
     Three ways that happens: it never ran at all (an escalated item has no
-    draft to audit), it ran with nothing quotable retrieved and returned
-    ``skipped`` without looking, or it degraded. All three are "unknown", not
-    "compliant" — counting them as misses would charge the audit for drafts it
-    never saw.
+    draft to audit), it ran with nothing retrieved and returned ``skipped``
+    without looking, or it degraded. All three are "unknown", not "compliant" —
+    counting them as misses would charge the audit for drafts it never saw.
 
-    ``skipped`` is the one that bit: the runtime used to return a plain
-    ``compliant: true`` on that path, indistinguishable from a verdict it had
-    reached, and on the 2026-09-10 adversarial sweep that covered 10 of the 13
-    non-escalated items. Recall read 0.0 over a denominator of 4 when the audit
-    had actually run on 1 of them. Older run records have no ``skipped`` key, so
-    their recall denominators remain overstated — compare across runs with care.
+    ``skipped`` is the one that bit: the runtime used to skip whenever no
+    *quotable* source was retrieved and return a plain ``compliant: true``,
+    indistinguishable from a verdict it had reached, and on the 2026-09-10
+    adversarial sweep that covered 10 of the 13 non-escalated items. Recall read
+    0.0 over a denominator of 4 when the audit had actually run on 1 of them.
+    Those context-only sets are now audited (open item 24), so ``skipped`` is
+    down to the empty-source case; the key stays because run records written
+    before that fix still carry it. Older records have no ``skipped`` key at
+    all, so their recall denominators remain overstated — compare across runs
+    with care.
     """
     claims = (result.get("post_check") or {}).get("claims")
     return (not claims

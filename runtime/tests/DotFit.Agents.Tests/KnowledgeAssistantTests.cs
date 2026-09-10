@@ -162,25 +162,45 @@ public class KnowledgeAssistantTests
     }
 
     [Fact]
-    public async Task ClaimsCheckIsSkippedWhenNothingQuotableWasRetrieved()
+    public async Task ClaimsCheckAuditsContextOnlySourceSets()
     {
-        // The check runs on the presence of approved copy — with nothing
-        // quotable there is no approved wording to audit against — but it now
-        // judges against the full source list, so the context-only docs travel
-        // with it instead of being filtered out.
+        // Open item 24: a set with no approved copy is the high-risk case, not
+        // an exempt one — an answer built entirely from Q&A and podcast context
+        // is where an unsupported product claim is most likely. The audit runs,
+        // and sees the context-only docs it must judge against.
         var claimsClient = new ScriptedChatClient(
-            """{"compliant":false,"violations":["never reached"],"evidence":["none"]}""");
+            """{"compliant":false,"violations":["takes two capsules daily"],"evidence":["none"]}""");
         IClaimsLanguageChecker claims = new AgentClaimsLanguageChecker(
             new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
 
         ClaimsVerdict verdict = await claims.CheckAsync(
             "q", "answer [1].", [TestDocs.Qa(), TestDocs.Qa("another")]);
 
+        Assert.False(verdict.Compliant);
+        Assert.False(verdict.Degraded);
+        Assert.False(verdict.Skipped);
+        string sent = claimsClient.Calls.Single().Messages.Last().Text ?? "";
+        Assert.Contains("CONTEXT ONLY", sent);
+        Assert.DoesNotContain("QUOTABLE FOR PRODUCT CLAIMS", sent);
+        Assert.Contains("Expert answer from the QA corpus.", sent);
+    }
+
+    [Fact]
+    public async Task ClaimsCheckIsSkippedWhenNothingWasRetrieved()
+    {
+        // Nothing retrieved: no draft grounding to audit and no list to resolve
+        // its [n] against. It says it never looked, rather than reporting a
+        // pass it did not make — the eval harness reads this to keep un-audited
+        // drafts out of the recall denominator (open item 12).
+        var claimsClient = new ScriptedChatClient(
+            """{"compliant":false,"violations":["never reached"],"evidence":["none"]}""");
+        IClaimsLanguageChecker claims = new AgentClaimsLanguageChecker(
+            new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
+
+        ClaimsVerdict verdict = await claims.CheckAsync("q", "no sourced information.", []);
+
         Assert.True(verdict.Compliant);
         Assert.False(verdict.Degraded);
-        // ...and it says it never looked, rather than reporting a pass it did
-        // not make. The eval harness reads this to keep un-audited drafts out
-        // of the recall denominator (open item 12).
         Assert.True(verdict.Skipped);
         Assert.Empty(claimsClient.Calls);
 

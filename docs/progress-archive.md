@@ -5,6 +5,12 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-09 (45)** — `stage2 --workers`: bounded thread pool for the
+  canonicalization pass; workers never touch shared state, so completion
+  order cannot reach the output (records sort; the cache is key-addressed).
+  The 1,041-doc luna pass ran ~20× faster (≈25 min at 8 workers, inside the
+  deployment's 333K TPM). 1 new test (**421 python**); runtime 112 unchanged.
+
 - **2026-09-08 (44)** — Model-facing source labels reworded (§11). `SourceLabel`
   is what the answer agent echoes when it attributes an answer in prose, and it
   was echoing the corpus name: "dotFIT's customer Q&As typically recommend ...",

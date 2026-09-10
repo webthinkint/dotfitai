@@ -17,13 +17,16 @@ public sealed class ClaimsVerdict
     /// <summary>True when the check could not run — a warning, never a failure.</summary>
     public bool Degraded { get; set; }
     /// <summary>
-    /// True when the audit was never invoked, because nothing quotable was
+    /// True when the audit was never invoked, because nothing at all was
     /// retrieved. Distinct from a <c>Compliant</c> verdict it actually reached:
     /// both used to serialize as <c>compliant: true, degraded: false</c>, so a
     /// draft the audit never looked at was indistinguishable from one it
     /// cleared. On the 2026-09-10 adversarial sweep that was **10 of the 13**
     /// non-escalated items, and it silently inflated open item 12's recall
     /// denominator — the metric counted misses against an audit that never ran.
+    /// Those 10 were the context-only sets, which now get audited (open item
+    /// 24); this flag is left for the genuinely empty set, and for reading
+    /// older run records.
     /// </summary>
     public bool Skipped { get; set; }
 }
@@ -132,12 +135,20 @@ public interface IClaimsLanguageChecker
 /// Small-model claims-language audit of the draft's product claims against the
 /// approved copy (§3: products.json is the legal-approved claims corpus).
 ///
-/// It <em>runs</em> only when approved copy was retrieved — with nothing
-/// quotable in the set there is no approved wording to audit against — but it
-/// <em>judges</em> against the whole retrieved list. The §3 line travels with
-/// each source as its <see cref="Prompts.ClaimsMarker"/>; withholding the
-/// context-only sources instead made every claim grounded in them look
-/// unsupported (see <see cref="Prompts.BuildClaimsUserMessage"/>).
+/// It runs on any non-empty source set and judges against the whole retrieved
+/// list. The §3 line travels with each source as its
+/// <see cref="Prompts.ClaimsMarker"/>; withholding the context-only sources
+/// instead made every claim grounded in them look unsupported (see
+/// <see cref="Prompts.BuildClaimsUserMessage"/>).
+///
+/// It used to run <em>only</em> when approved copy was retrieved, on the
+/// reasoning that with nothing quotable there was no approved wording to audit
+/// against. That held only while the checker was shown authority 1–2 alone;
+/// once it saw every source (2026-09-10), the skipped case became the
+/// high-risk one — an answer built entirely from Q&amp;A and podcast context is
+/// exactly where an unsupported product claim is most likely (A-047), and a
+/// set with no QUOTABLE source is one where <em>every</em> product claim is
+/// unsupported by definition. Open item 24.
 ///
 /// Best-effort: on failure it degrades to a warning, never a failure.
 /// </summary>
@@ -146,12 +157,12 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
     public async Task<ClaimsVerdict> CheckAsync(
         string question, string answer, IReadOnlyList<RetrievedDocument> sources, CancellationToken ct = default)
     {
-        if (!sources.Any(s => Prompts.ClaimsQuotable(s.Authority)))
-            // Nothing approved to check against — say so rather than reporting
-            // a pass the audit never made. This is not a rare path: an answer
-            // built entirely from Q&A and podcast context is exactly where an
-            // unsupported product claim is most likely, and exactly where this
-            // returns without looking.
+        if (sources.Count == 0)
+            // Nothing retrieved at all: the answer agent was told to say it has
+            // no sourced information, so there is nothing to audit and no list
+            // to resolve its [n] against. Reported as skipped rather than as a
+            // pass the audit never made — the eval harness keeps un-audited
+            // drafts out of the recall denominator (open item 12).
             return new ClaimsVerdict { Compliant = true, Skipped = true };
         try
         {
