@@ -69,8 +69,9 @@ dotnet run --project src/DotFit.Agents.Cli -- guardrail "how much for my 10 year
 dotnet run --project src/DotFit.Agents.Cli -- rewrite "LeanMR dosage"
 ```
 
-`ask`/`chat` run the full pipeline (exit 1 when the post-check fails). `ask` is
-single-turn by definition and stays that way — the §12 harness drives it;
+`ask`/`chat` run the full pipeline (exit 1 when the post-check fails). `ask`
+keeps no transcript of its own but can be *given* one with `--history` (the
+`POST /ask` JSON shape), which is how the §12 multi-turn set is driven;
 `chat` keeps the session transcript and resolves follow-ups against it
 (`reset` starts a new conversation). See Multi-turn below.
 `search` is retrieval-only (embedding + hybrid query, no chat LLM);
@@ -78,7 +79,10 @@ single-turn by definition and stays that way — the §12 harness drives it;
 `--semantic` (ranker on — open item 5; the re-rank then orders on the ranker's
 score, not the fused retrieval score), `--filter <odata>` (ANDed with
 `is_current eq true`), `--raw` (skip alias expansion), `--json`,
-`--no-stream`, `--no-claims-check`, `--gated`, `--trace`.
+`--no-stream`, `--no-claims-check`, `--gated`, `--trace`,
+`--history '[{"role":"user","text":"I am 14"}]'` (`ask`/`guardrail`; the
+`POST /ask` shape, oldest first, current question excluded — an unknown role is
+a usage error, not a dropped turn).
 
 `--gated` switches `ask`/`chat` from the CLI default (`Live` — stream deltas as
 generated, report a post-check failure after the fact) to the mode the SSE
@@ -134,17 +138,21 @@ decides what is accepted — blank turns dropped, a trailing echo of the current
 question dropped, newest 8 turns kept, 1,000 characters per turn — so the CLI
 and the service cannot disagree about it.
 
-History reaches **the rewrite stage only**. That is where a follow-up collapses
-back into one standalone question, after which search, the answer agent and the
-post-check see no conversational state at all. It deliberately never reaches
-the answer agent: an answer grounded in anything but the retrieved sources
-cannot honour the `[n]` citation contract, and an earlier assistant turn is not
-a source.
+History reaches **the rewrite stage and the guardrail**, and nothing else. The
+rewrite is where a follow-up collapses back into one standalone question, after
+which search, the answer agent and the post-check see no conversational state
+at all. It deliberately never reaches the answer agent: an answer grounded in
+anything but the retrieved sources cannot honour the `[n]` citation contract,
+and an earlier assistant turn is not a source. `ConversationTests` pins that
+boundary rather than leaving it to be rediscovered.
 
-It does not yet reach the **guardrail**, which still judges each turn alone —
-progress open item 19, and its own row because an escalation trigger can arrive
-turns before the question it applies to. `ConversationTests` pins that boundary
-rather than leaving it to be rediscovered.
+The **guardrail** reads it because a hard-escalation trigger is a fact about
+the customer, stated once — "I'm 14" three turns before "how much creatine?"
+(progress open item 19). The prompt carries the opposite rule too: history is
+context for the question being asked, not a second question to answer, so one
+trigger does not refuse every later turn. `GuardrailVerdict.HistoryTrigger`
+records which of the two a verdict rests on; it changes nothing the customer
+sees and everything an operator can reconstruct.
 
 `stage` events stream even though deltas are gated: that is what makes gating
 affordable, since the widget has something live to render while the answer is

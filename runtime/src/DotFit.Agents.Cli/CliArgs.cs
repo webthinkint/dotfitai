@@ -1,3 +1,6 @@
+using System.Text.Json;
+using DotFit.Agents;
+
 namespace DotFit.Agents.Cli;
 
 public sealed record CliFlags
@@ -16,6 +19,15 @@ public sealed record CliFlags
     public bool Json { get; init; }
     /// <summary>search command: skip alias expansion (raw text search).</summary>
     public bool Raw { get; init; }
+
+    /// <summary>
+    /// ask/guardrail: earlier turns of the conversation, parsed from the
+    /// <c>--history</c> JSON. Empty is a standalone question — every use of
+    /// this CLI except the §12 multi-turn set, which is the reason the flag
+    /// exists: escalation over a conversation cannot be measured by a harness
+    /// that can only send one turn (open item 19).
+    /// </summary>
+    public IReadOnlyList<ConversationTurn> History { get; init; } = ConversationHistory.Empty;
 }
 
 public sealed record CliCommand(string Verb, string Text, CliFlags Flags);
@@ -57,6 +69,12 @@ public static class CliArgs
           --gated               hold the answer until the post-check passes, as the
                                 SSE service does (default here: stream live, so a
                                 failed check is visible only after the fact)
+          --history <json>      ask/guardrail: earlier turns of this conversation as a
+                                JSON array, oldest first and excluding the question
+                                being asked. Same shape as POST /ask takes:
+                                [{"role":"user","text":"I am 14"}]. This is how the
+                                §12 multi-turn set is driven; `chat` keeps its own
+                                transcript instead
           --raw                 search: skip alias expansion
           --json                machine-readable output. On ask/chat this is the
                                 §12 eval-harness contract: one JSON object per
@@ -83,7 +101,7 @@ public static class CliArgs
             throw new CliUsageException($"unknown command '{args[0]}'\n\n{Usage}");
 
         var textParts = new List<string>();
-        string? env = null, aliases = null, index = null, filter = null;
+        string? env = null, aliases = null, index = null, filter = null, historyJson = null;
         int? top = null;
         bool trace = false, noStream = false, noClaims = false, json = false, raw = false;
         bool gated = false;
@@ -112,6 +130,7 @@ public static class CliArgs
                 case "--aliases": aliases = Value(); break;
                 case "--index": index = Value(); break;
                 case "--filter": filter = Value(); break;
+                case "--history": historyJson = Value(); break;
                 case "--top":
                     if (!int.TryParse(Value(), out int n) || n < 1)
                         throw new CliUsageException("--top must be a positive integer");
@@ -134,6 +153,49 @@ public static class CliArgs
             EnvPath = env, AliasesPath = aliases, IndexName = index,
             Trace = trace, NoStream = noStream, NoClaimsCheck = noClaims, Gated = gated,
             Top = top, Semantic = semantic, Filter = filter, Json = json, Raw = raw,
+            History = ParseHistory(historyJson),
         });
+    }
+
+    /// <summary>
+    /// <c>--history</c> JSON → turns. The wire shape is the SSE service's, so
+    /// one transcript drives either surface, and the role vocabulary is
+    /// <see cref="ConversationHistory.TryParseRole"/>'s — an unknown role is a
+    /// usage error here for the same reason it is a 400 there: a dropped turn
+    /// silently changes what the conversation said.
+    /// </summary>
+    private static IReadOnlyList<ConversationTurn> ParseHistory(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return ConversationHistory.Empty;
+
+        List<HistoryTurnJson>? raw;
+        try
+        {
+            raw = JsonSerializer.Deserialize<List<HistoryTurnJson>>(
+                json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (JsonException e)
+        {
+            throw new CliUsageException($"--history is not valid JSON: {e.Message}");
+        }
+        if (raw is null)
+            return ConversationHistory.Empty;
+
+        var turns = new List<ConversationTurn>(raw.Count);
+        for (int i = 0; i < raw.Count; i++)
+        {
+            if (!ConversationHistory.TryParseRole(raw[i].Role, out ConversationRole role))
+                throw new CliUsageException(
+                    $"--history[{i}].role must be \"user\" or \"assistant\"");
+            turns.Add(new ConversationTurn(role, raw[i].Text ?? ""));
+        }
+        return turns;
+    }
+
+    private sealed record HistoryTurnJson
+    {
+        public string? Role { get; init; }
+        public string? Text { get; init; }
     }
 }

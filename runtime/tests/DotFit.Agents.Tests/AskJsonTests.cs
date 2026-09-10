@@ -86,6 +86,9 @@ public class AskJsonTests
         JsonElement json = await AskJsonFor();
 
         Assert.True(json.GetProperty("guardrail").TryGetProperty("claim_trap", out _));
+        // open item 19: the harness reads this to tell a conversation-level
+        // catch from a single-turn one.
+        Assert.True(json.GetProperty("guardrail").TryGetProperty("history_trigger", out _));
         Assert.True(json.GetProperty("rewrite").TryGetProperty("canonical_question", out _));
         Assert.True(json.GetProperty("expansion").TryGetProperty("part_nos", out _));
         JsonElement source = json.GetProperty("sources")[0];
@@ -126,7 +129,7 @@ public class AskJsonTests
         // An escalation delivers the refusal template; §12 still needs to see
         // what the model would have said.
         JsonElement json = await AskJsonFor(
-            guardrailReply: """{"escalate":true,"reasons":["managed_condition"],"claim_trap":false,"notes":"diabetes"}""",
+            guardrailReply: """{"escalate":true,"reasons":["managed_condition"],"claim_trap":false,"history_trigger":false,"notes":"diabetes"}""",
             mode: AnswerStreamMode.Gated);
 
         Assert.Equal("Gated", json.GetProperty("stream_mode").GetString());

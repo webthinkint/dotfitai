@@ -76,7 +76,7 @@ public class DegradedGuardrailTests
     public async Task PreCheckFailureDegradesInsteadOfBlocking()
     {
         GuardrailVerdict verdict = await DegradedGuardrail()
-            .CheckAsync("I'm pregnant — is this safe?");
+            .CheckAsync("I'm pregnant — is this safe?", ConversationHistory.Empty);
 
         Assert.True(verdict.Degraded);
         Assert.False(verdict.Escalate);      // fail-open by design

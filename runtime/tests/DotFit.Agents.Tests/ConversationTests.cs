@@ -8,11 +8,12 @@ using DotFit.Agents.Service;
 namespace DotFit.Agents.Tests;
 
 /// <summary>
-/// Multi-turn conversation support (plan §11, open item 18). Two things are
-/// pinned here and they pull in opposite directions: history must actually
-/// reach the stage that resolves a follow-up, and it must reach nothing else —
-/// above all not the answer agent, whose whole contract is that every [n] it
-/// writes points at a retrieved source.
+/// Multi-turn conversation support (plan §11, open items 18 and 19). Two
+/// things are pinned here and they pull in opposite directions: history must
+/// reach the two stages that need it — the rewrite, which resolves a follow-up,
+/// and the guardrail, which needs to know who is asking — and it must reach
+/// nothing else, above all not the answer agent, whose whole contract is that
+/// every [n] it writes points at a retrieved source.
 /// </summary>
 public class ConversationTests
 {
@@ -186,12 +187,10 @@ public class ConversationTests
     }
 
     [Fact]
-    public async Task TheGuardrailStillJudgesTheTurnAloneUntilItem19()
+    public async Task TheGuardrailIsShownTheConversationNotJustTheTurn()
     {
-        // Pinned deliberately, not by accident: item 18 wires history to the
-        // rewrite only. An escalation trigger that arrived in an earlier turn
-        // ("I'm 14" ... "how much creatine?") is still invisible here, and the
-        // §12 escalation number stays a single-turn number until item 19 lands.
+        // Open item 19. "I'm 14" ... "how much creatine?" is one question from
+        // a minor; a check that sees only the second turn answers it.
         var guardrail = new FakeGuardrail();
         var assistant = Build(new FakeRewriter(), new FakeAnswerAgent { Reply = "Answer [1]." }, guardrail);
 
@@ -201,6 +200,125 @@ public class ConversationTests
         });
 
         Assert.Equal("how much creatine?", guardrail.Questions.Single());
+        IReadOnlyList<ConversationTurn> seen = Assert.Single(guardrail.Histories);
+        Assert.Equal(["I'm 14", "Thanks for letting me know."], seen.Select(t => t.Text));
+    }
+
+    [Fact]
+    public async Task TheGuardrailAndTheRewriteSeeTheSameTrimmedHistory()
+    {
+        // One Normalize call for the whole pipeline: two stages reading two
+        // different transcripts of the same conversation is a bug waiting for a
+        // long session, and the trims are where it would surface first.
+        var guardrail = new FakeGuardrail();
+        var rewriter = new FakeRewriter();
+        var assistant = Build(rewriter, new FakeAnswerAgent { Reply = "Answer [1]." }, guardrail);
+
+        await assistant.AskAsync("how much creatine?", new AskOptions
+        {
+            History = [User("I'm 14"), Bot("Noted."), User("how much creatine?")],
+        });
+
+        Assert.Equal(guardrail.Histories.Single(), rewriter.Histories.Single());
+        Assert.Equal(2, guardrail.Histories.Single().Count);      // the echo went, on both paths
+    }
+
+    [Fact]
+    public async Task AnEscalationFromAnEarlierTurnIsTheSameTemplatedHandoff()
+    {
+        // The customer is not told which turn gave them away, and the refusal
+        // path stays LLM-free — a delayed trigger changes who escalates, not
+        // what a refusal is.
+        var guardrail = new FakeGuardrail
+        {
+            Verdict = new Guardrails.GuardrailVerdict
+            {
+                Escalate = true, Reasons = ["under_18"], HistoryTrigger = true,
+            },
+        };
+        var answer = new FakeAnswerAgent { Reply = "Take 5 g daily [1]." };
+        var assistant = Build(new FakeRewriter(), answer, guardrail);
+
+        AssistantResult result = await assistant.AskAsync("how much creatine?", new AskOptions
+        {
+            History = [User("I'm 14"), Bot("Noted.")],
+        });
+
+        Assert.True(result.Escalated);
+        Assert.Empty(answer.UserMessages);                        // no chat call on the refusal path
+        Assert.Equal(Prompts.RefusalMessage(["guidance for someone under 18"]), result.DeliveredText);
+        Assert.DoesNotContain("14", result.DeliveredText);
+    }
+
+    [Fact]
+    public async Task TheGuardrailStageEventSaysWhenTheTriggerCameFromAnEarlierTurn()
+    {
+        // The operator-facing half of item 19: a refusal to a question that
+        // reads as innocuous is only explicable with this on the trace, and
+        // item 20's verdict log keys off the same flag.
+        var guardrail = new FakeGuardrail
+        {
+            Verdict = new Guardrails.GuardrailVerdict
+            {
+                Escalate = true, Reasons = ["under_18"], HistoryTrigger = true,
+            },
+        };
+        var assistant = Build(new FakeRewriter(), new FakeAnswerAgent { Reply = "x" }, guardrail);
+
+        var stages = new List<StageEvent>();
+        await foreach (AssistantEvent e in assistant.AskStreamAsync(
+            "how much creatine?", new AskOptions { History = [User("I'm 14")] }))
+        {
+            if (e is StageEvent s)
+                stages.Add(s);
+        }
+
+        string detail = stages.Single(s => s.Stage == "guardrail").Detail;
+        Assert.Contains("ESCALATE (under_18)", detail);
+        Assert.Contains("from an earlier turn", detail);
+    }
+
+    // --- the guardrail prompt ----------------------------------------------------
+
+    [Fact]
+    public void TheGuardrailPromptCarriesHistoryLabelledBySpeaker()
+    {
+        string user = Prompts.BuildGuardrailUserMessage(
+            "how much creatine should I take?",
+            [User("I'm 14 and just started lifting"), Bot("Thanks for letting me know.")]);
+
+        Assert.Contains("Recent conversation", user);
+        Assert.Contains("customer: I'm 14 and just started lifting", user);
+        Assert.Contains("assistant: Thanks for letting me know.", user);
+        Assert.Contains("Customer question: how much creatine should I take?", user);
+    }
+
+    [Fact]
+    public void AStandaloneQuestionGetsNoHistoryBlockInTheGuardrailPromptEither()
+    {
+        string user = Prompts.BuildGuardrailUserMessage("q?", ConversationHistory.Empty);
+        Assert.DoesNotContain("Recent conversation", user);
+        Assert.Equal("Customer question: q?\n", user);
+    }
+
+    [Fact]
+    public void TheGuardrailInstructionsCarryTriggersForwardWithoutPoisoningTheConversation()
+    {
+        // Both halves, because either alone is a defect: a trigger that does
+        // not carry answers a minor, and one that carries indiscriminately
+        // refuses "where is my order" for the rest of the session.
+        Assert.Contains("stated in ANY earlier turn still applies", Prompts.GuardrailInstructions);
+        Assert.Contains("bears on what is being asked NOW", Prompts.GuardrailInstructions);
+        Assert.Contains("history_trigger=true", Prompts.GuardrailInstructions);
+    }
+
+    [Fact]
+    public void TheGuardrailSchemaRequiresTheHistoryTriggerFlag()
+    {
+        // A structured field the model may omit is a field the eval cannot
+        // read: the §12 multi-turn metric scores this flag.
+        Assert.Contains("\"history_trigger\": { \"type\": \"boolean\" }", Structured.Schemas.GuardrailJson);
+        Assert.Contains("\"claim_trap\", \"history_trigger\"", Structured.Schemas.GuardrailJson);
     }
 
     [Fact]

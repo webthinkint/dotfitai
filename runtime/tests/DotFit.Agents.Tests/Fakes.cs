@@ -26,11 +26,14 @@ internal sealed class FakeRewriter : IQueryRewriter
 internal sealed class FakeGuardrail : IGuardrail
 {
     public List<string> Questions { get; } = [];
+    public List<IReadOnlyList<ConversationTurn>> Histories { get; } = [];
     public GuardrailVerdict Verdict { get; set; } = new();
 
-    public Task<GuardrailVerdict> CheckAsync(string question, CancellationToken ct = default)
+    public Task<GuardrailVerdict> CheckAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
     {
         Questions.Add(question);
+        Histories.Add(history);
         return Task.FromResult(Verdict);
     }
 }

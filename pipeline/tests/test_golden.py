@@ -6,15 +6,20 @@ import json
 
 import pytest
 
+from qa_pipeline import golden
 from qa_pipeline.alias import build_alias_table
 from qa_pipeline.cli import main
 from qa_pipeline.golden import (
     ADVERSARIAL_PLAN,
     ADVERSARIAL_SIZE,
     CURATED_ADVERSARIAL,
+    CURATED_MULTI_TURN,
+    MULTI_TURN_PLAN,
+    MULTI_TURN_ROLES,
     PROBE_QUERY_WORDS,
     PROBE_SOURCES,
     build_adversarial,
+    build_multiturn,
     build_pool,
     build_probes,
     largest_remainder,
@@ -27,6 +32,8 @@ from qa_pipeline.golden import (
     unmet_requirements,
     write_adversarial_jsonl,
     write_adversarial_worksheet,
+    write_multiturn_jsonl,
+    write_multiturn_worksheet,
     write_probes_jsonl,
     write_worksheet,
 )
@@ -487,6 +494,106 @@ class TestProbes:
         assert [json.loads(ln) for ln in lines] == probes
 
 
+class TestMultiTurnSet:
+    """The multi-turn safety items (§12 coverage, open item 19)."""
+
+    def test_composition_matches_its_plan(self):
+        items = build_multiturn()
+
+        assert len(items) == sum(p["n"] for p in MULTI_TURN_PLAN)
+        for plan in MULTI_TURN_PLAN:
+            assert sum(1 for i in items
+                       if i["category"] == plan["category"]) == plan["n"]
+        assert [i["item_no"] for i in items[:2]] == ["M-001", "M-002"]
+        assert {i["split"] for i in items} == {"dev", "test"}
+        assert (sum(1 for i in items if i["split"] == "dev")
+                == sum(1 for i in items if i["split"] == "test"))
+
+    def test_every_item_is_actually_multi_turn(self):
+        # An item whose trigger is in its own question measures the
+        # adversarial 50 again — the set exists for the other case.
+        for item in build_multiturn():
+            assert item["history"], item["item_no"]
+            assert {t["role"] for t in item["history"]} <= {"user", "assistant"}
+            assert all(t["text"].strip() for t in item["history"])
+
+    def test_each_item_asserts_exactly_one_behavior(self):
+        for item in build_multiturn():
+            asserted = [f for f in ("expect_escalate", "expect_claim_trap")
+                        if item[f] is not None]
+            assert len(asserted) == 1, item["item_no"]
+
+    def test_controls_are_present_and_expect_no_escalation(self):
+        # Half the value of the set: a guardrail that escalates on any
+        # transcript keyword passes every delayed item and refuses "where is
+        # my order" for the rest of the session.
+        controls = [i for i in build_multiturn()
+                    if i["category"] == "no_escalation_control"]
+        assert controls
+        assert all(i["expect_escalate"] is False for i in controls)
+
+    def test_curated_roles_map_to_the_wire_vocabulary(self):
+        # The curation says "customer"; POST /ask and `ask --history` say
+        # "user", and the artifact is the wire's.
+        assert {r for r, _ in CURATED_MULTI_TURN[0]["history"]} <= set(MULTI_TURN_ROLES)
+        assert build_multiturn()[0]["history"][0]["role"] == "user"
+
+    def test_a_single_turn_item_raises(self, monkeypatch):
+        item = dict(CURATED_MULTI_TURN[0], history=[])
+        monkeypatch.setattr(golden, "CURATED_MULTI_TURN",
+                            [item] + CURATED_MULTI_TURN[1:])
+        with pytest.raises(ValueError, match="no history"):
+            build_multiturn()
+
+    def test_an_item_asserting_both_behaviors_raises(self, monkeypatch):
+        # An escalation templates the refusal and never reaches an answer, so
+        # a row demanding both can never pass — better to refuse to emit it.
+        item = dict(CURATED_MULTI_TURN[0], expect_escalate=True,
+                    expect_claim_trap=True)
+        monkeypatch.setattr(golden, "CURATED_MULTI_TURN",
+                            [item] + CURATED_MULTI_TURN[1:])
+        with pytest.raises(ValueError, match="one behavior per item"):
+            build_multiturn()
+
+    def test_a_count_that_disagrees_with_the_plan_raises(self, monkeypatch):
+        monkeypatch.setattr(golden, "CURATED_MULTI_TURN",
+                            CURATED_MULTI_TURN[:-1])
+        with pytest.raises(ValueError, match="disagree with MULTI_TURN_PLAN"):
+            build_multiturn()
+
+    def test_duplicate_questions_raise(self, monkeypatch):
+        duped = dict(CURATED_MULTI_TURN[-1],
+                     question=CURATED_MULTI_TURN[0]["question"])
+        monkeypatch.setattr(golden, "CURATED_MULTI_TURN",
+                            CURATED_MULTI_TURN[:-1] + [duped])
+        with pytest.raises(ValueError, match="duplicate multi-turn questions"):
+            build_multiturn()
+
+    def test_worksheet_renders_the_conversation_and_the_reason(self, tmp_path):
+        # This set cannot be reviewed question by question: whether an item is
+        # fair depends on what the transcript already said.
+        items = build_multiturn()
+        path = tmp_path / "multiturn.md"
+        write_multiturn_worksheet(path, items)
+        text = path.read_text(encoding="utf-8")
+
+        assert "open item 19" in text
+        assert "- Why: " in text
+        assert "*user:*" in text
+        assert items[0]["question"] in text
+
+    def test_jsonl_is_one_object_per_item_with_its_history(self, tmp_path):
+        items = build_multiturn()
+        path = tmp_path / "multiturn.jsonl"
+        write_multiturn_jsonl(path, items)
+        rows = [json.loads(line)
+                for line in path.read_text(encoding="utf-8").splitlines()]
+
+        assert len(rows) == len(items)
+        assert rows[0]["history"] == items[0]["history"]
+        assert rows[0]["expect_escalate"] is True
+
+
 class TestCli:
     def test_golden_end_to_end_byte_identical(self, tmp_path, monkeypatch):
         products_path = tmp_path / "products.json"
@@ -503,7 +610,8 @@ class TestCli:
         assert rc == 0
         out = tmp_path / "golden"
         names = sorted(p.name for p in out.iterdir() if p.is_file())
-        assert names == ["adversarial.jsonl", "adversarial.md", "sample.jsonl",
+        assert names == ["adversarial.jsonl", "adversarial.md",
+                         "multiturn.jsonl", "multiturn.md", "sample.jsonl",
                          "summary.json", "worksheet.md"]
         first = {n: (out / n).read_bytes() for n in names}
 

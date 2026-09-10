@@ -91,9 +91,13 @@ internal static class Program
         if (!flags.Json)
             WriteBanner(interactive: false);
         KnowledgeAssistant assistant = RuntimeFactory.CreateAssistant(options);
-        // `ask` is one question, standalone by definition — and the §12 eval
-        // harness drives it, so it must stay single-turn.
-        return await AskOnce(assistant, flags, question, history: null).ConfigureAwait(false);
+        // `ask` is one question and keeps no transcript of its own — but it may
+        // be *given* one. `--history` is how the §12 multi-turn set reaches the
+        // pipeline (open item 19); without it this is the single-turn verb the
+        // rest of the harness drives. Passed as a value, not a list to append
+        // to: nothing here is a session.
+        return await AskOnce(assistant, flags, question, history: null,
+            given: flags.History).ConfigureAwait(false);
     }
 
     private static async Task<ExitCode> Chat(RuntimeOptions options, CliFlags flags)
@@ -122,7 +126,7 @@ internal static class Program
                 Console.Out.WriteLine(Dim("(new conversation — history cleared)"));
                 continue;
             }
-            await AskOnce(assistant, flags, line, history).ConfigureAwait(false);
+            await AskOnce(assistant, flags, line, history, given: history).ConfigureAwait(false);
         }
         return ExitCode.Ok;
     }
@@ -135,7 +139,8 @@ internal static class Program
     /// the draft they did not.
     /// </summary>
     private static async Task<ExitCode> AskOnce(
-        KnowledgeAssistant assistant, CliFlags flags, string question, List<ConversationTurn>? history)
+        KnowledgeAssistant assistant, CliFlags flags, string question,
+        List<ConversationTurn>? history, IReadOnlyList<ConversationTurn> given)
     {
         AnswerStreamMode mode = flags.Gated ? AnswerStreamMode.Gated : AnswerStreamMode.Live;
         var askOptions = new AskOptions
@@ -145,7 +150,7 @@ internal static class Program
             Semantic = flags.Semantic,
             Filter = flags.Filter,
             StreamMode = mode,
-            History = history ?? ConversationHistory.Empty,
+            History = given,
         };
 
         // --json owns stdout: the eval harness parses it whole, so every human
@@ -281,7 +286,11 @@ internal static class Program
     {
         Azure.AI.OpenAI.AzureOpenAIClient client = RuntimeFactory.CreateOpenAiClient(options);
         var guardrail = new AgentGuardrail(RuntimeFactory.CreateGuardrailAgent(options, client));
-        GuardrailVerdict verdict = await guardrail.CheckAsync(question).ConfigureAwait(false);
+        // Single-stage verb, but the check itself is conversation-aware (open
+        // item 19), so `--history` is honoured here too — it is the cheapest
+        // way to smoke a delayed trigger without spending a chat call.
+        GuardrailVerdict verdict = await guardrail
+            .CheckAsync(question, flags.History).ConfigureAwait(false);
 
         if (flags.Json)
         {
@@ -292,6 +301,8 @@ internal static class Program
         if (verdict.Reasons.Count > 0)
             Console.WriteLine($"reasons:    {string.Join(", ", verdict.Reasons)}");
         Console.WriteLine($"claim_trap: {verdict.ClaimTrap}");
+        if (verdict.HistoryTrigger)
+            Console.WriteLine("trigger:    an earlier turn, not this question");
         Console.WriteLine($"notes:      {verdict.Notes}");
         if (verdict.Degraded)
             Console.WriteLine(Dim("degraded:   yes — the check could not run (fail-open by design)"));

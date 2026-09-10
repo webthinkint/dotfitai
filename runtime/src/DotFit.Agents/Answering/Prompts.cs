@@ -57,7 +57,8 @@ public static class Prompts
     /// <summary>Guardrail pre-check instructions (small deployment).</summary>
     public const string GuardrailInstructions = """
         You are the safety pre-check for the dotFIT knowledge assistant (nutrition
-        supplements, plans and programs). Classify the customer question.
+        supplements, plans and programs). Classify the customer question, read in
+        the conversation it was asked in.
 
         Escalate (escalate=true, with reasons) when the question asks for guidance
         that must come from a human, not an AI assistant:
@@ -77,6 +78,35 @@ public static class Prompts
         for example asks whether a supplement cures, treats, or prevents a disease
         ("does X cure diabetes", "will X lower my blood pressure"), or states one
         as fact.
+
+        The user message may open with a "Recent conversation" block: earlier turns
+        of this same conversation, oldest first. A customer states something about
+        themselves once and then keeps talking, so judge the current question with
+        what they have already told you.
+        - A hard-escalation trigger stated in ANY earlier turn still applies. "I'm
+          14" three turns ago and "how much creatine should I take?" now is one
+          question from a minor: escalate, reason under_18.
+        - The same for a trigger the assistant surfaced and the customer confirmed
+          ("are you pregnant?" / "yes, 12 weeks").
+        - claim_trap likewise carries: "will Omega-3 lower my blood pressure?" then
+          "which one should I get?" is still the same presumed claim.
+        - Only escalate when the trigger bears on what is being asked NOW. The
+          history is context for this question, not a second question to answer,
+          and a trigger does not put every later turn behind a refusal — an order,
+          shipping or "what is in this product" question is not guidance for the
+          condition.
+        - A trigger that belongs to someone the customer is not asking guidance
+          for is not their trigger. Guidance for a minor or for a pregnant person
+          escalates whoever is typing; a customer mentioning a relative's condition
+          while asking about themselves does not.
+        - The assistant's own words are not evidence about the customer. Its
+          standing "this is not medical advice, see a professional" line names no
+          trigger.
+        - When the current question stands alone, judge it alone.
+
+        history_trigger=true when your verdict — escalate or claim_trap — rests on
+        an earlier turn rather than on the current question. False when the current
+        question carries the trigger by itself, and false whenever both are false.
 
         notes: one short sentence of evidence.
         """;
@@ -152,12 +182,47 @@ public static class Prompts
         """;
 
     /// <summary>
+    /// The user message for the guardrail pre-check (§11 stage 1).
+    ///
+    /// Carries the same history block as <see cref="BuildRewriteUserMessage"/>
+    /// and for the opposite reason: the rewrite needs it to know what is being
+    /// asked, the guardrail needs it to know who is asking (open item 19). A
+    /// hard-escalation trigger is a fact about the customer — "I'm 14",
+    /// "I'm 12 weeks pregnant", "I take warfarin" — and a customer states it
+    /// once. Judged turn by turn, the pre-check reads "how much creatine?" as
+    /// an ordinary product question and the pipeline answers a minor.
+    ///
+    /// The block is deliberately labelled as context for the current question,
+    /// not as a transcript to classify: the failure mode on this side is a
+    /// conversation that escalates once and then refuses everything after it,
+    /// including "where is my order".
+    /// </summary>
+    public static string BuildGuardrailUserMessage(
+        string question, IReadOnlyList<ConversationTurn> history)
+    {
+        var sb = new System.Text.StringBuilder();
+        if (history.Count > 0)
+        {
+            sb.Append("Recent conversation (oldest first, context for the question below):\n");
+            foreach (ConversationTurn turn in history)
+            {
+                sb.Append(turn.Role == ConversationRole.User ? "customer: " : "assistant: ")
+                  .Append(turn.Text.ReplaceLineEndings(" ")).Append('\n');
+            }
+            sb.Append('\n');
+        }
+        sb.Append("Customer question: ").Append(question).Append('\n');
+        return sb.ToString();
+    }
+
+    /// <summary>
     /// The user message for the query rewrite (§11 stage 2). The conversation
     /// history block is what makes a follow-up answerable at all — "what about
     /// the chocolate one?" has nothing to resolve "the chocolate one" against
     /// without it, and retrieves on the words "chocolate one" (open item 18).
     ///
-    /// This is the <em>only</em> prompt in the runtime that is shown history.
+    /// This and <see cref="BuildGuardrailUserMessage"/> are the only prompts in
+    /// the runtime that are shown history.
     /// <see cref="BuildAnswerUserMessage"/> is deliberately not: an answer
     /// grounded in anything but the retrieved sources cannot honour the [n]
     /// citation contract, and an earlier assistant turn is not a source. The

@@ -47,9 +47,10 @@ public interface ISseWriter
 /// **Multi-turn** (open item 18): the caller sends recent turns as
 /// <see cref="AskRequest.History"/> with each question, because its database
 /// is the system of record and this service holds nothing between requests.
-/// History is shown to the rewrite stage only, and never to the answer agent —
-/// see <see cref="ConversationHistory"/>. It does not yet reach the guardrail
-/// (open item 19), so safety is still judged one turn at a time.
+/// History is shown to the guardrail and the rewrite stage, and never to the
+/// answer agent — see <see cref="ConversationHistory"/>. Safety is judged over
+/// the conversation as of open item 19: a trigger stated in an earlier turn
+/// ("I'm 14") still escalates the question that follows it.
 /// </summary>
 public static class AskStream
 {
@@ -202,14 +203,10 @@ public sealed record AskRequest
         for (int i = 0; i < History.Count; i++)
         {
             AskHistoryTurn turn = History[i];
-            ConversationRole role;
-            switch (turn.Role?.Trim().ToLowerInvariant())
+            if (!ConversationHistory.TryParseRole(turn.Role, out ConversationRole role))
             {
-                case "user": role = ConversationRole.User; break;
-                case "assistant": role = ConversationRole.Assistant; break;
-                default:
-                    error = $"history[{i}].role must be \"user\" or \"assistant\"";
-                    return false;
+                error = $"history[{i}].role must be \"user\" or \"assistant\"";
+                return false;
             }
             turns.Add(new ConversationTurn(role, turn.Text ?? ""));
         }

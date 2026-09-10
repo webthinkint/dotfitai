@@ -11,6 +11,15 @@ public sealed class GuardrailVerdict
     [JsonPropertyName("reasons")] public List<string> Reasons { get; set; } = [];
     [JsonPropertyName("claim_trap")] public bool ClaimTrap { get; set; }
     [JsonPropertyName("notes")] public string Notes { get; set; } = "";
+    /// <summary>
+    /// True when the verdict rests on something an earlier turn said rather
+    /// than on the question itself (open item 19) — "I'm 14" three turns back,
+    /// then "how much creatine?". Recorded because it is the only way to tell a
+    /// conversation-level catch from a single-turn one, which is what the §12
+    /// multi-turn set scores and what open item 20's per-request log needs. It
+    /// changes nothing the customer sees: the refusal is the same handoff.
+    /// </summary>
+    [JsonPropertyName("history_trigger")] public bool HistoryTrigger { get; set; }
     /// <summary>True when the check could not run (API/parse failure). Never blocks the pipeline.</summary>
     public bool Degraded { get; set; }
 
@@ -36,7 +45,16 @@ public static class EscalationReasons
 
 public interface IGuardrail
 {
-    Task<GuardrailVerdict> CheckAsync(string question, CancellationToken ct = default);
+    /// <summary>
+    /// <paramref name="history"/> is the earlier turns of this conversation,
+    /// oldest first and already trimmed by
+    /// <see cref="ConversationHistory.Normalize"/>. Like the rewriter's it has
+    /// no default, and for a sharper reason: a caller that forgets to pass it
+    /// gets a safety check that cannot see "I'm 14" (open item 19). Pass
+    /// <c>[]</c> to judge a question standalone.
+    /// </summary>
+    Task<GuardrailVerdict> CheckAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -45,15 +63,25 @@ public interface IGuardrail
 /// hard-escalation policy and the post-check still verifies it — a dead
 /// pre-check must not brick the assistant (the alternative, blocking every
 /// question on a transient API error, is worse for a support tool).
+///
+/// It judges the question **in its conversation** (open item 19). A hard
+/// escalation trigger is a fact about the customer, not a property of the
+/// sentence that carried it, and a customer states it once: "I'm 14" and "how
+/// much creatine?" are two turns of one question, and reading the second alone
+/// answers a minor. The prompt holds the other line too — history is context
+/// for the question being asked, not a second question to answer — so an
+/// earlier turn cannot put the rest of the conversation behind a refusal.
 /// </summary>
 public sealed class AgentGuardrail(AIAgent agent) : IGuardrail
 {
-    public async Task<GuardrailVerdict> CheckAsync(string question, CancellationToken ct = default)
+    public async Task<GuardrailVerdict> CheckAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
     {
         try
         {
             return await StructuredCall.RunAsync<GuardrailVerdict>(
-                agent, question, "dotfit_guardrail", Schemas.Guardrail, ct).ConfigureAwait(false);
+                agent, Answering.Prompts.BuildGuardrailUserMessage(question, history),
+                "dotfit_guardrail", Schemas.Guardrail, ct).ConfigureAwait(false);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
@@ -62,6 +90,7 @@ public sealed class AgentGuardrail(AIAgent agent) : IGuardrail
                 Escalate = false,
                 Reasons = [],
                 ClaimTrap = false,
+                HistoryTrigger = false,
                 Notes = $"guardrail degraded: {e.Message}",
                 Degraded = true,
             };

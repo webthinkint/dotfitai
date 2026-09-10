@@ -25,11 +25,12 @@ public sealed record ConversationTurn(ConversationRole Role, string Text);
 /// The trims are deterministic and testable for the same reason every other
 /// §11 wording decision lives in code.
 ///
-/// **History reaches the rewrite stage only.** It never reaches the answer
-/// agent — the answer stays grounded strictly in retrieved sources, which is
-/// what makes the §11 citation and claims contracts mean anything — and it
-/// does not yet reach the guardrail, which still judges each turn alone
-/// (open item 19).
+/// **History reaches the guardrail and the rewrite, and nothing else.** The
+/// guardrail needs it to know who is asking — a hard-escalation trigger is
+/// stated once and holds for the conversation (open item 19) — and the rewrite
+/// needs it to know what is being asked. It never reaches the answer agent:
+/// the answer stays grounded strictly in retrieved sources, which is what
+/// makes the §11 citation and claims contracts mean anything.
 /// </summary>
 public static class ConversationHistory
 {
@@ -40,6 +41,24 @@ public static class ConversationHistory
     public const int MaxTurnChars = 1000;
 
     public static readonly IReadOnlyList<ConversationTurn> Empty = [];
+
+    /// <summary>
+    /// Wire <c>role</c> → <see cref="ConversationRole"/>, case-insensitively.
+    /// One implementation because there is more than one door: the SSE
+    /// service's JSON body and the CLI's <c>--history</c> flag, which the §12
+    /// multi-turn set drives. Both reject an unknown role rather than dropping
+    /// the turn — a transcript with a hole in it silently changes what the
+    /// conversation says.
+    /// </summary>
+    public static bool TryParseRole(string? role, out ConversationRole parsed)
+    {
+        switch (role?.Trim().ToLowerInvariant())
+        {
+            case "user": parsed = ConversationRole.User; return true;
+            case "assistant": parsed = ConversationRole.Assistant; return true;
+            default: parsed = ConversationRole.User; return false;
+        }
+    }
 
     /// <summary>
     /// Drop blank turns, drop a trailing echo of the question being asked,

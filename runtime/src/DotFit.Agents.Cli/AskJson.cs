@@ -62,6 +62,7 @@ public static class AskJson
         Escalate = v.Escalate,
         Reasons = v.Reasons,
         ClaimTrap = v.ClaimTrap,
+        HistoryTrigger = v.HistoryTrigger,
         Notes = v.Notes,
         Degraded = v.Degraded,
     };

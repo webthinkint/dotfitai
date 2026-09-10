@@ -159,10 +159,13 @@ the service still stores nothing between requests.
 | Do **not** include | The question you are asking now. If you do, we drop the duplicate rather than read it as the customer asking twice. |
 | How many | Send what you have, up to a few exchanges. We keep the most recent **8 turns** and the first **1,000 characters** of each; anything past that is trimmed on our side, so you never need to trim on yours. |
 
-**What history is used for.** One thing: turning a follow-up into a standalone
-question. "What about the chocolate one?" becomes "Is the chocolate LeanMeal
-good for weight loss?" before anything is retrieved, and the product named two
-turns ago is resolved to its part numbers. That is the whole effect.
+**What history is used for.** Two things. It turns a follow-up into a
+standalone question — "what about the chocolate one?" becomes "is the chocolate
+LeanMeal good for weight loss?" before anything is retrieved, and the product
+named two turns ago is resolved to its part numbers. And the medical-escalation
+check reads it, so a trigger the customer stated earlier still applies to what
+they ask now: "I'm 14" … then, two turns later, "how much creatine should I
+take?" escalates and hands off.
 
 **What it is not used for.** The answer-writing stage never sees it. Answers
 stay grounded strictly in retrieved sources, because that is what makes the
@@ -170,14 +173,21 @@ stay grounded strictly in retrieved sources, because that is what makes the
 is not a source and cannot be cited. So the assistant will not "remember" a
 number it told you two turns ago unless the sources say it again.
 
-**One limitation to design around — safety is still judged one turn at a
-time.** The medical-escalation guardrail sees only the current question, not
-the history. A conversation where the trigger arrives in an earlier turn ("I'm
-14" … then, two turns later, "how much creatine should I take?") will not
-escalate on the later turn. We are working on it. Until it lands, if your own
-product surface collects anything from the escalation list (age, pregnancy, a
-managed condition, medication) outside the question text, do not rely on us to
-catch it from the transcript.
+**What the escalation check can and cannot see.** It reads the transcript you
+send, and only that. A trigger stated in a turn you trimmed away, or collected
+by your own product surface outside the question text — an age field, a profile
+flag, an intake form — is invisible to us. If you hold anything from the
+escalation list (age, pregnancy or breastfeeding, a managed condition,
+medication, a calorie target) outside the conversation, either put it in a turn
+of the history you send or handle it on your side; do not assume we can infer
+it.
+
+The check is also written *not* to let one trigger swallow the conversation: a
+customer who was correctly refused a dosing question can still ask where their
+order is. Both directions are measured (the §12 multi-turn set:
+delayed triggers that must escalate, and controls that must not), but this is a
+model judgment rather than a rule engine — so treat a refusal as possible on
+any turn, and render it the way you render an answer.
 
 ---
 

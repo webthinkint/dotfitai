@@ -38,8 +38,8 @@ public sealed record AskOptions
     /// question being asked (open item 18). The runtime keeps no state between
     /// requests, so a multi-turn caller resends the recent transcript it
     /// already owns; the pipeline trims it through
-    /// <see cref="ConversationHistory.Normalize"/> and shows it to the rewrite
-    /// stage only.
+    /// <see cref="ConversationHistory.Normalize"/> and shows it to the
+    /// guardrail and the rewrite stage only (open items 18 and 19).
     /// </summary>
     public IReadOnlyList<ConversationTurn> History { get; init; } = ConversationHistory.Empty;
 }
@@ -149,15 +149,17 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             ConversationHistory.Normalize(options.History, question);
 
         // --- stage 1: guardrail pre-check (small model) ------------------------
-        // Deliberately still judged on this turn alone: history reaches the
-        // rewrite and nothing else until open item 19 wires it here, which is
-        // its own row because an escalation trigger can arrive turns before the
-        // question it applies to ("I'm 14" ... "how much creatine?") and the
-        // 10/10 escalation accuracy in §12 is a single-turn number.
-        GuardrailVerdict verdict = await _guardrail.CheckAsync(question, ct).ConfigureAwait(false);
+        // Judged over the conversation, not the turn (open item 19): an
+        // escalation trigger arrives turns before the question it applies to
+        // ("I'm 14" ... "how much creatine?"), and a check that reads only the
+        // current turn answers the minor. This is the second and last stage
+        // shown history — the answer agent still is not, because an earlier
+        // turn is not a citable source.
+        GuardrailVerdict verdict = await _guardrail.CheckAsync(question, history, ct).ConfigureAwait(false);
         timings["guardrail"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("guardrail", verdict.Escalate
-            ? $"ESCALATE ({string.Join(", ", verdict.Reasons)})"
+            ? $"ESCALATE ({string.Join(", ", verdict.Reasons)})" +
+              (verdict.HistoryTrigger ? " · from an earlier turn" : "")
             : verdict.Degraded ? "clear (degraded — check unavailable)" : "clear");
 
         if (verdict.Escalate)

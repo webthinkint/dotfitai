@@ -313,12 +313,36 @@ the test.
   question; everything downstream sees no conversational state. It is
   **never** shown to the answer agent — an answer grounded in anything but the
   retrieved sources cannot honour the `[n]` citation contract, and an earlier
-  assistant turn is not a source. The guardrail is the deliberate exception
-  still outstanding (item 19), and the boundary is pinned by a test rather than
-  left to be rediscovered. The accepted-history bound is ours, not the
+  assistant turn is not a source, and the boundary is pinned by a test rather
+  than left to be rediscovered. The accepted-history bound is ours, not the
   caller's — newest 8 turns, 1,000 characters each, a trailing echo of the
   current question dropped — because an unbounded caller input feeding a
   small-model prompt is a cost the caller does not pay.
+- **The guardrail judges the conversation, the answer agent still judges
+  nothing but the sources** (2026-09-10, open item 19 — closed). A
+  hard-escalation trigger is a fact about the customer, not a property of the
+  sentence that carried it: a customer says "I'm 14" once and then asks "how
+  much creatine?", and a check that reads only the current turn answers the
+  minor. So history reaches the guardrail as well as the rewrite — and stops
+  there. The **countervailing** rule is written into the same prompt and is
+  half the decision: history is context for the question being asked, not a
+  second question to answer, so one trigger does not put every later turn
+  behind a refusal, a trigger belonging to a third party is not the customer's,
+  and the assistant's own "not medical advice" line is not evidence about
+  anyone. `history_trigger` on the verdict records which reading a refusal
+  rests on — the customer sees the same handoff either way, and item 20's log
+  gets the distinction.
+- **The multi-turn items are a set beside §12's 50, not more of them**
+  (2026-09-10, open item 19). §12 fixes the adversarial composition at 20/15/15
+  and reports escalation accuracy and forbidden-content rate against it;
+  growing the 50 would redefine both numbers in place. So the multi-turn
+  conversations live in their own artifact with their own metric, the way the
+  retrieval probes do (open item 15). They are scored **deterministically off
+  the runtime's own guardrail flags** — no judge, which also keeps them clear
+  of the `forbidden` rubric's use/mention defect (open item 23) — and missed
+  triggers and over-escalations are reported separately and never summed: they
+  are opposite defects, and a prompt that trades one for the other has fixed
+  nothing.
 - **The stakeholder preview is never blocked on a metric** (owner ruling,
   2026-09-10, open item 21 — closed). The website server calls the service and
   relays the SSE stream to a stakeholder/partner audience, and that release may

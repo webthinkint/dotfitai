@@ -26,9 +26,10 @@ public static class Schemas
               "self_harm", "other"
             ] } },
             "claim_trap": { "type": "boolean" },
+            "history_trigger": { "type": "boolean" },
             "notes": { "type": "string" }
           },
-          "required": ["escalate", "reasons", "claim_trap", "notes"],
+          "required": ["escalate", "reasons", "claim_trap", "history_trigger", "notes"],
           "additionalProperties": false
         }
         """;

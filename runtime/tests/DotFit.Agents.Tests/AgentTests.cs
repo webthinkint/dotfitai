@@ -42,7 +42,7 @@ public class AgentTests
     {
         var client = new ScriptedChatClient("garbage");
         var guardrail = new AgentGuardrail(AgentOver(client));
-        GuardrailVerdict verdict = await guardrail.CheckAsync("is this safe?");
+        GuardrailVerdict verdict = await guardrail.CheckAsync("is this safe?", ConversationHistory.Empty);
         Assert.True(verdict.Degraded);
         Assert.False(verdict.Escalate); // fail-open: the answer agent still carries the policy
     }
@@ -51,9 +51,9 @@ public class AgentTests
     public async Task GuardrailParsesEscalation()
     {
         var client = new ScriptedChatClient(
-            """{"escalate":true,"reasons":["under_18"],"claim_trap":false,"notes":"child dosing"}""");
+            """{"escalate":true,"reasons":["under_18"],"claim_trap":false,"history_trigger":false,"notes":"child dosing"}""");
         var guardrail = new AgentGuardrail(AgentOver(client));
-        GuardrailVerdict verdict = await guardrail.CheckAsync("how much for my 10 year old?");
+        GuardrailVerdict verdict = await guardrail.CheckAsync("how much for my 10 year old?", ConversationHistory.Empty);
         Assert.True(verdict.Escalate);
         Assert.Equal(["guidance for someone under 18"], verdict.DisplayReasons);
     }

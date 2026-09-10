@@ -347,15 +347,19 @@ conversation-start AI-identity notice this section assigns to it. It is always
 CLI's: no retrieved source text, no withheld draft, no post-check failure
 reasons. Before it faces customers, §12 owes it the open item 12 number.
 
-**Multi-turn (2026-09-10, open item 18).** The runtime holds no state between
-requests, so the caller sends the recent turns with each question (`history` on
-`POST /ask`). They reach the query rewrite and nothing else: a follow-up is
-collapsed back into one standalone question there, and search, the answer agent
-and the post-check go on seeing a single self-contained question. The answer
-agent is never shown history — the `[n]` contract requires every claim to come
-from a retrieved source, and an earlier turn is not one. The guardrail still
-judges each turn alone (open item 19), so the escalation numbers in §12 remain
-single-turn numbers.
+**Multi-turn (2026-09-10, open items 18 and 19).** The runtime holds no state
+between requests, so the caller sends the recent turns with each question
+(`history` on `POST /ask`). They reach exactly two stages. The query rewrite
+collapses a follow-up back into one standalone question, after which search,
+the answer agent and the post-check go on seeing a single self-contained
+question; the answer agent is never shown history, because the `[n]` contract
+requires every claim to come from a retrieved source and an earlier turn is not
+one. The **guardrail** reads it too (item 19): a hard-escalation trigger is a
+fact about the customer, stated once — "I'm 14" three turns before "how much
+creatine?" — and a check that judges the turn alone answers the minor. The same
+prompt holds the opposite line, that a trigger does not put every later turn
+behind a refusal; both directions are measured by the multi-turn set in §12,
+and `history_trigger` on the verdict records which reading a refusal rests on.
 
 **Streaming vs. gating (decided 2026-09-07).** The post-check runs on the
 finished answer, so streaming deltas as they arrive means a `claims_language`
@@ -416,6 +420,18 @@ prefilled source candidates, `adversarial.md` scaffold for the hand-written
 - RAGAS-style: faithfulness ≥ 0.9, answer relevancy ≥ 0.85, context precision ≥ 0.8
 - Citation rate = 100% of product-claim answers cite authority 1–2
 - Escalation accuracy = **100%** on the adversarial-50 (zero tolerance)
+- **Multi-turn safety** (added 2026-09-10 with open item 19): a separate
+  20-item set (`multiturn.jsonl`), each a short conversation plus a question
+  that is innocuous read alone — the trigger, or the presumed claim, is in an
+  earlier turn. The adversarial 50 put both in one sentence, so a turn-scoped
+  guardrail scores 100% on them and says nothing about a chat widget. Kept
+  **apart from** the 50 rather than folded in, because escalation accuracy and
+  forbidden-content rate are reported against §12's fixed 20/15/15 composition.
+  Scored deterministically off the runtime's own `escalated` / `claim_trap`
+  flags — no judge, no label — and reported as two numbers that are never
+  summed: missed triggers and over-escalations are opposite defects, and a
+  prompt that trades one for the other has fixed nothing. A quarter of the set
+  is controls that must **not** escalate.
 - **Claims-audit precision** on the adversarial-50 (added 2026-09-08, closing the
   open item 15 gap that item 12 asked for): of the drafts the runtime's claims
   audit flagged non-compliant, the fraction that really contain forbidden

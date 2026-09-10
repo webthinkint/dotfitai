@@ -53,9 +53,10 @@ from .evaluate import (
 )
 from .extract import extract_docx
 from .golden import (
-    ADVERSARIAL_SIZE, GOLDEN_VERSION, build_adversarial, build_probes,
-    run_golden, write_adversarial_jsonl, write_adversarial_worksheet,
-    write_probes_jsonl, write_worksheet,
+    ADVERSARIAL_SIZE, GOLDEN_VERSION, build_adversarial, build_multiturn,
+    build_probes, run_golden, write_adversarial_jsonl,
+    write_adversarial_worksheet, write_multiturn_jsonl,
+    write_multiturn_worksheet, write_probes_jsonl, write_worksheet,
 )
 from .index_build import (
     INDEX_NAME, build_documents, delete_documents, embed_text, ensure_index,
@@ -812,6 +813,19 @@ def cmd_golden(args: argparse.Namespace) -> int:
     adversarial = build_adversarial()
     write_adversarial_jsonl(out_dir / "adversarial.jsonl", adversarial)
     write_adversarial_worksheet(out_dir / "adversarial.md", adversarial)
+    multiturn = build_multiturn()
+    write_multiturn_jsonl(out_dir / "multiturn.jsonl", multiturn)
+    write_multiturn_worksheet(out_dir / "multiturn.md", multiturn)
+    summary["multiturn"] = {
+        "n": len(multiturn),
+        "by_category": {
+            plan_category: sum(1 for i in multiturn
+                               if i["category"] == plan_category)
+            for plan_category in dict.fromkeys(
+                i["category"] for i in multiturn)},
+        "splits": {"dev": sum(1 for i in multiturn if i["split"] == "dev"),
+                   "test": sum(1 for i in multiturn if i["split"] == "test")},
+    }
 
     # Retrieval probes need the §9 build, which the QA-only pipelines have not
     # necessarily run — absent, the sample and the adversarial set still stand.
@@ -839,7 +853,8 @@ def cmd_golden(args: argparse.Namespace) -> int:
           f"{len(items)} items ({years}); splits "
           f"{summary['splits']['sampled']['dev']}/"
           f"{summary['splits']['sampled']['test']} dev/test + "
-          f"{ADVERSARIAL_SIZE} adversarial; {probe_note}; "
+          f"{ADVERSARIAL_SIZE} adversarial + "
+          f"{summary['multiturn']['n']} multi-turn; {probe_note}; "
           f"{len(swaps)} coverage swap(s) -> {out_dir}")
     if summary["unmet"]:
         for u in summary["unmet"]:
@@ -1021,7 +1036,8 @@ def cmd_eval(args: argparse.Namespace) -> int:
     probes = select_split(_load("probes.jsonl"), args.split, args.limit)
     adversarial = select_split(_load("adversarial.jsonl"), args.split,
                                args.limit)
-    if not (sample or probes or adversarial):
+    multiturn = select_split(_load("multiturn.jsonl"), args.split, args.limit)
+    if not (sample or probes or adversarial or multiturn):
         print(f"error: no golden items in {golden_dir} — run "
               "`qa-pipeline golden` first", file=sys.stderr)
         return 2
@@ -1054,7 +1070,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
                      cwd=args.agent_cwd, timeout=args.timeout)
     try:
         summary, raw = run_eval(
-            sample, probes, adversarial, agent,
+            sample, probes, adversarial, agent, multiturn=multiturn,
             answer_judge=(judge_call[0] if judge_call else None),
             adversarial_judge=(judge_call[1] if judge_call else None),
             k=args.top, ranker_ab=args.ranker_ab,
@@ -1069,7 +1085,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
         "deployment": deployment or "(no judge)",
         "judge_prompt_version": JUDGE_PROMPT_VERSION,
         "n_sample": len(sample), "n_probes": len(probes),
-        "n_adversarial": len(adversarial),
+        "n_adversarial": len(adversarial), "n_multiturn": len(multiturn),
     })
 
     out_dir = Path(args.out).resolve()
@@ -1087,6 +1103,9 @@ def cmd_eval(args: argparse.Namespace) -> int:
     if summary.get("adversarial"):
         escalation = summary["adversarial"]["escalation"]
         parts.append(f"escalation {escalation['n_escalated']}/{escalation['n']}")
+    if summary.get("multiturn"):
+        multi = summary["multiturn"]
+        parts.append(f"multi-turn {multi['n_correct']}/{multi['n_scored']}")
     print(f"eval ({args.split}): " + "; ".join(parts) if parts else "eval: done")
     print(f"report: {out_dir / 'report.md'}")
     print(f"manifest: {mpath}")
@@ -1314,7 +1333,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="§12 evaluation harness — golden-set metrics over the live "
              "runtime (drives `dotfit-agent --json`)")
     e.add_argument("--golden", default="processed/golden",
-                   help="golden-set dir (sample/probes/adversarial jsonl)")
+                   help="golden-set dir (sample/probes/adversarial/multiturn "
+                        "jsonl)")
     e.add_argument("--out", default="processed/eval",
                    help="output dir (default: processed/eval)")
     e.add_argument("--agent", default="dotfit-agent",

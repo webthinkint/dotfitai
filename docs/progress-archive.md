@@ -5,6 +5,13 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-09 (47)** — Dev eval sweep on gpt-5.6-luna (§12): item 5 **closed
+  — ranker off** (sample recall@8 99.2% vs 75.2% on, n=125; the ranker's only
+  win is one podcast probe), escalation 10/10, points-hit 0.9, item 12 has
+  its first number (1 flag / 0 true — denominator 1). Answers measured for
+  the first time: the claims-language gate withheld 51/125 drafts → **new
+  item 17** (answer-prompt tuning). 520 agent calls; labels still item 8.
+
 - **2026-09-09 (46)** — Full corpus regen on gpt-5.6-luna (§4): item 1 closed
   (quota arrived; both chat roles switched, embedding unchanged). Stage 2
   prompt 1.2.0 — the Zane ruling landed; queue 220 → 234 (182 PII + 47 audit
