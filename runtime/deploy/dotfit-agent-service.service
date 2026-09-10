@@ -1,0 +1,32 @@
+# dotfit-agent-service — systemd *user* unit for the preview VM (plan §11).
+#
+# The committed record of how the service is deployed in the stakeholder
+# preview (progress item 21): a user-level unit, no front proxy, reachable
+# only from the internal network (the VM's external firewall does not open
+# 5199). The website server is the one trusted caller and sends the
+# `Authorization: Bearer` shared secret (open item 22, fail-closed — no key,
+# no boot).
+#
+# install-user-service.sh installs this file into
+# ~/.config/systemd/user/ with the paths below substituted for the actual
+# repo/home, so it is safe to commit with this VM's paths spelled out.
+#
+# Transport only; the pipeline is DotFit.Agents. Hardening lives in
+# ServiceOptions, not here — see runtime/README.md ("Service hardening").
+[Unit]
+Description=dotFIT knowledge assistant SSE service (test)
+After=network-online.target
+
+[Service]
+# Repo root, so the .env walk-up and processed/aliases/alias_table.json
+# (resolved relative to the .env) are both found without extra config.
+WorkingDirectory=/home/kovach/dotfitai
+ExecStart=/home/kovach/.local/share/dotfit/service/dotfit-agent-service
+# Internal-network bind: the website server reaches this VM directly on 5199;
+# the port is not open on the external firewall.
+Environment=ASPNETCORE_URLS=http://0.0.0.0:5199
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

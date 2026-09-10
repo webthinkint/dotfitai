@@ -27,7 +27,7 @@ Numbers verified 2026-09-10. Python 455 tests green; runtime 162 tests green.
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
 | Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization) and 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors). Ranker ruled **off** — item 5 closed | 4,006 docs — 1,080 pdsrg / 181 product / 10 menu / 1,800 podcast / 935 qa; 1 embed call (4,002 cached), 0 pruned, 0 errors; live `search_ping` PASS at 4,006 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12) | `runtime/`, 162 tests |
-| SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. **Hardened 2026-09-10** (item 22): shared-secret auth on `/ask` (fail-closed boot), 2,000-char question cap, `top` 1–20, 256 KB body, 120 s request timeout, `/healthz` reports the posture; handoffs carry a real support route. Remaining before public traffic: items 12/17, and item 20 for a record of what the preview audience was shown | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live, hardening re-smoked live 2026-09-10 (fail-closed boot, 401/400, both answer paths) |
+| SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. **Hardened 2026-09-10** (item 22): shared-secret auth on `/ask` (fail-closed boot), 2,000-char question cap, `top` 1–20, 256 KB body, 120 s request timeout, `/healthz` reports the posture; handoffs carry a real support route. Remaining before public traffic: items 12/17, and item 20 for a record of what the preview audience was shown | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live, hardening re-smoked live 2026-09-10 (fail-closed boot, 401/400, both answer paths); deployed on the preview VM as a systemd user service — `runtime/deploy/` holds the unit + install script |
 | §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. The answer-side numbers above are a reading of the **superseded** draw (the 250 were re-drawn 2026-09-10, 42 items different); probe, escalation and multiturn tiers are unaffected and stand. **Sample retrieval re-measured on the new draw 2026-09-10** (retrieval-only, no chat): recall@8 **100.0%** (125/125, was 99.2% / 124/125), MRR 0.8233. Still owed on the new draw: faithfulness, citation rate, withheld counts and the claims-audit denominators — those need a full sweep |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
@@ -79,6 +79,15 @@ entries). The five most recent live here; older ones are in
 artifact it describes.
 
 
+- **2026-09-10 (62)** — Preview VM deployment recorded (§11, item 21): the
+  SSE service runs as a **systemd user service** (linger on, survives logout)
+  on the test VM — no front proxy, bound `0.0.0.0:5199` on the internal
+  network only, port closed to the outside. The how is committed:
+  `runtime/deploy/` holds the unit and an idempotent install script (publish
+  → key → unit → linger → start → healthz); re-running the script is the
+  redeploy procedure, verified live on the VM. Artifact only, no code —
+  tests unchanged (**455 py / 162 runtime**).
+
 - **2026-09-10 (61)** — Service hardening, item 22 **closed** (§11). Four
   boundary changes: shared-secret auth on `POST /ask` that **fails the boot**
   when neither the key nor `AUTH=none` is set, so no state runs open; a
@@ -118,15 +127,6 @@ artifact it describes.
   the derivation gap); 2 QA records re-tagged, 0 LLM calls; index 4,002 →
   **4,006** (1 embed call, 0 errors), new flavors retrievable live. 2 pins
   updated (**455 py / 143 runtime**).
-
-- **2026-09-10 (57)** — Owner decision pack for the golden re-draw (§12,
-  item 8): owner task 8 written, preview drawn to gitignored
-  `pipeline/out/golden-preview/` — pool 650 → 653, **208/250 stay, 42 swap**
-  (no re-wordings), untagged 79 → 63 as luna tagging shows up, G-012/G-032
-  now point at retired answers; item 7's four contested records sit in
-  neither draw. Task 1 gated on the ruling; README and task 01 updated;
-  option C (task 3 first, then re-draw) is the suggested sequencing.
-  No code; tests unchanged (**455 py / 143 runtime**).
 
 ## Writing entries
 

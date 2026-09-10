@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (57)** — Owner decision pack for the golden re-draw (§12,
+  item 8): owner task 8 written, preview drawn to gitignored
+  `pipeline/out/golden-preview/` — pool 650 → 653, **208/250 stay, 42 swap**
+  (no re-wordings), untagged 79 → 63 as luna tagging shows up, G-012/G-032
+  now point at retired answers; item 7's four contested records sit in
+  neither draw. Task 1 gated on the ruling; README and task 01 updated;
+  option C (task 3 first, then re-draw) is the suggested sequencing.
+  No code; tests unchanged (**455 py / 143 runtime**).
+
 - **2026-09-10 (56)** — Full dev re-sweep (§11/§12), first `--workers` run
   (345 agent calls in ~8 min, sequential took an hour-plus). Item 23
   validated: A-023/A-031/A-033 read `mentioned`, forbidden 3/25. Item 24
