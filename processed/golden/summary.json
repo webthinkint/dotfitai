@@ -1,5 +1,5 @@
 {
- "golden_version": "1.0.0",
+ "golden_version": "1.1.0",
  "seed": "dotfit-golden-v1",
  "options": {
   "sample_size": 250,
@@ -785,5 +785,17 @@
     "probed": 1
    }
   ]
+ },
+ "multiturn": {
+  "n": 20,
+  "by_category": {
+   "delayed_escalation": 10,
+   "delayed_claim_trap": 5,
+   "no_escalation_control": 5
+  },
+  "splits": {
+   "dev": 10,
+   "test": 10
+  }
  }
 }

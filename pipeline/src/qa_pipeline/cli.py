@@ -787,7 +787,71 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     return 1 if errors and args.fail_on_error else 0
 
 
+def _write_written_sets(out_dir: Path) -> tuple[list[dict], dict]:
+    """The hand-written sets — no sampling, no corpus read.
+
+    Split out because the drawn 250 and the written 50/20 have different
+    lifecycles: re-drawing the sample is an owner decision (it moves open
+    item 8's labeling target), while the written sets are curation in code
+    and may be rebuilt whenever that code changes — open item 23's rubric
+    rewrite is exactly that.
+    """
+    adversarial = build_adversarial()
+    write_adversarial_jsonl(out_dir / "adversarial.jsonl", adversarial)
+    write_adversarial_worksheet(out_dir / "adversarial.md", adversarial)
+    multiturn = build_multiturn()
+    write_multiturn_jsonl(out_dir / "multiturn.jsonl", multiturn)
+    write_multiturn_worksheet(out_dir / "multiturn.md", multiturn)
+    return adversarial, {
+        "n": len(multiturn),
+        "by_category": {
+            plan_category: sum(1 for i in multiturn
+                               if i["category"] == plan_category)
+            for plan_category in dict.fromkeys(
+                i["category"] for i in multiturn)},
+        "splits": {"dev": sum(1 for i in multiturn if i["split"] == "dev"),
+                   "test": sum(1 for i in multiturn if i["split"] == "test")},
+    }
+
+
+def cmd_golden_written(args: argparse.Namespace) -> int:
+    """``golden --written-only``: rebuild the written sets, keep the draw.
+
+    Touches ``adversarial.*`` and ``multiturn.*`` only. ``summary.json``'s
+    ``golden_version`` and multi-turn block are restamped so the summary does
+    not describe a version of the written sets that is no longer on disk;
+    every sampling number in it belongs to the draw it already described and
+    is left exactly as it was.
+    """
+    out_dir = Path(args.out).resolve()
+    if not out_dir.is_dir():
+        print(f"error: golden dir not found: {out_dir} (run without "
+              f"--written-only to build it)", file=sys.stderr)
+        return 2
+    adversarial, multiturn_summary = _write_written_sets(out_dir)
+
+    summary_path = out_dir / "summary.json"
+    if summary_path.is_file():
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["golden_version"] = GOLDEN_VERSION
+        summary["multiturn"] = multiturn_summary
+        write_json(summary_path, summary)
+    mpath = _manifest(out_dir, "golden", args, [], out_dir, {
+        "written_only": True,
+        "n_adversarial": len(adversarial),
+        "n_multiturn": multiturn_summary["n"],
+        "golden_version": GOLDEN_VERSION,
+    })
+    print(f"golden written sets: {len(adversarial)} adversarial + "
+          f"{multiturn_summary['n']} multi-turn (sample untouched) -> "
+          f"{out_dir}")
+    print(f"manifest: {mpath}")
+    return 0
+
+
 def cmd_golden(args: argparse.Namespace) -> int:
+    if getattr(args, "written_only", False):
+        return cmd_golden_written(args)
     qa_path = Path(args.qa_docs).resolve()
     if not qa_path.is_file():
         print(f"error: Stage 4 documents.jsonl not found: {qa_path}",
@@ -810,22 +874,7 @@ def cmd_golden(args: argparse.Namespace) -> int:
         for item in items:
             f.write(json.dumps(item, ensure_ascii=False) + "\n")
     write_worksheet(out_dir / "worksheet.md", items)
-    adversarial = build_adversarial()
-    write_adversarial_jsonl(out_dir / "adversarial.jsonl", adversarial)
-    write_adversarial_worksheet(out_dir / "adversarial.md", adversarial)
-    multiturn = build_multiturn()
-    write_multiturn_jsonl(out_dir / "multiturn.jsonl", multiturn)
-    write_multiturn_worksheet(out_dir / "multiturn.md", multiturn)
-    summary["multiturn"] = {
-        "n": len(multiturn),
-        "by_category": {
-            plan_category: sum(1 for i in multiturn
-                               if i["category"] == plan_category)
-            for plan_category in dict.fromkeys(
-                i["category"] for i in multiturn)},
-        "splits": {"dev": sum(1 for i in multiturn if i["split"] == "dev"),
-                   "test": sum(1 for i in multiturn if i["split"] == "test")},
-    }
+    _, summary["multiturn"] = _write_written_sets(out_dir)
 
     # Retrieval probes need the §9 build, which the QA-only pipelines have not
     # necessarily run — absent, the sample and the adversarial set still stand.
@@ -1326,6 +1375,11 @@ def build_parser() -> argparse.ArgumentParser:
                         "are drawn from it (skipped when absent)")
     g.add_argument("--out", default="processed/golden",
                    help="output dir (default: processed/golden)")
+    g.add_argument("--written-only", action="store_true",
+                   help="rebuild only the hand-written adversarial and "
+                        "multi-turn sets, leaving the drawn 250 and the "
+                        "probes as they are (re-drawing the sample is an "
+                        "owner decision — open item 8)")
     g.set_defaults(func=cmd_golden)
 
     e = sub.add_parser(

@@ -14,6 +14,7 @@ from qa_pipeline.golden import (
     ADVERSARIAL_SIZE,
     CURATED_ADVERSARIAL,
     CURATED_MULTI_TURN,
+    GOLDEN_VERSION,
     MULTI_TURN_PLAN,
     MULTI_TURN_ROLES,
     PROBE_QUERY_WORDS,
@@ -357,6 +358,16 @@ class TestAdversarial:
             assert all(p.strip() for p in item["points"]), item["item_no"]
             assert item["forbidden"].strip(), item["item_no"]
 
+    def test_forbidden_clauses_name_behavior_not_keywords(self):
+        # Open item 23: a rubric clause phrased as a noun ("treat / cure
+        # language", "any efficacy claim") reads as a keyword list, and the
+        # judge flags the refusal that has to name the claim it refuses.
+        # Every clause is a verb the response would have to perform.
+        for item in build_adversarial():
+            for clause in item["forbidden"].split(";"):
+                head = clause.strip().split()[0].lower()
+                assert head.endswith("ing"), (item["item_no"], clause)
+
     def test_questions_are_unique(self):
         questions = [i["question"] for i in build_adversarial()]
         assert len(set(questions)) == len(questions)
@@ -624,6 +635,38 @@ class TestCli:
         assert rc == 0
         for n in names:
             assert (tmp_path / "golden2" / n).read_bytes() == first[n], n
+
+    def test_written_only_leaves_the_draw_alone(self, tmp_path, monkeypatch):
+        # Re-drawing the 250 is an owner decision (open item 8); rebuilding
+        # the written 50/20 after a rubric change (open item 23) is not.
+        (tmp_path / "products.json").write_text(json.dumps(PRODUCTS),
+                                                encoding="utf-8")
+        qa_dir = tmp_path / "stage4"
+        qa_dir.mkdir()
+        (qa_dir / "documents.jsonl").write_text(
+            "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in _pool()),
+            encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        assert main(["golden", "--qa-docs", "stage4/documents.jsonl",
+                     "--products", "products.json", "--out", "golden"]) == 0
+        out = tmp_path / "golden"
+        before = {n: (out / n).read_bytes()
+                  for n in ("sample.jsonl", "worksheet.md",
+                            "adversarial.jsonl")}
+        (out / "adversarial.jsonl").write_text("stale\n", encoding="utf-8")
+
+        assert main(["golden", "--out", "golden", "--written-only"]) == 0
+        assert (out / "adversarial.jsonl").read_bytes() == before["adversarial.jsonl"]
+        assert (out / "sample.jsonl").read_bytes() == before["sample.jsonl"]
+        assert (out / "worksheet.md").read_bytes() == before["worksheet.md"]
+        summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+        assert summary["golden_version"] == GOLDEN_VERSION
+        assert summary["n_items"] == len(
+            (out / "sample.jsonl").read_text(encoding="utf-8").splitlines())
+
+    def test_written_only_needs_an_existing_dir(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        assert main(["golden", "--out", "nope", "--written-only"]) == 2
 
     def test_missing_inputs_exit_2(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)

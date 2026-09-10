@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (49)** — Claims post-check sees every retrieved source, and the
+  audit's **recall** is now measured (§11/§12). It got authority 1–2 only, so a
+  draft's `[n]` pointed at sources it did not have — 15 of 50 flags, one a lone
+  sentence on the carbohydrates in an apple. Re-sweep: **withheld 51 → 24**,
+  claims_language 50 → 15, faithfulness 0.57 → 0.61. Recall is **0.0 in both
+  runs** (0 of 4 auditable violations, all delivered); precision alone reads
+  `null` and looks clean. 7 tests (**425 python / 115 runtime**). Items 18–22
+  opened; 21 ruled — the stakeholder preview never blocks.
+
 - **2026-09-09 (47)** — Dev eval sweep on gpt-5.6-luna (§12): item 5 **closed
   — ranker off** (sample recall@8 99.2% vs 75.2% on, n=125; the ranker's only
   win is one podcast probe), escalation 10/10, points-hit 0.9, item 12 has

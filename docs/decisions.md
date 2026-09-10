@@ -268,6 +268,22 @@ the test.
   §12 fixes the split at 20/15/15, so two §11 standing behaviors have no item:
   conversation-start AI disclosure and prompt-injection resistance. Tracked as
   coverage (open item 15), not folded into a rubric they do not fit.
+- **The `forbidden` rubric names behavior, not words** (2026-09-10, open item
+  23 — closed). A clause phrased as a noun ("treat / cure / prevent language")
+  is a keyword list, and a refusal has to name the claim it refuses, so the
+  judge scored "no dotFIT product is approved or described as preventing
+  cancer" as a cancer-prevention claim — 3 of 5 flags on the 2026-09-10 sweep.
+  Every clause is now a verb the response would have to perform, and the judge
+  returns `forbidden_mode` (`absent` / `mentioned` / `asserted`) from which
+  `forbidden_present` is *derived*, so use/mention is a reading the judge
+  states rather than one the metric assumes. The rule lives in the judge
+  prompt once, not restated per item.
+- **The written sets rebuild without a re-draw** (2026-09-10). The drawn 250
+  and the hand-written 50/20 share one command but not one lifecycle: a
+  re-draw moves open item 8's labeling target and is the owner's call, while
+  the written sets are curation in code. `golden --written-only` rebuilds the
+  written artifacts and leaves `sample.jsonl`, `worksheet.md` and the probes
+  exactly as they were.
 - **Retrieval probes measure retrieval, not answers** (open item 15): a probe
   queries a PDSRG/podcast chunk with its own body text — heading path and
   `Speaker N:` labels stripped, or the title field answers it and it measures
@@ -338,8 +354,8 @@ the test.
   growing the 50 would redefine both numbers in place. So the multi-turn
   conversations live in their own artifact with their own metric, the way the
   retrieval probes do (open item 15). They are scored **deterministically off
-  the runtime's own guardrail flags** — no judge, which also keeps them clear
-  of the `forbidden` rubric's use/mention defect (open item 23) — and missed
+  the runtime's own guardrail flags** — no judge, and so no `forbidden` rubric
+  to read at all — and missed
   triggers and over-escalations are reported separately and never summed: they
   are opposite defects, and a prompt that trades one for the other has fixed
   nothing.
