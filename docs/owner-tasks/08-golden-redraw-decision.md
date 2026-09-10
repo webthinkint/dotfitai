@@ -26,9 +26,12 @@ therefore describes what actually happened, not a projection.
   not touched, and their results (safety refusals 10 of 10, multi-turn 10 of
   10) carry over unchanged.
 - One piece of engineering follow-up: the last full test run measured the
-  question tier against the old draw, so those particular figures will be
-  re-measured. That is machine time, not owner time, and it does not hold up
-  labeling.
+  question tier against the old draw. The cheap half is already re-measured on
+  the refreshed set — the assistant found the right source material for
+  **125 of 125** dev questions (it was 124 of 125 before). The rest of that
+  tier — how faithful and well-cited the answers are — needs a full test run
+  and will be re-measured with the next one. Machine time, not owner time, and
+  it does not hold up labeling.
 
 The reasoning that led here, and the numbers it rested on, are kept below.
 

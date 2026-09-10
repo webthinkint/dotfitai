@@ -28,7 +28,7 @@ Numbers verified 2026-09-10. Python 455 tests green; runtime 143 tests green.
 | Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization) and 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors). Ranker ruled **off** — item 5 closed | 4,006 docs — 1,080 pdsrg / 181 product / 10 menu / 1,800 podcast / 935 qa; 1 embed call (4,002 cached), 0 pruned, 0 errors; live `search_ping` PASS at 4,006 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12) | `runtime/`, 143 tests |
 | SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. Remaining before public traffic: items 12/17 | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
-| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. Measured on the **superseded** draw — the 250 were re-drawn 2026-09-10, so the sample tier (recall@8, points-hit, the per-item faithfulness/citation pile) is a reading of a set 42 items different; the probe, escalation and multiturn tiers are unaffected and stand |
+| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. The answer-side numbers above are a reading of the **superseded** draw (the 250 were re-drawn 2026-09-10, 42 items different); probe, escalation and multiturn tiers are unaffected and stand. **Sample retrieval re-measured on the new draw 2026-09-10** (retrieval-only, no chat): recall@8 **100.0%** (125/125, was 99.2% / 124/125), MRR 0.8233. Still owed on the new draw: faithfulness, citation rate, withheld counts and the claims-audit denominators — those need a full sweep |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
 `processed/golden/`, `processed/index/`, `processed/eval/` (the one that
@@ -85,9 +85,11 @@ artifact it describes.
   regenerated **byte-identical** and was promoted — 208/250 stay, 42 swap,
   125/125 and 29 families unchanged, `(untagged)` 79 → 63, G-012/G-032 (aimed
   at retired answers) gone. Item numbers and dev/test sides were re-assigned
-  (41/208 keep their number, 114/208 their side), so the sweep's sample tier
-  is owed a re-measure. Written 50/20 and 120 probes untouched; labeling
-  (owner task 1) unblocked. No code (**455 py / 143 runtime**).
+  (41/208 keep their number, 114/208 their side). Sample retrieval re-measured
+  on the new dev 125 (retrieval-only, no chat, scratch out — `processed/eval/`
+  still holds the full sweep): recall@8 **100.0%** (was 99.2%), MRR 0.8233;
+  the answer-side sample numbers still read on the old draw. Written 50/20 and
+  120 probes untouched; labeling unblocked. No code (**455 py / 143 runtime**).
 
 - **2026-09-10 (59)** — Item 7 **closed** (§4): both luna-regen conflict
   pairs ruled **split** (owner task 3). LeanMR+creatine is the FirstString
