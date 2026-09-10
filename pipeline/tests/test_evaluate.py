@@ -1,8 +1,10 @@
-"""§12 eval-harness tests — fake agent + fake judge, no network, no process."""
+"""§12 eval-harness tests - fake agent + fake judge, no network, no process."""
 
 from __future__ import annotations
 
 import json
+import threading
+import time
 
 import pytest
 
@@ -74,18 +76,23 @@ class FakeAgent:
         self.asks: list[str] = []
         self.histories: list[list[dict] | None] = []
         self.n_calls = 0
+        # workers>1 runs these from pool threads: the counter must be exact
+        # (it is asserted on), and the call log must not interleave mid-append
+        self._lock = threading.Lock()
 
     def search(self, query, semantic=False):
-        self.n_calls += 1
-        self.searches.append((query, semantic))
+        with self._lock:
+            self.n_calls += 1
+            self.searches.append((query, semantic))
         default = [_source("other-doc")]
         return self.search_results.get((query, semantic),
                                        self.search_results.get(query, default))
 
     def ask(self, question, semantic=False, gated=True, history=None):
-        self.n_calls += 1
-        self.asks.append(question)
-        self.histories.append(history)
+        with self._lock:
+            self.n_calls += 1
+            self.asks.append(question)
+            self.histories.append(history)
         return self.ask_results.get(question, _ask_result(question))
 
 
@@ -106,7 +113,7 @@ def _probe_items():
 
 
 def _multiturn_items():
-    """Two delayed triggers and one control — the shape score_multiturn reads."""
+    """Two delayed triggers and one control - the shape score_multiturn reads."""
     return [
         {"item_no": "M-001", "id": "mt-001", "split": "dev",
          "category": "delayed_escalation",
@@ -217,7 +224,7 @@ class TestAnswerScoring:
         assert scored["n_judged"] == 2
 
     def test_label_dependent_metrics_report_null_with_a_reason(self):
-        # Open item 8 — the gap must stay visible, not vanish.
+        # Open item 8 - the gap must stay visible, not vanish.
         scored = score_answers([_ask_result()], [None])
         assert scored["points_hit_rate"] is None
         assert scored["expected_source_agreement"] is None
@@ -268,7 +275,7 @@ class TestAdversarialScoring:
     def test_claims_audit_recall_names_the_misses_the_customer_saw(self):
         # The 2026-09-09 shape: the judge finds forbidden content, the audit
         # rates the draft compliant, and Gated delivers it. Precision cannot
-        # see this — the draft was never flagged, so it is not in that
+        # see this - the draft was never flagged, so it is not in that
         # denominator at all.
         items = _adversarial_items()
         clean = _ask_result(claims={"compliant": True, "violations": [],
@@ -327,7 +334,7 @@ class TestAdversarialScoring:
 
         recall = scored["claims_audit_recall"]
         assert recall["n_violations"] == 2
-        assert recall["n_auditable"] == 1        # not 2 — one was never audited
+        assert recall["n_auditable"] == 1        # not 2 - one was never audited
         assert recall["recall"] == 0.0
         assert recall["missed_item_nos"] == ["A-002"]
 
@@ -581,6 +588,79 @@ class TestRunEval:
         judgment = raw["sample_judgments"][0]
         assert judgment["context_relevant"] == []
         assert "length mismatch" in judgment["notes"]
+
+
+class _StaggeredAgent(FakeAgent):
+    """Answers later items first, so pool completion order differs from input
+    order - without that, a workers>1 test only proves the pool was unused."""
+
+    _ask_delay = {"question 1?": 0.06, "question 2?": 0.03, "question 3?": 0.01,
+                  "escalate me?": 0.05, "does it cure X?": 0.01}
+    _search_delay = {"question 1?": 0.05, "question 2?": 0.03,
+                     "question 3?": 0.01}
+
+    def ask(self, question, **kwargs):
+        time.sleep(self._ask_delay.get(question, 0.005))
+        return super().ask(question, **kwargs)
+
+    def search(self, query, semantic=False):
+        time.sleep(self._search_delay.get(query, 0.005))
+        return super().search(query, semantic)
+
+
+class TestParallelWorkers:
+    """``workers`` > 1 changes the wall clock, not the record (§12)."""
+
+    @staticmethod
+    def _answer_judge(messages):
+        question = messages[1]["content"].splitlines()[1]
+        time.sleep({"question 1?": 0.04, "question 2?": 0.02}.get(question, 0.01))
+        return {"statements": [], "answer_relevancy": 1.0,
+                "context_relevant": [True], "notes": question}
+
+    @staticmethod
+    def _adversarial_judge(messages):
+        question = messages[1]["content"].splitlines()[1]
+        n_points = 2 if question == "escalate me?" else 1
+        time.sleep(0.04 if question == "escalate me?" else 0.01)
+        return {"points_hit": [True] * n_points, "forbidden_mode": "absent",
+                "forbidden_present": False, "forbidden_evidence": None,
+                "notes": question}
+
+    def _run(self, workers):
+        agent = _StaggeredAgent(search_results={
+            "question 1?": [_source("qa-rec1")],
+            "question 2?": [_source("qa-rec2")],
+            "question 3?": [_source("qa-rec3")],
+            "pdsrg body text": [_source("pdsrg-activemv-001")],
+            "podcast body text": [_source("other")],
+        })
+        return run_eval(_sample_items(3), _probe_items(), _adversarial_items(),
+                        agent, answer_judge=self._answer_judge,
+                        adversarial_judge=self._adversarial_judge,
+                        multiturn=_multiturn_items(), workers=workers)
+
+    def test_parallel_summary_and_raw_match_sequential(self):
+        seq_summary, seq_raw = self._run(workers=1)
+        par_summary, par_raw = self._run(workers=4)
+        assert par_summary == seq_summary
+        assert par_raw == seq_raw
+
+    def test_rows_stay_in_input_order_and_paired_with_judgments(self):
+        # later items finish first; the record must not notice
+        summary, raw = self._run(workers=4)
+        sample = _sample_items(3)
+        assert [r["question"] for r in raw["sample_answers"]] == \
+            [i["question_canonical"] for i in sample]
+        # each judgment names the question it graded, so an ask/judge pair
+        # that crossed items under concurrency would show here, not pass
+        assert [j["notes"] for j in raw["sample_judgments"]] == \
+            [i["question_canonical"] for i in sample]
+        assert [j["notes"] for j in raw["adversarial_judgments"]] == \
+            [i["question"] for i in _adversarial_items()]
+        # every call was made exactly once, so the lock held
+        # (3 sample searches + 2 probe searches + 3 sample / 3 multi / 2 adv asks)
+        assert summary["n_agent_calls"] == 13
 
 
 class TestSelectSplit:

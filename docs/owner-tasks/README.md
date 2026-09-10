@@ -11,7 +11,7 @@ held back waiting for a measurement, so it can be tested continuously at
 whatever state it is in (task 7). Nothing in this folder blocks it. What is
 below is what stands between the preview and real customers.
 
-What is left is not mostly code. Seven things have needed a decision or a pass
+What is left is not mostly code. Eight things have needed a decision or a pass
 from a person, and this folder explains each one in plain language: what it is,
 why it matters, what we need, and how long it should take.
 
@@ -30,6 +30,7 @@ stakeholder preview — that is the point of the task 7 ruling.
 | [5](05-azure-account-tasks.md) | ~~Two Azure account chores~~ | — | — | **Done** 2026-09-09 |
 | [6](06-decisions-after-testing.md) | Choices that needed a test run first | Project owner | Read a report | 6a **decided**; 6b before public launch |
 | [7](07-stakeholder-release-scope.md) | What the stakeholder preview may say | Project owner | **Decided 2026-09-10** | No — preview ships at any state |
+| [8](08-golden-redraw-decision.md) | Keep or refresh the 250 test questions | Project owner | ~15 min, before task 1 starts | Gates task 1's start |
 
 ## If you only do two things
 
@@ -43,6 +44,12 @@ notices names the smaller one read past, so the read-each pile grew from 2 to
 **Then task 1** (2–3 days). Until it is done we can measure whether the
 assistant *finds* the right material, but not whether its answers are *right*.
 That is the difference between "it works" and "we can show it works."
+
+One small gate first: **task 8** is a ~15-minute decision (keep or refresh the
+250 questions task 1 will label) that must be taken before task 1 starts —
+labeling first and refreshing after would throw the work away. Everything
+needed to decide it, including a ready-made preview of the alternative, is in
+its document.
 
 ## What is already handled
 

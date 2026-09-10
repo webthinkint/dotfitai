@@ -5,6 +5,36 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (52)** — Multi-turn conversations (§11, item 18 — **closed**).
+  `POST /ask` takes `history` (`role`/`text`, oldest first, current question
+  excluded; unknown role is a 400, not a dropped turn), `AskOptions.History`
+  carries it, and the CLI's `chat` keeps the session transcript. It reaches the
+  **rewrite stage only**, which collapses a follow-up into one standalone
+  question — the answer agent is never shown it, because an earlier turn is not
+  a citable source. `ConversationHistory` owns the bounds (8 turns, 1,000 chars,
+  echo dropped). Item 19 **narrowed, not closed**: the guardrail still judges
+  one turn at a time, and the website contract now says so. 17 tests
+  (**426 python / 133 runtime**).
+
+- **2026-09-10 (51)** — The claims audit now runs on context-only source sets
+  (§11, item 24 — **closed**). It skipped whenever no authority 1–2 source was
+  retrieved, which made sense only while the checker was shown authority 1–2
+  alone; since entry 49 it sees everything, and the skipped path was the
+  high-risk one — A-047 derived a margin no source states from all-authority-3
+  sources. It now skips only the empty set. The audit instructions gained the
+  no-QUOTABLE-source case so an all-context set is judged, not waved through.
+  Items 12/17 need a re-sweep: 10 of 13 adversarial items were un-audited.
+  2 tests (**426 python / 116 runtime**).
+
+- **2026-09-10 (50)** — Entry 49's recall reading **withdrawn**, and two
+  defects found under it (§11/§12). The audit returned `compliant: true` when
+  it short-circuited on "nothing quotable retrieved" — **10 of 13** adversarial
+  items, so recall's denominator was 1, not 4. `ClaimsVerdict.Skipped` now says
+  so and `_claims_unknown` reads it. Separately, **3 of the 5 judged violations
+  are judge false positives**: the keyword `forbidden` rubric flags a refusal
+  for *denying* a claim → item 23. A-047 (a derived 57.9% margin, all-authority-3
+  sources) is the one real find → item 24. 1 test (**426 python**).
+
 - **2026-09-10 (49)** — Claims post-check sees every retrieved source, and the
   audit's **recall** is now measured (§11/§12). It got authority 1–2 only, so a
   draft's `[n]` pointed at sources it did not have — 15 of 50 flags, one a lone

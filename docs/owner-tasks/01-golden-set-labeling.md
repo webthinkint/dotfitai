@@ -94,7 +94,13 @@ Practical suggestions, since 250 is a lot:
 
 You do not need to touch anything else in the folder.
 
-## One thing to know before you start
+## Two things to know before you start
+
+**Task 8 comes first.** There is a pending owner decision on whether to
+refresh the 250 questions themselves (the corpus was re-processed on
+9 September and the pick could be made again from the cleaner pool). It is a
+~15-minute decision and it is made — do not begin labeling until it is, or
+some of the work below may be redone on a different set of questions.
 
 Right now the system can *produce* this worksheet but cannot yet *read* your
 answers back in. Someone on the engineering side needs to write that step — it

@@ -1123,7 +1123,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
             answer_judge=(judge_call[0] if judge_call else None),
             adversarial_judge=(judge_call[1] if judge_call else None),
             k=args.top, ranker_ab=args.ranker_ab,
-            answer_sample=answer_sample)
+            answer_sample=answer_sample, workers=max(1, args.workers))
     except AgentError as e:
         print(f"error: agent: {e}", file=sys.stderr)
         return 1
@@ -1413,6 +1413,10 @@ def build_parser() -> argparse.ArgumentParser:
                         "retrieval + adversarial only (much cheaper)")
     e.add_argument("--no-judge", action="store_true",
                    help="deterministic metrics only; no LLM judge calls")
+    e.add_argument("--workers", type=int, default=1,
+                   help="concurrent agent/judge calls — the sweep is hundreds "
+                        "of independent round trips, so >1 only changes the "
+                        "wall clock, not the results (default: 1, sequential)")
     e.add_argument("--api-version", default=CHAT_API_VERSION,
                    help=f"judge API version (default: {CHAT_API_VERSION})")
     e.add_argument("--timeout", type=float, default=180.0,

@@ -42,7 +42,9 @@ pruned by default (`--no-prune` to keep), so the output tree mirrors the corpus.
 `eval` is the odd one out: it measures a **live service** rather than
 transforming committed inputs, so its output is not byte-reproducible and it
 costs Azure calls. Reach for `--no-answers` (retrieval only — no chat tokens),
-`--no-judge` and `--limit` before running it whole.
+`--no-judge` and `--limit` before running it whole; a full run is hundreds of
+independent round trips, so `--workers N` (default 1) cuts the wall clock
+without touching the results — same summary, same raw rows, input order kept.
 
 Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`; live checks are
 `dotfit-agent` CLI verbs, and `dotfit-agent-service` is the SSE endpoint. See

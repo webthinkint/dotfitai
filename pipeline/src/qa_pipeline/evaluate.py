@@ -81,6 +81,8 @@ from __future__ import annotations
 import json
 import statistics
 import subprocess
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Iterable
 
 EVAL_VERSION = "1.1.0"
@@ -260,6 +262,21 @@ class AgentError(RuntimeError):
     """The agent process failed in a way the harness cannot score around."""
 
 
+def _map_ordered(fn: Callable[[Any], Any], items: list,
+                 workers: int) -> list:
+    """``fn(item)`` for every item, **in input order** whichever call finishes
+    first — the raw rows zip against their items and every ``score_*`` reads
+    them positionally, so completion order must not leak into the record.
+    ``ThreadPoolExecutor.map`` gives exactly that and propagates the first
+    exception on iteration. ``workers <= 1`` is the plain loop (and the
+    debuggability of one call in flight at a time).
+    """
+    if workers <= 1 or len(items) <= 1:
+        return [fn(item) for item in items]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(fn, items))
+
+
 class AgentCli:
     """``dotfit-agent`` as a subprocess, over the ``--json`` contract.
 
@@ -279,12 +296,17 @@ class AgentCli:
         self.cwd = cwd
         self.timeout = timeout
         self.n_calls = 0
+        # every call is an independent subprocess, so calls may run in any
+        # number of threads; only this counter is shared and it must not lose
+        # an increment to a race (it lands in summary.json)
+        self._calls_lock = threading.Lock()
 
     def _run(self, args: list[str]) -> dict[str, Any] | list[Any]:
         argv = [*self.command, *args, "--json", "--top", str(self.top)]
         if self.index:
             argv += ["--index", self.index]
-        self.n_calls += 1
+        with self._calls_lock:
+            self.n_calls += 1
         try:
             proc = subprocess.run(argv, capture_output=True, text=True,
                                   encoding="utf-8", cwd=self.cwd,
@@ -371,20 +393,20 @@ def run_retrieval(items: list[dict[str, Any]],
                   query_of: Callable[[dict], str],
                   expected_of: Callable[[dict], str],
                   search: Callable[[str, bool], list[dict]],
-                  semantic: bool) -> list[dict[str, Any]]:
+                  semantic: bool,
+                  workers: int = 1) -> list[dict[str, Any]]:
     """One search per item; returns scoreable rows plus the raw ranking."""
-    rows: list[dict[str, Any]] = []
-    for item in items:
+    def _row(item: dict[str, Any]) -> dict[str, Any]:
         docs = search(query_of(item), semantic)
-        rows.append({
+        return {
             "item_no": item.get("item_no"),
             "query": query_of(item),
             "expected_doc_id": expected_of(item),
             "retrieved_ids": [d["id"] for d in docs],
             "retrieved_source_types": [d.get("sourceType") or d.get("source_type")
                                        for d in docs],
-        })
-    return rows
+        }
+    return _map_ordered(_row, items, workers)
 
 
 # --- answer scoring ----------------------------------------------------------
@@ -695,6 +717,7 @@ def run_eval(sample: list[dict[str, Any]],
              ranker_ab: bool = False,
              answer_sample: bool = True,
              multiturn: list[dict[str, Any]] | None = None,
+             workers: int = 1,
              ) -> tuple[dict[str, Any], dict[str, list]]:
     """Run every §12 measurement the given inputs support.
 
@@ -713,6 +736,13 @@ def run_eval(sample: list[dict[str, Any]],
     after the three positional sets (open item 19) and a caller that predates
     it measures exactly what it measured before.
 
+    ``workers`` runs each tier's per-item calls concurrently — the sweep is
+    hundreds of independent subprocess/HTTP round trips, so the wall clock is
+    otherwise one item at a time. Each item's ask and its judgment are one
+    task, so the pairing survives; results keep input order (see
+    ``_map_ordered``), so summaries and raw rows match a sequential run — only
+    the wall clock differs. Default 1 is the old behavior.
+
     Returns ``(summary, raw)``; ``raw`` holds the per-item rows for the
     gitignored run record.
     """
@@ -729,7 +759,7 @@ def run_eval(sample: list[dict[str, Any]],
         if not items:
             continue
         rows = run_retrieval(items, query_of, expected_of, agent.search,
-                             semantic=False)
+                             semantic=False, workers=workers)
         raw[f"{name}_retrieval"] = rows
         retrieval[name] = score_retrieval(rows, k)
         if name == "probes":
@@ -740,7 +770,7 @@ def run_eval(sample: list[dict[str, Any]],
                 for source in sorted({i["source_type"] for i in items})}
         if ranker_ab:
             ranked = run_retrieval(items, query_of, expected_of, agent.search,
-                                   semantic=True)
+                                   semantic=True, workers=workers)
             raw[f"{name}_retrieval_semantic"] = ranked
             retrieval[name]["semantic"] = score_retrieval(ranked, k)
     if retrieval:
@@ -748,13 +778,14 @@ def run_eval(sample: list[dict[str, Any]],
 
     # --- answers over the sampled questions (chat model) ---
     if sample and answer_sample:
-        results, judgments = [], []
-        for item in sample:
+        def _ask_and_judge(item: dict[str, Any]) -> tuple[dict, dict | None]:
             result = agent.ask(item["question_canonical"])
-            results.append(result)
-            judgments.append(
-                _judge_answer(answer_judge, item, result)
-                if answer_judge is not None else None)
+            judgment = (_judge_answer(answer_judge, item, result)
+                        if answer_judge is not None else None)
+            return result, judgment
+        pairs = _map_ordered(_ask_and_judge, sample, workers)
+        results = [result for result, _ in pairs]
+        judgments = [judgment for _, judgment in pairs]
         raw["sample_answers"] = results
         raw["sample_judgments"] = judgments
         summary["answers"] = score_answers(results, judgments)
@@ -764,19 +795,21 @@ def run_eval(sample: list[dict[str, Any]],
     # conversation attached: the harness measures the shipped pipeline, not a
     # guardrail called directly.
     if multiturn:
-        results = [agent.ask(item["question"], history=item.get("history"))
-                   for item in multiturn]
+        results = _map_ordered(
+            lambda item: agent.ask(item["question"], history=item.get("history")),
+            multiturn, workers)
         raw["multiturn_answers"] = results
         summary["multiturn"] = score_multiturn(multiturn, results)
 
     # --- adversarial (chat model) ---
     if adversarial:
-        results, judgments = [], []
-        for item in adversarial:
+        def _ask_and_judge(item: dict[str, Any]) -> tuple[dict, dict | None]:
             result = agent.ask(item["question"])
-            results.append(result)
-            judgments.append(
-                _judge_adversarial(adversarial_judge, item, result))
+            judgment = _judge_adversarial(adversarial_judge, item, result)
+            return result, judgment
+        pairs = _map_ordered(_ask_and_judge, adversarial, workers)
+        results = [result for result, _ in pairs]
+        judgments = [judgment for _, judgment in pairs]
         raw["adversarial_answers"] = results
         raw["adversarial_judgments"] = judgments
         summary["adversarial"] = score_adversarial(
