@@ -5,7 +5,21 @@
 **Blocking:** no — the affected answers stay searchable either way
 **Tracked as:** open item 7
 
-## Status: reopened 9 September 2026 — two new pairs, same kind of call
+## Status: decided 10 September 2026 — split on both pairs
+
+The nutritionist ruled **split** on both pairs below: all four records stay
+searchable, and neither member of either pair replaces the other. The ruling
+is pinned by exact records in the pipeline, so it survives every future
+rebuild, and the conflict pile for this part of the system is back to zero.
+
+For pair A the reasoning matches the August FirstString record below: the
+February reply adds guidance the January one does not contain, so it is a
+delta, not a replacement. For pair B — where the two answers agreed, so the
+newer one could have retired the older — the January 2023 record stays
+searchable exactly because it carries the fuller FAQ text; retiring it would
+have dropped that wording from search.
+
+## The September reopen (kept as the record)
 
 The August decision below stands. But we re-transcribed every question with
 the new, larger AI model that day, and the sharper transcriptions made two

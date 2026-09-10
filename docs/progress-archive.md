@@ -5,6 +5,16 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (54)** — The adversarial `forbidden` rubric reads use, not
+  keywords (§12, item 23 — **closed**). Every clause of the 50 is now a verb
+  the response would have to *perform*; a noun clause ("treat / cure / prevent
+  language") is a keyword list, and a refusal has to name what it refuses. The
+  judge returns `forbidden_mode` (`absent`/`mentioned`/`asserted`) and
+  `forbidden_present` is **derived** from it, so the denial cannot be counted
+  as the claim. `golden --written-only` rebuilt the written sets with the drawn
+  250 untouched — a re-draw is item 8's call. 9 tests (**453 py / 143
+  runtime**); re-sweep owed for items 12/17.
+
 - **2026-09-10 (53)** — The guardrail judges the conversation, not the turn
   (§11/§12, item 19 — **closed**). History reaches the guardrail as well as the
   rewrite, so "I'm 14" three turns back escalates "how much creatine?"; the

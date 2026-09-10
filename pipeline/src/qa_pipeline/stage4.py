@@ -41,9 +41,9 @@ prose — so the cluster is routed to the review queue *instead of auto-picking*
 (no member is dedup-superseded pending disposition; a member's own currency
 supersession still stands). Once the owner rules on a queued cluster the ruling
 lands in :data:`CURATED_CLUSTER_DISPOSITIONS` and the cluster stops being
-queued; ``split`` (owner ruling 2026-09-08, the corpus's only conflict) means
-the members are distinct questions, so no member ever supersedes another and
-both stay retrievable. The ruling pins its exact membership: if the cluster
+queued; ``split`` (owner rulings 2026-09-08 and 2026-09-10 — every conflict
+cluster the corpus has produced) means the members are distinct questions,
+so no member ever supersedes another and both stay retrievable. The ruling pins its exact membership: if the cluster
 reshapes or stops forming, Stage 4 raises rather than re-applying a ruling
 nobody made for it (only a whole-corpus run can prove a ruling stale, so the
 CLI passes ``strict_dispositions`` off for ``--include`` / ``--limit`` runs,
@@ -312,6 +312,38 @@ CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {
         "disposition": DISPOSITION_SPLIT,
         "members": ["79c663016afc2345", "8be45e86eb76c09f"],
         "source": "owner ruling 2026-09-08 (Stage 4 queue, open item 7)",
+    },
+    # 2026-09-10, open item 7 — the first of the two conflict pairs the
+    # gpt-5.6-luna re-canonicalization pushed over the threshold (2026-09-09).
+    # Two turns of ONE email thread, thirteen days apart: 8d9c6bc1 is the
+    # 27 Jan enquiry (LeanMR + creatine monohydrate, and whether the daily
+    # creatine drink goes before or after a workout), 3d361242 is the 9 Feb
+    # follow-up whose question is a superset (LeanMR + creatine + AminoFormula)
+    # and whose reply adds the new guidance not to mix LeanMR with
+    # AminoFormula — a meal replacement and an amino-acid formula serve
+    # different slots in the day. The FirstString shape (second turn a delta,
+    # not a superset), and the owner read it the same way: split — both stay
+    # retrievable, neither supersedes the other. Both members are already
+    # superseded_currency on their own cues; the ruling governs only the
+    # intra-cluster dedup.
+    "3d361242df468533": {
+        "disposition": DISPOSITION_SPLIT,
+        "members": ["3d361242df468533", "8d9c6bc18836b209"],
+        "source": "owner ruling 2026-09-10 (Stage 4 queue, open item 7)",
+    },
+    # 2026-09-10, open item 7 — the second luna-regen conflict pair: the same
+    # Lean Pack 90 question a year and a half apart. b135886d (27 Jan 2023)
+    # asks whether the pack's products go all at once or individually across
+    # the 90 days, reply quoting the FAQ: either way. 8e5f29de (17 Jul 2024)
+    # asks it again and the answers agree (all at once on a tight timeline,
+    # as directed otherwise) — a textbook supersede candidate, except the
+    # 2023 record carries the fuller FAQ text, which owner task 3 flagged
+    # before ruling. Owner ruled split: retiring the older record would drop
+    # the fuller wording from search, so both stay retrievable.
+    "8e5f29ded9aad54a": {
+        "disposition": DISPOSITION_SPLIT,
+        "members": ["8e5f29ded9aad54a", "b135886d94b5b7c3"],
+        "source": "owner ruling 2026-09-10 (Stage 4 queue, open item 7)",
     },
 }
 

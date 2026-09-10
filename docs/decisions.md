@@ -90,7 +90,7 @@ the test.
   row that does not gate. **Landed 2026-09-09**: the gpt-5.6-luna switch forced
   a full re-canonicalization anyway, so the bump to 1.2.0 rode along and this
   ruling is now in the committed artifacts. The predicted cluster churn was
-  real — two new conflict pairs, ruled separately (owner task 3).
+  real — two new conflict pairs, ruled split 2026-09-10 (owner task 3).
 - Residual PII after round 2 — one remaining **open owner call** plus the Zane
   ruling above: two records name a third party inside a customer's own
   sentence (one `is_current`, one not), which no deterministic rule can reach
@@ -122,7 +122,8 @@ the test.
   disagree" = non-nested part_no sets → queue the cluster, no auto-pick,
   members stay indexed pending disposition; 5% deterministic audit sample of
   auto-resolved clusters; `clusters.jsonl` is the committed session record.
-- **The one conflict cluster is split, not merged** (owner ruling 2026-09-08,
+- **The FirstString conflict cluster is split, not merged** (owner ruling
+  2026-09-08,
   open item 7, cluster `79c663016afc2345`): the two records are consecutive
   turns of *one* email thread — `8be45e86` is the webform enquiry (why
   FirstString, 1 g protein per lb LBM, whether the pre-workout serving is
@@ -137,6 +138,21 @@ the test.
   part_nos were an artifact of the two boilerplate blocks (the older enumerates
   MVs by demographic, hence 1007 Women's MV; the newer names ActiveMV); the
   answers never contradict each other. Both stay `is_current`.
+- **The two gpt-5.6-luna conflict pairs are split too** (owner ruling
+  2026-09-10, open item 7, clusters `3d361242df468533` and `8e5f29ded9aad54a`
+  — the churn the 2026-09-09 re-canonicalization predicted, both pairs pushed
+  over the 0.88 threshold by sharper canonical questions). `3d361242` is the
+  FirstString shape again and the owner read it the same way: two turns of
+  one thread thirteen days apart (27 Jan creatine-with-LeanMR and timing; 9
+  Feb the same question plus AminoFormula, answered with the new don't-mix-
+  LeanMR-with-AminoFormula guidance) — the newer record is a delta, not a
+  superset. Both its members are already superseded_currency on their own
+  cues, so the ruling governs only the intra-cluster dedup. `8e5f29de` was
+  the textbook supersede candidate — the same Lean Pack 90 question 27 Jan
+  2023 and 17 Jul 2024, answers agreeing — but the 2023 record carries the
+  fuller FAQ text (flagged in owner task 3 before ruling), and retiring it
+  would drop that wording from search; split keeps both retrievable. Review
+  queue down to the audit sample (2 rows, no decision owed).
 - **Dispositions are curated constants, attested against the corpus**:
   `CURATED_CLUSTER_DISPOSITIONS` (`stage4.py`) keys the ruling by `cluster_id`
   and pins the exact membership it was made on. If the cluster reshapes or

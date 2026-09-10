@@ -622,15 +622,26 @@ class TestClusterDispositions:
     def test_disposition_for_is_none_when_unruled(self):
         assert disposition_for("z" * 16, [_s2rec("z" * 16, "z.docx")]) is None
 
-    def test_shipped_ruling_is_the_firststring_split(self):
-        """Pins the owner ruling itself, not just the mechanism."""
-        assert list(CURATED_CLUSTER_DISPOSITIONS) == ["79c663016afc2345"]
-        entry = CURATED_CLUSTER_DISPOSITIONS["79c663016afc2345"]
-        assert entry["disposition"] == DISPOSITION_SPLIT
-        assert entry["members"] == ["79c663016afc2345", "8be45e86eb76c09f"]
-        assert entry["members"] == sorted(entry["members"])
-        assert entry["members"][0] == "79c663016afc2345"  # cluster_id = min id
-        assert "2026-09-08" in entry["source"]
+    def test_shipped_rulings_are_the_owner_splits(self):
+        """Pins the owner rulings themselves, not just the mechanism."""
+        assert list(CURATED_CLUSTER_DISPOSITIONS) == [
+            "79c663016afc2345",   # FirstString, 2026-09-08
+            "3d361242df468533",   # LeanMR + creatine thread, 2026-09-10
+            "8e5f29ded9aad54a",   # Lean Pack 90, 2026-09-10
+        ]
+        for cluster_id, members, ruling_date in [
+            ("79c663016afc2345",
+             ["79c663016afc2345", "8be45e86eb76c09f"], "2026-09-08"),
+            ("3d361242df468533",
+             ["3d361242df468533", "8d9c6bc18836b209"], "2026-09-10"),
+            ("8e5f29ded9aad54a",
+             ["8e5f29ded9aad54a", "b135886d94b5b7c3"], "2026-09-10"),
+        ]:
+            entry = CURATED_CLUSTER_DISPOSITIONS[cluster_id]
+            assert entry["disposition"] == DISPOSITION_SPLIT
+            assert entry["members"] == members == sorted(members)
+            assert entry["members"][0] == cluster_id  # cluster_id = min id
+            assert ruling_date in entry["source"]
 
 
 # --- summarize -------------------------------------------------------------------

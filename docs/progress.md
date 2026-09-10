@@ -21,7 +21,7 @@ Numbers verified 2026-09-10. Python 455 tests green; runtime 143 tests green.
 | PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
 | Alias table | §5 | **done**, v1.3.0, regen 2026-09-10 (products.json drop) | 53 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
 | QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (52 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
-| QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (**3 conflict** — 1 ruled split, 2 new → item 7; 1 audit); 114 judgments (104 dependent / 10 independent); queue 6 |
+| QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09, conflicts ruled 2026-09-10 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (3 conflict — all ruled split; 1 audit); 114 judgments (104 dependent / 10 independent); queue 2 (audit sample) |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
 | Golden set | §12 | **complete except labeling** 2026-09-08, multi-turn set added 2026-09-10 (item 19). Remaining: label the 250 (item 8). The sampled 250 predate the luna Stage 4 regen — pool 650 then, 653 now — so a re-draw is a decision, not a refresh (it moves item 8's target) — `golden --written-only` now rebuilds the written 50/20 without one, which is how the item 23 rubric rewrite landed (golden_version 1.1.0). **Decision pack ready 2026-09-10**: owner task 8, with a preview draw in `pipeline/out/golden-preview/` (208/250 stay, 42 swap; deterministic) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
@@ -52,7 +52,7 @@ owner.
 | 4 | PPTX disposition | parked |
 | 5 | Semantic ranker on/off | **closed** 2026-09-09 — **off**. Full dev split: sample recall@8 99.2% off vs 75.2% on (n=125); the ranker's only win is one podcast probe (59/60 → 60/60). The off default stands; `--semantic` remains a flag |
 | 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05, queue 0 |
-| 7 | Stage 4 review-queue dispositions | **reopened** 2026-09-09 — the luna regen's sharper canonical questions pushed **two new pairs** over the 0.88 threshold: LeanMR+creatine (reads like two turns of one thread — the FirstString shape) and Lean Pack 90 all-at-once (same question a year apart, answers agree). Queue 6 (4 conflict + 2 audit); both pairs written up in owner task 3 |
+| 7 | Stage 4 review-queue dispositions | **closed** 2026-09-10 — both luna-regen pairs ruled **split** (owner task 3): LeanMR+creatine read as two turns of one thread (the FirstString shape), Lean Pack 90 kept both because the 2023 record carries the fuller FAQ text. All 3 conflict clusters dispositioned and pinned by membership; queue 2 (audit sample only, no decision owed) |
 | 8 | Golden-set labeling | **open, narrowed — now gated on the re-draw ruling** — the 50 adversarial are written (2026-09-08); what remains is labeling the **250** with points-to-hit and expected sources. Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header. Until then the harness reports those two metrics as `null` with a reason. **Owner task 8** (keep-or-re-draw) must be ruled before labeling starts; its decision pack incl. a deterministic preview is ready (2026-09-10) |
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
 | 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
@@ -78,6 +78,16 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+
+- **2026-09-10 (59)** — Item 7 **closed** (§4): both luna-regen conflict
+  pairs ruled **split** (owner task 3). LeanMR+creatine is the FirstString
+  shape — two turns of one thread; Lean Pack 90's answers agree, but the
+  2023 record carries the fuller FAQ text, so retiring it would drop wording
+  from search. Both pinned in `CURATED_CLUSTER_DISPOSITIONS`
+  (membership-attested); regen from warm caches, 0 judge calls: 3
+  dispositioned clusters, queue 6 → **2** (audit sample), statuses unchanged
+  (923/104/14) — no index action, `is_current` unchanged for every record. Ruling in
+  decisions.md §4; shipped-rulings test extended (**455 py / 143 runtime**).
 
 - **2026-09-10 (58)** — products.json drop processed, item 2 **closed** (§5).
   Owner ruling: exports arrive ad hoc when updates are known — no schedule;
@@ -114,16 +124,6 @@ artifact it describes.
   sequential run; `AgentCli`'s call counter is locked. Default stays 1.
   Stage 4's judge loop is sequential but cached; embed/upload batches are
   minutes — both left alone. 2 tests (**455 py / 143 runtime**).
-
-- **2026-09-10 (54)** — The adversarial `forbidden` rubric reads use, not
-  keywords (§12, item 23 — **closed**). Every clause of the 50 is now a verb
-  the response would have to *perform*; a noun clause ("treat / cure / prevent
-  language") is a keyword list, and a refusal has to name what it refuses. The
-  judge returns `forbidden_mode` (`absent`/`mentioned`/`asserted`) and
-  `forbidden_present` is **derived** from it, so the denial cannot be counted
-  as the claim. `golden --written-only` rebuilt the written sets with the drawn
-  250 untouched — a re-draw is item 8's call. 9 tests (**453 py / 143
-  runtime**); re-sweep owed for items 12/17.
 
 ## Writing entries
 
