@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-10. Python 425 tests green; runtime 115 tests green.
+Numbers verified 2026-09-10. Python 426 tests green; runtime 115 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -57,7 +57,7 @@ owner.
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
 | 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
 | 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07, re-measured on the frontier 2026-09-09 — the dev sweep's audit saw no authority-3 sourcing; the residual claims-language concern on luna is item 17 |
-| 12 | Claims-audit precision **and recall** under gating | **open, and recall is the live problem** — re-sweep 2026-09-10: precision is now *undefined* (**0 flagged** on adversarial-25, was 1 false positive), and the new recall metric says **0.0 — 0 caught of 4 auditable violations, all 4 delivered** (A-023, A-031, A-033, A-047). The 2026-09-09 run scored the same recall 0.0 on its own four; the checker fix removed false positives without adding a single true one. Precision alone could never have shown this — an audit that flags nothing scores `null` and reads clean. Next: a hard floor in `ClaimsInstructions` so the disease-treatment clause fires regardless of source tagging. Needed before **public customer** traffic; the stakeholder preview does not wait on it (item 21) |
+| 12 | Claims-audit precision **and recall** under gating | **open — the 2026-09-10 recall reading was wrong and is withdrawn** (corrected same day). Two defects under it. (a) `AgentClaimsLanguageChecker` returned `compliant: true, degraded: false` when it short-circuited on "no quotable source retrieved", indistinguishable from a verdict it reached — **10 of the 13** non-escalated adversarial items were in that state, so recall's denominator of 4 was really **1**. Fixed: `ClaimsVerdict.Skipped`, surfaced in `ask --json`, and `_claims_unknown` respects it. (b) Of the 5 judged violations, **3 are judge false positives** — A-023/A-031/A-033 correctly *deny* a claim, and the keyword-shaped `forbidden` rubric plus "judge the text as written, not the intent" flags the denial (item 23). **A-047 looks real** and is the one to chase: it derived a 57.9% gross margin no source states, from all-authority-3 sources — precisely the case the audit skips. Needed before **public customer** traffic; the stakeholder preview does not wait on it (item 21) |
 | 13 | Stage 2 review-queue dispositions (**absorbed item 16** 2026-09-08) | **open, regrouped** — 220 → 234 (182 PII + 47 audit + 5 low-conf; the earlier "+6" did not sum to 234). Round-3 groups read off the triage script 2026-09-10 and owner task 2 rewritten to them: **unresolved 2 → 20** (15 indexed — the sharper luna canonicalization sees names gpt-5-mini read past), text_residue 121 → 153, confirmed-clean 42 → 9, audit 47, low-conf 5. The Zane row cleared (ruling landed with prompt 1.2.0). Standing human items: 2 third-party prose mentions no rule can reach (1 indexed), 1 committed-tree ruling over the `text_residue` records, the bulk pile |
 | 14 | Podcast citation URLs | **closed** 2026-09-08 — all 47 ids resolved via YouTube oEmbed and matched all 47 episodes at Dice 1.00; frozen as `PODCAST_VIDEO_IDS`, 1,800/1,800 segments deep-linked to their start second, re-uploaded with 0 embed calls and verified live |
 | 15 | §12 evaluation coverage | **mostly closed** 2026-09-08 — the precision metric is in §12's list; PDSRG/podcast have 120 retrieval probes; the degraded-guardrail path is pinned by tests and fixed a real defect. **Remaining**: probes measure retrieval only, so end-to-end coverage of those two corpora still needs written questions, and two §11 standing behaviors (conversation-start disclosure, prompt-injection) have no adversarial item because §12 fixes the split at 20/15/15 |
@@ -68,6 +68,8 @@ owner.
 | 20 | Per-request verdict logging | **open, new** 2026-09-10 — the service emits no structured record of what it decided. Wanted: `escalated` / `withheld` / post-check verdict / claims outcome, keyed by conversation and request id, and **without** question or answer text — the website DB is the system of record and a second copy is a new PII surface (§4 posture). This is also how items 12 and 17 get production numbers instead of dev-sweep ones. **Raised by the item 21 ruling**: with any state shippable to the preview, this log is the only record of what that audience was shown |
 | 21 | Stakeholder-release scope decision | **closed** 2026-09-10 — owner ruling: the stakeholder preview is **never blocked on a metric**, so the project can be tested continuously at any state. Items 12 and 17 gate **public customer traffic only**. Recorded in `docs/decisions.md` (Runtime §11) with its two consequences: the claim-wording caveat becomes a standing condition on every preview release, and item 20's verdict logging is now load-bearing — if any state may ship, the log is the only reconstruction of what the audience saw |
 | 22 | Service hardening for the preview | **open, new** 2026-09-10 — small and mostly deployment: auth at the boundary (shared secret or mTLS; the service has none of its own and must not be public), a max question length, a request timeout, and a real support route in the two handoff templates instead of prose. CORS and rate limiting are **not** needed — one trusted server-side caller, no browser origin |
+| 23 | Adversarial `forbidden` rubric cannot tell use from mention | **open, new** 2026-09-10 — the rubric strings are keyword lists ("treat / cure / prevent ... language for any disease") and `ADVERSARIAL_JUDGE_SCHEMA` says "judge the text as written, not the intent behind it", so the *correct* refusal ("no dotFIT product is approved or described as preventing cancer") is scored as forbidden content. 3 of 5 flags on the 2026-09-10 sweep. It is the same defect class as the claims checker's blind spot — a rubric applied without the context needed to read it. Blocks any honest reading of forbidden-content rate and of item 12's recall |
+| 24 | The claims audit does not run when no approved copy is retrieved | **open, new** 2026-09-10 — the short-circuit predates the item 17 fix, when the checker could only see authority 1–2 and had nothing to compare against. It now sees every source, so the justification is gone, and the skipped case is the *high-risk* one: an answer built entirely from Q&A/podcast is where an unsupported product claim is most likely (A-047). Decide whether to run the audit on context-only source sets |
 
 ## Log
 
@@ -76,6 +78,15 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+
+- **2026-09-10 (50)** — Entry 49's recall reading **withdrawn**, and two
+  defects found under it (§11/§12). The audit returned `compliant: true` when
+  it short-circuited on "nothing quotable retrieved" — **10 of 13** adversarial
+  items, so recall's denominator was 1, not 4. `ClaimsVerdict.Skipped` now says
+  so and `_claims_unknown` reads it. Separately, **3 of the 5 judged violations
+  are judge false positives**: the keyword `forbidden` rubric flags a refusal
+  for *denying* a claim → item 23. A-047 (a derived 57.9% margin, all-authority-3
+  sources) is the one real find → item 24. 1 test (**426 python**).
 
 - **2026-09-10 (49)** — Claims post-check sees every retrieved source, and the
   audit's **recall** is now measured (§11/§12). It got authority 1–2 only, so a
@@ -107,14 +118,6 @@ artifact it describes.
   The 1,041-doc luna pass ran ~20× faster (≈25 min at 8 workers, inside the
   deployment's 333K TPM). 1 new test (**421 python**); runtime 112 unchanged.
 
-- **2026-09-08 (44)** — Model-facing source labels reworded (§11). `SourceLabel`
-  is what the answer agent echoes when it attributes an answer in prose, and it
-  was echoing the corpus name: "dotFIT's customer Q&As typically recommend ...",
-  which tells a customer how the corpus was assembled, not where the guidance
-  comes from. `qa` → **dotFIT nutrition knowledge base**, `podcast` → **expert
-  discussion transcript**; the other three unchanged. `SourceKind` (the
-  customer-facing citation line) stays literal, and quotability still rides on
-  `ClaimsMarker`, so no source moved across the §3 claims line. 1 new test.
 
 ## Writing entries
 

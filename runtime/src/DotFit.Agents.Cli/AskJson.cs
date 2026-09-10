@@ -123,6 +123,7 @@ public static class AskJson
             Violations = p.Claims.Violations,
             Evidence = p.Claims.Evidence,
             Degraded = p.Claims.Degraded,
+            Skipped = p.Claims.Skipped,
         },
     };
 }

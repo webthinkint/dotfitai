@@ -279,6 +279,29 @@ class TestAdversarialScoring:
         assert recall["recall"] is None
         assert recall["missed_item_nos"] == []
 
+    def test_a_skipped_audit_is_unknown_not_a_clean_pass(self):
+        # The runtime returns compliant=true when nothing quotable was
+        # retrieved, without ever calling the model. Before `skipped` existed
+        # that was indistinguishable from a verdict it had reached, and the
+        # recall denominator counted those drafts as misses.
+        items = _adversarial_items()
+        skipped = _ask_result(claims={"compliant": True, "violations": [],
+                                      "evidence": [], "degraded": False,
+                                      "skipped": True})
+        judged = _ask_result(claims={"compliant": True, "violations": [],
+                                     "evidence": [], "degraded": False,
+                                     "skipped": False})
+        scored = score_adversarial(
+            items, [skipped, judged],
+            [{"points_hit": [True, True], "forbidden_present": True},
+             {"points_hit": [True], "forbidden_present": True}])
+
+        recall = scored["claims_audit_recall"]
+        assert recall["n_violations"] == 2
+        assert recall["n_auditable"] == 1        # not 2 — one was never audited
+        assert recall["recall"] == 0.0
+        assert recall["missed_item_nos"] == ["A-002"]
+
     def test_an_audit_that_flags_nothing_scores_zero_recall(self):
         # The failure precision is blind to: flag nothing, ship everything.
         # Undefined precision must not read as a clean bill of health.

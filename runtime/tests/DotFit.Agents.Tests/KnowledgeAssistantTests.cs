@@ -178,11 +178,16 @@ public class KnowledgeAssistantTests
 
         Assert.True(verdict.Compliant);
         Assert.False(verdict.Degraded);
+        // ...and it says it never looked, rather than reporting a pass it did
+        // not make. The eval harness reads this to keep un-audited drafts out
+        // of the recall denominator (open item 12).
+        Assert.True(verdict.Skipped);
         Assert.Empty(claimsClient.Calls);
 
         ClaimsVerdict judged = await claims.CheckAsync(
             "q", "answer [2].", [TestDocs.Product(), TestDocs.Qa()]);
         Assert.False(judged.Compliant);
+        Assert.False(judged.Skipped);
         string sent = claimsClient.Calls.Single().Messages.Last().Text ?? "";
         Assert.Contains("CONTEXT ONLY", sent);
         Assert.Contains("Expert answer from the QA corpus.", sent);

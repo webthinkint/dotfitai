@@ -16,6 +16,16 @@ public sealed class ClaimsVerdict
     [JsonPropertyName("evidence")] public List<string> Evidence { get; set; } = [];
     /// <summary>True when the check could not run — a warning, never a failure.</summary>
     public bool Degraded { get; set; }
+    /// <summary>
+    /// True when the audit was never invoked, because nothing quotable was
+    /// retrieved. Distinct from a <c>Compliant</c> verdict it actually reached:
+    /// both used to serialize as <c>compliant: true, degraded: false</c>, so a
+    /// draft the audit never looked at was indistinguishable from one it
+    /// cleared. On the 2026-09-10 adversarial sweep that was **10 of the 13**
+    /// non-escalated items, and it silently inflated open item 12's recall
+    /// denominator — the metric counted misses against an audit that never ran.
+    /// </summary>
+    public bool Skipped { get; set; }
 }
 
 /// <summary>Deterministic post-check outcome (plan §11 stage 5).</summary>
@@ -137,7 +147,12 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
         string question, string answer, IReadOnlyList<RetrievedDocument> sources, CancellationToken ct = default)
     {
         if (!sources.Any(s => Prompts.ClaimsQuotable(s.Authority)))
-            return new ClaimsVerdict { Compliant = true }; // nothing approved to check against
+            // Nothing approved to check against — say so rather than reporting
+            // a pass the audit never made. This is not a rare path: an answer
+            // built entirely from Q&A and podcast context is exactly where an
+            // unsupported product claim is most likely, and exactly where this
+            // returns without looking.
+            return new ClaimsVerdict { Compliant = true, Skipped = true };
         try
         {
             return await StructuredCall.RunAsync<ClaimsVerdict>(

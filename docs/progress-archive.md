@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-08 (44)** — Model-facing source labels reworded (§11). `SourceLabel`
+  is what the answer agent echoes when it attributes an answer in prose, and it
+  was echoing the corpus name: "dotFIT's customer Q&As typically recommend ...",
+  which tells a customer how the corpus was assembled, not where the guidance
+  comes from. `qa` → **dotFIT nutrition knowledge base**, `podcast` → **expert
+  discussion transcript**; the other three unchanged. `SourceKind` (the
+  customer-facing citation line) stays literal, and quotability still rides on
+  `ClaimsMarker`, so no source moved across the §3 claims line. 1 new test.
+
 - **2026-09-08 (43)** — Stage 2 triage round 2 (§4): **item 16 folds into 13**,
   round 1's grouping retired as unsound — it read "a placeholder exists
   somewhere in this record" as "the redaction landed", parking 5 live customer

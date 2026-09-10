@@ -527,13 +527,23 @@ def _claims_flagged(result: dict[str, Any]) -> bool:
 def _claims_unknown(result: dict[str, Any]) -> bool:
     """Did the claims audit fail to return a usable verdict on this draft?
 
-    Two ways that happens: it never ran (an escalated item has no draft to
-    audit, and a run with no approved copy retrieved has nothing to audit
-    against), or it degraded. Both are "unknown", not "compliant" — counting
-    them as misses would charge the audit for drafts it never saw.
+    Three ways that happens: it never ran at all (an escalated item has no
+    draft to audit), it ran with nothing quotable retrieved and returned
+    ``skipped`` without looking, or it degraded. All three are "unknown", not
+    "compliant" — counting them as misses would charge the audit for drafts it
+    never saw.
+
+    ``skipped`` is the one that bit: the runtime used to return a plain
+    ``compliant: true`` on that path, indistinguishable from a verdict it had
+    reached, and on the 2026-09-10 adversarial sweep that covered 10 of the 13
+    non-escalated items. Recall read 0.0 over a denominator of 4 when the audit
+    had actually run on 1 of them. Older run records have no ``skipped`` key, so
+    their recall denominators remain overstated — compare across runs with care.
     """
     claims = (result.get("post_check") or {}).get("claims")
-    return not claims or bool(claims.get("degraded"))
+    return (not claims
+            or bool(claims.get("degraded"))
+            or bool(claims.get("skipped")))
 
 
 def _mean(values: Iterable[float]) -> float | None:
