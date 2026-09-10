@@ -44,6 +44,8 @@ public class AskStreamTests
     private sealed class FakeAssistant(params AssistantEvent[] events) : IKnowledgeAssistant
     {
         public Exception? Throw { get; init; }
+        /// <summary>Stands in for a wedged upstream call (the timeout case).</summary>
+        public TimeSpan? Delay { get; init; }
         public List<AskOptions?> Options { get; } = [];
 
         public async IAsyncEnumerable<AssistantEvent> AskStreamAsync(
@@ -56,6 +58,8 @@ public class AskStreamTests
                 throw Throw;
             foreach (AssistantEvent e in events)
                 yield return e;
+            if (Delay is { } delay)
+                await Task.Delay(delay, ct);
         }
     }
 
@@ -83,12 +87,12 @@ public class AskStreamTests
     }
 
     private static async Task<RecordingWriter> Run(
-        FakeAssistant assistant, AskRequest? request = null)
+        FakeAssistant assistant, AskRequest? request = null,
+        ServiceOptions? service = null, CancellationToken ct = default)
     {
         var writer = new RecordingWriter();
         await AskStream.RunAsync(
-            assistant, request ?? new AskRequest { Question = "q?" }, writer,
-            CancellationToken.None);
+            assistant, request ?? new AskRequest { Question = "q?" }, writer, ct, service);
         return writer;
     }
 
@@ -220,8 +224,61 @@ public class AskStreamTests
     [Fact]
     public async Task ClientDisconnectPropagatesRatherThanBeingSwallowed()
     {
+        // The disconnect is the *client's* token being cancelled, which is what
+        // this now asserts: there is nobody left to read a handoff, so the run
+        // is abandoned. A bare cancellation from inside the pipeline is a
+        // failure like any other and takes the handoff path below (item 22 —
+        // the two cases stopped being the same event once the timeout existed).
+        using var aborted = new CancellationTokenSource();
+        await aborted.CancelAsync();
         var assistant = new FakeAssistant() { Throw = new OperationCanceledException() };
-        await Assert.ThrowsAsync<OperationCanceledException>(() => Run(assistant));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => Run(assistant, ct: aborted.Token));
+    }
+
+    [Fact]
+    public async Task RequestTimeoutEndsTheStreamWithAHandoffNotSilence()
+    {
+        // Item 22: a wedged upstream call must not hold the connection — and
+        // the quota behind it — open indefinitely. The customer gets the
+        // failure path rather than a stream that merely stops, because a
+        // truncated stream is indistinguishable from a network fault and
+        // invites the retry the caller was told not to make.
+        var assistant = new FakeAssistant(new StageEvent("guardrail", "clear"))
+        {
+            Delay = TimeSpan.FromSeconds(30),
+        };
+        RecordingWriter writer = await Run(assistant, service: new ServiceOptions
+        {
+            ApiKey = null,
+            RequestTimeout = TimeSpan.FromMilliseconds(50),
+        });
+
+        Assert.Contains(AskStream.EventError, writer.Names);
+        Assert.Equal("Timeout",
+            writer.First(AskStream.EventError)!.Value.GetProperty("kind").GetString());
+        Assert.Contains("support team",
+            writer.Frames.Last(f => f.Event == AskStream.EventDelta)
+                .Data.GetProperty("text").GetString()!);
+    }
+
+    [Fact]
+    public async Task TheHandoffCarriesTheConfiguredSupportRoute()
+    {
+        // Item 22: the most-seen copy on the failure paths must not dead-end in
+        // prose. The route is configuration, so a deployment can point its
+        // audience somewhere other than dotFIT's consumer support line.
+        var assistant = new FakeAssistant() { Throw = new InvalidOperationException("boom") };
+        RecordingWriter writer = await Run(assistant, service: new ServiceOptions
+        {
+            ApiKey = null,
+            SupportContact = "help@example.com",
+        });
+
+        string handoff = writer.Frames.Last(f => f.Event == AskStream.EventDelta)
+            .Data.GetProperty("text").GetString()!;
+        Assert.Contains("help@example.com", handoff);
     }
 
     [Fact]

@@ -19,12 +19,26 @@ why it matters, what we need, and how long it should take.
 rather than as work. Of the rest, **two block a public launch** and none
 block the stakeholder preview — that is the point of the task 7 ruling.
 
+**Two small things do need doing as the preview is switched on**, and neither is
+a task in this folder because neither takes a decision — just a hand-off:
+
+1. **A password for the website server.** The assistant service is now locked:
+   the website server has to send a shared secret with every question, and the
+   service refuses to start without one, so it can never be left open by
+   accident. We generate the secret and give it to the website team privately;
+   tell us if your security people want it stored or rotated a particular way.
+2. **Check the support phone and email we now give out.** When the assistant
+   declines a question it tells the customer to contact
+   **support@dotfit.com or (877) 436-8348** — the pair dotFIT's own practitioner
+   guide publishes. If the preview audience should be pointed somewhere else, say
+   so and we change it in one place.
+
 ## At a glance
 
 | # | Task | Who | Effort | Blocking? |
 |---|---|---|---|---|
 | [1](01-golden-set-labeling.md) | Write down the right answer for 250 real questions | Nutritionist + support lead | 2–3 days | **Public launch** — this is how we prove the assistant is accurate. **Unblocked 2026-09-10** (task 8 decided); the worksheet is final |
-| [2](02-privacy-review-queue.md) | Confirm a privacy check on 234 old emails | Support lead | ~half a day | **Yes** — 211 of them are already searchable |
+| [2](02-privacy-review-queue.md) | Confirm a privacy check on 234 old emails | Support lead | ~half a day | **Public launch** — you ruled 2026-09-10 that the 211 already-searchable records are fine for a stakeholder/partner audience |
 | [3](03-duplicate-answer-conflict.md) | ~~Rule on two pairs of near-identical answers~~ | — | **Decided 2026-09-10 — split on both** | No |
 | [4](04-product-copy-freshness.md) | ~~Own the monthly product-copy check~~ | — | **Decided 2026-09-10** — drops are ad hoc, chain runs same day | No |
 | [5](05-azure-account-tasks.md) | ~~Two Azure account chores~~ | — | — | **Done** 2026-09-09 |

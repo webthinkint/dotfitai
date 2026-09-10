@@ -69,7 +69,8 @@ public static class RuntimeFactory
                 CreateSearchClient(options), settings),
             answer: new AgentAnswerAgent(CreateAnswerAgent(options, openAi)),
             settings: settings,
-            claimsChecker: new AgentClaimsLanguageChecker(CreateClaimsAgent(options, openAi)));
+            claimsChecker: new AgentClaimsLanguageChecker(CreateClaimsAgent(options, openAi)),
+            supportContact: options.SupportContact);
     }
 
     /// <summary>Retrieval-only wiring for the search command (no chat deployments needed).</summary>

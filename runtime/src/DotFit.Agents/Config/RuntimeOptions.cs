@@ -48,6 +48,7 @@ public sealed record RuntimeOptions
     public const string ChatDeploymentVar = "AZURE_OPENAI_CHAT_DEPLOYMENT";
     public const string SmallChatDeploymentVar = "AZURE_OPENAI_SMALL_CHAT_DEPLOYMENT";
     public const string EmbeddingDeploymentVar = "AZURE_OPENAI_EMBEDDING_DEPLOYMENT";
+    public const string SupportContactVar = "DOTFIT_SUPPORT_CONTACT";
 
     public Uri? SearchEndpoint { get; init; }
     public string? SearchKey { get; init; }
@@ -70,6 +71,14 @@ public sealed record RuntimeOptions
     /// pins each side, so the two must not drift.
     /// </summary>
     public string IndexName { get; init; } = "kb-main-v2";
+    /// <summary>
+    /// Where the two handoff templates send a customer who was refused or whose
+    /// answer was withheld (progress open item 22). Defaults to the
+    /// corpus-attested route in <see cref="Answering.Prompts.DefaultSupportContact"/>;
+    /// <c>DOTFIT_SUPPORT_CONTACT=none</c> drops the line and leaves the prose as
+    /// it was, for a deployment whose audience is not dotFIT's support line.
+    /// </summary>
+    public string? SupportContact { get; init; } = Answering.Prompts.DefaultSupportContact;
     /// <summary>Alias table artifact (plan §5 output) — default lives beside the .env.</summary>
     public required string AliasTablePath { get; init; }
     public required string EnvFilePath { get; init; }
@@ -151,6 +160,13 @@ public sealed record RuntimeOptions
         string? embedding = Value(EmbeddingDeploymentVar, Needed(RuntimeNeeds.Embedding));
         string? apiKey = Value(OpenAiApiKeyVar, openAiNeeded);
 
+        // Unset means the attested default; "none" is the way to say "no route"
+        // out loud, so an empty handoff is never an accident of a blank line.
+        string? support = Value(SupportContactVar, required: false);
+        support = support is null ? Answering.Prompts.DefaultSupportContact
+            : string.Equals(support, "none", StringComparison.OrdinalIgnoreCase) ? null
+            : support;
+
         return new RuntimeOptions
         {
             SearchEndpoint = searchEndpoint,
@@ -161,6 +177,7 @@ public sealed record RuntimeOptions
             ChatDeployment = chat,
             SmallChatDeployment = small,
             EmbeddingDeployment = embedding,
+            SupportContact = support,
             Needs = needs,
             AliasTablePath = Path.Combine(envDir, "processed", "aliases", "alias_table.json"),
             EnvFilePath = envFilePath,
@@ -196,6 +213,7 @@ public sealed record RuntimeOptions
             $"search_key={(SearchKey is null ? "unset" : UsingQueryKey ? "query***" : "admin***")}, " +
             $"openai={Show(OpenAiEndpoint)}, api_key={(OpenAiApiKey is null ? "unset" : "***")}, " +
             $"chat='{Show(ChatDeployment)}', small='{Show(SmallChatDeployment)}', " +
-            $"embed='{Show(EmbeddingDeployment)}', index='{IndexName}', aliases='{AliasTablePath}')";
+            $"embed='{Show(EmbeddingDeployment)}', index='{IndexName}', " +
+            $"support='{Show(SupportContact)}', aliases='{AliasTablePath}')";
     }
 }

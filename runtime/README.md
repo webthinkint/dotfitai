@@ -15,7 +15,9 @@
   `GET /healthz`. It is **always `Gated`** and offers the client no choice
   (§11), and its payloads are narrower than the CLI's `--json` — no retrieved
   source `content`, no withheld draft, no post-check failure reasons. Those are
-  operator diagnostics; this endpoint is public.
+  operator diagnostics; this endpoint is public. Hardening lives in
+  `ServiceOptions` (open item 22): shared-secret auth on `/ask`, a question
+  length cap, a request timeout, and the support route the handoffs end on.
 
 Both callers go through `IKnowledgeAssistant`, so the service is testable
 without a host and without Azure.
@@ -52,6 +54,27 @@ override needed. `kb-main`, the original index, was lost to a wedged delete
 (progress open item 10, closed 2026-09-08); the name is free again but the
 default stays `kb-main-v2` — a rename is cosmetic. This default mirrors
 `index_build.INDEX_NAME`; a test pins each side, so change both or neither.
+
+**Service hardening** (open item 22) adds four variables the CLI mostly ignores,
+documented in `.env.example` and parsed by `ServiceOptions`:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DOTFIT_SERVICE_API_KEY` | — | Shared secret for `POST /ask`, sent as `Authorization: Bearer`. ≥16 chars. |
+| `DOTFIT_SERVICE_AUTH` | unset | Only `none` is accepted, and only when something in front authenticates. |
+| `DOTFIT_SERVICE_MAX_QUESTION_CHARS` | 2000 | Over the limit is a `400`, never a truncation. |
+| `DOTFIT_SERVICE_TIMEOUT_SECONDS` | 120 | Our ceiling on one request; firing yields `error` + handoff, not silence. |
+| `DOTFIT_SUPPORT_CONTACT` | the PDSRG-attested route | Where the refusal/withheld handoffs send a customer; `none` drops the line. Used by the **CLI too** — it is answer copy, not transport. |
+
+Auth is **fail-closed**: with neither the key nor `AUTH=none`, the service does
+not start. That is the posture, not an oversight — it has no authentication of
+its own and must not be reachable without this, so there must be no state in
+which it is running and open. The three `DOTFIT_SERVICE_*` variables are the one
+place the process environment **overrides** the `.env` file, so a deployment can
+inject the secret as a container setting instead of baking it into an image;
+`DOTFIT_SUPPORT_CONTACT` and the Azure keys keep the file-only rule that
+`azure_config.py` mirrors. CORS and rate limiting are deliberately absent: one
+trusted server-side caller, no browser origin.
 
 Note: `Azure.AI.OpenAI` is pinned to the prerelease line **on purpose** — the
 GA build only offers api-version `2024-10-21`, which our Foundry v2 endpoint

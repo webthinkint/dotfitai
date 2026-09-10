@@ -2,7 +2,10 @@
 
 **Who:** support lead
 **Effort:** about half a day — 20 records need reading, the rest is bulk
-**Blocking:** yes — 211 of these are already searchable by the assistant
+**Blocking:** the **public launch**, not the stakeholder preview — you ruled on
+10 September 2026 that the 211 already-searchable records are acceptable for a
+stakeholder and approved-partner audience. Still the first task we would ask you
+to do, because it is half a day and it is the one remaining privacy item
 **Tracked as:** open item 13 (which now also covers what used to be item 16)
 
 > **Updated 10 September 2026 and the ask has grown.** On 9 September the whole

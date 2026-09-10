@@ -329,7 +329,8 @@ public static class Prompts
     /// purpose: no LLM call on the escalation path, and the post-check can
     /// verify the handoff wording exactly.
     /// </summary>
-    public static string RefusalMessage(IReadOnlyList<string> displayReasons)
+    public static string RefusalMessage(
+        IReadOnlyList<string> displayReasons, string? supportContact = DefaultSupportContact)
     {
         string because = displayReasons.Count == 0
             ? ""
@@ -337,8 +338,36 @@ public static class Prompts
         return "Thanks for the question — this is one I need to hand off rather than answer here" +
                because + ". Please contact the dotFIT support team or a healthcare professional, " +
                "and they'll take good care of you.\n\n" +
+               SupportLine(supportContact) +
                "(I'm an AI assistant — nutrition guidance, not medical advice.)";
     }
+
+    /// <summary>
+    /// The support route the two handoffs end on, or <c>""</c> when a
+    /// deployment configures none (open item 22: a real route in the handoff
+    /// templates "instead of prose" — these two templates are the most-seen
+    /// copy on the failure paths, and a dead end is a bad outcome for a
+    /// customer already being turned away).
+    /// </summary>
+    private static string SupportLine(string? supportContact) =>
+        string.IsNullOrWhiteSpace(supportContact)
+            ? ""
+            : $"You can reach dotFIT support at {supportContact.Trim()}.\n\n";
+
+    /// <summary>
+    /// The route the handoffs use unless a deployment overrides it
+    /// (<c>DOTFIT_SUPPORT_CONTACT</c>, see
+    /// <see cref="Config.RuntimeOptions.SupportContact"/>).
+    ///
+    /// Corpus-attested, not invented: the PDSRG's own "About dotFIT Worldwide"
+    /// section publishes this mailbox and toll-free number as the route for
+    /// consumers and professionals, which makes it authority-2 approved copy
+    /// rather than a guess — the same standard §5 holds an alias to. Owner
+    /// ruling 2026-09-10 (open item 22): ship it as the default and keep it
+    /// overridable, since a deployment may route the preview audience
+    /// somewhere else.
+    /// </summary>
+    public const string DefaultSupportContact = "support@dotfit.com or (877) 436-8348";
 
     /// <summary>
     /// Delivered instead of the answer when a gated run fails the post-check
@@ -348,10 +377,11 @@ public static class Prompts
     /// not name the failure: the customer gets a handoff, the trace gets the
     /// detail.
     /// </summary>
-    public static string WithheldMessage() =>
+    public static string WithheldMessage(string? supportContact = DefaultSupportContact) =>
         "I wasn't able to give you a sourced answer I'm confident in on that one, so I'd " +
         "rather not guess. Please contact the dotFIT support team and they'll take good " +
         "care of you.\n\n" +
+        SupportLine(supportContact) +
         "(I'm an AI assistant — nutrition guidance, not medical advice.)";
 
     /// <summary>

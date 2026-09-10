@@ -11,6 +11,11 @@ using DotFit.Agents.Service;
 //
 // Delivery is Gated and the client cannot ask for anything else — see
 // AskStream for why (§11 "streaming vs. gating").
+//
+// Hardening is ServiceOptions (open item 22): a shared secret on /ask, a
+// question-length cap, a request timeout, and the support route the handoff
+// templates end on. Deliberately *not* here: CORS and rate limiting — one
+// trusted server-side caller, no browser origin.
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +27,18 @@ RuntimeOptions options = RuntimeOptions.Load(
 if (builder.Configuration["DotFit:Index"] is { Length: > 0 } index)
     options = options with { IndexName = index };
 
+// The hardening slice, same file and same moment (open item 22): a missing
+// shared secret is a boot failure, because an endpoint with no auth that
+// answers anyway is the one mistake this service cannot survive.
+ServiceOptions service = ServiceOptions.Load(options);
+
+// One request body cannot be larger than a question plus eight trimmed history
+// turns. Kestrel's 30 MB default is for file uploads, and this endpoint feeds
+// model prompts.
+builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = ServiceOptions.MaxRequestBytes);
+
 builder.Services.AddSingleton(options);
+builder.Services.AddSingleton(service);
 builder.Services.AddSingleton<IKnowledgeAssistant>(
     _ => RuntimeFactory.CreateAssistant(options));
 
@@ -38,7 +54,7 @@ builder.Services.ConfigureHttpJsonOptions(json =>
 
 WebApplication app = builder.Build();
 
-app.MapGet("/healthz", (RuntimeOptions opts) => Results.Ok(new
+app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc) => Results.Ok(new
 {
     status = "ok",
     index = opts.IndexName,
@@ -47,20 +63,35 @@ app.MapGet("/healthz", (RuntimeOptions opts) => Results.Ok(new
     chat_deployment = opts.ChatDeployment,
     small_chat_deployment = opts.SmallChatDeployment,
     embedding_deployment = opts.EmbeddingDeployment,
+    // The hardening posture, readable without a key on purpose: "auth": "none"
+    // on a deployment that was meant to require a secret is the single thing an
+    // operator most needs to be able to see, and the limits are the caller's to
+    // know rather than to discover by being rejected. The secret itself is
+    // never rendered (ServiceOptions.ToString masks it too).
+    auth = svc.AuthDisabled ? "none" : "shared-secret",
+    max_question_chars = svc.MaxQuestionChars,
+    timeout_seconds = (int)svc.RequestTimeout.TotalSeconds,
 }));
 
 app.MapPost("/ask", async (
     AskRequest request,
     IKnowledgeAssistant assistant,
+    ServiceOptions service,
     HttpContext http,
     CancellationToken ct) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Question))
-        return Results.BadRequest(new { error = "question is required" });
-    // Reject a malformed history here, while a status code still means
-    // something: once the SSE stream opens the response is already 200.
-    if (!request.TryReadHistory(out _, out string? historyError))
-        return Results.BadRequest(new { error = historyError });
+    // Auth first, and before anything is parsed far enough to cost a model
+    // call. 401 carries no detail — which header was wrong is information only
+    // a guesser wants. /healthz stays open: it is the liveness probe and
+    // returns configuration, never key material.
+    if (!service.IsAuthorized(http.Request.Headers.Authorization))
+        return Results.Unauthorized();
+
+    // Validate while a status code still means something: once the SSE stream
+    // opens the response is already 200, so a malformed history or an
+    // over-long question has no way left to be reported as an error.
+    if (service.Reject(request) is { } error)
+        return Results.BadRequest(new { error });
 
     http.Response.Headers.ContentType = "text/event-stream";
     http.Response.Headers.CacheControl = "no-cache";
@@ -68,7 +99,7 @@ app.MapPost("/ask", async (
     http.Response.Headers["X-Accel-Buffering"] = "no";
 
     var writer = new HttpSseWriter(http.Response);
-    await AskStream.RunAsync(assistant, request, writer, ct);
+    await AskStream.RunAsync(assistant, request, writer, ct, service);
     return Results.Empty;
 });
 

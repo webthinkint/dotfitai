@@ -10,6 +10,7 @@ requests and stores nothing. The first release is for stakeholders and approved
 partners, not public traffic.
 
 **Status.** Everything in this document is built and live, including multi-turn
+and the service hardening — auth, limits, request timeout, support route —
 (2026-09-10). Anything agreed but not yet implemented is marked **planned** in
 place — do not build against it until we tell you it has landed.
 
@@ -19,17 +20,22 @@ place — do not build against it until we tell you it has landed.
 
 ### `GET /healthz`
 
-Returns `200` with the index name and the three deployment names it is
-configured against. Deployment names are configuration, not secrets; no key is
-ever read on this path. Use it as your liveness and readiness check.
+Returns `200` with the index name, the three deployment names it is configured
+against, and its hardening posture — `auth` (`shared-secret` or `none`),
+`max_question_chars` and `timeout_seconds`. Deployment names and limits are
+configuration, not secrets; no key is ever read on this path and the shared
+secret is never rendered. **Unauthenticated on purpose**, so it works as your
+liveness and readiness check — and so `"auth": "none"` on a deployment that was
+meant to require a secret is visible rather than silent.
 
 The service validates its whole configuration at **startup** — a missing key or
-deployment fails the boot rather than the first question. If it is up, it is
-configured.
+deployment fails the boot rather than the first question, and so does a missing
+shared secret. If it is up, it is configured.
 
 ### `POST /ask`
 
-One customer question in, a Server-Sent Events stream out.
+One customer question in, a Server-Sent Events stream out. Requires the shared
+secret (see Auth below); without it you get `401` and no stream.
 
 ```json
 {
@@ -45,10 +51,16 @@ One customer question in, a Server-Sent Events stream out.
 
 | Field | Required | Meaning |
 |---|---|---|
-| `question` | yes | The customer's question, verbatim. Empty or whitespace gets `400`. |
+| `question` | yes | The customer's question, verbatim. Empty or whitespace gets `400`, and so does anything over **2,000 characters** — see Limits. |
 | `conversation_id` | no | **Absent means "new conversation"**, which is what controls the disclosure — see Disclosure below. Send a stable id for every turn after the first. |
 | `history` | no | Earlier turns of this conversation, oldest first, **not including** `question`. See Multi-turn. Absent or empty is a standalone question. |
-| `top` | no | Sources retrieved and fed to the answer. Default 8. Leave it unset unless we ask you to change it. |
+| `top` | no | Sources retrieved and fed to the answer. Default 8, maximum 20 (outside that is a `400`). Leave it unset unless we ask you to change it. |
+
+**Every rejection is a status code, never an event.** All validation happens
+before the stream opens, because the first SSE frame commits the response to
+`200` and there is no status code left to reject with. So a `400`/`401` response
+has a JSON body (`{"error": "..."}` for `400`) and no `event:` lines at all; once
+you see the first `event:`, the request was accepted.
 
 Response headers are `text/event-stream`, `no-cache`, and
 `X-Accel-Buffering: no`. If anything between you and the service buffers, the
@@ -128,10 +140,16 @@ tokens trickle in — they do not.
    post-check rejected it. The customer gets a handoff. Same rule: do not retry.
 
 Both 2 and 3 tell the customer to contact the dotFIT support team or a
-healthcare professional. Today that is prose. If you have a support route,
-surface it alongside — it is the single most-seen piece of copy in the failure
-paths and a dead-end message is a bad outcome for a customer already being
-turned away.
+healthcare professional, **and now carry a real route**: `support@dotfit.com or
+(877) 436-8348`, the pair the practitioner reference guide itself publishes. It
+is configuration on our side, so tell us if the preview audience should be sent
+somewhere else (a web form, your own support queue) and we will change it in one
+place rather than have you rewrite delivered copy.
+
+If your UI can surface a support link of its own alongside, do — this is the
+single most-seen copy in the failure paths, and a dead end is a bad outcome for a
+customer already being turned away. What you must not do is edit the delivered
+text: it is the record of what the customer was told.
 
 ---
 
@@ -193,13 +211,42 @@ any turn, and render it the way you render an answer.
 
 ## Operational notes
 
-**Auth and network.** The service has no authentication of its own. It expects
-to sit on a private network reachable only by your server, with a shared secret
-or mTLS at the boundary. Do not expose it to the public internet.
+**Auth.** `POST /ask` requires a shared secret, as a bearer token:
+
+```
+Authorization: Bearer <the secret we give you>
+```
+
+A missing, malformed or wrong value is `401` with no body detail and no stream —
+which header was wrong is information only a guesser wants. `GET /healthz` is
+unauthenticated, by design, so it still works as a probe.
+
+We will hand you the secret out of band; treat it as a credential (your secret
+store, not your repo), and tell us if it needs rotating — the service reads it
+from its own configuration, so a rotation is a restart on our side and a config
+change on yours. The service **fails to start** without it, so there is no state
+in which it is running and open.
+
+This is the boundary, not defence in depth: the service still expects to sit on
+a private network reachable only by your server. **Do not expose it to the public
+internet**, with or without the secret. If your platform terminates mTLS in
+front of it instead, say so and we will run it with auth explicitly disabled
+rather than have two half-configured mechanisms.
+
+**Limits.** A question over **2,000 characters** is a `400`, not a truncation —
+truncating would change the question and answer something the customer did not
+ask, so trim or split on your side if you ever relay pasted email. `top` must be
+1–20. History needs no trimming on your side (we keep the newest 8 turns and
+1,000 characters each). The request body itself is capped at 256 KB.
 
 **Timeouts and cancellation.** If the client hangs up, the stream is cancelled
-and the run is abandoned. Give a request a generous timeout — the full pipeline
-is several model calls and a normal answer takes seconds, not milliseconds.
+and the run is abandoned. We also impose our own ceiling — **120 seconds** per
+request, reported by `/healthz` as `timeout_seconds` — so a wedged upstream model
+call cannot hold a connection open indefinitely. When it fires you get `error`
+with `kind: "Timeout"` and the handoff `delta`, the same shape as any other
+failure, rather than a stream that silently stops. Set your own client timeout
+comfortably above ours: the full pipeline is several model calls and a normal
+answer takes seconds, not milliseconds.
 
 **Errors.** Any exception yields `error` plus a handoff `delta`, never a
 stack trace, never a bare stream end. If you see `error`, log `kind` and treat

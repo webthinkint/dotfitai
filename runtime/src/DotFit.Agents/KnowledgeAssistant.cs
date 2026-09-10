@@ -114,6 +114,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
     private readonly IAnswerAgent _answer;
     private readonly IClaimsLanguageChecker? _claims;
     private readonly SearchSettings _settings;
+    /// <summary>Where the handoff templates send a refused customer (item 22).</summary>
+    private readonly string? _supportContact;
 
     public KnowledgeAssistant(
         IGuardrail guardrail,
@@ -122,7 +124,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         IKnowledgeSearch search,
         IAnswerAgent answer,
         SearchSettings settings,
-        IClaimsLanguageChecker? claimsChecker = null)
+        IClaimsLanguageChecker? claimsChecker = null,
+        string? supportContact = Answering.Prompts.DefaultSupportContact)
     {
         _guardrail = guardrail;
         _rewriter = rewriter;
@@ -131,6 +134,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         _answer = answer;
         _claims = claimsChecker;
         _settings = settings;
+        _supportContact = supportContact;
     }
 
     /// <summary>Full pipeline, streamed. Always ends with exactly one <see cref="ResultEvent"/>.</summary>
@@ -166,7 +170,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         {
             // Deterministic refusal: no LLM call on the escalation path, so the
             // post-check can verify the handoff wording exactly.
-            string refusal = Prompts.RefusalMessage(verdict.DisplayReasons);
+            string refusal = Prompts.RefusalMessage(verdict.DisplayReasons, _supportContact);
             timings["answer"] = 0;
             yield return new DeltaEvent(refusal);
             yield return new ResultEvent(new AssistantResult
@@ -272,7 +276,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             yield return new RetractionEvent(string.Join("; ", postCheck.Failures), options.StreamMode);
             if (gated)
             {
-                delivered = Prompts.WithheldMessage();
+                delivered = Prompts.WithheldMessage(_supportContact);
                 yield return new DeltaEvent(delivered);
             }
         }

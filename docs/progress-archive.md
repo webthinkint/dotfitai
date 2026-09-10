@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (56)** — Full dev re-sweep (§11/§12), first `--workers` run
+  (345 agent calls in ~8 min, sequential took an hour-plus). Item 23
+  validated: A-023/A-031/A-033 read `mentioned`, forbidden 3/25. Item 24
+  validated: no skipped audits. Item 12 now reads honestly: recall **0/3** —
+  A-021/A-029 (claim traps) and A-047 asserted and **delivered** while the
+  audit flagged nothing. Item 17: withheld **39** of 125, faithfulness 0.60.
+  Item 19 measured: multiturn **10/10** live, 0 over-escalations. Recall 99.2
+  / probes 98.3 unchanged; the 250 drawn set is unchanged — re-draw pending.
+
 - **2026-09-10 (55)** — The dev sweep runs concurrently (§12). `eval
   --workers N` fans the per-item calls over a pool: a full dev sweep is ~355
   independent round trips (185 searches, 170 asks, ~150 judge calls) that ran

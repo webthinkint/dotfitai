@@ -44,6 +44,51 @@ public class PromptsTests
     }
 
     [Fact]
+    public void BothHandoffsCarryARealSupportRouteNotJustProse()
+    {
+        // Item 22: these two templates are the most-seen copy on the failure
+        // paths, and a customer already being turned away must not also be sent
+        // nowhere. The default route is corpus-attested — the PDSRG's own
+        // "About dotFIT Worldwide" section publishes it — so it is approved copy
+        // rather than a number we invented.
+        foreach (string handoff in new[]
+                 { Prompts.RefusalMessage(["pregnancy or breastfeeding"]), Prompts.WithheldMessage() })
+        {
+            Assert.Contains(Prompts.DefaultSupportContact, handoff);
+            Assert.Contains("support@dotfit.com", handoff);
+            // Still ends on the AI-identity line: the route is inserted before
+            // it, not in place of it.
+            Assert.EndsWith("(I'm an AI assistant — nutrition guidance, not medical advice.)", handoff);
+        }
+    }
+
+    [Fact]
+    public void AConfiguredRouteReplacesTheDefaultAndNoneDropsTheLine()
+    {
+        Assert.Contains("help@example.com", Prompts.WithheldMessage("help@example.com"));
+        Assert.DoesNotContain("support@dotfit.com", Prompts.WithheldMessage("help@example.com"));
+
+        // DOTFIT_SUPPORT_CONTACT=none leaves the wording exactly as it was
+        // before item 22 — the prose already says to contact the support team.
+        string bare = Prompts.WithheldMessage(supportContact: null);
+        Assert.DoesNotContain("You can reach", bare);
+        Assert.Contains("dotFIT support team", bare);
+    }
+
+    [Fact]
+    public void TheSupportRouteDoesNotDisturbTheEscalationPostCheck()
+    {
+        // PostChecker reads the refusal for a handoff phrase; adding a line
+        // after it must not turn a correct refusal into a failure.
+        var escalated = new GuardrailVerdict { Escalate = true, Reasons = ["under-18"] };
+        PostCheckResult result = PostChecker.Check(
+            escalated, new RewriteResult { CanonicalQuestion = "q?" },
+            AliasExpansion.Empty, [], Prompts.RefusalMessage(escalated.DisplayReasons));
+
+        Assert.True(result.Passed);
+    }
+
+    [Fact]
     public void ClaimsMarkerSplitsApprovedCopyFromContextOnly()
     {
         // §3: products.json (authority 1) and the PDSRG (2) are the approved

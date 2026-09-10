@@ -10,6 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- ServiceOptions.FromValues, so the hardening contract is testable
+         without a host — same arrangement DotFit.Agents has for RuntimeOptions. -->
+    <InternalsVisibleTo Include="DotFit.Agents.Tests" />
     <ProjectReference Include="..\DotFit.Agents\DotFit.Agents.csproj" />
   </ItemGroup>
 

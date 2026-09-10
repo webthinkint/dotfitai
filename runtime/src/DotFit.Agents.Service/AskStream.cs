@@ -51,6 +51,15 @@ public interface ISseWriter
 /// answer agent — see <see cref="ConversationHistory"/>. Safety is judged over
 /// the conversation as of open item 19: a trigger stated in an earlier turn
 /// ("I'm 14") still escalates the question that follows it.
+///
+/// **Hardening** (open item 22) arrives as <see cref="ServiceOptions"/>: the
+/// request timeout is applied here because the two cancellation cases are not
+/// the same event — a client hang-up is rethrown and writes nothing, our own
+/// timeout takes the failure path, since a stream that merely stops is
+/// indistinguishable from a network fault and invites the retry the caller was
+/// told not to make. Auth and the length/`top` limits are checked in
+/// <c>Program</c> instead, before the stream opens: once the first frame is
+/// written the response is a 200 and no status code is left to reject with.
 /// </summary>
 public static class AskStream
 {
@@ -71,8 +80,11 @@ public static class AskStream
         IKnowledgeAssistant assistant,
         AskRequest request,
         ISseWriter writer,
-        CancellationToken ct)
+        CancellationToken ct,
+        ServiceOptions? service = null)
     {
+        service ??= new ServiceOptions { ApiKey = null };
+
         // A request with no conversation id is a new conversation.
         if (request.ConversationId is null)
             await writer.WriteAsync(EventDisclosure,
@@ -89,10 +101,20 @@ public static class AskStream
             History = history,
         };
 
+        // The request timeout is ours, not the caller's (item 22). A wedged
+        // upstream call would otherwise hold the connection — and the Azure
+        // quota behind it — open for as long as the caller is willing to wait,
+        // and the caller was told to be generous. Linked so a client hang-up
+        // still cancels first, which is the case that must *not* write a
+        // handoff: there is nobody left to read it.
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        if (service.RequestTimeout > TimeSpan.Zero)
+            timeout.CancelAfter(service.RequestTimeout);
+
         try
         {
             await foreach (AssistantEvent e in
-                           assistant.AskStreamAsync(request.Question, options, ct)
+                           assistant.AskStreamAsync(request.Question, options, timeout.Token)
                                .ConfigureAwait(false))
             {
                 switch (e)
@@ -118,21 +140,38 @@ public static class AskStream
                 await writer.FlushAsync(ct).ConfigureAwait(false);
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
             throw;                                  // the client hung up
         }
+        catch (OperationCanceledException)
+        {
+            // Our own timeout, with the client still listening: it gets the
+            // failure path, not a truncated stream, because a stream that just
+            // stops looks identical to a network fault and invites the retry
+            // the caller was told not to make.
+            await FailAsync(writer, "Timeout", service.SupportContact, ct).ConfigureAwait(false);
+        }
         catch (Exception e)
         {
-            // The customer gets the same templated handoff a failed post-check
-            // produces — never an exception message, never a bare stream end.
-            await writer.WriteAsync(EventError,
-                new { message = "The assistant could not complete that request.",
-                      kind = e.GetType().Name }, ct).ConfigureAwait(false);
-            await writer.WriteAsync(EventDelta,
-                new { text = Prompts.WithheldMessage() }, ct).ConfigureAwait(false);
-            await writer.FlushAsync(ct).ConfigureAwait(false);
+            await FailAsync(writer, e.GetType().Name, service.SupportContact, ct).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>
+    /// The terminal failure frames: <c>error</c> with a type name and no
+    /// detail, then the same templated handoff a failed post-check delivers —
+    /// never an exception message, never a bare stream end.
+    /// </summary>
+    private static async Task FailAsync(
+        ISseWriter writer, string kind, string? supportContact, CancellationToken ct)
+    {
+        await writer.WriteAsync(EventError,
+            new { message = "The assistant could not complete that request.", kind = kind },
+            ct).ConfigureAwait(false);
+        await writer.WriteAsync(EventDelta,
+            new { text = Prompts.WithheldMessage(supportContact) }, ct).ConfigureAwait(false);
+        await writer.FlushAsync(ct).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -102,6 +102,18 @@ the test.
   "what may live in git" ruling, not an exposure in the assistant. It needs
   one decision covering all 121, not 121 reads.
 
+- **The stakeholder preview does not wait on the residual-PII queue** (owner
+  ruling, 2026-09-10, open item 13). The preview audience is stakeholders and
+  approved partners, and the 211 already-searchable records are acceptable for
+  that audience; item 13 continues as **public-launch** work, at the same
+  conservative standard, rather than as a preview gate. This is the §4 posture
+  applied rather than relaxed: `data/QAs/` stays read-only, nothing unscrubbed
+  leaves Stage 0, a redaction rule still earns its keep on the regen diff, and a
+  queue of 0 is still a claim to be earned. What the ruling settles is *who may
+  see the current state*, not what the scrub is allowed to miss. It pairs with
+  the item 21 ruling and inherits its price: item 20's verdict log is how either
+  side reconstructs what this audience was actually shown.
+
 **Stage 4 (§4)**
 
 - **Renames never supersede** (owner ruling 2026-09-07, after challenging the
@@ -417,3 +429,29 @@ the test.
   per-request verdict logging (item 20) stops being nice-to-have — if any state
   may ship, the record of what the preview audience was actually shown is the
   only way to reconstruct a complaint.
+- **Service auth is fail-closed, and the support route is corpus-attested**
+  (2026-09-10, open item 22 — closed). Four decisions, all of them about the
+  boundary rather than the pipeline. (1) **Auth stops the boot**: the service has
+  no authentication of its own, so with neither `DOTFIT_SERVICE_API_KEY` nor an
+  explicit `DOTFIT_SERVICE_AUTH=none` it refuses to start — there must be no
+  state in which it is running and open, and the two set together is an error
+  rather than a precedence rule, because guessing which was meant either exposes
+  the service or rejects the caller. A shared secret as `Authorization: Bearer`,
+  compared in fixed time; `/healthz` stays unauthenticated and now *reports* the
+  posture, so `"auth": "none"` on a deployment that meant to require a secret is
+  visible instead of silent. (2) **An over-long question is a 400, never a
+  truncation** — truncating changes the question, and the answer would be to
+  something the customer did not ask. All validation happens before the first SSE
+  frame, since that frame commits the response to 200 and leaves no status code
+  to reject with. (3) **Our own request timeout takes the failure path, a client
+  hang-up does not**: the two cancellations stopped being the same event, and a
+  stream that merely stops is indistinguishable from a network fault and invites
+  the retry the caller was told not to make. (4) **The handoff route is
+  configuration with a corpus-attested default** — `support@dotfit.com or
+  (877) 436-8348`, which the PDSRG's own "About dotFIT Worldwide" section
+  publishes, so it is authority-2 approved copy and not a number we invented
+  (the §5 attestation standard, applied to delivered copy). `=none` restores the
+  old prose. **CORS and rate limiting stay absent** on purpose: one trusted
+  server-side caller, no browser origin, and a rate limit on a single caller
+  whose every request costs five model calls would be guessing at a deployment
+  we do not have.

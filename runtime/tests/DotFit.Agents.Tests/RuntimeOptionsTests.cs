@@ -204,4 +204,22 @@ public class RuntimeOptionsTests
         RuntimeOptions options = RuntimeOptions.Load(WriteEnv(root, ValidEnv));
         Assert.Equal("kb-main-v2", options.IndexName);
     }
+
+    [Fact]
+    public void SupportContactDefaultsOverridesAndCanBeTurnedOffByName()
+    {
+        // Item 22. Unset is the attested default, because a handoff with no
+        // route is the failure this variable exists to prevent; "none" is how a
+        // deployment says it wants the old prose, so an empty value can never
+        // silently become that.
+        string root = Root();
+        Assert.Equal(Answering.Prompts.DefaultSupportContact,
+            RuntimeOptions.Load(WriteEnv(root, ValidEnv)).SupportContact);
+
+        Assert.Equal("help@example.com", RuntimeOptions.Load(
+            WriteEnv(Root(), ValidEnv + "\nDOTFIT_SUPPORT_CONTACT=help@example.com")).SupportContact);
+
+        Assert.Null(RuntimeOptions.Load(
+            WriteEnv(Root(), ValidEnv + "\nDOTFIT_SUPPORT_CONTACT=none")).SupportContact);
+    }
 }
