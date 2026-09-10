@@ -86,6 +86,48 @@ public class PromptsTests
     }
 
     [Fact]
+    public void ClaimsUserMessageNumbersEverySourceAsTheAnswerAgentSawThem()
+    {
+        // Regression, open items 17/12: the checker used to be handed the
+        // authority 1-2 sources only, so it could not resolve a draft's [2] or
+        // [3] and read anything grounded there as an invention. The dev sweep
+        // withheld 51/125 answers on that, one of them a single sentence about
+        // the carbohydrates in an apple, cited to the Q&A source it came from.
+        var sources = new List<Retrieval.RetrievedDocument>
+        {
+            TestDocs.Product("P"), TestDocs.Qa("Q"), TestDocs.Pdsrg("G"),
+        };
+        string message = Prompts.BuildClaimsUserMessage("q", "answer [2].", sources);
+
+        Assert.Contains("Draft answer:\nanswer [2].", message);
+        Assert.Contains("[2] Q — dotFIT nutrition knowledge base (authority 3) — CONTEXT ONLY", message);
+        Assert.Contains("Expert answer from the QA corpus.", message);
+        // Numbering is the whole point: it must match the answer agent's list.
+        foreach (int n in new[] { 1, 2, 3 })
+        {
+            var doc = sources[n - 1];
+            string line = $"[{n}] {doc.Title} — {Prompts.SourceLabel(doc.SourceType, doc.Authority)}";
+            Assert.Contains(line, message);
+            Assert.Contains(line, Prompts.BuildAnswerUserMessage("q", sources, []));
+        }
+    }
+
+    [Fact]
+    public void ClaimsInstructionsScopeViolationsToProductClaims()
+    {
+        // The gate audits claim language, not general factual accuracy, and a
+        // violation has to name the source number it was checked against — an
+        // evidence-free flag against a source the checker never saw is
+        // unfalsifiable, which is how item 12's denominator got its one entry.
+        Assert.Contains("QUOTABLE FOR PRODUCT CLAIMS", Prompts.ClaimsInstructions);
+        Assert.Contains("CONTEXT ONLY", Prompts.ClaimsInstructions);
+        Assert.Contains("not factual accuracy in general", Prompts.ClaimsInstructions);
+        Assert.Contains("is not a claim about a dotFIT product", Prompts.ClaimsInstructions);
+        Assert.Contains("only if it is a product claim", Prompts.ClaimsInstructions);
+        Assert.Contains("source number you checked it against", Prompts.ClaimsInstructions);
+    }
+
+    [Fact]
     public void SourceLabelsCoverAllFiveTypes()
     {
         Assert.Contains("approved product copy", Prompts.SourceLabel("product", 1));

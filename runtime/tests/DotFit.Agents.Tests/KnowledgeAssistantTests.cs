@@ -162,6 +162,33 @@ public class KnowledgeAssistantTests
     }
 
     [Fact]
+    public async Task ClaimsCheckIsSkippedWhenNothingQuotableWasRetrieved()
+    {
+        // The check runs on the presence of approved copy — with nothing
+        // quotable there is no approved wording to audit against — but it now
+        // judges against the full source list, so the context-only docs travel
+        // with it instead of being filtered out.
+        var claimsClient = new ScriptedChatClient(
+            """{"compliant":false,"violations":["never reached"],"evidence":["none"]}""");
+        IClaimsLanguageChecker claims = new AgentClaimsLanguageChecker(
+            new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
+
+        ClaimsVerdict verdict = await claims.CheckAsync(
+            "q", "answer [1].", [TestDocs.Qa(), TestDocs.Qa("another")]);
+
+        Assert.True(verdict.Compliant);
+        Assert.False(verdict.Degraded);
+        Assert.Empty(claimsClient.Calls);
+
+        ClaimsVerdict judged = await claims.CheckAsync(
+            "q", "answer [2].", [TestDocs.Product(), TestDocs.Qa()]);
+        Assert.False(judged.Compliant);
+        string sent = claimsClient.Calls.Single().Messages.Last().Text ?? "";
+        Assert.Contains("CONTEXT ONLY", sent);
+        Assert.Contains("Expert answer from the QA corpus.", sent);
+    }
+
+    [Fact]
     public async Task DegradedGuardrailStillAnswers()
     {
         var guardrail = new AgentGuardrail(AgentFor("garbage"));

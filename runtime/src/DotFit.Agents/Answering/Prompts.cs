@@ -98,17 +98,37 @@ public static class Prompts
     /// <summary>Claims-language post-check instructions (small deployment).</summary>
     public const string ClaimsInstructions = """
         You audit a draft answer from the dotFIT knowledge assistant for compliant
-        claim language, against the approved product copy excerpts provided.
+        claim language. You are given every source the answer was allowed to use,
+        numbered exactly as the answer's [n] citations are, each tagged either
+        QUOTABLE FOR PRODUCT CLAIMS (dotFIT's approved product copy and the
+        practitioner reference guide) or CONTEXT ONLY (customer Q&A, podcasts,
+        menus).
 
-        compliant=false when the answer states or implies that a supplement treats,
-        cures, prevents, or diagnoses a disease, or makes a product claim the
-        approved copy does not make (including stronger versions of real claims).
-        General nutrition guidance and quoting the approved copy verbatim are
-        compliant.
+        You audit product-claim language, not factual accuracy in general.
+
+        compliant=false only when the answer:
+        - states or implies that a supplement treats, cures, prevents or diagnoses
+          a disease; or
+        - makes a product claim (what a dotFIT product does, contains, or how to
+          take it) that no QUOTABLE source supports — including a stronger version
+          of a real claim, and including claim wording taken from a CONTEXT ONLY
+          source and presented as approved product copy.
+
+        These are compliant. Do not report them:
+        - general nutrition information that is not a claim about a dotFIT product
+          (foods, nutrients, training, timing), whatever source it came from
+        - a statement grounded in a CONTEXT ONLY source, cited to it, and framed as
+          expert or community context rather than as approved product copy
+        - quoting or closely paraphrasing a QUOTABLE source the answer cites
+
+        A statement you cannot find in any of the provided sources is a violation
+        only if it is a product claim. Otherwise leave it alone.
 
         violations: short quotes of the offending phrasing from the answer.
-        evidence: the approved-copy wording that applies, or "none" when the claim
-        has no basis in the provided copy.
+        evidence: one entry per violation, in the same order, each starting with the
+        source number you checked it against — "[4] the copy says ..." — or "none"
+        when no provided source supports it. Never cite a number that is not in the
+        list you were given.
         """;
 
     /// <summary>Grounded context for the answer agent. Numbering is the citation contract.</summary>
@@ -152,20 +172,37 @@ public static class Prompts
         return sb.ToString().TrimEnd() + "\n";
     }
 
-    /// <summary>The user message for the claims-language post-check.</summary>
+    /// <summary>
+    /// The user message for the claims-language post-check. Carries *every*
+    /// retrieved source, numbered exactly as <see cref="BuildAnswerUserMessage"/>
+    /// numbers them, so the checker resolves the draft's [n] markers against the
+    /// same list the answer agent wrote from.
+    ///
+    /// Passing approved copy alone — what this did until 2026-09-10 — left the
+    /// checker blind to the sources most of those markers point at, so anything
+    /// grounded in the Q&amp;A or podcast corpus was indistinguishable from an
+    /// invention. The 2026-09-09 dev sweep withheld 51/125 answers, 50 of them on
+    /// claims_language; 15 of those cited nothing the checker could see, one being
+    /// a one-line answer about the carbohydrates in an apple, which is not a
+    /// product claim at all (open items 17 and 12). The §3 claims line is carried
+    /// by <see cref="ClaimsMarker"/> on each source, not by omitting sources.
+    /// </summary>
     public static string BuildClaimsUserMessage(
-        string question, string answer, IReadOnlyList<Retrieval.RetrievedDocument> approvedCopy)
+        string question, string answer, IReadOnlyList<Retrieval.RetrievedDocument> sources)
     {
         var sb = new System.Text.StringBuilder();
         sb.Append("Customer question: ").Append(question).Append("\n\n");
         sb.Append("Draft answer:\n").Append(answer).Append("\n\n");
-        sb.Append("Approved product copy (authority 1-2 sources only):\n");
-        foreach (var doc in approvedCopy)
+        sb.Append("Sources the answer was given (numbered as its [n] citations):\n");
+        for (int i = 0; i < sources.Count; i++)
         {
-            sb.Append('[').Append(doc.Title).Append("] ")
-              .Append(doc.Content.ReplaceLineEndings(" ")).Append('\n');
+            var doc = sources[i];
+            sb.Append('[').Append(i + 1).Append("] ").Append(doc.Title)
+              .Append(" — ").Append(SourceLabel(doc.SourceType, doc.Authority))
+              .Append(" — ").Append(ClaimsMarker(doc.Authority)).Append('\n');
+            sb.Append("    ").Append(doc.Content.ReplaceLineEndings(" ")).Append("\n\n");
         }
-        return sb.ToString();
+        return sb.ToString().TrimEnd() + "\n";
     }
 
     /// <summary>

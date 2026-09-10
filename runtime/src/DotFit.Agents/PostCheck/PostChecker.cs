@@ -119,8 +119,16 @@ public interface IClaimsLanguageChecker
 }
 
 /// <summary>
-/// Small-model claims-language audit against the approved copy (authority 1–2
-/// sources only — §3: products.json is the legal-approved claims corpus).
+/// Small-model claims-language audit of the draft's product claims against the
+/// approved copy (§3: products.json is the legal-approved claims corpus).
+///
+/// It <em>runs</em> only when approved copy was retrieved — with nothing
+/// quotable in the set there is no approved wording to audit against — but it
+/// <em>judges</em> against the whole retrieved list. The §3 line travels with
+/// each source as its <see cref="Prompts.ClaimsMarker"/>; withholding the
+/// context-only sources instead made every claim grounded in them look
+/// unsupported (see <see cref="Prompts.BuildClaimsUserMessage"/>).
+///
 /// Best-effort: on failure it degrades to a warning, never a failure.
 /// </summary>
 public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageChecker
@@ -128,13 +136,12 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
     public async Task<ClaimsVerdict> CheckAsync(
         string question, string answer, IReadOnlyList<RetrievedDocument> sources, CancellationToken ct = default)
     {
-        var approvedCopy = sources.Where(s => s.Authority <= 2).ToList();
-        if (approvedCopy.Count == 0)
+        if (!sources.Any(s => Prompts.ClaimsQuotable(s.Authority)))
             return new ClaimsVerdict { Compliant = true }; // nothing approved to check against
         try
         {
             return await StructuredCall.RunAsync<ClaimsVerdict>(
-                agent, Prompts.BuildClaimsUserMessage(question, answer, approvedCopy),
+                agent, Prompts.BuildClaimsUserMessage(question, answer, sources),
                 "dotfit_claims", Schemas.Claims, ct).ConfigureAwait(false);
         }
         catch (Exception e) when (e is not OperationCanceledException)
