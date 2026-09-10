@@ -37,7 +37,7 @@ Sampling decisions (plan §12, made concrete here):
 - **Strata** = (year, primary family). Primary family = alphabetically first
   family of the record's part_nos (alias table resolves part_no → family;
   an unknown part_no raises — never silently untagged). Records with no
-  product tags form the ``(untagged)`` stratum, which is real: 153/650 of
+  product tags form the ``(untagged)`` stratum, which is real: 157/653 of
   the pool are general-guidance questions.
 - **Allocation**: year quotas proportional to pool counts with 2025–2026
   weighted ×2 (§12 "weight 2025–2026 for currency"), floored at 1 per

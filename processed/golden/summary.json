@@ -15,11 +15,11 @@
  "pool": {
   "excluded": {
    "n_stage4": 1041,
-   "n_not_current": 122,
-   "n_no_question": 269,
+   "n_not_current": 118,
+   "n_no_question": 270,
    "n_duplicate_question": 0
   },
-  "n_pool": 650
+  "n_pool": 653
  },
  "n_items": 250,
  "year_allocation": [
@@ -31,8 +31,8 @@
   },
   {
    "year": 2018,
-   "pool": 1,
-   "weight": 1.0,
+   "pool": 2,
+   "weight": 2.0,
    "sampled": 1
   },
   {
@@ -49,89 +49,89 @@
   },
   {
    "year": 2023,
-   "pool": 248,
-   "weight": 248.0,
-   "sampled": 74
+   "pool": 247,
+   "weight": 247.0,
+   "sampled": 73
   },
   {
    "year": 2024,
-   "pool": 218,
-   "weight": 218.0,
+   "pool": 219,
+   "weight": 219.0,
    "sampled": 65
   },
   {
    "year": 2025,
-   "pool": 63,
-   "weight": 126.0,
+   "pool": 64,
+   "weight": 128.0,
    "sampled": 38
   },
   {
    "year": 2026,
-   "pool": 116,
-   "weight": 232.0,
-   "sampled": 69
+   "pool": 117,
+   "weight": 234.0,
+   "sampled": 70
   }
  ],
  "faq_family_coverage": [
   {
    "family": "Omega-3 Fish Oil",
    "target": 3,
-   "pool": 149,
-   "sampled": 58
+   "pool": 151,
+   "sampled": 63
   },
   {
    "family": "Calcium Complex",
    "target": 3,
-   "pool": 144,
-   "sampled": 62
+   "pool": 146,
+   "sampled": 59
   },
   {
    "family": "Active MV",
    "target": 3,
    "pool": 141,
-   "sampled": 53
+   "sampled": 65
   },
   {
    "family": "WheySmooth",
    "target": 3,
-   "pool": 131,
-   "sampled": 55
+   "pool": 129,
+   "sampled": 57
   },
   {
    "family": "Over 50 MV",
    "target": 3,
-   "pool": 122,
-   "sampled": 47
+   "pool": 124,
+   "sampled": 55
   },
   {
    "family": "Alln1 SuperBlend",
    "target": 3,
-   "pool": 115,
-   "sampled": 51
-  },
-  {
-   "family": "AminoFormula",
-   "target": 3,
-   "pool": 104,
-   "sampled": 42
+   "pool": 114,
+   "sampled": 58
   },
   {
    "family": "Women's MV",
    "target": 3,
-   "pool": 103,
-   "sampled": 45
+   "pool": 106,
+   "sampled": 49
+  },
+  {
+   "family": "AminoFormula",
+   "target": 3,
+   "pool": 102,
+   "sampled": 51
   },
   {
    "family": "LeanMeal Nutrition Shake",
    "target": 3,
    "pool": 81,
-   "sampled": 27
+   "sampled": 26
   },
   {
    "family": "Creatine Monohydrate",
    "target": 3,
-   "pool": 76,
-   "sampled": 26
+   "pool": 80,
+   "sampled": 32
   }
  ],
  "n_distinct_families_sampled": 29,
@@ -166,6 +166,18 @@
    "n": 15
   }
  ],
+ "multiturn": {
+  "n": 20,
+  "by_category": {
+   "delayed_escalation": 10,
+   "delayed_claim_trap": 5,
+   "no_escalation_control": 5
+  },
+  "splits": {
+   "dev": 10,
+   "test": 10
+  }
+ },
  "probes": {
   "n_probes": 120,
   "n_per_source": {
@@ -785,17 +797,5 @@
     "probed": 1
    }
   ]
- },
- "multiturn": {
-  "n": 20,
-  "by_category": {
-   "delayed_escalation": 10,
-   "delayed_claim_trap": 5,
-   "no_escalation_control": 5
-  },
-  "splits": {
-   "dev": 10,
-   "test": 10
-  }
  }
 }

@@ -1,10 +1,36 @@
 # Task 8 — Decide whether to refresh the 250 test questions
 
-**Who:** project owner — one decision, about 15 minutes of reading
-**Effort:** none beyond the decision; the alternatives are already prepared
-**Blocking:** it gates the *start* of task 1 (the 2–3 day labeling pass), not
-the preview and not engineering
-**Tracked as:** open item 8 (the golden set)
+**Status: DECIDED 10 September 2026 — refresh (re-draw).** Done; kept as the
+record. No further owner action.
+**Tracked as:** open item 8 (the golden set), which is now down to the
+labeling pass itself — task 1 is unblocked and may start.
+
+## The decision
+
+The owner ruled **option B/C — re-draw**, after task 3 (the duplicate-answer
+ruling) had been settled, which was the suggested sequencing. Task 3 was ruled
+"different questions" on both pairs, so the pool stayed at 653 and the draw
+did not move: the preview described below regenerated *identically* and was
+promoted to the real location on 10 September. Everything in this document
+therefore describes what actually happened, not a projection.
+
+**What this means in practice:**
+
+- The labeling worksheet handed to the nutritionist and support lead is the
+  refreshed one. It is final; nothing further will change it before labeling.
+- 208 of the 250 questions are the same as in the earlier draft, 42 are new.
+  If anyone made notes against the old draft, the labels for those 208 still
+  stand — but the item numbers (G-001, G-002 …) were re-assigned in the
+  refresh, so notes should be matched to rows by question text, not by number.
+- The hostile 50, the 20 multi-turn tests and the 120 retrieval probes were
+  not touched, and their results (safety refusals 10 of 10, multi-turn 10 of
+  10) carry over unchanged.
+- One piece of engineering follow-up: the last full test run measured the
+  question tier against the old draw, so those particular figures will be
+  re-measured. That is machine time, not owner time, and it does not hold up
+  labeling.
+
+The reasoning that led here, and the numbers it rested on, are kept below.
 
 ## What this is
 
@@ -21,17 +47,16 @@ the questions themselves. So there is a choice:
 - **Keep** the 250 exactly as they are, or
 - **Re-draw** them from the corpus as it stands today.
 
-This is your call because it moves the target of 2–3 days of two people's
-work. Once labeling starts, a re-draw throws that work away, which is why the
-decision comes first. **Task 1 should not start until this is decided** —
-either answer unblocks it.
+This was the owner's call because it moves the target of 2–3 days of two
+people's work. Once labeling starts, a re-draw throws that work away, which is
+why the decision came first. It has been taken — task 1 is unblocked.
 
-## The decision, with the real numbers
+## The numbers the decision rested on
 
-We regenerated the full re-draw as a preview, so nothing below is a projection
-— it is exactly what a re-draw would produce today. (It was produced by the
-same deterministic command that builds the real set; re-running it always
-gives these same numbers.)
+The full re-draw was regenerated as a preview first, so nothing below was a
+projection — it is exactly what the re-draw produced, and what is now the real
+set. (Same deterministic command that builds the real set; re-running it
+always gives these same numbers.)
 
 **What stays the same:**
 
@@ -65,7 +90,7 @@ and the 120 retrieval probes are hand-written or built by fixed rules — a
 re-draw of the 250 does not touch them, and their recent results (safety
 refusals 10 of 10, multi-turn 10 of 10) carry over as they are.
 
-## The three options
+## The three options as they were put
 
 **A. Keep the current 250.** Zero work, labeling can start immediately on the
 existing worksheet. The scorecard stays a snapshot of the older processing:
@@ -73,14 +98,17 @@ slightly more untagged general questions than the corpus now warrants, and
 the two retired-answer items above. Everything already measured on this set
 (including yesterday's full test run) stays valid without re-running anything.
 
-**B. Re-draw now.** The worksheet regenerates with the 42 new questions and
-labeling starts on that file. Engineering re-measures the sample tier of the
-test run — about ten minutes of machine time, already prepared. The scorecard
-then matches the corpus as it exists today, with the better product tagging.
+**B. Re-draw now.** *(chosen — in the option-C sequencing below.)* The
+worksheet regenerates with the 42 new questions and labeling starts on that
+file. Engineering re-measures the sample tier of the test run — about ten
+minutes of machine time, already prepared. The scorecard then matches the
+corpus as it exists today, with the better product tagging.
 
-**C. Rule on task 3 first, then re-draw.** Task 3 (about 20 minutes of the
-nutritionist's time, already written up) settles two pairs of near-identical
-answers that are still waiting a ruling. Neither pair appears in either draw,
+**C. Rule on task 3 first, then re-draw.** *(the sequencing actually
+followed: task 3 was ruled first, both pairs came back "different questions",
+the pool stood, and the preview held exactly.)* Task 3 (about 20 minutes of
+the nutritionist's time, already written up) settles two pairs of
+near-identical answers that were waiting a ruling. Neither pair appears in either draw,
 so the ruling cannot change the 250 directly — but a "same question" ruling
 removes records from the pool, which can ripple into the draw. Concretely:
 if both pairs are ruled *different questions*, the pool stands and the
@@ -109,5 +137,7 @@ labelers, sits in `pipeline/out/golden-preview/` on the build machine
 (`worksheet.md` opens in any editor). It is a scratch copy — deciding
 "keep" deletes nothing, deciding "re-draw" promotes a regenerated copy to
 the real location. The comparison counts in this document were computed from
-that preview against the current committed set on 10 September 2026; the
-draw command is deterministic, so the same comparison will reproduce.
+that preview against the then-committed set on 10 September 2026; the draw
+command is deterministic, so the comparison reproduced exactly when the
+re-draw was promoted. `pipeline/out/golden-preview/` has served its purpose —
+the real set at `processed/golden/` is now byte-for-byte the same thing.

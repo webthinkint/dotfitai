@@ -23,12 +23,12 @@ Numbers verified 2026-09-10. Python 455 tests green; runtime 143 tests green.
 | QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (52 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
 | QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09, conflicts ruled 2026-09-10 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (3 conflict — all ruled split; 1 audit); 114 judgments (104 dependent / 10 independent); queue 2 (audit sample) |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
-| Golden set | §12 | **complete except labeling** 2026-09-08, multi-turn set added 2026-09-10 (item 19). Remaining: label the 250 (item 8). The sampled 250 predate the luna Stage 4 regen — pool 650 then, 653 now — so a re-draw is a decision, not a refresh (it moves item 8's target) — `golden --written-only` now rebuilds the written 50/20 without one, which is how the item 23 rubric rewrite landed (golden_version 1.1.0). **Decision pack ready 2026-09-10**: owner task 8, with a preview draw in `pipeline/out/golden-preview/` (208/250 stay, 42 swap; deterministic) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes; `processed/golden/` |
+| Golden set | §12 | **re-drawn 2026-09-10** (item 8 ruled: re-draw); **complete except labeling**. The 250 now come from the post-luna pool (653) — 208 of the previous draw stay, 42 swap, `(untagged)` 79 → 63, 29 families and the 125/125 split unchanged; the two items aimed at retired answers (G-012, G-032) are gone. The written 50 adversarial / 20 multi-turn and the 120 probes were not touched by the draw. Remaining: label the 250 (item 8) | 653 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
 | Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization) and 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors). Ranker ruled **off** — item 5 closed | 4,006 docs — 1,080 pdsrg / 181 product / 10 menu / 1,800 podcast / 935 qa; 1 embed call (4,002 cached), 0 pruned, 0 errors; live `search_ping` PASS at 4,006 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12) | `runtime/`, 143 tests |
 | SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. Remaining before public traffic: items 12/17 | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
-| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. Measured on the drawn 250 — a re-draw (owner call) would re-measure the sample tier |
+| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. Measured on the **superseded** draw — the 250 were re-drawn 2026-09-10, so the sample tier (recall@8, points-hit, the per-item faithfulness/citation pile) is a reading of a set 42 items different; the probe, escalation and multiturn tiers are unaffected and stand |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
 `processed/golden/`, `processed/index/`, `processed/eval/` (the one that
@@ -53,7 +53,7 @@ owner.
 | 5 | Semantic ranker on/off | **closed** 2026-09-09 — **off**. Full dev split: sample recall@8 99.2% off vs 75.2% on (n=125); the ranker's only win is one podcast probe (59/60 → 60/60). The off default stands; `--semantic` remains a flag |
 | 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05, queue 0 |
 | 7 | Stage 4 review-queue dispositions | **closed** 2026-09-10 — both luna-regen pairs ruled **split** (owner task 3): LeanMR+creatine read as two turns of one thread (the FirstString shape), Lean Pack 90 kept both because the 2023 record carries the fuller FAQ text. All 3 conflict clusters dispositioned and pinned by membership; queue 2 (audit sample only, no decision owed) |
-| 8 | Golden-set labeling | **open, narrowed — now gated on the re-draw ruling** — the 50 adversarial are written (2026-09-08); what remains is labeling the **250** with points-to-hit and expected sources. Nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header. Until then the harness reports those two metrics as `null` with a reason. **Owner task 8** (keep-or-re-draw) must be ruled before labeling starts; its decision pack incl. a deterministic preview is ready (2026-09-10) |
+| 8 | Golden-set labeling | **open, unblocked** — the re-draw is **ruled and committed** 2026-09-10: the 250 are re-drawn from the post-luna pool (653), 208 stay / 42 swap, deterministic and byte-identical to the decision pack's preview. What remains is the human pass: label the 250 with points-to-hit and expected sources (nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header). Until then the harness reports those two metrics as `null` with a reason. **Owner task 1** may start now; owner task 8 is closed |
 | 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
 | 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
 | 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07, re-measured on the frontier 2026-09-09 — the dev sweep's audit saw no authority-3 sourcing; the residual claims-language concern on luna is item 17 |
@@ -78,6 +78,16 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+
+- **2026-09-10 (60)** — The 250 are **re-drawn** (§12, item 8 ruled
+  re-draw). Sequencing was option C: item 7's split ruling landed first and
+  left the pool at 653 and the draw unmoved, so the decision pack's preview
+  regenerated **byte-identical** and was promoted — 208/250 stay, 42 swap,
+  125/125 and 29 families unchanged, `(untagged)` 79 → 63, G-012/G-032 (aimed
+  at retired answers) gone. Item numbers and dev/test sides were re-assigned
+  (41/208 keep their number, 114/208 their side), so the sweep's sample tier
+  is owed a re-measure. Written 50/20 and 120 probes untouched; labeling
+  (owner task 1) unblocked. No code (**455 py / 143 runtime**).
 
 - **2026-09-10 (59)** — Item 7 **closed** (§4): both luna-regen conflict
   pairs ruled **split** (owner task 3). LeanMR+creatine is the FirstString
@@ -115,15 +125,6 @@ artifact it describes.
   audit flagged nothing. Item 17: withheld **39** of 125, faithfulness 0.60.
   Item 19 measured: multiturn **10/10** live, 0 over-escalations. Recall 99.2
   / probes 98.3 unchanged; the 250 drawn set is unchanged — re-draw pending.
-
-- **2026-09-10 (55)** — The dev sweep runs concurrently (§12). `eval
-  --workers N` fans the per-item calls over a pool: a full dev sweep is ~355
-  independent round trips (185 searches, 170 asks, ~150 judge calls) that ran
-  strictly one at a time. Each item's ask and its judgment are one task and
-  rows keep input order (`_map_ordered`), so summary and raw rows equal a
-  sequential run; `AgentCli`'s call counter is locked. Default stays 1.
-  Stage 4's judge loop is sequential but cached; embed/upload batches are
-  minutes — both left alone. 2 tests (**455 py / 143 runtime**).
 
 ## Writing entries
 

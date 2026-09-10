@@ -15,7 +15,7 @@ What is left is not mostly code. Eight things have needed a decision or a pass
 from a person, and this folder explains each one in plain language: what it is,
 why it matters, what we need, and how long it should take.
 
-**Five are now done** (3, 4, 5, 7, and half of 6) and are kept as the record
+**Six are now done** (3, 4, 5, 7, 8, and half of 6) and are kept as the record
 rather than as work. Of the rest, **two block a public launch** and none
 block the stakeholder preview — that is the point of the task 7 ruling.
 
@@ -23,14 +23,14 @@ block the stakeholder preview — that is the point of the task 7 ruling.
 
 | # | Task | Who | Effort | Blocking? |
 |---|---|---|---|---|
-| [1](01-golden-set-labeling.md) | Write down the right answer for 250 real questions | Nutritionist + support lead | 2–3 days | **Public launch** — this is how we prove the assistant is accurate |
+| [1](01-golden-set-labeling.md) | Write down the right answer for 250 real questions | Nutritionist + support lead | 2–3 days | **Public launch** — this is how we prove the assistant is accurate. **Unblocked 2026-09-10** (task 8 decided); the worksheet is final |
 | [2](02-privacy-review-queue.md) | Confirm a privacy check on 234 old emails | Support lead | ~half a day | **Yes** — 211 of them are already searchable |
 | [3](03-duplicate-answer-conflict.md) | ~~Rule on two pairs of near-identical answers~~ | — | **Decided 2026-09-10 — split on both** | No |
 | [4](04-product-copy-freshness.md) | ~~Own the monthly product-copy check~~ | — | **Decided 2026-09-10** — drops are ad hoc, chain runs same day | No |
 | [5](05-azure-account-tasks.md) | ~~Two Azure account chores~~ | — | — | **Done** 2026-09-09 |
 | [6](06-decisions-after-testing.md) | Choices that needed a test run first | Project owner | Read a report | 6a **decided**; 6b before public launch |
 | [7](07-stakeholder-release-scope.md) | What the stakeholder preview may say | Project owner | **Decided 2026-09-10** | No — preview ships at any state |
-| [8](08-golden-redraw-decision.md) | Keep or refresh the 250 test questions | Project owner | ~15 min, before task 1 starts | Gates task 1's start |
+| [8](08-golden-redraw-decision.md) | ~~Keep or refresh the 250 test questions~~ | — | **Decided 2026-09-10 — refresh**; worksheet rebuilt | No — task 1 may start |
 
 ## If you only do two things
 
@@ -45,11 +45,11 @@ notices names the smaller one read past, so the read-each pile grew from 2 to
 assistant *finds* the right material, but not whether its answers are *right*.
 That is the difference between "it works" and "we can show it works."
 
-One small gate first: **task 8** is a ~15-minute decision (keep or refresh the
-250 questions task 1 will label) that must be taken before task 1 starts —
-labeling first and refreshing after would throw the work away. Everything
-needed to decide it, including a ready-made preview of the alternative, is in
-its document.
+The gate that used to sit in front of task 1 is gone: **task 8** (keep or
+refresh the 250 questions) was decided on 10 September — **refresh** — and the
+worksheet has been rebuilt from the re-processed corpus. 208 of the 250
+questions are unchanged, 42 are new, and the file the labelers open is final.
+Task 8's document is kept as the record of why.
 
 ## What is already handled
 

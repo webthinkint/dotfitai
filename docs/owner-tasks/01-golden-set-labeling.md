@@ -96,11 +96,14 @@ You do not need to touch anything else in the folder.
 
 ## Two things to know before you start
 
-**Task 8 comes first.** There is a pending owner decision on whether to
-refresh the 250 questions themselves (the corpus was re-processed on
-9 September and the pick could be made again from the cleaner pool). It is a
-~15-minute decision and it is made — do not begin labeling until it is, or
-some of the work below may be redone on a different set of questions.
+**Task 8 is decided — you are clear to start.** The question of whether to
+refresh the 250 questions themselves was ruled on 10 September: **refresh**.
+The worksheet has been rebuilt from the re-processed corpus, so the file you
+open is the final one. 208 of the 250 questions are the same as in the earlier
+draft; 42 are different. If anyone started early against the old file, the
+labels written for those 208 questions are still good — but the item numbers
+(G-001, G-002 …) were re-assigned, so match old notes to new rows by the
+question text, not by the number.
 
 Right now the system can *produce* this worksheet but cannot yet *read* your
 answers back in. Someone on the engineering side needs to write that step — it

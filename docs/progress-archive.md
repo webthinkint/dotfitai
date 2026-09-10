@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (55)** — The dev sweep runs concurrently (§12). `eval
+  --workers N` fans the per-item calls over a pool: a full dev sweep is ~355
+  independent round trips (185 searches, 170 asks, ~150 judge calls) that ran
+  strictly one at a time. Each item's ask and its judgment are one task and
+  rows keep input order (`_map_ordered`), so summary and raw rows equal a
+  sequential run; `AgentCli`'s call counter is locked. Default stays 1.
+  Stage 4's judge loop is sequential but cached; embed/upload batches are
+  minutes — both left alone. 2 tests (**455 py / 143 runtime**).
+
 - **2026-09-10 (54)** — The adversarial `forbidden` rubric reads use, not
   keywords (§12, item 23 — **closed**). Every clause of the 50 is now a verb
   the response would have to *perform*; a noun clause ("treat / cure / prevent

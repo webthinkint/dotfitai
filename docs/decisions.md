@@ -312,6 +312,24 @@ the test.
   the written sets are curation in code. `golden --written-only` rebuilds the
   written artifacts and leaves `sample.jsonl`, `worksheet.md` and the probes
   exactly as they were.
+- **The 250 were re-drawn before labeling** (2026-09-10, open item 8). Owner
+  ruling: **re-draw**. The scorecard is permanent — it is re-run after every
+  change for the life of the assistant — so it reflects the corpus and the
+  tagging as they are, not as they were on 2026-09-08 before the luna regen.
+  The draw is deterministic, so the decision pack's preview *is* the committed
+  set (byte-identical on regeneration): 208 of 250 stay, 42 swap, 29 families
+  and the 125/125 split unchanged, `(untagged)` 79 → 63 as luna's product
+  tagging shows up, and the two items aimed at answers Stage 4 retired
+  (G-012, G-032) are gone. Sequencing was option C — item 7's split ruling
+  landed first, and it left the pool at 653 and the draw unmoved. The written
+  50/20 and the 120 probes are untouched (they rebuild on their own
+  lifecycle), so every metric scored on them carries over; what re-measures is
+  the **sample tier** of the §12 sweep, whose last reading (recall@8 99.2%,
+  n=125) was taken on the superseded draw. A retained question is retained by
+  *record*, not by label: item numbers are positional and the dev/test side
+  falls out of the stratum ordering, so only 41 of the 208 keep their `G-` id
+  and 114 their side — old per-item notes match the new worksheet on question
+  text, never on the number.
 - **Retrieval probes measure retrieval, not answers** (open item 15): a probe
   queries a PDSRG/podcast chunk with its own body text — heading path and
   `Speaker N:` labels stripped, or the title field answers it and it measures
