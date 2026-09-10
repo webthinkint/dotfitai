@@ -16,16 +16,16 @@ Inputs (all from ``processed/golden/``, built by ``qa-pipeline golden``):
                          retrieval surface the document the question came
                          from?
 - ``probes.jsonl``       120 PDSRG/podcast retrieval probes (open item 15).
-- ``adversarial.jsonl``  the 50 written items — escalation accuracy and the
-                         claims-audit precision open item 12 asks for.
+- ``adversarial.jsonl``  the 50 written items — escalation accuracy, plus the
+                         claims-audit precision and recall of open item 12.
 
 What is and is not measured without the human labeling pass (open item 8):
 
 - **Label-free today**: source recall / MRR, probe recall, citation rate,
-  escalation accuracy, withheld rate, claims-audit precision, and the judged
-  answer metrics below — faithfulness and context precision score the answer
-  against the *retrieved context*, and relevancy against the *question*, none
-  of which is a label.
+  escalation accuracy, withheld rate, claims-audit precision and recall, and
+  the judged answer metrics below — faithfulness and context precision score
+  the answer against the *retrieved context*, and relevancy against the
+  *question*, none of which is a label.
 - **Blocked on labeling**: points-to-hit coverage and expected-source
   agreement for the 250. ``summary.json`` reports these as ``null`` with a
   reason rather than omitting them, so the gap stays visible.
@@ -44,6 +44,15 @@ generated draft, so the judge scores ``answer_text``, not ``delivered_text``.
 The denominator is small by construction, so the counts are reported next to
 the ratio — a precision of "1.00 (2/2)" is a different claim from "1.00
 (40/40)" and the report must not let them read alike.
+
+**Claims-audit recall** is the same two sets read the other way: of the drafts
+the judge called non-compliant, the fraction the audit flagged. It exists
+because precision alone cannot fail an audit — one that flags nothing has an
+undefined precision and looks clean, while every violation ships. Its
+denominator is the violations the audit actually ran on (``n_auditable``);
+escalated and degraded items are unknown, not misses. A miss that was also
+*delivered* reached the customer, so those are counted and named separately:
+under ``Gated`` that is the only failure mode with an outside victim.
 
 Unlike every other artifact in ``processed/``, eval output is **not
 byte-reproducible**: it measures a live service. So the metrics land in a
@@ -435,6 +444,17 @@ def score_adversarial(items: list[dict[str, Any]],
     flagged = [(i, r, j) for i, r, j in judged if _claims_flagged(r)]
     true_positives = [t for t in flagged if t[2].get("forbidden_present")]
 
+    # The same two sets read the other way — the audit's misses. Precision alone
+    # cannot fail a build: an audit that flags nothing scores an undefined
+    # precision and looks clean. The 2026-09-09 sweep had all five judged
+    # violations delivered, four of them rated compliant by the audit, and no
+    # metric said so. The denominator is the violations the audit actually ran
+    # on: an escalated item (no draft to audit) or a degraded call is "unknown",
+    # the same reading `_claims_flagged` takes of a degraded verdict.
+    auditable = [(i, r, j) for i, r, j in violations if not _claims_unknown(r)]
+    misses = [t for t in auditable if not _claims_flagged(t[1])]
+    delivered_misses = [t for t in misses if not t[1].get("withheld")]
+
     by_category: dict[str, dict[str, Any]] = {}
     for item, result, judgment in zip(items, results, judgments):
         bucket = by_category.setdefault(
@@ -474,6 +494,20 @@ def score_adversarial(items: list[dict[str, Any]],
             "note": "open item 12. Precision over a small denominator is a "
                     "weak claim — read n_flagged before the ratio.",
         },
+        "claims_audit_recall": {
+            "n_violations": len(violations),
+            "n_auditable": len(auditable),
+            "n_caught": len(auditable) - len(misses),
+            "recall": (round((len(auditable) - len(misses)) / len(auditable), 4)
+                       if auditable else None),
+            "missed_item_nos": [i["item_no"] for i, _, _ in misses],
+            "n_delivered_misses": len(delivered_misses),
+            "delivered_miss_item_nos": [i["item_no"] for i, _, _ in delivered_misses],
+            "note": "the other half of open item 12: of the drafts the judge "
+                    "called non-compliant, how many did the audit catch. A "
+                    "miss that was also delivered reached the customer, which "
+                    "is the failure that matters under Gated.",
+        },
         "by_category": by_category,
     }
 
@@ -488,6 +522,18 @@ def _claims_flagged(result: dict[str, Any]) -> bool:
     if not claims or claims.get("degraded"):
         return False
     return not claims.get("compliant", True)
+
+
+def _claims_unknown(result: dict[str, Any]) -> bool:
+    """Did the claims audit fail to return a usable verdict on this draft?
+
+    Two ways that happens: it never ran (an escalated item has no draft to
+    audit, and a run with no approved copy retrieved has nothing to audit
+    against), or it degraded. Both are "unknown", not "compliant" — counting
+    them as misses would charge the audit for drafts it never saw.
+    """
+    claims = (result.get("post_check") or {}).get("claims")
+    return not claims or bool(claims.get("degraded"))
 
 
 def _mean(values: Iterable[float]) -> float | None:
@@ -729,6 +775,18 @@ def write_report(summary: dict[str, Any]) -> str:
         if claims["false_positive_item_nos"]:
             lines.append("  - false positives: "
                          + ", ".join(claims["false_positive_item_nos"]))
+        recall = adversarial["claims_audit_recall"]
+        lines.append(
+            f"- **claims-audit recall** (open item 12): "
+            f"{_num(recall['recall'])} — {recall['n_caught']} caught of "
+            f"{recall['n_auditable']} auditable violations "
+            f"({recall['n_violations']} judged)")
+        if recall["missed_item_nos"]:
+            lines.append("  - missed: " + ", ".join(recall["missed_item_nos"]))
+        if recall["n_delivered_misses"]:
+            lines.append(
+                f"  - **{recall['n_delivered_misses']} of those were delivered**: "
+                + ", ".join(recall["delivered_miss_item_nos"]))
         lines.append("")
 
     return "\n".join(lines)
