@@ -91,7 +91,9 @@ internal static class Program
         if (!flags.Json)
             WriteBanner(interactive: false);
         KnowledgeAssistant assistant = RuntimeFactory.CreateAssistant(options);
-        return await AskOnce(assistant, flags, question).ConfigureAwait(false);
+        // `ask` is one question, standalone by definition — and the §12 eval
+        // harness drives it, so it must stay single-turn.
+        return await AskOnce(assistant, flags, question, history: null).ConfigureAwait(false);
     }
 
     private static async Task<ExitCode> Chat(RuntimeOptions options, CliFlags flags)
@@ -99,6 +101,10 @@ internal static class Program
         if (!flags.Json)
             WriteBanner(interactive: true);
         KnowledgeAssistant assistant = RuntimeFactory.CreateAssistant(options);
+        // The transcript the SSE service expects its caller to keep (open item
+        // 18) — here it is the session itself, so `chat` is where a follow-up
+        // can be exercised live against the real index.
+        var history = new List<ConversationTurn>();
         while (true)
         {
             (flags.Json ? Console.Error : Console.Out).Write("\n> ");
@@ -110,13 +116,26 @@ internal static class Program
                 continue;
             if (line is "exit" or "quit")
                 break;
-            await AskOnce(assistant, flags, line).ConfigureAwait(false);
+            if (line is "reset" or "new")
+            {
+                history.Clear();
+                Console.Out.WriteLine(Dim("(new conversation — history cleared)"));
+                continue;
+            }
+            await AskOnce(assistant, flags, line, history).ConfigureAwait(false);
         }
         return ExitCode.Ok;
     }
 
+    /// <summary>
+    /// One question. When <paramref name="history"/> is non-null it is both the
+    /// conversation sent to the pipeline and the transcript this turn is
+    /// appended to — what gets recorded is <c>DeliveredText</c>, so a refusal
+    /// or a withheld handoff enters the history as the customer saw it, not as
+    /// the draft they did not.
+    /// </summary>
     private static async Task<ExitCode> AskOnce(
-        KnowledgeAssistant assistant, CliFlags flags, string question)
+        KnowledgeAssistant assistant, CliFlags flags, string question, List<ConversationTurn>? history)
     {
         AnswerStreamMode mode = flags.Gated ? AnswerStreamMode.Gated : AnswerStreamMode.Live;
         var askOptions = new AskOptions
@@ -126,6 +145,7 @@ internal static class Program
             Semantic = flags.Semantic,
             Filter = flags.Filter,
             StreamMode = mode,
+            History = history ?? ConversationHistory.Empty,
         };
 
         // --json owns stdout: the eval harness parses it whole, so every human
@@ -154,6 +174,12 @@ internal static class Program
         }
         if (result is null)
             throw new InvalidOperationException("the pipeline ended without a result");
+
+        if (history is not null)
+        {
+            history.Add(new ConversationTurn(ConversationRole.User, question));
+            history.Add(new ConversationTurn(ConversationRole.Assistant, result.DeliveredText));
+        }
 
         if (flags.Json)
         {
@@ -279,7 +305,9 @@ internal static class Program
         var rewriter = new AgentQueryRewriter(
             RuntimeFactory.CreateRewriteAgent(options, client),
             aliases.Families.Select(f => f.Family).OrderBy(f => f, StringComparer.Ordinal).ToList());
-        RewriteResult rewrite = await rewriter.RewriteAsync(question).ConfigureAwait(false);
+        // Single-stage verb: one question, no conversation to resolve against.
+        RewriteResult rewrite = await rewriter
+            .RewriteAsync(question, ConversationHistory.Empty).ConfigureAwait(false);
         AliasExpansion expansion = aliases.Expand(question, rewrite.ProductMentions);
 
         if (flags.Json)

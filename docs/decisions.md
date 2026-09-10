@@ -306,6 +306,19 @@ the test.
   post-check failure reasons (`claims_language: <wording>` tells a prober
   exactly which phrasing tripped the audit). Operator diagnostics stay on the
   operator surface.
+- **Conversation history reaches the rewrite stage and nothing else**
+  (2026-09-10, open item 18). The caller's database is the system of record and
+  the service stores nothing, so history arrives with each request. It is shown
+  to the query rewrite, which collapses a follow-up back into one standalone
+  question; everything downstream sees no conversational state. It is
+  **never** shown to the answer agent — an answer grounded in anything but the
+  retrieved sources cannot honour the `[n]` citation contract, and an earlier
+  assistant turn is not a source. The guardrail is the deliberate exception
+  still outstanding (item 19), and the boundary is pinned by a test rather than
+  left to be rediscovered. The accepted-history bound is ours, not the
+  caller's — newest 8 turns, 1,000 characters each, a trailing echo of the
+  current question dropped — because an unbounded caller input feeding a
+  small-model prompt is a cost the caller does not pay.
 - **The stakeholder preview is never blocked on a metric** (owner ruling,
   2026-09-10, open item 21 — closed). The website server calls the service and
   relays the SSE stream to a stakeholder/partner audience, and that release may

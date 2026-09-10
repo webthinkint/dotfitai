@@ -1,8 +1,39 @@
 using DotFit.Agents.Answering;
+using DotFit.Agents.Guardrails;
 using DotFit.Agents.Retrieval;
+using DotFit.Agents.Rewrite;
 using Microsoft.Agents.AI;
 
 namespace DotFit.Agents.Tests;
+
+/// <summary>Scripted rewriter — records the question and history each stage call received.</summary>
+internal sealed class FakeRewriter : IQueryRewriter
+{
+    public List<string> Questions { get; } = [];
+    public List<IReadOnlyList<ConversationTurn>> Histories { get; } = [];
+    public RewriteResult Result { get; set; } = new() { CanonicalQuestion = "canonical q" };
+
+    public Task<RewriteResult> RewriteAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
+    {
+        Questions.Add(question);
+        Histories.Add(history);
+        return Task.FromResult(Result);
+    }
+}
+
+/// <summary>Scripted guardrail — records the text it was asked to judge.</summary>
+internal sealed class FakeGuardrail : IGuardrail
+{
+    public List<string> Questions { get; } = [];
+    public GuardrailVerdict Verdict { get; set; } = new();
+
+    public Task<GuardrailVerdict> CheckAsync(string question, CancellationToken ct = default)
+    {
+        Questions.Add(question);
+        return Task.FromResult(Verdict);
+    }
+}
 
 /// <summary>Scripted answer agent — records the user message it was given.</summary>
 internal sealed class FakeAnswerAgent : IAnswerAgent

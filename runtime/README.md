@@ -69,7 +69,10 @@ dotnet run --project src/DotFit.Agents.Cli -- guardrail "how much for my 10 year
 dotnet run --project src/DotFit.Agents.Cli -- rewrite "LeanMR dosage"
 ```
 
-`ask`/`chat` run the full pipeline (exit 1 when the post-check fails);
+`ask`/`chat` run the full pipeline (exit 1 when the post-check fails). `ask` is
+single-turn by definition and stays that way — the §12 harness drives it;
+`chat` keeps the session transcript and resolves follow-ups against it
+(`reset` starts a new conversation). See Multi-turn below.
 `search` is retrieval-only (embedding + hybrid query, no chat LLM);
 `guardrail`/`rewrite` run single stages. Flags: `--index <name>`, `--top N`,
 `--semantic` (ranker on — open item 5; the re-rank then orders on the ranker's
@@ -116,6 +119,32 @@ The event names are the wire contract: `disclosure`, `stage`, `delta`,
 AI-identity notice and is emitted once, when the request carries **no**
 `conversation_id` — send the id back on later turns or every turn re-announces.
 The wire is snake_case in both directions.
+
+`POST /ask` also takes `history`: `[{"role":"user"|"assistant","text":"…"}]`,
+oldest first, excluding the question being asked. An unknown `role` is a `400`
+rather than a dropped turn. The full client-facing contract is
+`docs/website-integration.md`.
+
+## Multi-turn
+
+The service holds no state between requests, so the caller resends the recent
+transcript it already owns (`AskOptions.History`; the CLI's `chat` verb keeps
+its own, and `reset` clears it). `ConversationHistory` is the single place that
+decides what is accepted — blank turns dropped, a trailing echo of the current
+question dropped, newest 8 turns kept, 1,000 characters per turn — so the CLI
+and the service cannot disagree about it.
+
+History reaches **the rewrite stage only**. That is where a follow-up collapses
+back into one standalone question, after which search, the answer agent and the
+post-check see no conversational state at all. It deliberately never reaches
+the answer agent: an answer grounded in anything but the retrieved sources
+cannot honour the `[n]` citation contract, and an earlier assistant turn is not
+a source.
+
+It does not yet reach the **guardrail**, which still judges each turn alone —
+progress open item 19, and its own row because an escalation trigger can arrive
+turns before the question it applies to. `ConversationTests` pins that boundary
+rather than leaving it to be rediscovered.
 
 `stage` events stream even though deltas are gated: that is what makes gating
 affordable, since the widget has something live to render while the answer is

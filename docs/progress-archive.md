@@ -5,6 +5,14 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-09 (46)** — Full corpus regen on gpt-5.6-luna (§4): item 1 closed
+  (quota arrived; both chat roles switched, embedding unchanged). Stage 2
+  prompt 1.2.0 — the Zane ruling landed; queue 220 → 234 (182 PII + 47 audit
+  + 6 low-conf), round-3 regroup pending (item 13). Stage 4: 923/104/14, two
+  new cluster conflicts → **item 7 reopened** (owner task 3 carries both
+  pairs). Index re-uploaded: 4,002 docs, 0 errors. Both stages byte-identical
+  on rerun.
+
 - **2026-09-09 (45)** — `stage2 --workers`: bounded thread pool for the
   canonicalization pass; workers never touch shared state, so completion
   order cannot reach the output (records sort; the cache is key-addressed).

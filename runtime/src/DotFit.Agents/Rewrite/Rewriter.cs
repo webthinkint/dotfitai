@@ -18,21 +18,37 @@ public sealed class RewriteResult
 
 public interface IQueryRewriter
 {
-    Task<RewriteResult> RewriteAsync(string question, CancellationToken ct = default);
+    /// <summary>
+    /// <paramref name="history"/> is the earlier turns of this conversation,
+    /// oldest first and already trimmed by
+    /// <see cref="ConversationHistory.Normalize"/>. It deliberately has no
+    /// default: this is the stage that owns follow-up resolution (open item
+    /// 18), and a caller that quietly forgot to pass it gets a confidently
+    /// wrong-topic answer rather than an obvious failure. Pass <c>[]</c> to
+    /// rewrite a question standalone.
+    /// </summary>
+    Task<RewriteResult> RewriteAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default);
 }
 
 /// <summary>
 /// Small-model query rewrite: canonical question + product mentions as family
 /// names. Mentions then go through the deterministic alias expansion (§5) —
 /// the LLM never invents part_nos, it only names what it saw.
+///
+/// This is also where a multi-turn conversation is collapsed back into a
+/// single standalone question (open item 18), and the placement is the whole
+/// design: the history resolves "the chocolate one" into a product mention,
+/// the §5 table resolves that mention into part_nos deterministically, and
+/// everything downstream — search, the answer agent, the post-check — keeps
+/// seeing one self-contained question and no conversational state at all.
 /// </summary>
 public sealed class AgentQueryRewriter(AIAgent agent, IReadOnlyList<string> knownFamilies) : IQueryRewriter
 {
-    public async Task<RewriteResult> RewriteAsync(string question, CancellationToken ct = default)
+    public async Task<RewriteResult> RewriteAsync(
+        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
     {
-        string user =
-            $"Customer question: {question}\n\n" +
-            $"Known dotFIT product families: {string.Join("; ", knownFamilies)}";
+        string user = Answering.Prompts.BuildRewriteUserMessage(question, knownFamilies, history);
         try
         {
             return await StructuredCall.RunAsync<RewriteResult>(

@@ -57,6 +57,10 @@ app.MapPost("/ask", async (
 {
     if (string.IsNullOrWhiteSpace(request.Question))
         return Results.BadRequest(new { error = "question is required" });
+    // Reject a malformed history here, while a status code still means
+    // something: once the SSE stream opens the response is already 200.
+    if (!request.TryReadHistory(out _, out string? historyError))
+        return Results.BadRequest(new { error = historyError });
 
     http.Response.Headers.ContentType = "text/event-stream";
     http.Response.Headers.CacheControl = "no-cache";

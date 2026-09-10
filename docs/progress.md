@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-10. Python 426 tests green; runtime 115 tests green.
+Numbers verified 2026-09-10. Python 426 tests green; runtime 133 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -26,8 +26,8 @@ Numbers verified 2026-09-10. Python 426 tests green; runtime 115 tests green.
 | Golden set | §12 | **complete except labeling** 2026-09-08 — the 250 are sampled, the 50 adversarial are **written** (`CURATED_ADVERSARIAL`), the probes are built. Remaining: label the 250 (item 8) | 650 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + 120 PDSRG/podcast probes; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
 | Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen: 0 errors, all Stage 2 re-canonicalization. Ranker ruled **off** — item 5 closed | 4,002 docs — 1,080 pdsrg / 177 product / 10 menu / 1,800 podcast / 935 qa; 57 embed calls (3,090 cached), 7 pruned, 0 errors; live `search_ping` PASS at 4,002 |
-| v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 116 tests |
-| SSE service | §11 | **built + live** 2026-09-08 — `POST /ask` streams disclosure/stage/delta/retraction/result; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Remaining before public traffic: items 12/17; before the preview is useful: multi-turn (18/19) | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
+| v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (item 18): history reaches the rewrite stage only. Remaining: audit precision on a full sweep (item 12) | `runtime/`, 133 tests |
+| SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Remaining before public traffic: items 12/17; safety is still judged one turn at a time (item 19) | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live |
 | §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev re-sweep 2026-09-10 after the checker fix, and **stale since item 24** — the audit now runs on context-only sets, which the numbers below predate (125/60/25, ranker A/B dropped — item 5 closed): sample recall@8 99.2%, probes 98.3%, escalation 10/10, points-hit 0.92; **withheld 51 → 24**, claims_language failures 50 → 15; faithfulness 0.57 → 0.61, citation rate 83.3% over 36 claim answers (denominator was 11) |
 
 Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
@@ -63,8 +63,8 @@ owner.
 | 15 | §12 evaluation coverage | **mostly closed** 2026-09-08 — the precision metric is in §12's list; PDSRG/podcast have 120 retrieval probes; the degraded-guardrail path is pinned by tests and fixed a real defect. **Remaining**: probes measure retrieval only, so end-to-end coverage of those two corpora still needs written questions, and two §11 standing behaviors (conversation-start disclosure, prompt-injection) have no adversarial item because §12 fixes the split at 20/15/15 |
 | 16 | Customer names in `question_original` | **closed into item 13** 2026-09-08 — it was the same defect seen through a different probe: the scrub had no rule for a name that is neither a salutation nor a closer. `SELF_INTRO_RE` closed it (11 spans redacted, the one public figure on `ACCEPTED_HONORIFIC_NAMES` correctly quoted verbatim) and the `my name is` probe is now 0. Residual-PII work continues under item 13; do not re-open this row |
 | 17 | Answer-prompt tuning for `gpt-5.6-luna` | **open, root cause reframed** 2026-09-10 — the dominant cause was not the model: the claims checker was shown authority 1–2 sources only, so it could not resolve the draft's `[n]` and read anything grounded in Q&A/podcast as an invention. Of the 50 `claims_language` flags, 15 cited nothing the checker could see (one a one-line answer about the carbohydrates in an apple). **Checker fixed** and **re-swept 2026-09-10**: withheld 51 → 24 (41% → 19%), claims_language failures 50 → 15, delivered 74 → 101 — the diagnosis held. Remaining is the answer prompt itself: faithfulness 0.57 → 0.61 against a 0.9 target (judged on delivered answers only, so the fix could not move it much), and citation rate 83.3% over 36 product-claim answers where the old denominator was 11 — `product_claim_citation` failures rose 8 → 11 as more claim answers now reach that check. Blocks **public customer** SSE with item 12, not the stakeholder preview (item 21) |
-| 18 | Multi-turn conversation support | **open, new** 2026-09-10 — the service is single-turn: `conversation_id` gates the disclosure and nothing else, and `AskStreamAsync` takes a bare string. Agreed shape: the website server sends recent turns (it owns the transcript DB), and history reaches the **rewrite and guardrail stages only** — never the answer agent, which stays grounded in retrieved sources. Contract written up in `docs/website-integration.md` as *planned*; the preview ships without it (item 21), but a single-turn assistant is most of what makes the preview worth running |
-| 19 | Guardrail over the conversation, not the turn | **open, new** 2026-09-10 — the safety half of item 18 and the reason it is a separate row: an escalation trigger can arrive turns before the question it applies to ("I'm 14" ... "how much creatine?"), and each turn is currently judged alone. Escalation accuracy 10/10 is a **single-turn** number and does not transfer; §12 needs multi-turn adversarial items before it can be claimed again |
+| 18 | Multi-turn conversation support | **closed** 2026-09-10 — `POST /ask` takes `history` (`role`/`text`, oldest first, current question excluded; unknown role = 400), `AskOptions.History` carries it, and the CLI's `chat` keeps the session transcript (`reset` clears it). History reaches the **rewrite stage only** — it collapses a follow-up into one standalone question, and search / answer / post-check see no conversational state. The answer agent is never shown it (the `[n]` contract needs retrieved sources; an earlier turn is not one), which is pinned by a test, as is the guardrail gap left to item 19. Bounds are ours not the caller's: newest 8 turns, 1,000 chars each, trailing echo of the question dropped (`ConversationHistory`). `docs/website-integration.md` now documents it as built, with the single-turn safety limit stated plainly |
+| 19 | Guardrail over the conversation, not the turn | **open, narrowed** 2026-09-10 — item 18 landed without it *by design*: the boundary is now explicit in `KnowledgeAssistant` and pinned by `ConversationTests`, and history stops at the rewrite. What remains is the safety half — an escalation trigger can arrive turns before the question it applies to ("I'm 14" ... "how much creatine?"), and each turn is still judged alone. Escalation accuracy 10/10 is a **single-turn** number and does not transfer; §12 needs multi-turn adversarial items before it can be claimed again. The website contract now warns the caller not to rely on us for a trigger stated in an earlier turn |
 | 20 | Per-request verdict logging | **open, new** 2026-09-10 — the service emits no structured record of what it decided. Wanted: `escalated` / `withheld` / post-check verdict / claims outcome, keyed by conversation and request id, and **without** question or answer text — the website DB is the system of record and a second copy is a new PII surface (§4 posture). This is also how items 12 and 17 get production numbers instead of dev-sweep ones. **Raised by the item 21 ruling**: with any state shippable to the preview, this log is the only record of what that audience was shown |
 | 21 | Stakeholder-release scope decision | **closed** 2026-09-10 — owner ruling: the stakeholder preview is **never blocked on a metric**, so the project can be tested continuously at any state. Items 12 and 17 gate **public customer traffic only**. Recorded in `docs/decisions.md` (Runtime §11) with its two consequences: the claim-wording caveat becomes a standing condition on every preview release, and item 20's verdict logging is now load-bearing — if any state may ship, the log is the only reconstruction of what the audience saw |
 | 22 | Service hardening for the preview | **open, new** 2026-09-10 — small and mostly deployment: auth at the boundary (shared secret or mTLS; the service has none of its own and must not be public), a max question length, a request timeout, and a real support route in the two handoff templates instead of prose. CORS and rate limiting are **not** needed — one trusted server-side caller, no browser origin |
@@ -78,6 +78,17 @@ entries). The five most recent live here; older ones are in
 `docs/progress-archive.md`. Detail belongs in the commit, the code, or the
 artifact it describes.
 
+
+- **2026-09-10 (52)** — Multi-turn conversations (§11, item 18 — **closed**).
+  `POST /ask` takes `history` (`role`/`text`, oldest first, current question
+  excluded; unknown role is a 400, not a dropped turn), `AskOptions.History`
+  carries it, and the CLI's `chat` keeps the session transcript. It reaches the
+  **rewrite stage only**, which collapses a follow-up into one standalone
+  question — the answer agent is never shown it, because an earlier turn is not
+  a citable source. `ConversationHistory` owns the bounds (8 turns, 1,000 chars,
+  echo dropped). Item 19 **narrowed, not closed**: the guardrail still judges
+  one turn at a time, and the website contract now says so. 17 tests
+  (**426 python / 133 runtime**).
 
 - **2026-09-10 (51)** — The claims audit now runs on context-only source sets
   (§11, item 24 — **closed**). It skipped whenever no authority 1–2 source was
@@ -113,14 +124,6 @@ artifact it describes.
   its first number (1 flag / 0 true — denominator 1). Answers measured for
   the first time: the claims-language gate withheld 51/125 drafts → **new
   item 17** (answer-prompt tuning). 520 agent calls; labels still item 8.
-
-- **2026-09-09 (46)** — Full corpus regen on gpt-5.6-luna (§4): item 1 closed
-  (quota arrived; both chat roles switched, embedding unchanged). Stage 2
-  prompt 1.2.0 — the Zane ruling landed; queue 220 → 234 (182 PII + 47 audit
-  + 6 low-conf), round-3 regroup pending (item 13). Stage 4: 923/104/14, two
-  new cluster conflicts → **item 7 reopened** (owner task 3 carries both
-  pairs). Index re-uploaded: 4,002 docs, 0 errors. Both stages byte-identical
-  on rerun.
 
 
 ## Writing entries

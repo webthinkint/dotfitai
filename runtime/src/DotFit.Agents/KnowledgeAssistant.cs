@@ -32,6 +32,16 @@ public sealed record AskOptions
     public bool? Semantic { get; init; }
     public string? Filter { get; init; }
     public AnswerStreamMode StreamMode { get; init; } = AnswerStreamMode.Live;
+
+    /// <summary>
+    /// Earlier turns of this conversation, oldest first, **excluding** the
+    /// question being asked (open item 18). The runtime keeps no state between
+    /// requests, so a multi-turn caller resends the recent transcript it
+    /// already owns; the pipeline trims it through
+    /// <see cref="ConversationHistory.Normalize"/> and shows it to the rewrite
+    /// stage only.
+    /// </summary>
+    public IReadOnlyList<ConversationTurn> History { get; init; } = ConversationHistory.Empty;
 }
 
 /// <summary>Streamed pipeline events (the SSE service maps these later).</summary>
@@ -133,7 +143,17 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         var timings = new Dictionary<string, double>();
         var sw = Stopwatch.StartNew();
 
+        // Trimmed once, here, so the CLI and the SSE service cannot disagree
+        // about how much history a question is allowed to carry (item 18).
+        IReadOnlyList<ConversationTurn> history =
+            ConversationHistory.Normalize(options.History, question);
+
         // --- stage 1: guardrail pre-check (small model) ------------------------
+        // Deliberately still judged on this turn alone: history reaches the
+        // rewrite and nothing else until open item 19 wires it here, which is
+        // its own row because an escalation trigger can arrive turns before the
+        // question it applies to ("I'm 14" ... "how much creatine?") and the
+        // 10/10 escalation accuracy in §12 is a single-turn number.
         GuardrailVerdict verdict = await _guardrail.CheckAsync(question, ct).ConfigureAwait(false);
         timings["guardrail"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("guardrail", verdict.Escalate
@@ -167,12 +187,13 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
 
         // --- stage 2: query rewrite (small model) -------------------------------
         sw.Restart();
-        RewriteResult rewrite = await _rewriter.RewriteAsync(question, ct).ConfigureAwait(false);
+        RewriteResult rewrite = await _rewriter.RewriteAsync(question, history, ct).ConfigureAwait(false);
         timings["rewrite"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("rewrite",
             $"{(rewrite.Degraded ? "(degraded) " : "")}canonical: {rewrite.CanonicalQuestion}" +
             (rewrite.ProductMentions.Count > 0
-                ? $" | mentions: {string.Join(", ", rewrite.ProductMentions)}" : ""));
+                ? $" | mentions: {string.Join(", ", rewrite.ProductMentions)}" : "") +
+            (history.Count > 0 ? $" | history: {history.Count} turn(s)" : ""));
 
         // --- stage 3: deterministic alias expansion (§5 artifact) ----------------
         AliasExpansion expansion = _aliases.Expand(question, rewrite.ProductMentions);

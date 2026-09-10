@@ -43,6 +43,13 @@ public interface ISseWriter
 /// <c>--json</c>: no retrieved source <c>content</c>, and never the withheld
 /// draft. Those are diagnostics for an operator, and this is a public
 /// endpoint.
+///
+/// **Multi-turn** (open item 18): the caller sends recent turns as
+/// <see cref="AskRequest.History"/> with each question, because its database
+/// is the system of record and this service holds nothing between requests.
+/// History is shown to the rewrite stage only, and never to the answer agent —
+/// see <see cref="ConversationHistory"/>. It does not yet reach the guardrail
+/// (open item 19), so safety is still judged one turn at a time.
 /// </summary>
 public static class AskStream
 {
@@ -70,10 +77,15 @@ public static class AskStream
             await writer.WriteAsync(EventDisclosure,
                 new { text = Prompts.ConversationDisclosure() }, ct).ConfigureAwait(false);
 
+        // A malformed history is a 400 before the stream opens (see Program),
+        // so by here it either parses or there is none to parse.
+        request.TryReadHistory(out IReadOnlyList<ConversationTurn> history, out _);
+
         var options = new AskOptions
         {
             StreamMode = AnswerStreamMode.Gated,   // §11 — not negotiable here
             Top = request.Top,
+            History = history,
         };
 
         try
@@ -159,4 +171,56 @@ public sealed record AskRequest
     public string Question { get; init; } = "";
     public string? ConversationId { get; init; }
     public int? Top { get; init; }
+
+    /// <summary>
+    /// Earlier turns of this conversation, oldest first, **not including**
+    /// <see cref="Question"/> (open item 18). The caller's database is the
+    /// system of record — the service stores nothing between requests — so a
+    /// multi-turn client resends the recent transcript it already holds.
+    /// Absent or empty is a standalone question, which is what every request
+    /// was before this landed.
+    /// </summary>
+    public IReadOnlyList<AskHistoryTurn>? History { get; init; }
+
+    /// <summary>
+    /// Map the wire history onto <see cref="ConversationTurn"/>, or explain
+    /// why it cannot be mapped.
+    ///
+    /// An unrecognised <c>role</c> is rejected rather than dropped: dropping a
+    /// turn silently changes what the conversation says, and the rewrite would
+    /// then resolve a follow-up against a transcript with a hole in it. The
+    /// caller gets a 400 and a fixable message instead.
+    /// </summary>
+    public bool TryReadHistory(out IReadOnlyList<ConversationTurn> history, out string? error)
+    {
+        history = ConversationHistory.Empty;
+        error = null;
+        if (History is null || History.Count == 0)
+            return true;
+
+        var turns = new List<ConversationTurn>(History.Count);
+        for (int i = 0; i < History.Count; i++)
+        {
+            AskHistoryTurn turn = History[i];
+            ConversationRole role;
+            switch (turn.Role?.Trim().ToLowerInvariant())
+            {
+                case "user": role = ConversationRole.User; break;
+                case "assistant": role = ConversationRole.Assistant; break;
+                default:
+                    error = $"history[{i}].role must be \"user\" or \"assistant\"";
+                    return false;
+            }
+            turns.Add(new ConversationTurn(role, turn.Text ?? ""));
+        }
+        history = turns;
+        return true;
+    }
+}
+
+/// <summary>One earlier turn on the wire. <c>role</c> is <c>user</c> or <c>assistant</c>.</summary>
+public sealed record AskHistoryTurn
+{
+    public string Role { get; init; } = "";
+    public string Text { get; init; } = "";
 }

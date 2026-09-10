@@ -38,7 +38,8 @@ public static class CliArgs
         Usage:
           dotfit-agent ask <question> [flags]      full pipeline: guardrail → rewrite →
                                                    search → grounded answer → post-check
-          dotfit-agent chat [flags]                interactive; each question runs the full pipeline
+          dotfit-agent chat [flags]                interactive, multi-turn: follow-ups are
+                                                   resolved against the session ('reset' clears it)
           dotfit-agent search <query> [flags]      retrieval only (no LLM answer)
           dotfit-agent guardrail <question>        guardrail verdict only
           dotfit-agent rewrite <question>          rewrite + alias expansion only

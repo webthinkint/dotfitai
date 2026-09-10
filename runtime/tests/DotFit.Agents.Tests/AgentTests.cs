@@ -64,7 +64,7 @@ public class AgentTests
         var client = new ScriptedChatClient(
             """{"canonical_question":"canonical q","product_mentions":["Test Family"],"topics":["t"],"confidence":0.9}""");
         var rewriter = new AgentQueryRewriter(AgentOver(client), ["Test Family", "Other Family"]);
-        RewriteResult rewrite = await rewriter.RewriteAsync("test q?");
+        RewriteResult rewrite = await rewriter.RewriteAsync("test q?", ConversationHistory.Empty);
 
         Assert.Equal("canonical q", rewrite.CanonicalQuestion);
         Assert.Equal(["Test Family"], rewrite.ProductMentions);
@@ -77,7 +77,7 @@ public class AgentTests
     {
         var client = new ScriptedChatClient("garbage");
         var rewriter = new AgentQueryRewriter(AgentOver(client), ["Test Family"]);
-        RewriteResult rewrite = await rewriter.RewriteAsync("raw question");
+        RewriteResult rewrite = await rewriter.RewriteAsync("raw question", ConversationHistory.Empty);
         Assert.True(rewrite.Degraded);
         Assert.Equal("raw question", rewrite.CanonicalQuestion);
         Assert.Empty(rewrite.ProductMentions);

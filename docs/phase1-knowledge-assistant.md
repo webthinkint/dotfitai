@@ -347,6 +347,16 @@ conversation-start AI-identity notice this section assigns to it. It is always
 CLI's: no retrieved source text, no withheld draft, no post-check failure
 reasons. Before it faces customers, §12 owes it the open item 12 number.
 
+**Multi-turn (2026-09-10, open item 18).** The runtime holds no state between
+requests, so the caller sends the recent turns with each question (`history` on
+`POST /ask`). They reach the query rewrite and nothing else: a follow-up is
+collapsed back into one standalone question there, and search, the answer agent
+and the post-check go on seeing a single self-contained question. The answer
+agent is never shown history — the `[n]` contract requires every claim to come
+from a retrieved source, and an earlier turn is not one. The guardrail still
+judges each turn alone (open item 19), so the escalation numbers in §12 remain
+single-turn numbers.
+
 **Streaming vs. gating (decided 2026-09-07).** The post-check runs on the
 finished answer, so streaming deltas as they arrive means a `claims_language`
 FAIL cannot retract text the customer has already read. There is no partial

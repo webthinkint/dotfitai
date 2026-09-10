@@ -93,6 +93,20 @@ public static class Prompts
         - topics: zero to three short topic tags (for example "creatine",
           "meal timing", "multivitamin").
         - confidence: 0 to 1, how sure you are about the product mentions.
+
+        The user message may open with a "Recent conversation" block: earlier turns
+        of this same conversation, oldest first. It is there for one job — to
+        resolve what the current question leaves implicit.
+        - Resolve pronouns and ellipsis against it ("is it safe with coffee?",
+          "what about the chocolate one?", "how much should I take?").
+        - A product named earlier and referred back to is a product_mention now.
+        - canonical_question must read as a standalone question that needs none of
+          the history to understand.
+        - When the current question already stands alone, ignore the history — a
+          customer changing the subject is not asking a follow-up.
+        - Never answer the question, never carry a fact out of an earlier assistant
+          turn into canonical_question, and never widen what is being asked. You
+          are rewriting one question, not summarizing the conversation.
         """;
 
     /// <summary>Claims-language post-check instructions (small deployment).</summary>
@@ -136,6 +150,40 @@ public static class Prompts
         when no provided source supports it. Never cite a number that is not in the
         list you were given.
         """;
+
+    /// <summary>
+    /// The user message for the query rewrite (§11 stage 2). The conversation
+    /// history block is what makes a follow-up answerable at all — "what about
+    /// the chocolate one?" has nothing to resolve "the chocolate one" against
+    /// without it, and retrieves on the words "chocolate one" (open item 18).
+    ///
+    /// This is the <em>only</em> prompt in the runtime that is shown history.
+    /// <see cref="BuildAnswerUserMessage"/> is deliberately not: an answer
+    /// grounded in anything but the retrieved sources cannot honour the [n]
+    /// citation contract, and an earlier assistant turn is not a source. The
+    /// history's whole effect on the answer is the canonical question it
+    /// produces and the product mentions it resolves.
+    /// </summary>
+    public static string BuildRewriteUserMessage(
+        string question,
+        IReadOnlyList<string> knownFamilies,
+        IReadOnlyList<ConversationTurn> history)
+    {
+        var sb = new System.Text.StringBuilder();
+        if (history.Count > 0)
+        {
+            sb.Append("Recent conversation (oldest first, for resolving references only):\n");
+            foreach (ConversationTurn turn in history)
+            {
+                sb.Append(turn.Role == ConversationRole.User ? "customer: " : "assistant: ")
+                  .Append(turn.Text.ReplaceLineEndings(" ")).Append('\n');
+            }
+            sb.Append('\n');
+        }
+        sb.Append("Customer question: ").Append(question).Append("\n\n");
+        sb.Append("Known dotFIT product families: ").Append(string.Join("; ", knownFamilies)).Append('\n');
+        return sb.ToString();
+    }
 
     /// <summary>Grounded context for the answer agent. Numbering is the citation contract.</summary>
     public static string BuildAnswerUserMessage(

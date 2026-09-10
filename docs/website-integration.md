@@ -9,10 +9,9 @@ system of record for the conversation. The service holds no state between
 requests and stores nothing. The first release is for stakeholders and approved
 partners, not public traffic.
 
-**Status legend.** Everything under "Today" is built and live. Everything under
-"Planned" is agreed but **not yet implemented** — do not build against it until
-we tell you it has landed. It is written down here so both sides design for the
-same shape.
+**Status.** Everything in this document is built and live, including multi-turn
+(2026-09-10). Anything agreed but not yet implemented is marked **planned** in
+place — do not build against it until we tell you it has landed.
 
 ---
 
@@ -36,6 +35,10 @@ One customer question in, a Server-Sent Events stream out.
 {
   "question": "How much creatine should I take?",
   "conversation_id": "1b9f...",
+  "history": [
+    {"role": "user", "text": "is LeanMeal good for weight loss?"},
+    {"role": "assistant", "text": "..."}
+  ],
   "top": 8
 }
 ```
@@ -43,7 +46,8 @@ One customer question in, a Server-Sent Events stream out.
 | Field | Required | Meaning |
 |---|---|---|
 | `question` | yes | The customer's question, verbatim. Empty or whitespace gets `400`. |
-| `conversation_id` | no | **Absent means "new conversation"**, which is the only thing it currently controls — see Disclosure below. Send a stable id for every turn after the first. |
+| `conversation_id` | no | **Absent means "new conversation"**, which is what controls the disclosure — see Disclosure below. Send a stable id for every turn after the first. |
+| `history` | no | Earlier turns of this conversation, oldest first, **not including** `question`. See Multi-turn. Absent or empty is a standalone question. |
 | `top` | no | Sources retrieved and fed to the answer. Default 8. Leave it unset unless we ask you to change it. |
 
 Response headers are `text/event-stream`, `no-cache`, and
@@ -131,15 +135,10 @@ turned away.
 
 ---
 
-## Multi-turn — **planned, not built**
+## Multi-turn
 
-Today the service is **single-turn**. `conversation_id` gates the disclosure and
-nothing else; no history is accepted, stored, or consulted. A follow-up like
-"what about the chocolate one?" is processed cold, with nothing to resolve "the
-chocolate one" against, and will retrieve badly.
-
-The agreed shape, once it lands: you send recent turns with each request, since
-your database already holds them.
+Send the recent turns with each request. Your database already holds them, and
+the service still stores nothing between requests.
 
 ```json
 {
@@ -152,15 +151,33 @@ your database already holds them.
 }
 ```
 
-History will be consulted by the question-rewriting and safety stages only — it
-never reaches the answer-writing stage, which stays grounded strictly in
-retrieved sources. Exact field names and how many turns to send will be
-confirmed when it ships.
+| Rule | Value |
+|---|---|
+| Order | Oldest first. |
+| `role` | `user` or `assistant`, case-insensitive. Anything else is a `400` — we reject rather than skip, because a transcript with a hole in it resolves follow-ups wrongly. |
+| `text` | The turn as the customer saw it. For an assistant turn use the delivered `answer` from that turn's `result` — including a refusal or handoff, which is what they read. |
+| Do **not** include | The question you are asking now. If you do, we drop the duplicate rather than read it as the customer asking twice. |
+| How many | Send what you have, up to a few exchanges. We keep the most recent **8 turns** and the first **1,000 characters** of each; anything past that is trimmed on our side, so you never need to trim on yours. |
 
-**Until then:** either keep the experience explicitly single-turn, or have your
-server resolve follow-ups into standalone questions before calling us. Sending
-a bare follow-up will produce a confidently wrong-topic answer, which is worse
-than an obvious failure.
+**What history is used for.** One thing: turning a follow-up into a standalone
+question. "What about the chocolate one?" becomes "Is the chocolate LeanMeal
+good for weight loss?" before anything is retrieved, and the product named two
+turns ago is resolved to its part numbers. That is the whole effect.
+
+**What it is not used for.** The answer-writing stage never sees it. Answers
+stay grounded strictly in retrieved sources, because that is what makes the
+`[n]` citations and the claims checks mean anything — an earlier assistant turn
+is not a source and cannot be cited. So the assistant will not "remember" a
+number it told you two turns ago unless the sources say it again.
+
+**One limitation to design around — safety is still judged one turn at a
+time.** The medical-escalation guardrail sees only the current question, not
+the history. A conversation where the trigger arrives in an earlier turn ("I'm
+14" … then, two turns later, "how much creatine should I take?") will not
+escalate on the later turn. We are working on it. Until it lands, if your own
+product surface collects anything from the escalation list (age, pregnancy, a
+managed condition, medication) outside the question text, do not rely on us to
+catch it from the transcript.
 
 ---
 
