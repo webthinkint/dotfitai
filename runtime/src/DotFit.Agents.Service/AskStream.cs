@@ -33,6 +33,12 @@ public interface ISseWriter
 /// - <c>result</c> — citations, post-check verdict, timings. Always last.
 /// - <c>error</c> — the pipeline threw. Terminal.
 ///
+/// The two terminal frames (<c>result</c> and <c>error</c>) carry
+/// <c>request_id</c>, which is the join key between the caller's conversation
+/// record and our <see cref="VerdictLog"/>. It rides in the body rather than a
+/// response header because the website server relays this stream: a body field
+/// survives the relay, a header is the relay's to keep or drop.
+///
 /// **The service is <c>Gated</c> and does not offer a choice.** Plan §11 fixes
 /// this: streaming deltas live means a <c>claims_language</c> failure cannot
 /// retract text the customer has already read, so the customer-facing surface
@@ -60,6 +66,11 @@ public interface ISseWriter
 /// told not to make. Auth and the length/`top` limits are checked in
 /// <c>Program</c> instead, before the stream opens: once the first frame is
 /// written the response is a 200 and no status code is left to reject with.
+///
+/// **Verdict logging** (open item 20) is the other reason the terminal paths
+/// are kept distinct: exactly one <see cref="VerdictLog"/> is written per
+/// request, from a <c>finally</c>, so an abandoned run is recorded as
+/// abandoned rather than as nothing at all.
 /// </summary>
 public static class AskStream
 {
@@ -81,25 +92,21 @@ public static class AskStream
         AskRequest request,
         ISseWriter writer,
         CancellationToken ct,
-        ServiceOptions? service = null)
+        ServiceOptions? service = null,
+        IVerdictSink? verdicts = null)
     {
         service ??= new ServiceOptions { ApiKey = null };
 
-        // A request with no conversation id is a new conversation.
-        if (request.ConversationId is null)
-            await writer.WriteAsync(EventDisclosure,
-                new { text = Prompts.ConversationDisclosure() }, ct).ConfigureAwait(false);
-
-        // A malformed history is a 400 before the stream opens (see Program),
-        // so by here it either parses or there is none to parse.
-        request.TryReadHistory(out IReadOnlyList<ConversationTurn> history, out _);
-
-        var options = new AskOptions
-        {
-            StreamMode = AnswerStreamMode.Gated,   // §11 — not negotiable here
-            Top = request.Top,
-            History = history,
-        };
+        // The join key for open item 20's log. The caller may bring its own —
+        // its database already has a turn id, and reusing it saves a join —
+        // but must not be *required* to, so one is minted when it does not.
+        string requestId = string.IsNullOrWhiteSpace(request.RequestId)
+            ? Guid.NewGuid().ToString("n")
+            : request.RequestId.Trim();
+        DateTimeOffset startedAt = DateTimeOffset.UtcNow;
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        AssistantResult? result = null;
+        string? errorKind = null;
 
         // The request timeout is ours, not the caller's (item 22). A wedged
         // upstream call would otherwise hold the connection — and the Azure
@@ -113,6 +120,22 @@ public static class AskStream
 
         try
         {
+            // A request with no conversation id is a new conversation.
+            if (request.ConversationId is null)
+                await writer.WriteAsync(EventDisclosure,
+                    new { text = Prompts.ConversationDisclosure() }, ct).ConfigureAwait(false);
+
+            // A malformed history is a 400 before the stream opens (see Program),
+            // so by here it either parses or there is none to parse.
+            request.TryReadHistory(out IReadOnlyList<ConversationTurn> history, out _);
+
+            var options = new AskOptions
+            {
+                StreamMode = AnswerStreamMode.Gated,   // §11 — not negotiable here
+                Top = request.Top,
+                History = history,
+            };
+
             await foreach (AssistantEvent e in
                            assistant.AskStreamAsync(request.Question, options, timeout.Token)
                                .ConfigureAwait(false))
@@ -133,7 +156,8 @@ public static class AskStream
                             .ConfigureAwait(false);
                         break;
                     case ResultEvent r:
-                        await writer.WriteAsync(EventResult, Project(r.Result), ct)
+                        result = r.Result;
+                        await writer.WriteAsync(EventResult, Project(r.Result, requestId), ct)
                             .ConfigureAwait(false);
                         break;
                 }
@@ -142,6 +166,7 @@ public static class AskStream
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
+            errorKind = VerdictLog.ClientClosedKind;
             throw;                                  // the client hung up
         }
         catch (OperationCanceledException)
@@ -150,11 +175,46 @@ public static class AskStream
             // failure path, not a truncated stream, because a stream that just
             // stops looks identical to a network fault and invites the retry
             // the caller was told not to make.
-            await FailAsync(writer, "Timeout", service.SupportContact, ct).ConfigureAwait(false);
+            errorKind = "Timeout";
+            await FailAsync(writer, errorKind, requestId, service.SupportContact, ct)
+                .ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            await FailAsync(writer, e.GetType().Name, service.SupportContact, ct).ConfigureAwait(false);
+            errorKind = e.GetType().Name;
+            await FailAsync(writer, errorKind, requestId, service.SupportContact, ct)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            // Exactly one record per request, on every terminal path including
+            // the rethrown hang-up (open item 20) — a run that produced no log
+            // is indistinguishable from a run that never happened, which is the
+            // reconstruction the item 21 ruling says must always be possible.
+            Log(verdicts, request, requestId, startedAt, elapsed.Elapsed, result, errorKind);
+        }
+    }
+
+    /// <summary>
+    /// Write the verdict, and never let the attempt reach the caller: a sink
+    /// that cannot write is an operational problem, not a reason to fail a
+    /// request that has already been answered — and in the hang-up case this
+    /// runs while an <c>OperationCanceledException</c> is in flight, which a
+    /// throw from here would swallow.
+    /// </summary>
+    private static void Log(
+        IVerdictSink? verdicts, AskRequest request, string requestId,
+        DateTimeOffset startedAt, TimeSpan duration, AssistantResult? result, string? errorKind)
+    {
+        if (verdicts is null)
+            return;
+        try
+        {
+            verdicts.Write(VerdictLog.From(request, requestId, startedAt, duration, result, errorKind));
+        }
+        catch (Exception)
+        {
+            // deliberately swallowed — see the summary above
         }
     }
 
@@ -164,10 +224,15 @@ public static class AskStream
     /// never an exception message, never a bare stream end.
     /// </summary>
     private static async Task FailAsync(
-        ISseWriter writer, string kind, string? supportContact, CancellationToken ct)
+        ISseWriter writer, string kind, string requestId, string? supportContact, CancellationToken ct)
     {
         await writer.WriteAsync(EventError,
-            new { message = "The assistant could not complete that request.", kind = kind },
+            new
+            {
+                request_id = requestId,
+                message = "The assistant could not complete that request.",
+                kind = kind,
+            },
             ct).ConfigureAwait(false);
         await writer.WriteAsync(EventDelta,
             new { text = Prompts.WithheldMessage(supportContact) }, ct).ConfigureAwait(false);
@@ -178,9 +243,14 @@ public static class AskStream
     /// The public shape of a finished run. Sources carry their identity and
     /// citation link but **not** their <c>content</c>, and the withheld draft
     /// never appears — this endpoint is customer-facing.
+    ///
+    /// <c>request_id</c> is here so the caller can file the id beside the turn
+    /// it stored: our <see cref="VerdictLog"/> holds the verdicts and no text,
+    /// its database holds the text, and this is the key that joins them.
     /// </summary>
-    private static object Project(AssistantResult r) => new
+    private static object Project(AssistantResult r, string requestId) => new
     {
+        request_id = requestId,
         question = r.Question,
         escalated = r.Escalated,
         withheld = r.Withheld,
@@ -211,6 +281,16 @@ public sealed record AskRequest
     public string Question { get; init; } = "";
     public string? ConversationId { get; init; }
     public int? Top { get; init; }
+
+    /// <summary>
+    /// The caller's own id for this turn, echoed on the terminal frames and
+    /// used as the key of the verdict log (open item 20). Optional: one is
+    /// minted when it is absent, so a caller that does not care is not made to
+    /// care. Both this and <see cref="ConversationId"/> are length-capped,
+    /// because unlike everything else on this request they are *kept* — put
+    /// nothing in them that a customer said.
+    /// </summary>
+    public string? RequestId { get; init; }
 
     /// <summary>
     /// Earlier turns of this conversation, oldest first, **not including**

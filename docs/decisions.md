@@ -455,3 +455,27 @@ the test.
   server-side caller, no browser origin, and a rate limit on a single caller
   whose every request costs five model calls would be guessing at a deployment
   we do not have.
+- **The verdict log records what was decided and never what was said**
+  (2026-09-11, open item 20 — closed). The service now writes one JSON line per
+  accepted request to stdout: outcome, escalation reason codes,
+  `history_trigger`, withheld, post-check verdict and which checks fired, the
+  claims outcome, source and citation counts, per-stage timings. The decision
+  that shapes it is the **omission**: no question text and no answer text, which
+  is the §4 posture applied to a new surface — the website database is the system
+  of record for the conversation, and a second copy of real customer mail is a
+  new PII exposure that buys nothing the join does not. So the two are split:
+  they hold what was said, we hold what was decided, and `request_id` joins them.
+  The rule is *enforced* rather than promised — no text field exists to put an
+  answer in; `reasons` is filtered to the known escalation vocabulary because it
+  comes from a model (the free-prose `notes` is not logged at all); and
+  `failures`/`warnings` keep each check's name and drop its message, which for
+  `claims_language` quotes the offending draft back. The log is **not
+  configurable and has no off switch**, which follows from the item 21 ruling: if
+  any state may ship to the preview, this is the only reconstruction of what that
+  audience was shown, and a switch to turn it off is a switch to lose it. There
+  is one line on every terminal path, including the abandoned one — a request
+  that logged nothing is indistinguishable from a request that never happened.
+  A `400`/`401` is deliberately not logged: it never reached a verdict, and the
+  caller sees it synchronously as a status code. stdout rather than a file
+  because a container's stdout is already collected, and a file sink would buy
+  rotation, permissions and a disk-full failure mode for kilobytes a day.

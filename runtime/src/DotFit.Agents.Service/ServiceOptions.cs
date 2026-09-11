@@ -65,6 +65,14 @@ public sealed record ServiceOptions
     /// <summary>256 KB. A question plus 8 trimmed history turns is kilobytes.</summary>
     public const long MaxRequestBytes = 256 * 1024;
 
+    /// <summary>
+    /// Bounds <c>conversation_id</c> and <c>request_id</c>. Generous for a UUID
+    /// and tight enough that neither can be used as a smuggling channel into the
+    /// verdict log (open item 20) — they are the only caller-supplied values the
+    /// service *retains*, and the log's promise is that it holds no customer text.
+    /// </summary>
+    public const int MaxIdChars = 64;
+
     /// <summary>The shared secret, or <c>null</c> when auth is explicitly off.</summary>
     public string? ApiKey { get; init; }
     public int MaxQuestionChars { get; init; } = DefaultMaxQuestionChars;
@@ -179,6 +187,10 @@ public sealed record ServiceOptions
             return $"question is longer than the {MaxQuestionChars} character limit";
         if (request.Top is { } top && (top < 1 || top > MaxTop))
             return $"top must be between 1 and {MaxTop}";
+        if (request.ConversationId is { Length: > MaxIdChars })
+            return $"conversation_id is longer than the {MaxIdChars} character limit";
+        if (request.RequestId is { Length: > MaxIdChars })
+            return $"request_id is longer than the {MaxIdChars} character limit";
         return request.TryReadHistory(out _, out string? historyError) ? null : historyError;
     }
 
