@@ -43,7 +43,8 @@ public sealed record VerdictLog
 {
     /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
     public const string SchemaName = "dotfit.verdict";
-    public const string SchemaVersion = "1.0.0";
+    /// <summary>1.1.0 added <c>intent</c> and the <c>chitchat</c> outcome (§11 intent branch).</summary>
+    public const string SchemaVersion = "1.1.0";
 
     public const string OutcomeAnswered = "answered";
     public const string OutcomeEscalated = "escalated";
@@ -51,6 +52,13 @@ public sealed record VerdictLog
     public const string OutcomeError = "error";
     /// <summary>The client hung up: nobody read whatever we had.</summary>
     public const string OutcomeAbandoned = "abandoned";
+    /// <summary>
+    /// A conversational turn answered off the §11 intent branch — no retrieval,
+    /// no citations, so it is not an <c>answered</c> question and must not be
+    /// counted as one: a run of greetings would otherwise read as a healthy
+    /// answer rate with a citation rate of zero.
+    /// </summary>
+    public const string OutcomeChitchat = "chitchat";
 
     public const string ClaimsNotRun = "not_run";
     public const string ClaimsSkipped = "skipped";
@@ -88,6 +96,16 @@ public sealed record VerdictLog
     /// </summary>
     public bool HistoryTrigger { get; init; }
     public bool ClaimTrap { get; init; }
+    /// <summary>
+    /// What the guardrail took the turn to be — one of
+    /// <see cref="ConversationIntents"/>, filtered to that vocabulary for the
+    /// same reason <see cref="Reasons"/> is. This is how the owner finds out
+    /// what share of the traffic is greetings and how much is work dotFIT
+    /// support owns, and it is the only visibility on
+    /// <see cref="ConversationIntents.OutOfScope"/>, which is classified here
+    /// but deliberately changes no behavior.
+    /// </summary>
+    public string Intent { get; init; } = ConversationIntents.Question;
     public bool GuardrailDegraded { get; init; }
     public bool RewriteDegraded { get; init; }
 
@@ -140,8 +158,12 @@ public sealed record VerdictLog
             ClientClosedKind => OutcomeAbandoned,
             not null => OutcomeError,
             _ when result is null => OutcomeError,
+            // Escalated first, then withheld: both are outcomes the branch
+            // cannot produce, but the ordering says which reading wins if a
+            // future path ever produces two of them at once.
             _ when result.Escalated => OutcomeEscalated,
             _ when result.Withheld => OutcomeWithheld,
+            _ when result.Guardrail.Conversational => OutcomeChitchat,
             _ => OutcomeAnswered,
         };
 
@@ -166,6 +188,7 @@ public sealed record VerdictLog
             Reasons = ReasonCodes(result.Guardrail),
             HistoryTrigger = result.Guardrail.HistoryTrigger,
             ClaimTrap = result.Guardrail.ClaimTrap,
+            Intent = ConversationIntents.Normalize(result.Guardrail.Intent),
             GuardrailDegraded = result.Guardrail.Degraded,
             RewriteDegraded = result.Rewrite.Degraded,
             Withheld = result.Withheld,

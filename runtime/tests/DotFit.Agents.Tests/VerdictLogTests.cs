@@ -256,6 +256,50 @@ public class VerdictLogTests
     }
 
     [Fact]
+    public async Task AConversationalTurnRecordsTheChitchatOutcome()
+    {
+        // Counted apart from `answered` on purpose (§11 intent branch): a run
+        // of greetings would otherwise read as a healthy answer rate with a
+        // citation rate of zero.
+        var guardrail = new GuardrailVerdict { Intent = ConversationIntents.SmallTalk };
+        RecordingSink sink = await Run(new FakeAssistant(
+            new ResultEvent(Result(guardrail: guardrail, sources: [], answer: "Hi! Ask me anything."))));
+
+        VerdictLog entry = sink.Single();
+        Assert.Equal(VerdictLog.OutcomeChitchat, entry.Outcome);
+        Assert.Equal(ConversationIntents.SmallTalk, entry.Intent);
+        Assert.Equal(0, entry.NSources);
+        Assert.Equal(0, entry.NCitations);
+    }
+
+    [Fact]
+    public async Task AnOutOfScopeQuestionLogsItsIntentButIsStillAnswered()
+    {
+        // The only visibility on an intent that deliberately changes nothing:
+        // this column is how the owner learns how much of the traffic is work
+        // dotFIT support owns.
+        var guardrail = new GuardrailVerdict { Intent = ConversationIntents.OutOfScope };
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result(guardrail: guardrail))));
+
+        VerdictLog entry = sink.Single();
+        Assert.Equal(VerdictLog.OutcomeAnswered, entry.Outcome);
+        Assert.Equal(ConversationIntents.OutOfScope, entry.Intent);
+    }
+
+    [Fact]
+    public async Task AnOffVocabularyIntentIsLoggedAsQuestion()
+    {
+        // Same rule as the reason codes: the model's word never reaches the log
+        // unfiltered, because a log that promises to hold no free text has to
+        // enforce it on every field a model can write to.
+        var guardrail = new GuardrailVerdict { Intent = $"smalltalk about {QuestionMarker}" };
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result(guardrail: guardrail))));
+
+        Assert.Equal(ConversationIntents.Question, sink.Single().Intent);
+        Assert.DoesNotContain(QuestionMarker, sink.Json());
+    }
+
+    [Fact]
     public async Task AWithheldAnswerRecordsTheWithheldOutcome()
     {
         var postCheck = new PostCheckResult(

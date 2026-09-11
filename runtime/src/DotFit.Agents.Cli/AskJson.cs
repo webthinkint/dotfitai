@@ -63,6 +63,8 @@ public static class AskJson
         Reasons = v.Reasons,
         ClaimTrap = v.ClaimTrap,
         HistoryTrigger = v.HistoryTrigger,
+        Intent = v.Intent,
+        Conversational = v.Conversational,
         Notes = v.Notes,
         Degraded = v.Degraded,
     };

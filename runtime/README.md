@@ -8,7 +8,8 @@
   (`is_current` filter, semantic ranker off by default, authority re-rank) →
   grounded answer with `[n]` citations (chat model, streamed) →
   deterministic post-check + optional claims-language audit. No tool calls:
-  retrieval is single-shot by design in v1.
+  retrieval is single-shot by design in v1. A turn the guardrail reads as
+  small talk skips all of that — see "The conversational branch" below.
 - **`src/DotFit.Agents.Cli`** — `dotfit-agent`, the testing/demo harness.
 - **`src/DotFit.Agents.Service`** — `dotfit-agent-service`, the ASP.NET Core
   SSE endpoint the widget talks to. Transport only: config load, `POST /ask`,
@@ -165,9 +166,11 @@ out of the host's own console logging:
  "cited_authorities":[],"duration_ms":1981,"stage_ms":{"guardrail":1980,"answer":0}}
 ```
 
-`outcome` is one of `answered` / `escalated` / `withheld` / `error` /
-`abandoned` (the client hung up), and there is one line on **every** terminal
-path — the write is in a `finally`, because a run that logged nothing is
+`outcome` is one of `answered` / `escalated` / `withheld` / `chitchat` (the
+conversational branch below) / `error` / `abandoned` (the client hung up), and
+`intent` carries the guardrail's reading of the turn (`question` /`smalltalk` /
+`out_of_scope`, filtered to that vocabulary like `reasons`). There is one line
+on **every** terminal path — the write is in a `finally`, because a run that logged nothing is
 indistinguishable from a run that never happened. A request rejected before the
 stream opens (`400`/`401`) logs nothing: it never reached a verdict.
 
@@ -218,3 +221,37 @@ sees and everything an operator can reconstruct.
 affordable, since the widget has something live to render while the answer is
 held. On a post-check failure no `delta` of the answer is ever sent — a
 `retraction` arrives, then the templated handoff.
+
+## The conversational branch
+
+Not every turn is a question. The guardrail classifies one alongside its safety
+verdict — `intent` is `question`, `smalltalk` or `out_of_scope` — and a
+`smalltalk` turn skips the rewrite, the alias expansion, the search and the
+answer agent, and gets a short reply from `IChatReplyAgent` (small deployment),
+falling back to `Prompts.SmallTalkMessage()` when that call fails.
+
+It exists because "Hi there" used to come back as the support handoff. The
+retrieval path runs whatever you type: hybrid search returns its `top` nearest
+neighbours for a greeting as readily as for a question, the answer agent writes
+a greeting with no `[n]`, and the post-check fails it on `citation_presence` —
+which under `Gated` withholds the greeting and delivers the handoff instead.
+The branch retrieves nothing, so the citation checks (already conditioned on a
+non-empty source list) have nothing to fire on. **No check was relaxed**, and
+`PostChecker` reads the shape off the verdict rather than guessing it from the
+text.
+
+`GuardrailVerdict.Conversational` owns the precedence in one expression:
+escalation wins, a claim trap wins (it has to be corrected from approved copy,
+which needs retrieval), a degraded pre-check never branches — failing open means
+falling back to the fully checked path, not the one with no sources in it — and
+only `smalltalk` branches. `out_of_scope` is classified and logged but keeps the
+retrieval path, which it already passes: the §12 adversarial out-of-scope items
+are delivered today, so there is nothing there to fix.
+
+The branch is the one path where text reaches a customer without retrieval, so
+it is fenced rather than trusted: the prompt forbids product content, guidance
+and citations outright; it is not shown conversation history, for the same
+reason the answer agent is not, and more sharply — a branch that cannot cite
+must not be able to carry a fact forward out of an earlier assistant turn; and
+the verdict log counts it as `chitchat`, never as `answered`, so a run of
+greetings cannot read as a healthy answer rate with a citation rate of zero.

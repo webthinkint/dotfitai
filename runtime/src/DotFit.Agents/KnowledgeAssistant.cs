@@ -113,6 +113,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
     private readonly IKnowledgeSearch _search;
     private readonly IAnswerAgent _answer;
     private readonly IClaimsLanguageChecker? _claims;
+    private readonly IChatReplyAgent? _chatReply;
     private readonly SearchSettings _settings;
     /// <summary>Where the handoff templates send a refused customer (item 22).</summary>
     private readonly string? _supportContact;
@@ -125,7 +126,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         IAnswerAgent answer,
         SearchSettings settings,
         IClaimsLanguageChecker? claimsChecker = null,
-        string? supportContact = Answering.Prompts.DefaultSupportContact)
+        string? supportContact = Answering.Prompts.DefaultSupportContact,
+        IChatReplyAgent? chatReply = null)
     {
         _guardrail = guardrail;
         _rewriter = rewriter;
@@ -135,6 +137,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         _claims = claimsChecker;
         _settings = settings;
         _supportContact = supportContact;
+        _chatReply = chatReply;
     }
 
     /// <summary>Full pipeline, streamed. Always ends with exactly one <see cref="ResultEvent"/>.</summary>
@@ -164,7 +167,9 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         yield return new StageEvent("guardrail", verdict.Escalate
             ? $"ESCALATE ({string.Join(", ", verdict.Reasons)})" +
               (verdict.HistoryTrigger ? " · from an earlier turn" : "")
-            : verdict.Degraded ? "clear (degraded — check unavailable)" : "clear");
+            : verdict.Degraded ? "clear (degraded — check unavailable)"
+            : verdict.Intent == ConversationIntents.Question ? "clear"
+            : $"clear · {verdict.Intent}");
 
         if (verdict.Escalate)
         {
@@ -186,6 +191,83 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
                 RenderedCitations = "",
                 PostCheck = PostChecker.Check(verdict,
                     new RewriteResult { CanonicalQuestion = question }, AliasExpansion.Empty, [], refusal),
+                StageSeconds = timings,
+            });
+            yield break;
+        }
+
+        // --- the conversational branch (§11, guardrail intent) -------------------
+        // "Hi there" is not a question the corpus can answer, and running it
+        // down the retrieval path produced a real defect rather than a wasted
+        // call: hybrid search returns its `top` nearest neighbours whatever the
+        // query says, the answer agent writes a greeting with no [n], and the
+        // post-check fails it on citation_presence — which under Gated replaced
+        // the greeting with the support handoff. The branch is the fix, and the
+        // shape of it is deliberate: retrieval never runs, so `Sources` is
+        // empty, so citation_presence (which is already conditioned on
+        // `sources.Count > 0`) has nothing to fire on. No check was relaxed.
+        //
+        // GuardrailVerdict.Conversational owns the precedence — escalation and
+        // claim traps win, a degraded check never branches, and out_of_scope is
+        // classified but keeps the retrieval path it already passes on.
+        if (verdict.Conversational)
+        {
+            sw.Restart();
+            string? generated = _chatReply is null
+                ? null
+                : await _chatReply.ReplyAsync(Prompts.BuildChatReplyUserMessage(question), ct)
+                    .ConfigureAwait(false);
+            string reply = generated ?? Prompts.SmallTalkMessage();
+            timings["answer"] = sw.Elapsed.TotalSeconds;
+            bool chatGated = options.StreamMode == AnswerStreamMode.Gated;
+            yield return new StageEvent("answer",
+                $"conversational reply, no retrieval{(generated is null ? " (templated)" : "")}");
+            // The reply arrives whole (IChatReplyAgent does not stream), but the
+            // delivery rule is still the pipeline's one rule, not a second one:
+            // Live shows it and retracts after the fact, Gated holds it.
+            if (!chatGated)
+                yield return new DeltaEvent(reply);
+
+            var chatRewrite = new RewriteResult { CanonicalQuestion = question };
+            PostCheckResult chatCheck =
+                PostChecker.Check(verdict, chatRewrite, AliasExpansion.Empty, [], reply);
+            yield return new StageEvent("post-check",
+                chatCheck.Passed ? "PASS" : $"FAIL ({string.Join("; ", chatCheck.Failures)})");
+
+            // Held to the same gate as any other answer, even though almost
+            // nothing here can fail one: the citation checks need sources and
+            // there are none, and an invented [n] is a warning. What the gate is
+            // for on this path is the shape, not today's check list — a reply
+            // that does fail one is withheld under Gated like any other, rather
+            // than shipped because this branch was assumed harmless.
+            string chatDelivered = reply;
+            if (!chatCheck.Passed)
+            {
+                yield return new RetractionEvent(
+                    string.Join("; ", chatCheck.Failures), options.StreamMode);
+                if (chatGated)
+                {
+                    chatDelivered = Prompts.WithheldMessage(_supportContact);
+                    yield return new DeltaEvent(chatDelivered);
+                }
+            }
+            else if (chatGated)
+            {
+                yield return new DeltaEvent(reply);
+            }
+
+            yield return new ResultEvent(new AssistantResult
+            {
+                Question = question,
+                Guardrail = verdict,
+                Rewrite = chatRewrite,
+                Expansion = AliasExpansion.Empty,
+                Sources = [],
+                AnswerText = reply,
+                DeliveredText = chatDelivered,
+                Citations = [],
+                RenderedCitations = "",
+                PostCheck = chatCheck,
                 StageSeconds = timings,
             });
             yield break;

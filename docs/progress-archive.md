@@ -5,6 +5,16 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (59)** — Item 7 **closed** (§4): both luna-regen conflict
+  pairs ruled **split** (owner task 3). LeanMR+creatine is the FirstString
+  shape — two turns of one thread; Lean Pack 90's answers agree, but the
+  2023 record carries the fuller FAQ text, so retiring it would drop wording
+  from search. Both pinned in `CURATED_CLUSTER_DISPOSITIONS`
+  (membership-attested); regen from warm caches, 0 judge calls: 3
+  dispositioned clusters, queue 6 → **2** (audit sample), statuses unchanged
+  (923/104/14) — no index action, `is_current` unchanged for every record. Ruling in
+  decisions.md §4; shipped-rulings test extended (**455 py / 143 runtime**).
+
 - **2026-09-10 (58)** — products.json drop processed, item 2 **closed** (§5).
   Owner ruling: exports arrive ad hoc when updates are known — no schedule;
   each drop runs diff → aliases → stage2 → stage4 → index → ping (cache on

@@ -27,9 +27,10 @@ public static class Schemas
             ] } },
             "claim_trap": { "type": "boolean" },
             "history_trigger": { "type": "boolean" },
+            "intent": { "type": "string", "enum": ["question", "smalltalk", "out_of_scope"] },
             "notes": { "type": "string" }
           },
-          "required": ["escalate", "reasons", "claim_trap", "history_trigger", "notes"],
+          "required": ["escalate", "reasons", "claim_trap", "history_trigger", "intent", "notes"],
           "additionalProperties": false
         }
         """;

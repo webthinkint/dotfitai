@@ -54,6 +54,16 @@ public static class RuntimeFactory
         client.GetChatClient(options.RequireChatDeployment())
             .AsAIAgent(name: "dotfit-assistant", instructions: Prompts.AnswerInstructions);
 
+    /// <summary>
+    /// The §11 conversational branch. On the <em>small</em> deployment on
+    /// purpose: a two-sentence greeting that is forbidden from saying anything
+    /// about a product does not need the frontier model, and this is a turn the
+    /// widget will see constantly.
+    /// </summary>
+    public static AIAgent CreateChatReplyAgent(RuntimeOptions options, AzureOpenAIClient client) =>
+        client.GetChatClient(options.RequireSmallChatDeployment())
+            .AsAIAgent(name: "dotfit-chat", instructions: Prompts.ChatReplyInstructions);
+
     /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
     public static KnowledgeAssistant CreateAssistant(
         RuntimeOptions options, AliasTable? aliases = null, SearchSettings? settings = null)
@@ -70,7 +80,8 @@ public static class RuntimeFactory
             answer: new AgentAnswerAgent(CreateAnswerAgent(options, openAi)),
             settings: settings,
             claimsChecker: new AgentClaimsLanguageChecker(CreateClaimsAgent(options, openAi)),
-            supportContact: options.SupportContact);
+            supportContact: options.SupportContact,
+            chatReply: new AgentChatReplyAgent(CreateChatReplyAgent(options, openAi)));
     }
 
     /// <summary>Retrieval-only wiring for the search command (no chat deployments needed).</summary>

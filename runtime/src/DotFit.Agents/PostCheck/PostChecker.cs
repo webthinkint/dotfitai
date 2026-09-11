@@ -47,6 +47,13 @@ public sealed record PostCheckResult(
 /// citation presence, product-claim citations to authority 1–2, escalation
 /// respected, unknown citation markers. The claims-language check is a
 /// separate, optional small-model judgment (§12 formalizes the metrics).
+///
+/// Three answer shapes reach it, and they are not scored alike: a grounded
+/// answer carries the full citation contract; a refusal — the pre-check's or
+/// the answer agent's own — must hand off and cite nothing; and a
+/// conversational turn (§11 intent branch) has neither contract, because
+/// nothing was retrieved for it. The shape is read off
+/// <see cref="GuardrailVerdict"/>, never guessed from the text.
 /// </summary>
 public static class PostChecker
 {
@@ -69,6 +76,22 @@ public static class PostChecker
         if (outOfRange.Count > 0)
             warnings.Add($"unknown_citations: {string.Join(", ", outOfRange)} (not in the source list)");
 
+        // A conversational turn (§11 intent branch): nothing was retrieved, so
+        // the citation and escalation checks are about a contract this answer
+        // does not have. The citation ones would pass anyway — they are already
+        // conditioned on a non-empty source list — but `escalation_respected`
+        // would not: a greeting that names the support team reads to the
+        // model-escalation heuristic below as a refusal, and every such turn
+        // would then carry a warning that misreports what happened. The
+        // out-of-range warning above still stands, and is the one worth having
+        // here: a branch with no sources has no [n] it is allowed to write.
+        //
+        // The claims audit below is *not* skipped. It does not run on this path
+        // today (there is nothing to audit an empty source set against), but a
+        // caller that does run one gets its verdict honoured rather than
+        // silently dropped on the one path with no other check in it.
+        bool conversational = guardrail.Conversational && sources.Count == 0;
+
         bool handsOff = HandoffPhrases.Any(p => answer.Contains(p, StringComparison.OrdinalIgnoreCase));
 
         // A refusal the *answer agent* wrote, which the pre-check did not
@@ -79,7 +102,7 @@ public static class PostChecker
         // it is: the non-escalation branch below would fail it on
         // citation_presence, which under Gated replaces a correct refusal with
         // the handoff template and reports a defect that is not one.
-        bool modelEscalated = !guardrail.Escalate && handsOff && markers.Count == 0;
+        bool modelEscalated = !conversational && !guardrail.Escalate && handsOff && markers.Count == 0;
         if (modelEscalated)
             warnings.Add("escalation_respected: the answer refused and handed off without the pre-check asking for it"
                 + (guardrail.Degraded ? " (pre-check was degraded)" : ""));
@@ -96,7 +119,7 @@ public static class PostChecker
             if (markers.Count > 0)
                 failures.Add("escalation_respected: an escalated answer must not cite product guidance");
         }
-        else
+        else if (!conversational)
         {
             if (sources.Count > 0 && markers.Count == 0)
                 failures.Add("citation_presence: the answer cites none of the retrieved sources");

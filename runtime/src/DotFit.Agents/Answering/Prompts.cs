@@ -108,7 +108,69 @@ public static class Prompts
         an earlier turn rather than on the current question. False when the current
         question carries the trigger by itself, and false whenever both are false.
 
+        intent: what kind of turn this is. Not everything a customer types is a
+        question the knowledge base can answer.
+        - smalltalk: no question to look up — a greeting ("hi", "hey there"),
+          thanks, a sign-off, an acknowledgement ("ok, got it"), or a question
+          about the assistant itself ("what can you do?", "are you a bot?").
+        - out_of_scope: a real request, but one dotFIT support owns rather than
+          the knowledge base — order status, shipping, returns and refunds,
+          subscriptions, promo codes, account and login, store locations,
+          careers, wholesale.
+        - question: anything else, and anything you are unsure about. Every
+          question about a product, an ingredient, a dose, a program or nutrition
+          is `question`, including one wrapped in a greeting ("hi! how much
+          creatine should I take?") — the greeting is not the turn, the question
+          is. When a turn could be read either way, answer `question`.
+
+        Intent never overrides safety: classify escalate and claim_trap on their
+        own terms and set intent alongside them. "Hi! I'm 14, what should I take?"
+        is escalate=true with intent=question.
+
         notes: one short sentence of evidence.
+        """;
+
+    /// <summary>
+    /// Conversational-reply instructions for the §11 smalltalk branch (small
+    /// deployment).
+    ///
+    /// This is the one path where text reaches a customer without retrieval, so
+    /// the whole instruction is about what it may not do. It carries no [n]
+    /// contract because it has no sources — which is exactly why it must carry
+    /// no product content either: nothing it says is auditable by the claims
+    /// check, and an unsourced product sentence here would be the only
+    /// unaudited claim in the system.
+    ///
+    /// It is not shown conversation history, for the same reason
+    /// <see cref="BuildAnswerUserMessage"/> is not: an earlier assistant turn
+    /// is not a source, and a branch with no sources must not be able to carry
+    /// a fact forward out of one. A greeting needs no history to be warm.
+    /// </summary>
+    public const string ChatReplyInstructions = """
+        You are the dotFIT knowledge assistant, replying to a conversational turn —
+        a greeting, a thank-you, a sign-off, or a question about what you are. The
+        customer has not asked a question about a product, so nothing has been
+        looked up for you.
+
+        Write one or two short sentences, warm and plain, and then stop.
+
+        - Greet back, or acknowledge the thanks, in the customer's register.
+        - Offer what you can help with, in general terms: dotFIT products and
+          supplements, ingredients and dosing, and the programs and nutrition
+          guidance around them.
+        - If asked what you are, say you are an AI assistant that answers from
+          dotFIT's approved product copy, the practitioner reference guide,
+          customer Q&A and podcasts, and that you cite your sources.
+
+        Never do any of these:
+        - State a fact about a dotFIT product — what it does, contains, costs or
+          how to take it. You have no sources in front of you, so anything you
+          said about a product would be unsourced. If the customer wants one,
+          invite the question; do not answer it here.
+        - Give nutrition, training or medical guidance of any kind.
+        - Use a bracketed citation like [1]. There is nothing to cite.
+        - Claim to be human, or to remember the customer.
+        - Ask more than one question back, or pad with filler.
         """;
 
     /// <summary>Query-rewrite instructions (small deployment).</summary>
@@ -383,6 +445,28 @@ public static class Prompts
         "care of you.\n\n" +
         SupportLine(supportContact) +
         "(I'm an AI assistant — nutrition guidance, not medical advice.)";
+
+    /// <summary>
+    /// The user message for the conversational branch (§11 smalltalk intent).
+    /// The turn and nothing else — no sources, because none were retrieved, and
+    /// no history, because a branch that cannot cite must not be able to repeat
+    /// a product fact from an earlier turn (see <see cref="ChatReplyInstructions"/>).
+    /// </summary>
+    public static string BuildChatReplyUserMessage(string question) =>
+        "Customer said: " + question.ReplaceLineEndings(" ").Trim() + "\n";
+
+    /// <summary>
+    /// The deterministic conversational reply, used when the small-model chat
+    /// call is unavailable. Templated for the same reason as
+    /// <see cref="RefusalMessage"/> and <see cref="WithheldMessage"/>: the
+    /// fallback on a path that has no sources must not be another model call
+    /// that can fail the same way. Says what the branch is allowed to say and
+    /// nothing more — no product content, no guidance, no citation.
+    /// </summary>
+    public static string SmallTalkMessage() =>
+        "Hi — I'm the dotFIT assistant. Ask me about dotFIT products, what's in them or " +
+        "how to take them, and I'll answer from dotFIT's own approved copy and cite my " +
+        "sources.";
 
     /// <summary>
     /// AI-identity disclosure for the start of a conversation (§11 standing

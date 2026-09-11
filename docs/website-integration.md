@@ -78,7 +78,7 @@ Event names are the contract. Key on them; do not parse the prose.
 | Event | Payload | Notes |
 |---|---|---|
 | `disclosure` | `{text}` | AI-identity notice. Emitted **once**, only when the request had no `conversation_id`. Render it before any answer text. |
-| `stage` | `{stage, detail}` | Pipeline progress. `stage` is one of `guardrail`, `rewrite`, `aliases`, `search`, `answer`, `post-check`. |
+| `stage` | `{stage, detail}` | Pipeline progress. `stage` is one of `guardrail`, `rewrite`, `aliases`, `search`, `answer`, `post-check`. Not every turn emits all six — a greeting emits `guardrail`, `answer`, `post-check` and nothing between. Render what arrives; do not wait for a fixed set. |
 | `delta` | `{text}` | A fragment of answer text. Concatenate in arrival order. |
 | `retraction` | `{reason, mode}` | The post-check failed. See Gating. |
 | `result` | see below | Final, assembled. **Always last.** |
@@ -145,6 +145,16 @@ tokens trickle in — they do not.
    answer.** Do not retry, do not rephrase, do not fall back to another source.
 3. **Withheld** — `withheld: true`. The pipeline produced an answer and the
    post-check rejected it. The customer gets a handoff. Same rule: do not retry.
+
+There is a fourth shape you do not have to handle specially, but should not be
+surprised by: a **conversational turn**. "Hi there", "thanks", "what can you
+do?" — the guardrail reads these as small talk and the assistant replies without
+searching, so `escalated` and `withheld` are both `false`, the answer is one or
+two sentences, and `citations` and `sources` are **empty**. That is correct, not
+a failed retrieval: there was no question to look up. If your UI hides the
+citation block when the list is empty, it will do the right thing already. The
+safety check still runs first and still wins — a greeting that carries a medical
+trigger escalates like any other turn.
 
 Both 2 and 3 tell the customer to contact the dotFIT support team or a
 healthcare professional, **and now carry a real route**: `support@dotfit.com or
@@ -268,8 +278,10 @@ keeping a second copy of the conversation anywhere else.
 **Our verdict log.** We write one structured line per request recording what the
 assistant *decided* — escalated or not and on what reason code, whether the
 answer was withheld, whether the post-check passed and which checks fired,
-whether the safety verdict rested on an earlier turn, how many sources were
-retrieved and cited. It is keyed by `request_id` and `conversation_id`.
+whether the safety verdict rested on an earlier turn, what kind of turn it took
+the question to be (a question, small talk, or something dotFIT support owns
+such as an order or a refund), how many sources were retrieved and cited. It is
+keyed by `request_id` and `conversation_id`.
 
 It holds **no question text and no answer text**, by construction — not
 redacted, simply not collected. That is the deal that makes the split work: you

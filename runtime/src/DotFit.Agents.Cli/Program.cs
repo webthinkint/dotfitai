@@ -301,6 +301,8 @@ internal static class Program
         if (verdict.Reasons.Count > 0)
             Console.WriteLine($"reasons:    {string.Join(", ", verdict.Reasons)}");
         Console.WriteLine($"claim_trap: {verdict.ClaimTrap}");
+        Console.WriteLine($"intent:     {verdict.Intent}" +
+                          (verdict.Conversational ? " (answered without retrieval)" : ""));
         if (verdict.HistoryTrigger)
             Console.WriteLine("trigger:    an earlier turn, not this question");
         Console.WriteLine($"notes:      {verdict.Notes}");

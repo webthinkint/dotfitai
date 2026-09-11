@@ -479,3 +479,46 @@ the test.
   caller sees it synchronously as a status code. stdout rather than a file
   because a container's stdout is already collected, and a file sink would buy
   rotation, permissions and a disk-full failure mode for kilobytes a day.
+- **A greeting is not a question, and the branch that answers it retrieves
+  nothing** (2026-09-11). Typing "Hi there" came back as the support handoff.
+  The cause was not the prompts: the §11 chain runs whatever is typed, hybrid
+  search returns its `top` nearest neighbours for a greeting as readily as for a
+  question, the answer agent writes a greeting with no `[n]`, and the
+  deterministic post-check fails it on `citation_presence` — which under `Gated`
+  withholds the greeting and delivers the handoff. The **fix is a branch, not a
+  relaxed check**: the guardrail now classifies the turn (`intent` =
+  `question` / `smalltalk` / `out_of_scope`) on the call it already makes, and a
+  `smalltalk` turn skips the rewrite, the aliases, the search and the answer
+  agent. Retrieval never runs, so the source list is empty, so
+  `citation_presence` — already conditioned on a non-empty list — has nothing to
+  fire on. Nothing in the citation contract moved, and the post-check reads the
+  shape off the verdict rather than guessing it from the text. Four rulings hang
+  off it:
+  - **Safety outranks intent, always.** `GuardrailVerdict.Conversational` holds
+    the precedence in one expression so the pipeline and the post-check cannot
+    disagree: escalation wins ("Hi! I'm 14, what should I take?" refuses), a
+    claim trap wins (a presumed disease claim is corrected from approved copy,
+    which needs retrieval), and a **degraded pre-check never branches** — the
+    guardrail fails open, and failing open means falling back to the fully
+    checked path, not to the one with no sources in it.
+  - **`out_of_scope` is classified and logged but changes nothing.** The §12
+    adversarial out-of-scope items (order status, refunds, store locations) are
+    delivered today — `n_withheld: 0` on all 7 dev items — so the redirect they
+    get from the retrieval path works, and rerouting it would put a passing
+    behavior at risk to fix a defect it does not have. The intent is recorded so
+    the owner can see the volume and rule on it with data. It also keeps
+    `smalltalk` narrow: without somewhere else to put "where is my order", that
+    is where the classifier would have put it.
+  - **The branch is not shown conversation history**, which is the answer
+    agent's rule applied for a sharper reason. The answer agent is denied it
+    because an earlier turn is not a citable source; this branch has *no*
+    sources and no audit, so it must not be able to carry a product fact
+    forward out of an earlier assistant turn. Its prompt forbids product
+    content, guidance and citations outright, and the reply degrades to a
+    template when the call fails — the same discipline as the refusal and
+    withheld templates.
+  - **It is counted apart.** The verdict log gets `outcome: "chitchat"` and an
+    `intent` column (schema 1.1.0) rather than folding these into `answered`:
+    this is the one path that delivers text without retrieval, so a run of
+    greetings would otherwise read as a healthy answer rate with a citation rate
+    of zero, and items 12 and 17 read those columns.

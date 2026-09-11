@@ -361,6 +361,22 @@ prompt holds the opposite line, that a trigger does not put every later turn
 behind a refusal; both directions are measured by the multi-turn set in §12,
 and `history_trigger` on the verdict records which reading a refusal rests on.
 
+**The conversational branch (2026-09-11).** Not every turn is a question, and
+the chain above answered as if it were: "Hi there" ran guardrail → rewrite →
+search → answer, got a greeting with no `[n]` back, and failed the post-check on
+`citation_presence` — so under `Gated` the customer was handed off to support
+for saying hello. The guardrail now classifies the turn alongside its safety
+verdict (`intent`: `question`, `smalltalk`, `out_of_scope`) on the call it
+already makes, and a `smalltalk` turn skips the rewrite, the aliases, the search
+and the answer agent for a short reply from a small-model chat agent. The check
+was not relaxed: retrieval never runs, so the source list is empty, and
+`citation_presence` is already conditioned on a non-empty one. Safety outranks
+intent in every case — escalation and claim traps take the normal path, and a
+degraded pre-check never branches — and `out_of_scope` is classified and logged
+but keeps the retrieval path, whose redirect §12 shows working. The branch is
+the only path that delivers text without retrieval, so it is shown no history,
+forbidden product content by its prompt, and logged as its own outcome.
+
 **Streaming vs. gating (decided 2026-09-07).** The post-check runs on the
 finished answer, so streaming deltas as they arrive means a `claims_language`
 FAIL cannot retract text the customer has already read. There is no partial

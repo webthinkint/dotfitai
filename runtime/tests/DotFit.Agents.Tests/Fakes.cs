@@ -59,6 +59,23 @@ internal sealed class FakeAnswerAgent : IAnswerAgent
     }
 }
 
+/// <summary>
+/// Scripted conversational reply (§11 intent branch) — records the user message
+/// it was given, which is how the no-history invariant is pinned.
+/// </summary>
+internal sealed class FakeChatReplyAgent : IChatReplyAgent
+{
+    public List<string> UserMessages { get; } = [];
+    /// <summary><c>null</c> is the failed-call shape: the caller must template.</summary>
+    public string? Reply { get; set; } = "Hi! Ask me about dotFIT products and I'll cite my sources.";
+
+    public Task<string?> ReplyAsync(string userMessage, CancellationToken ct = default)
+    {
+        UserMessages.Add(userMessage);
+        return Task.FromResult(Reply);
+    }
+}
+
 /// <summary>Scripted knowledge search — records the parameters it received.</summary>
 internal sealed class FakeKnowledgeSearch : IKnowledgeSearch
 {
