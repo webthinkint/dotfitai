@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (62)** — Preview VM deployment recorded (§11, item 21): the
+  SSE service runs as a **systemd user service** (linger on, survives logout)
+  on the test VM — no front proxy, bound `0.0.0.0:5199` on the internal
+  network only, port closed to the outside. The how is committed:
+  `runtime/deploy/` holds the unit and an idempotent install script (publish
+  → key → unit → linger → start → healthz); re-running the script is the
+  redeploy procedure, verified live on the VM. Artifact only, no code —
+  tests unchanged (**455 py / 162 runtime**).
+
 - **2026-09-10 (61)** — Service hardening, item 22 **closed** (§11). Four
   boundary changes: shared-secret auth on `POST /ask` that **fails the boot**
   when neither the key nor `AUTH=none` is set, so no state runs open; a

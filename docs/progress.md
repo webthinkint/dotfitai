@@ -11,7 +11,7 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
 
 ## Status (§13 build order)
 
-Numbers verified 2026-09-11. Python 455 tests green; runtime 244 tests green.
+Numbers verified 2026-09-11. Python 459 tests green; runtime 245 tests green.
 
 | Component | Plan § | State | Verified output |
 |---|---|---|---|
@@ -23,9 +23,9 @@ Numbers verified 2026-09-11. Python 455 tests green; runtime 244 tests green.
 | QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (52 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
 | QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09, conflicts ruled 2026-09-10 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (3 conflict — all ruled split; 1 audit); 114 judgments (104 dependent / 10 independent); queue 2 (audit sample) |
 | Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
-| Golden set | §12 | **re-drawn 2026-09-10** (item 8 ruled: re-draw); **complete except labeling**. The 250 now come from the post-luna pool (653) — 208 of the previous draw stay, 42 swap, `(untagged)` 79 → 63, 29 families and the 125/125 split unchanged; the two items aimed at retired answers (G-012, G-032) are gone. The written 50 adversarial / 20 multi-turn and the 120 probes were not touched by the draw. Remaining: label the 250 (item 8) | 653 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes; `processed/golden/` |
+| Golden set | §12 | **re-drawn 2026-09-10** (item 8 ruled: re-draw); **complete except labeling**. The 250 now come from the post-luna pool (653) — 208 of the previous draw stay, 42 swap, `(untagged)` 79 → 63, 29 families and the 125/125 split unchanged; the two items aimed at retired answers (G-012, G-032) are gone. The written 50 adversarial / 20 multi-turn and the 120 probes were not touched by the draw. Remaining: label the 250 (item 8) | 653 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes **+ 59 infopage probes (2026-09-11, total 179; the 120 are byte-identical, one learn-hub stub is under the 12-word query floor)**; `processed/golden/` |
 | Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
-| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization) and 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors). Ranker ruled **off** — item 5 closed | 4,006 docs — 1,080 pdsrg / 181 product / 10 menu / 1,800 podcast / 935 qa; 1 embed call (4,002 cached), 0 pruned, 0 errors; live `search_ping` PASS at 4,006 |
+| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization), 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors) and **2026-09-11 with the new infopages source** (authority-1 site copy, owner ruling — decisions Index §9). Ranker ruled **off** — item 5 closed | 4,122 docs — 1,080 pdsrg / 181 product / **116 infopage** / 10 menu / 1,800 podcast / 935 qa; 258 embed calls (fresh cache), 0 pruned, 0 errors; live `search_ping` PASS at 4,122 |
 | v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12). **Conversational branch landed 2026-09-11** (item 25): the guardrail classifies `intent` and a smalltalk turn skips retrieval entirely, so a greeting is answered instead of withheld on `citation_presence`; safety outranks intent and `out_of_scope` is logged only | `runtime/`, 223 tests |
 | SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. **Hardened 2026-09-10** (item 22): shared-secret auth on `/ask` (fail-closed boot), 2,000-char question cap, `top` 1–20, 256 KB body, 120 s request timeout, `/healthz` reports the posture; handoffs carry a real support route. **Verdict logging landed 2026-09-11** (item 20): one `dotfit.verdict` JSON line to stdout per accepted request — outcome, reason codes, `history_trigger`, post-check and claims outcome, source/citation counts, stage timings, and no question or answer text; `request_id` echoed on `result`/`error` is the caller's join key. **Debug transcript + log viewer landed 2026-09-11** (owner ruling, decisions Runtime §11): `DOTFIT_SERVICE_DEBUG_TRANSCRIPT=1` (on in the preview unit) writes one `dotfit.transcript` line per request with the question, the withheld draft, the delivered text and the full failure messages — off by default, off before public traffic; `runtime/deploy/verdict-log` (installed as `dotfit-verdict-log`) reads both out of the journal. Remaining before public traffic: items 12/17 | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live, hardening re-smoked live 2026-09-10 (fail-closed boot, 401/400, both answer paths), verdict log smoked live 2026-09-11 (answered + history-triggered escalation, id caps 400); deployed on the preview VM as a systemd user service — `runtime/deploy/` holds the unit + install script |
 | §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. The answer-side numbers above are a reading of the **superseded** draw (the 250 were re-drawn 2026-09-10, 42 items different); probe, escalation and multiturn tiers are unaffected and stand. **Sample retrieval re-measured on the new draw 2026-09-10** (retrieval-only, no chat): recall@8 **100.0%** (125/125, was 99.2% / 124/125), MRR 0.8233. Still owed on the new draw: faithfulness, citation rate, withheld counts and the claims-audit denominators — those need a full sweep |
@@ -80,6 +80,18 @@ entries). The five most recent live here; older ones are in
 artifact it describes.
 
 
+- **2026-09-11 (67)** — Index the dotFIT.com info pages, new source
+  `infopage` (§9). Owner ruled them **authority-1 site copy** — same export
+  channel as products.json — so `infopage_documents` reuses
+  `split_sections` (page H1 dropped, intro → description), stamps public
+  `citation_url`s, and `PAGE_META` curates title/topic per coid (unknown
+  coid raises). 20 pages → 116 docs; index 4,006 → **4,122**, re-uploaded
+  0 errors, `search_ping` PASS. Guardrail splits published-policy questions
+  (now answerable) from support-owned order/account actions; runtime labels
+  the source; probes 120 → **179** (old rows byte-identical). Live smoke:
+  return policy answered + cited, "where is my order" still `out_of_scope`.
+  4 py + 1 runtime tests (**459 py / 245 runtime**).
+
 - **2026-09-11 (66)** — Request/response debugging for the preview (§11,
   owner ruling recorded in decisions Runtime §11). The verdict log could not
   explain a retraction: it keeps a check's *name* and drops its message, and
@@ -124,17 +136,6 @@ artifact it describes.
   rather than promised. Written from a `finally`, so an abandoned run logs too;
   a 400/401 does not. `request_id` on `result`/`error` is the caller's join key.
   Smoked live. 28 tests (**455 py / 190 runtime**).
-
-- **2026-09-10 (62)** — Preview VM deployment recorded (§11, item 21): the
-  SSE service runs as a **systemd user service** (linger on, survives logout)
-  on the test VM — no front proxy, bound `0.0.0.0:5199` on the internal
-  network only, port closed to the outside. The how is committed:
-  `runtime/deploy/` holds the unit and an idempotent install script (publish
-  → key → unit → linger → start → healthz); re-running the script is the
-  redeploy procedure, verified live on the VM. Artifact only, no code —
-  tests unchanged (**455 py / 162 runtime**).
-
-  CORS/rate limiting stay out. 19 tests (**455 py / 162 runtime**).
 
 ## Writing entries
 

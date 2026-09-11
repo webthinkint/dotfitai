@@ -50,6 +50,7 @@ citations, grounded exclusively in dotFIT's own knowledge sources.
 | 13 | Transcript source | Own ASR pipeline (Azure AI Speech fast-transcription, diarization + word timestamps); no YouTube captions | ✅ confirmed |
 | 14 | Index shape | Single AI Search index, filtered by source/authority/currency | recommended, accepted |
 | 15 | Ingestion language | Python offline pipeline; C# runtime | recommended, accepted |
+| 16 | Info pages | `infopages.json` indexed as authority-1 website copy (`source_type: infopage`), same export channel as products.json; policies answerable, support-owned account/order actions still hand off | ✅ owner decision 2026-09-11 |
 | 16 | Chunking | Per-source (see §4–§7) | recommended, accepted |
 | 17 | Model provider | Azure OpenAI, region-paired; frontier + small deployments + embeddings | recommended, accepted |
 
@@ -60,6 +61,7 @@ citations, grounded exclusively in dotFIT's own knowledge sources.
 | Authority | Source | Volume | State |
 |---|---|---|---|
 | 1 | `data/Product Data/products.json` — legal-approved website copy | 56 SKUs (51 indexed + 5 gear), markdown (avg 4 KB) | Clean; needs section-split + family grouping |
+| 1 | `data/Product Data/infopages.json` — dotFIT.com info pages (about/FAQ/policies/learn hubs), same export channel as products.json (owner ruling 2026-09-11) | 20 pages, markdown | Clean; section-split reuses the products.json splitter (`PAGE_META` curates titles/topics) |
 | 2 | `data/Practitioner Dietary Supplement Reference Guide/` | 39 text-layer PDFs, 41 MB | Clean-ish; needs section chunking + table-preservation test |
 | 3 | `data/QAs/` .docx | 1,051 files, 2023–2026 (1,103 exported − 51 duplicates − 1 zero-byte = 1,051, 2026-09-02; 43 md5 groups, 9 zero-byte files in total — record: `processed/qa/runs/data-cleanup-2026-09-02.log`) | Saved email threads + free-form notes; heavy cleanup (§4) |
 | 4 | `data/Suppbeast Podcast/` | 47 MP3s, ~35–40 h | Needs ASR (§7) — wave 2 |
@@ -280,7 +282,7 @@ source-specific).
 | Field | Type | Attributes | Notes |
 |---|---|---|---|
 | `id` | string | key | `{source}-{file|part_no|episode}-{section|chunk}` — dashes, not colons: AI Search keys forbid `:` (`InvalidDocumentKey`, hit 2026-09-05) |
-| `source_type` | string | filterable, facetable | `qa` \| `product` \| `pdsrg` \| `podcast` \| `menu_desc` |
+| `source_type` | string | filterable, facetable | `qa` \| `product` \| `pdsrg` \| `podcast` \| `menu_desc` \| `infopage` |
 | `authority` | int32 | filterable, sortable | 1–5 per §3 (menus rank last — nulls sort unpredictably, so menus carry an explicit 5) |
 | `title` | string | searchable | product name / QA canonical question / episode+segment |
 | `content` | string | searchable | markdown, tables verbatim |

@@ -67,7 +67,7 @@ connectivity checks.
 Two independent corpora feed a shared alias vocabulary, then a shared index.
 
 QA: `data/QAs/**/*.docx` → stage0 → stage1 → stage2 → stage4 → `index`
-PDSRG: PDF → `pdsrg` → `index`; products.json + menus + podcasts → `index`
+PDSRG: PDF → `pdsrg` → `index`; products.json + infopages + menus + podcasts → `index`
 Runtime queries the index; `alias.py` feeds both `pdsrg` and query expansion.
 
 | File | Owns | Plan |

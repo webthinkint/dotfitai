@@ -63,8 +63,8 @@ from .index_build import (
     list_index_ids, read_menu_rows, upload_documents,
 )
 from .io_utils import (
-    configure_stdio, doc_id, iter_docx, read_jsonl, rel_posix, sha256_file,
-    write_json, write_text,
+    configure_stdio, doc_id, iter_docx, read_json, read_jsonl, rel_posix,
+    sha256_file, write_json, write_text,
 )
 from .pdsrg import chunk_pdf, chunk_records, review_outline
 from .podcast import (
@@ -917,8 +917,9 @@ def cmd_index(args: argparse.Namespace) -> int:
     chunks_path = Path(args.chunks).resolve()
     products_path = Path(args.products).resolve()
     menus_path = Path(args.menus).resolve()
+    infopages_path = Path(args.infopages).resolve()
     for path, flag in ((chunks_path, "--chunks"), (products_path, "--products"),
-                       (menus_path, "--menus")):
+                       (menus_path, "--menus"), (infopages_path, "--infopages")):
         if not path.is_file():
             print(f"error: {flag} not found: {path}", file=sys.stderr)
             return 2
@@ -927,6 +928,7 @@ def cmd_index(args: argparse.Namespace) -> int:
 
     chunks = read_jsonl(chunks_path)
     products = json.loads(products_path.read_text(encoding="utf-8"))
+    infopages = read_json(infopages_path)
     families = build_alias_table(products)["families"]
     menu_rows = read_menu_rows(menus_path)
     segments_path = Path(args.podcast_segments).resolve()
@@ -944,7 +946,8 @@ def cmd_index(args: argparse.Namespace) -> int:
         print(f"  note: QA canonical docs not found ({qa_docs_path}) — "
               f"shaping without the QA source")
     docs = build_documents(chunks, products, families, menu_rows,
-                           podcast_segments, qa_records)
+                           podcast_segments, qa_records,
+                           infopages=infopages)
 
     docs_path = out_dir / "documents.jsonl"
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -1044,6 +1047,7 @@ def cmd_index(args: argparse.Namespace) -> int:
         "inputs": {"chunks": sha256_file(chunks_path),
                    "products": sha256_file(products_path),
                    "menus": sha256_file(menus_path),
+                   "infopages": sha256_file(infopages_path),
                    "podcast_segments": (sha256_file(segments_path)
                                           if segments_path.is_file()
                                           else None),
@@ -1307,7 +1311,8 @@ def build_parser() -> argparse.ArgumentParser:
     ix = sub.add_parser(
         "index",
         help="shape + embed + upload the §9 kb-main index "
-             "(pdsrg chunks + products.json + menu descriptions)")
+             "(pdsrg chunks + products.json + infopages.json + menu "
+             "descriptions)")
     ix.add_argument("--chunks", default="processed/pdsrg/chunks/chunks.jsonl",
                     help="§6 chunks.jsonl")
     ix.add_argument("--products", default="data/Product Data/products.json",
@@ -1315,6 +1320,9 @@ def build_parser() -> argparse.ArgumentParser:
     ix.add_argument("--menus",
                     default="data/Reference Menus/All Reference Menus Export.csv",
                     help="menu CSV (§8 description docs)")
+    ix.add_argument("--infopages",
+                    default="data/Product Data/infopages.json",
+                    help="infopages.json (dotFIT.com info pages, authority 1)")
     ix.add_argument("--podcast-segments",
                     default="processed/podcasts/segments/segments.jsonl",
                     help="§7 segments.jsonl (missing file shapes without "

@@ -113,10 +113,14 @@ public static class Prompts
         - smalltalk: no question to look up — a greeting ("hi", "hey there"),
           thanks, a sign-off, an acknowledgement ("ok, got it"), or a question
           about the assistant itself ("what can you do?", "are you a bot?").
-        - out_of_scope: a real request, but one dotFIT support owns rather than
-          the knowledge base — order status, shipping, returns and refunds,
-          subscriptions, promo codes, account and login, store locations,
-          careers, wholesale.
+        - out_of_scope: a real request for something dotFIT support must do
+          for the customer — a specific order ("where is my order", "change
+          or cancel it"), a refund on an order, an account or login problem,
+          a subscription change, a promo code, store locations, careers,
+          wholesale. Questions about dotFIT's published policies — shipping
+          options and thresholds, the return/refund policy, the privacy
+          policy — are NOT out_of_scope: the knowledge base carries dotFIT's
+          own website pages, so they are `question`.
         - question: anything else, and anything you are unsure about. Every
           question about a product, an ingredient, a dose, a program or nutrition
           is `question`, including one wrapped in a greeting ("hi! how much
@@ -159,8 +163,9 @@ public static class Prompts
           supplements, ingredients and dosing, and the programs and nutrition
           guidance around them.
         - If asked what you are, say you are an AI assistant that answers from
-          dotFIT's approved product copy, the practitioner reference guide,
-          customer Q&A and podcasts, and that you cite your sources.
+          dotFIT's website pages, approved product copy, the practitioner
+          reference guide, customer Q&A and podcasts, and that you cite your
+          sources.
 
         Never do any of these:
         - State a fact about a dotFIT product — what it does, contains, costs or
@@ -206,9 +211,9 @@ public static class Prompts
         You audit a draft answer from the dotFIT knowledge assistant for compliant
         claim language. You are given every source the answer was allowed to use,
         numbered exactly as the answer's [n] citations are, each tagged either
-        QUOTABLE FOR PRODUCT CLAIMS (dotFIT's approved product copy and the
-        practitioner reference guide) or CONTEXT ONLY (customer Q&A, podcasts,
-        menus).
+        QUOTABLE FOR PRODUCT CLAIMS (dotFIT's approved product copy, official
+        website pages and the practitioner reference guide) or CONTEXT ONLY
+        (customer Q&A, podcasts, menus).
 
         You audit product-claim language, not factual accuracy in general.
 
@@ -526,16 +531,17 @@ public static class Prompts
     /// </summary>
     public static string ConversationDisclosure() =>
         "I'm an AI assistant — nutrition guidance, not medical advice. " +
-        "I answer from dotFIT's approved product copy, the practitioner " +
-        "reference guide, customer Q&A and podcasts, and I cite my sources. " +
+        "I answer from dotFIT's website pages and approved product copy, the " +
+        "practitioner reference guide, customer Q&A and podcasts, and I cite " +
+        "my sources. " +
         "For anything medical, I'll hand you to the dotFIT support team or a " +
         "healthcare professional.";
 
     /// <summary>
-    /// Whether a source may supply product-claim wording (§3: products.json is
-    /// the legal-approved claims corpus, the PDSRG the practitioner authority).
-    /// Authority 3-4 — customer Q&amp;A, podcasts, menus — is context, never
-    /// claim wording.
+    /// Whether a source may supply product-claim wording (§3: products.json
+    /// and the official website pages are legal-approved copy, the PDSRG the
+    /// practitioner authority). Authority 3-4 — customer Q&amp;A, podcasts,
+    /// menus — is context, never claim wording.
     /// </summary>
     public static bool ClaimsQuotable(int authority) => authority <= 2;
 
@@ -567,6 +573,7 @@ public static class Prompts
     public static string SourceLabel(string sourceType, int authority) => sourceType switch
     {
         "product" => $"dotFIT approved product copy (authority {authority})",
+        "infopage" => $"dotFIT official website page (authority {authority})",
         "pdsrg" => $"Practitioner Dietary Supplement Reference Guide (authority {authority})",
         "qa" => $"dotFIT nutrition knowledge base (authority {authority})",
         "podcast" => $"dotFIT expert discussion transcript (authority {authority})",
@@ -578,6 +585,7 @@ public static class Prompts
     public static string SourceKind(string sourceType) => sourceType switch
     {
         "product" => "product copy",
+        "infopage" => "dotFIT website",
         "pdsrg" => "practitioner guide",
         "qa" => "customer Q&A",
         "podcast" => "podcast",

@@ -12,6 +12,10 @@ to AI Search (manual indexing — chunking is source-specific, per §9):
   distinct sections (whitespace-normalized text diff against the canonical's
   same-named section). §5's ``faq_item`` split is data-driven: no FAQ-shaped
   sections exist in the corpus yet, so none are produced.
+- **infopages.json** — the dotFIT.com info pages (about/FAQ/policies/learn
+  hubs): the same export channel as products.json, so the same §3 weight —
+  authority 1 site copy (owner ruling 2026-09-11). Section-split reuses
+  ``split_sections``; curated per-page metadata lives in ``PAGE_META``.
 - **menu descriptions** (§8) — one small doc per menu type (10), with the
   calorie range computed from the CSV.
 
@@ -182,6 +186,107 @@ def pdsrg_documents(chunks: list[dict]) -> list[dict]:
             "is_current": bool(c.get("is_current", True)),
             "product_status": c.get("product_status"),
         })
+    return docs
+
+
+# --------------------------------------------------------------------------
+# infopages.json (dotFIT.com info pages — same export channel as products.json)
+
+# Curated per-page metadata, keyed by the export's ``coid`` (stable page id).
+# ``title`` is the display form of the export ``longname`` — coid 41964's
+# longname is truncated mid-sentence in the export (and carries literal
+# ``<br>`` tags), the rest are dash/case cleanups; ``topic`` is the page-class
+# facet. An unknown coid raises rather than emit untagged docs — the STEM_META
+# rule: an unattested mapping must never silently pass (alias lesson,
+# 2026-09-01).
+PAGE_META: dict[int, dict] = {
+    # about / brand
+    41819: {"title": "Nutrition Solutions For Exercisers and Athletes",
+            "topic": "about"},
+    42026: {"title": "dotFIT Difference", "topic": "about"},
+    # partner / certification programs
+    41952: {"title": "Become a dotFIT Licensed Partner", "topic": "partner"},
+    41964: {"title": "fibrPRO: Get Paid for Your Guidance",
+            "topic": "partner"},          # export longname truncated mid-sentence
+    41951: {"title": "Become dotFIT Certified", "topic": "certification"},
+    41223: {"title": "Masterclass - Recorded Webinars", "topic": "education"},
+    41701: {"title": "Infographics", "topic": "education"},
+    3968: {"title": "dotFIT FAQs", "topic": "faq"},
+    # learn hubs (navigation stubs + category blurbs)
+    3954: {"title": "Learn", "topic": "learn"},
+    38566: {"title": "Ask the Experts", "topic": "learn"},
+    38594: {"title": "Keto | Paleo | Atkins", "topic": "learn"},
+    4149: {"title": "General Health & Fitness", "topic": "learn"},
+    4221: {"title": "Muscle Gain", "topic": "learn"},
+    4186: {"title": "Performance & Sports Nutrition", "topic": "learn"},
+    4458: {"title": "Healthy Recipes", "topic": "learn"},
+    4148: {"title": "Supplements", "topic": "learn"},
+    3939: {"title": "Weight Loss", "topic": "learn"},
+    # site policies
+    3966: {"title": "dotFIT Privacy Policy", "topic": "policy"},
+    3965: {"title": "dotFIT Return/Refund Policy", "topic": "policy"},
+    3821: {"title": "dotFIT Terms and Conditions of Use", "topic": "policy"},
+}
+
+
+def _strip_page_h1(searchcontent: str) -> str:
+    """Drop a leading ``#`` page-title header (newline-normalized first).
+
+    Every info page opens with ``# <page title>`` — the products.json shape
+    has no such header, so stripping it turns the page's intro prose into the
+    ``description`` preamble section and leaves content sections starting at
+    ``##``/``###``, exactly what ``split_sections`` was shaped on.
+    """
+    text = searchcontent.replace("\r\n", "\n").replace("\r", "\n")
+    text = text.lstrip("\n")
+    m = re.match(r"^# .+\n", text)
+    return text[m.end():] if m else text
+
+
+def infopage_documents(pages: list[dict]) -> list[dict]:
+    """dotFIT.com info pages (infopages.json) -> §9 docs (``authority=1``).
+
+    The §9 stamp mirrors the product source the pages share an export channel
+    with: authority 1 legal-approved site copy (owner ruling 2026-09-11), no
+    date (the export carries none), ``is_current=True``, no product_status,
+    no ``products`` tags (the pages carry no part_nos; the FAQ page names
+    SKUs in prose, but deterministic tagging of site copy is future work on
+    the podcast precedent). ``citation_url`` is the page's public URL, so —
+    unlike QA/podcast — these docs cite to live links. ``locator`` is the
+    section heading (the header line ``split_sections`` keeps in the content);
+    the description preamble has no heading, so it gets ``None``.
+    """
+    docs: list[dict] = []
+    for page in sorted(pages, key=lambda p: p["coid"]):
+        coid = page["coid"]
+        meta = PAGE_META.get(coid)
+        if meta is None:
+            raise ValueError(
+                f"infopage coid {coid} ({page.get('longname')!r}) is not in "
+                "PAGE_META in qa_pipeline/index_build.py — curate it before "
+                "indexing")
+        seen: set[str] = set()
+        for slug, text in split_sections(_strip_page_h1(page["searchcontent"])):
+            if slug in seen:
+                raise ValueError(
+                    f"infopage coid {coid}: two headers collapse to section "
+                    f"slug {slug!r} — one document id would silently win")
+            seen.add(slug)
+            header = text.partition("\n")[0]
+            docs.append({
+                "id": f"infopage-{coid}-{slug}",
+                "source_type": "infopage",
+                "authority": 1,                     # §3: legal-approved site copy
+                "title": meta["title"],
+                "content": text,
+                "citation_url": page.get("URL"),
+                "locator": None if slug == "description" else header,
+                "products": [],
+                "topics": [meta["topic"]],
+                "date": None,                       # infopages.json has no export date
+                "is_current": True,
+                "product_status": None,
+            })
     return docs
 
 
@@ -373,13 +478,15 @@ def build_documents(chunks: list[dict], products: list[dict],
                     families: list[dict], menu_rows: list[dict],
                     podcast_segments: list[dict] | None = None,
                     qa_records: list[dict] | None = None,
-                    podcast_video_ids: dict[str, str] | None = None) -> list[dict]:
+                    podcast_video_ids: dict[str, str] | None = None,
+                    infopages: list[dict] | None = None) -> list[dict]:
     """All §9 documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
             + product_documents(products, families)
             + menu_documents(menu_rows)
             + podcast_documents(podcast_segments or [], podcast_video_ids)
-            + qa_documents(qa_records or []))
+            + qa_documents(qa_records or [])
+            + infopage_documents(infopages or []))
     return sorted(docs, key=lambda d: d["id"])
 
 

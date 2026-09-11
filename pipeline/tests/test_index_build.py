@@ -7,8 +7,9 @@ import pytest
 from qa_pipeline.embeddings import Embedder
 from qa_pipeline.index_build import (
     INDEX_NAME, build_documents, embed_text, ensure_index, index_schema,
-    menu_documents, pdsrg_documents, podcast_documents, product_documents,
-    qa_date, qa_documents, read_menu_rows, split_sections, upload_documents,
+    infopage_documents, menu_documents, pdsrg_documents, podcast_documents,
+    product_documents, qa_date, qa_documents, read_menu_rows, split_sections,
+    upload_documents,
 )
 
 
@@ -159,6 +160,75 @@ def test_read_menu_rows_bom_and_cp1252(tmp_path):
                      b'"Heart Healthy";"range 1000\x962000";"1000"\n')
     rows = read_menu_rows(path)
     assert rows[0]["menu_descr"] == "range 1000–2000"
+
+
+# --- infopage_documents (dotFIT.com info pages, authority 1) ------------------
+
+
+def _infopage(coid, longname, searchcontent, url="https://www.dotfit.com/example"):
+    return {"coid": coid, "longname": longname, "URL": url,
+            "searchcontent": searchcontent}
+
+
+def test_infopage_documents_shape_and_h1_to_description():
+    page = _infopage(
+        3965, "dotFIT Return/Refund Policy",
+        "# dotFIT Return/Refund Policy\r\n\r\nReturns are accepted.\r\n\r\n"
+        "## Refund Window\r\n\r\n30 days.")
+    docs = infopage_documents([page])
+    by_id = {d["id"]: d for d in docs}
+    assert set(by_id) == {"infopage-3965-description",
+                          "infopage-3965-refund-window"}
+    desc, win = by_id["infopage-3965-description"], by_id["infopage-3965-refund-window"]
+    # the page-title H1 is dropped; its intro prose is the description section
+    assert desc["content"] == "Returns are accepted."
+    assert desc["locator"] is None
+    # header sections keep their header line and cite it as the locator
+    assert win["content"] == "Refund Window\n\n30 days."
+    assert win["locator"] == "Refund Window"
+    for doc in docs:
+        assert doc["source_type"] == "infopage"
+        assert doc["authority"] == 1            # same §3 weight as products.json
+        assert doc["title"] == "dotFIT Return/Refund Policy"   # PAGE_META display title
+        assert doc["topics"] == ["policy"]                      # PAGE_META page class
+        assert doc["citation_url"] == "https://www.dotfit.com/example"
+        assert doc["products"] == [] and doc["date"] is None
+        assert doc["is_current"] is True and doc["product_status"] is None
+
+
+def test_infopage_documents_unknown_coid_raises():
+    page = _infopage(999999, "Ghost Page", "# Ghost Page\r\n\r\nBoo.")
+    with pytest.raises(ValueError, match="PAGE_META"):
+        infopage_documents([page])
+
+
+def test_infopage_documents_duplicate_section_slug_raises():
+    # "Same" and "same" slug identically — two headers collapsing onto one
+    # document id would let merge_or_upload silently keep only the last
+    page = _infopage(3965, "dotFIT Return/Refund Policy",
+                     "# T\r\n\r\nintro\r\n\r\n## Same\r\n\r\na\r\n\r\n"
+                     "## same\r\n\r\nb")
+    with pytest.raises(ValueError, match="collapse to section slug"):
+        infopage_documents([page])
+
+
+def test_build_documents_with_infopages_sorted_and_key_safe():
+    import re
+
+    page = _infopage(3968, "FAQs", "# FAQs\r\n\r\nShipping is free over $80.")
+    docs = build_documents(_chunks(), PRODUCTS, FAMILIES,
+                           [{"menu_name": "M", "menu_descr": "d",
+                             "menu_calories": "1000"}],
+                           _segments(), None, VIDEO_IDS, [page])
+    assert [d["id"] for d in docs] == sorted(d["id"] for d in docs)
+    assert "infopage-3968-description" in {d["id"] for d in docs}
+    assert all(re.fullmatch(r"[A-Za-z0-9_\-=]+", d["id"]) for d in docs)
+    # deterministic: same inputs, same bytes
+    again = build_documents(_chunks(), PRODUCTS, FAMILIES,
+                            [{"menu_name": "M", "menu_descr": "d",
+                              "menu_calories": "1000"}],
+                            _segments(), None, VIDEO_IDS, [page])
+    assert docs == again
 
 
 # --- build_documents + schema ------------------------------------------------

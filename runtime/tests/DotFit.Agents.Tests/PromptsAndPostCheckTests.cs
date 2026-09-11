@@ -218,14 +218,27 @@ public class PromptsTests
     }
 
     [Fact]
-    public void SourceLabelsCoverAllFiveTypes()
+    public void SourceLabelsCoverAllSixTypes()
     {
         Assert.Contains("approved product copy", Prompts.SourceLabel("product", 1));
+        Assert.Contains("official website page", Prompts.SourceLabel("infopage", 1));
         Assert.Contains("Practitioner Dietary Supplement Reference Guide", Prompts.SourceLabel("pdsrg", 2));
         Assert.Contains("nutrition knowledge base", Prompts.SourceLabel("qa", 3));
         Assert.Contains("expert discussion transcript", Prompts.SourceLabel("podcast", 4));
         Assert.Contains("menu description", Prompts.SourceLabel("menu_desc", 5));
         Assert.Contains("weird (authority 7)", Prompts.SourceLabel("weird", 7));
+    }
+
+    [Fact]
+    public void GuardrailSplitsPublishedPolicyQuestionsFromSupportActions()
+    {
+        // infopages.json (authority 1 site copy) is indexed, so published-policy
+        // questions — shipping thresholds, return policy, privacy — are
+        // answerable from the knowledge base and must classify as `question`;
+        // out_of_scope keeps only the actions support must do for the customer.
+        Assert.Contains("published policies", Prompts.GuardrailInstructions);
+        Assert.Contains("they are `question`", Prompts.GuardrailInstructions);
+        Assert.Contains("\"where is my order\"", Prompts.GuardrailInstructions);
     }
 
     [Fact]
@@ -235,7 +248,7 @@ public class PromptsTests
         // it must not name the corpus the chunk was harvested from: the answer
         // agent was writing "dotFIT's customer Q&As typically recommend ...".
         // SourceKind, the customer-facing citation line, stays literal.
-        foreach (string sourceType in new[] { "product", "pdsrg", "qa", "podcast", "menu_desc" })
+        foreach (string sourceType in new[] { "product", "infopage", "pdsrg", "qa", "podcast", "menu_desc" })
         {
             Assert.DoesNotContain("Q&A", Prompts.SourceLabel(sourceType, 3));
             Assert.DoesNotContain("customer", Prompts.SourceLabel(sourceType, 3));

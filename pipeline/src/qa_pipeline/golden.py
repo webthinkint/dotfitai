@@ -1027,12 +1027,13 @@ SEED = "dotfit-golden-v1"
 UNTAGGED = "(untagged)"
 
 # --- retrieval probes (§12 coverage gap, open item 15) -----------------------
-# Every sampled question comes from the QA pool, so PDSRG and podcast — the
-# majority of the index — have no golden item. Probes cover them on the
-# retrieval axis: see ``build_probes`` for what that does and does not measure.
+# Every sampled question comes from the QA pool, so PDSRG, podcast and the
+# website info pages — the non-QA majority of the index — have no golden
+# item. Probes cover them on the retrieval axis: see ``build_probes`` for
+# what that does and does not measure.
 PROBE_PDSRG = "pdsrg"
-PROBE_SOURCES = (PROBE_PDSRG, "podcast")
-PROBE_SIZE_PER_SOURCE = 60   # ≥ 1 per guide (39) and per episode (47)
+PROBE_SOURCES = (PROBE_PDSRG, "podcast", "infopage")
+PROBE_SIZE_PER_SOURCE = 60   # ≥ 1 per guide (39), episode (47) and page (20)
 PROBE_QUERY_WORDS = 30       # query length in words, from the chunk body
 PROBE_MIN_WORDS = 12         # below this a chunk is not queryable — skip it
 _PROBE_SPEAKER_RE = re.compile(r"^Speaker \d+:\s*")
@@ -1746,15 +1747,22 @@ def probe_query(doc: dict[str, Any]) -> str | None:
 
 
 def probe_stratum(doc: dict[str, Any]) -> str:
-    """PDSRG guide stem / podcast episode slug, read off the §9 document id.
+    """PDSRG guide stem / podcast episode slug / infopage coid, read off the
+    §9 document id.
 
     ``pdsrg-activemv-001`` → ``activemv``; ``podcast-<episode>-000`` →
     ``<episode>``. The id is built from the source file, so this groups by
-    guide and by episode without re-deriving either.
+    guide and by episode without re-deriving either. Infopage ids end in a
+    slugified section name that itself contains dashes
+    (``infopage-3965-refund-window``), so the coid alone is the stratum —
+    one per page, mirroring one per guide and per episode (per-section
+    strata would floor the allocation at 116 and it cannot fit 60).
     """
     parts = doc["id"].split("-")
     if len(parts) < 3:
         raise ValueError(f"unexpected §9 document id shape: {doc['id']}")
+    if doc.get("source_type") == "infopage":
+        return parts[1]
     return "-".join(parts[1:-1])
 
 
@@ -1764,12 +1772,13 @@ def build_probes(index_documents: list[dict[str, Any]],
     """Retrieval probes over the corpora §12's sampled questions never touch.
 
     Every one of the 250 sampled golden questions is drawn from the QA pool,
-    while PDSRG (1,080 docs) and podcast (1,800) are the majority of the index
-    — so a retrieval regression in either is currently invisible (open item
-    15). These probes close that on the *retrieval* axis only: they are a
-    recall floor and a ranker A/B signal, **not** an answer-quality metric,
-    because a probe has no expected answer to score against. End-to-end
-    coverage of those corpora still needs written questions.
+    while PDSRG (1,080 docs), podcast (1,800) and the website info pages
+    (116) carry no sampled question — so a retrieval regression in any of
+    them is currently invisible (open item 15). These probes close that on
+    the *retrieval* axis only: they are a recall floor and a ranker A/B
+    signal, **not** an answer-quality metric, because a probe has no
+    expected answer to score against. End-to-end coverage of those corpora
+    still needs written questions.
 
     Allocation mirrors the sampled draw: proportional to stratum size by
     largest remainder, floored at 1 so every guide and every episode is

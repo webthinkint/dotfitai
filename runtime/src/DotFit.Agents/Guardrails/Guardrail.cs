@@ -78,7 +78,10 @@ public static class ConversationIntents
     public const string Question = "question";
     /// <summary>Greetings, thanks, sign-offs, "what can you do?" — no retrieval.</summary>
     public const string SmallTalk = "smalltalk";
-    /// <summary>Orders, shipping, returns, accounts, careers — dotFIT support's, not ours.</summary>
+    /// <summary>Orders, account actions, careers — dotFIT support's, not ours.
+    /// Published-policy questions (shipping thresholds, returns, privacy) are
+    /// <see cref="Question"/>: the knowledge base carries dotFIT's website
+    /// pages, so those are answerable (infopages.json, 2026-09-11).</summary>
     public const string OutOfScope = "out_of_scope";
 
     public static readonly IReadOnlySet<string> Known =

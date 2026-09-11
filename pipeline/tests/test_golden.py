@@ -409,9 +409,10 @@ class TestAdversarial:
         assert path.read_bytes().endswith(b"\n")
 
 
-def _index_docs(n_pdsrg=8, n_podcast=8, stems=("activemv", "wheysmooth"),
-                episodes=("ep-one", "ep-two")):
-    """Synthetic §9 index rows in the two probe-bearing shapes."""
+def _index_docs(n_pdsrg=8, n_podcast=8, n_infopage=8,
+                stems=("activemv", "wheysmooth"),
+                episodes=("ep-one", "ep-two"), coids=("3965", "3968")):
+    """Synthetic §9 index rows in the three probe-bearing shapes."""
     docs = []
     for i in range(n_pdsrg):
         stem = stems[i % len(stems)]
@@ -434,11 +435,23 @@ def _index_docs(n_pdsrg=8, n_podcast=8, stems=("activemv", "wheysmooth"),
                        + " ".join(f"said{i}word{w}" for w in range(40)),
             "locator": "00:00–01:00",
         })
+    for i in range(n_infopage):
+        coid = coids[i % len(coids)]
+        docs.append({
+            "id": f"infopage-{coid}-section-{i:03d}",
+            "source_type": "infopage",
+            "title": f"Info Page {i}",
+            # header line, blank line, then the body — the built shape
+            "content": f"Section {i}\n\n"
+                       + " ".join(f"site{i}word{w}" for w in range(40)),
+            "locator": f"Section {i}",
+        })
     return docs
 
 
 class TestProbes:
-    """Retrieval probes over PDSRG/podcast — §12 coverage gap, open item 15."""
+    """Retrieval probes over PDSRG/podcast/infopages — §12 coverage gap, open
+    item 15."""
 
     def test_query_drops_the_heading_path_and_speaker_labels(self):
         docs = _index_docs(n_pdsrg=1, n_podcast=1)
@@ -468,8 +481,8 @@ class TestProbes:
         for source in PROBE_SOURCES:
             strata = {p["stratum"] for p in probes
                       if p["source_type"] == source}
-            assert len(strata) == 2       # both stems, both episodes
-        assert summary["n_probes"] == len(probes) == 8
+            assert len(strata) == 2       # both stems, episodes, page coids
+        assert summary["n_probes"] == len(probes) == 12
 
     def test_probe_points_at_a_real_document_id(self):
         docs = _index_docs()

@@ -179,19 +179,21 @@
   }
  },
  "probes": {
-  "n_probes": 120,
+  "n_probes": 179,
   "n_per_source": {
    "pdsrg": 60,
-   "podcast": 60
+   "podcast": 60,
+   "infopage": 59
   },
   "n_strata": {
    "pdsrg": 39,
-   "podcast": 47
+   "podcast": 47,
+   "infopage": 20
   },
   "query_words": 30,
   "splits": {
-   "dev": 60,
-   "test": 60
+   "dev": 90,
+   "test": 89
   },
   "allocation": [
    {
@@ -793,6 +795,146 @@
     "source_type": "podcast",
     "stratum": "top-nutrition-expert-reacts-to-rfk-jr-new-food-pyramid",
     "pool": 13,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3821",
+    "pool": 25,
+    "quota": 12,
+    "probed": 12
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3966",
+    "pool": 20,
+    "quota": 10,
+    "probed": 10
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41819",
+    "pool": 16,
+    "quota": 8,
+    "probed": 8
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41952",
+    "pool": 12,
+    "quota": 6,
+    "probed": 6
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41964",
+    "pool": 12,
+    "quota": 6,
+    "probed": 6
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "42026",
+    "pool": 7,
+    "quota": 3,
+    "probed": 3
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41701",
+    "pool": 5,
+    "quota": 2,
+    "probed": 2
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41951",
+    "pool": 4,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "38566",
+    "pool": 2,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "41223",
+    "pool": 2,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "4148",
+    "pool": 2,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "38594",
+    "pool": 1,
+    "quota": 1,
+    "probed": 0
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3939",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3954",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3965",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "3968",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "4149",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "4186",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "4221",
+    "pool": 1,
+    "quota": 1,
+    "probed": 1
+   },
+   {
+    "source_type": "infopage",
+    "stratum": "4458",
+    "pool": 1,
     "quota": 1,
     "probed": 1
    }

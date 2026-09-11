@@ -13,7 +13,7 @@ public sealed record RetrievedDocument
 {
     public required string Id { get; init; }
     public required string SourceType { get; init; }
-    /// <summary>§3 authority tier: 1 product copy, 2 PDSRG, 3 QA, 4 podcast, 5 menus.</summary>
+    /// <summary>§3 authority tier: 1 product + website copy, 2 PDSRG, 3 QA, 4 podcast, 5 menus.</summary>
     public required int Authority { get; init; }
     public required string Title { get; init; }
     public required string Content { get; init; }

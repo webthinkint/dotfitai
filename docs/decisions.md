@@ -281,6 +281,22 @@ the test.
   `Night Out`/`Night out` — identical descriptions) merge case-insensitively
   with the dominant spelling displayed; they would otherwise collide as
   duplicate document ids (the slug is casefolded).
+- **`infopages.json` is authority-1 website copy** (owner ruling 2026-09-11):
+  the dotFIT.com info pages (about/FAQ/policies/learn hubs) share the
+  products.json export channel (`coid`/`longname`/`searchcontent`/`URL`, no
+  `part_no`), so they carry the same §3 weight — legal-approved site copy,
+  `source_type: infopage`, quotable per `ClaimsQuotable(1)`. That makes the
+  published policies answerable ("what is your return policy", "do you ship
+  free over $80"), which the guardrail now splits from support-owned
+  account/order actions (`out_of_scope` keeps "where is my order"). Page
+  metadata is curated in `PAGE_META` (display title, page-class topic; one
+  export longname is truncated mid-sentence) and an unknown `coid` raises —
+  the `STEM_META` rule. No `products` tags (no part_nos; the FAQ page names
+  SKUs in prose — deterministic tagging of site copy is future work on the
+  podcast precedent), no date (the export carries none), `citation_url` =
+  the page's public URL. Probe strata are the page `coid` (one per page,
+  like one per guide/episode) — per-section strata would floor the
+  allocation above the 60-probe budget.
 
 **Evaluation (§12)**
 

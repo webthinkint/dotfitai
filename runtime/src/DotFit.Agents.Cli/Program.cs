@@ -371,8 +371,9 @@ internal static class Program
     {
         Console.WriteLine("dotFIT knowledge assistant (AI) — nutrition guidance, not medical advice.");
         Console.WriteLine(Dim(
-            "Grounded in dotFIT approved product copy, the practitioner reference guide, " +
-            "customer Q&A, podcasts and menus; sources cited as [n]."));
+            "Grounded in dotFIT website pages, approved product copy, the " +
+            "practitioner reference guide, customer Q&A, podcasts and menus; " +
+            "sources cited as [n]."));
         if (interactive)
             Console.WriteLine(Dim("Type a question, or 'exit' to quit."));
     }
@@ -380,6 +381,7 @@ internal static class Program
     private static string SourceTypeTag(string sourceType) => sourceType switch
     {
         "product" => "product",
+        "infopage" => "site",
         "pdsrg" => "pdsrg",
         "qa" => "qa",
         "podcast" => "podcast",
