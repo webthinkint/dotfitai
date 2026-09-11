@@ -18,7 +18,9 @@ using DotFit.Agents.Service;
 // trusted server-side caller, no browser origin.
 //
 // Every request also writes one VerdictLog line to stdout (open item 20) —
-// what was decided, never what was said.
+// what was decided, never what was said. When DOTFIT_SERVICE_DEBUG_TRANSCRIPT
+// is on (owner ruling 2026-09-11, preview-only), a TranscriptLog line joins
+// it with the words themselves, for debugging retractions.
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,22 @@ builder.Services.AddSingleton<IKnowledgeAssistant>(
 // VerdictLog.
 builder.Services.AddSingleton<IVerdictSink>(_ => new JsonLinesVerdictSink(Console.Out));
 
+// The debug transcript (owner ruling 2026-09-11, preview-only): opt-in, and
+// the off case is the NullTranscriptSink rather than a missing registration,
+// so "off" means the words are never serialized at all. On is loud — the boot
+// line below and /healthz both say it.
+if (service.DebugTranscript)
+{
+    builder.Services.AddSingleton<ITranscriptSink>(_ => new JsonLinesTranscriptSink(Console.Out));
+    Console.WriteLine(
+        $"{TranscriptLog.SchemaName}: DEBUG TRANSCRIPT ENABLED — the full question and " +
+        "answer text will be logged to stdout (preview-only; off before public customer traffic)");
+}
+else
+{
+    builder.Services.AddSingleton<ITranscriptSink>(_ => NullTranscriptSink.Instance);
+}
+
 // Request binding must use the same naming policy the responses do. It does
 // not by default, and the failure is silent: `conversation_id` bound to
 // nothing, so every turn looked like a new conversation and re-sent the
@@ -82,6 +100,9 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc) => Results.Ok(n
     auth = svc.AuthDisabled ? "none" : "shared-secret",
     max_question_chars = svc.MaxQuestionChars,
     timeout_seconds = (int)svc.RequestTimeout.TotalSeconds,
+    // The transcript posture, readable for the same reason auth is: a
+    // deployment that is logging the words must be visibly doing so.
+    debug_transcript = svc.DebugTranscript ? "on" : "off",
 }));
 
 app.MapPost("/ask", async (
@@ -89,6 +110,7 @@ app.MapPost("/ask", async (
     IKnowledgeAssistant assistant,
     ServiceOptions service,
     IVerdictSink verdicts,
+    ITranscriptSink transcripts,
     HttpContext http,
     CancellationToken ct) =>
 {
@@ -111,7 +133,7 @@ app.MapPost("/ask", async (
     http.Response.Headers["X-Accel-Buffering"] = "no";
 
     var writer = new HttpSseWriter(http.Response);
-    await AskStream.RunAsync(assistant, request, writer, ct, service, verdicts);
+    await AskStream.RunAsync(assistant, request, writer, ct, service, verdicts, transcripts);
     return Results.Empty;
 });
 

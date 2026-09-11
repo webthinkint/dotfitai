@@ -71,6 +71,12 @@ public interface ISseWriter
 /// are kept distinct: exactly one <see cref="VerdictLog"/> is written per
 /// request, from a <c>finally</c>, so an abandoned run is recorded as
 /// abandoned rather than as nothing at all.
+///
+/// **Debug transcript logging** (owner ruling 2026-09-11) is its opt-in
+/// companion: when the caller supplies an <see cref="ITranscriptSink"/>, one
+/// <see cref="TranscriptLog"/> is written from the same <c>finally</c> with
+/// the question, the withheld draft and the full failure messages — see
+/// <see cref="TranscriptLog"/> for the ruling and its scope.
 /// </summary>
 public static class AskStream
 {
@@ -93,7 +99,8 @@ public static class AskStream
         ISseWriter writer,
         CancellationToken ct,
         ServiceOptions? service = null,
-        IVerdictSink? verdicts = null)
+        IVerdictSink? verdicts = null,
+        ITranscriptSink? transcripts = null)
     {
         service ??= new ServiceOptions { ApiKey = null };
 
@@ -107,6 +114,10 @@ public static class AskStream
         var elapsed = System.Diagnostics.Stopwatch.StartNew();
         AssistantResult? result = null;
         string? errorKind = null;
+        // The retraction frame's reason, captured as it passes through — the
+        // joined failure messages. On the transcript it is what a retraction
+        // looked like on the wire; on the verdict log it never appears.
+        string? retraction = null;
 
         // The request timeout is ours, not the caller's (item 22). A wedged
         // upstream call would otherwise hold the connection — and the Azure
@@ -151,6 +162,7 @@ public static class AskStream
                             .ConfigureAwait(false);
                         break;
                     case RetractionEvent x:
+                        retraction = x.Reason;
                         await writer.WriteAsync(EventRetraction,
                             new { reason = x.Reason, mode = x.Mode.ToString() }, ct)
                             .ConfigureAwait(false);
@@ -192,6 +204,8 @@ public static class AskStream
             // is indistinguishable from a run that never happened, which is the
             // reconstruction the item 21 ruling says must always be possible.
             Log(verdicts, request, requestId, startedAt, elapsed.Elapsed, result, errorKind);
+            LogTranscript(transcripts, request, requestId, startedAt, elapsed.Elapsed,
+                result, retraction, errorKind);
         }
     }
 
@@ -215,6 +229,29 @@ public static class AskStream
         catch (Exception)
         {
             // deliberately swallowed — see the summary above
+        }
+    }
+
+    /// <summary>
+    /// Write the debug transcript, with the same rules as the verdict write:
+    /// the sink must never be the reason a request fails, and in the hang-up
+    /// case this runs while an exception is in flight.
+    /// </summary>
+    private static void LogTranscript(
+        ITranscriptSink? transcripts, AskRequest request, string requestId,
+        DateTimeOffset startedAt, TimeSpan duration, AssistantResult? result,
+        string? retraction, string? errorKind)
+    {
+        if (transcripts is null)
+            return;
+        try
+        {
+            transcripts.Write(TranscriptLog.From(
+                request, requestId, startedAt, duration, result, retraction, errorKind));
+        }
+        catch (Exception)
+        {
+            // deliberately swallowed — same contract as the verdict sink
         }
     }
 

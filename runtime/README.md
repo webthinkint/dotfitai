@@ -196,6 +196,52 @@ they are the only caller-supplied values the service retains.
 Nothing is logged by the CLI or the eval harness: they drive `AskStream` and
 `IKnowledgeAssistant` without a sink, and already have `--json` and `--trace`.
 
+### The debug transcript (preview-only)
+
+The verdict log's text-free rule is priced against *public* traffic. The
+preview is a different audience, and retractions cannot be debugged from a log
+that holds neither the withheld draft nor the wording the check rejected — so
+an **opt-in companion record** exists (owner ruling 2026-09-11,
+`docs/decisions.md` Runtime §11): with
+`DOTFIT_SERVICE_DEBUG_TRANSCRIPT=true`, the same `finally` writes one
+`dotfit.transcript` line per request carrying exactly what `VerdictLog`
+structurally cannot — the raw question, the history as received, the draft
+answer *including a withheld one*, the delivered text, the retraction reason,
+the guardrail's free-prose `notes` and the **full** failure messages.
+
+The posture is paid visibly, not eroded:
+
+- **Off by default** — off is the public-traffic posture, and this must be
+  **off before public customer traffic** (the ruling's scope; a gate on the
+  same line as items 12/17).
+- **Loud when on** — a boot line on stdout and `debug_transcript` on
+  `/healthz`, for the same reason `auth` is there.
+- **A separate record** — `VerdictLog` is unchanged and keeps every guarantee
+  it ever had; `TranscriptLogTests` pins the separation (both sinks wired, the
+  verdict still holds no text).
+
+The preview unit (`runtime/deploy/`) enables it; delete that `Environment=`
+line to turn it off.
+
+### Reading the logs on the VM
+
+`runtime/deploy/verdict-log` (installed by the deploy script as
+`~/.local/bin/dotfit-verdict-log`) filters the service journal to the records
+above — `journalctl --grep` does the filtering, so `-n N` means the last N
+verdicts, not the last N journal lines:
+
+```bash
+dotfit-verdict-log -n 20                # the traffic view: one line per request
+dotfit-verdict-log -f                    # follow it live
+dotfit-verdict-log --transcripts -n 5    # the debug blocks: Q, retraction, draft,
+                                         # what was delivered instead, sources
+dotfit-verdict-log --raw -n 1            # collector mode: the JSON line, untouched
+```
+
+Anything unrecognized is passed to journalctl verbatim (`--since "1 hour
+ago"`, `-b`, `--grep`). `--transcripts` output holds the words themselves —
+treat it like customer data.
+
 ## Multi-turn
 
 The service holds no state between requests, so the caller resends the recent

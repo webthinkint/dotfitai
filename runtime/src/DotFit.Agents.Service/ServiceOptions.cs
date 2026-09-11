@@ -13,8 +13,11 @@ namespace DotFit.Agents.Service;
 ///
 /// Read from the same root <c>.env</c> the rest of the runtime uses
 /// (<see cref="RuntimeOptions"/>), because these are deployment values and one
-/// of them is a secret; the three <c>DOTFIT_SERVICE_*</c> variables are
-/// service-only and the CLI never looks at them.
+/// of them is a secret; the <c>DOTFIT_SERVICE_*</c> variables are
+/// service-only and the CLI never looks at them. One of them is not a
+/// hardening value: <see cref="DebugTranscriptVar"/> is the opt-in for the
+/// debug transcript log (owner ruling 2026-09-11, preview-only — see
+/// <see cref="TranscriptLog"/>).
 ///
 /// **Auth is fail-closed.** The service has no authentication of its own beyond
 /// this shared secret and must not be reachable from the public internet, so a
@@ -36,6 +39,13 @@ public sealed record ServiceOptions
     public const string AuthVar = "DOTFIT_SERVICE_AUTH";
     public const string MaxQuestionCharsVar = "DOTFIT_SERVICE_MAX_QUESTION_CHARS";
     public const string TimeoutSecondsVar = "DOTFIT_SERVICE_TIMEOUT_SECONDS";
+    /// <summary>
+    /// The opt-in for the debug transcript log (owner ruling 2026-09-11 — see
+    /// <see cref="TranscriptLog"/>). Off by default, and off is the
+    /// public-traffic posture: this must be off before customers, not
+    /// stakeholders, are on the line.
+    /// </summary>
+    public const string DebugTranscriptVar = "DOTFIT_SERVICE_DEBUG_TRANSCRIPT";
 
     /// <summary>
     /// Long enough for a pasted customer email — the QA corpus is full of them
@@ -80,6 +90,13 @@ public sealed record ServiceOptions
     /// <summary>Where the two handoff templates send a refused customer (item 22).</summary>
     public string? SupportContact { get; init; } = Prompts.DefaultSupportContact;
 
+    /// <summary>
+    /// Whether the debug transcript log is on. **Default off** — the §4
+    /// posture — and loud when on (boot line + <c>/healthz</c>), because a
+    /// deployment that is logging the words must be visibly doing so.
+    /// </summary>
+    public bool DebugTranscript { get; init; }
+
     /// <summary>True when <see cref="AuthVar"/> said <c>none</c>.</summary>
     public bool AuthDisabled => ApiKey is null;
 
@@ -99,7 +116,8 @@ public sealed record ServiceOptions
     public static ServiceOptions Load(RuntimeOptions options)
     {
         var values = new Dictionary<string, string>(EnvFile.ReadFile(options.EnvFilePath));
-        foreach (string name in new[] { ApiKeyVar, AuthVar, MaxQuestionCharsVar, TimeoutSecondsVar })
+        foreach (string name in new[]
+                 { ApiKeyVar, AuthVar, MaxQuestionCharsVar, TimeoutSecondsVar, DebugTranscriptVar })
             if (Environment.GetEnvironmentVariable(name) is { Length: > 0 } v)
                 values[name] = v;
         return FromValues(values, options);
@@ -144,7 +162,30 @@ public sealed record ServiceOptions
             RequestTimeout = TimeSpan.FromSeconds(
                 Positive(TimeoutSecondsVar, Value(TimeoutSecondsVar), DefaultTimeoutSeconds)),
             SupportContact = options.SupportContact,
+            DebugTranscript = Flag(DebugTranscriptVar, Value(DebugTranscriptVar)),
         };
+    }
+
+    /// <summary>
+    /// A boolean .env variable: unset or a recognized false, or a recognized
+    /// true — anything else raises rather than falls back quietly, the same
+    /// rule as every other variable here (a typo must not be readable as a
+    /// choice).
+    /// </summary>
+    private static bool Flag(string name, string? raw)
+    {
+        if (raw is null)
+            return false;
+        switch (raw.ToLowerInvariant())
+        {
+            case "1": case "true": case "on": case "yes":
+                return true;
+            case "0": case "false": case "off": case "no":
+                return false;
+            default:
+                throw new EnvFile.EnvFileException(
+                    $"{EnvFile.FileName}: {name} must be true/on or false/off, or be left unset");
+        }
     }
 
     private static int Positive(string name, string? raw, int fallback)
@@ -198,5 +239,6 @@ public sealed record ServiceOptions
     public override string ToString() =>
         $"ServiceOptions(auth={(ApiKey is null ? "none" : "shared-secret***")}, " +
         $"max_question_chars={MaxQuestionChars}, timeout={RequestTimeout.TotalSeconds:0}s, " +
+        $"debug_transcript={(DebugTranscript ? "on" : "off")}, " +
         $"support='{SupportContact ?? "unset"}')";
 }

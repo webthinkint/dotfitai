@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (61)** — Service hardening, item 22 **closed** (§11). Four
+  boundary changes: shared-secret auth on `POST /ask` that **fails the boot**
+  when neither the key nor `AUTH=none` is set, so no state runs open; a
+  2,000-char question cap, `top` 1–20 and a 256 KB body, all 400s *before* the
+  stream opens; a 120 s timeout ending in `error`+handoff, not silence; and both
+  handoffs now carry the PDSRG-attested route `support@dotfit.com or (877)
+  436-8348`. Live smoke: fail-closed boot, 401/400, escalation, gated answer.
+  CORS/rate limiting stay out. 19 tests (**455 py / 162 runtime**).
+
 - **2026-09-10 (60)** — The 250 are **re-drawn** (§12, item 8 ruled
   re-draw). Sequencing was option C: item 7's split ruling landed first and
   left the pool at 653 and the draw unmoved, so the decision pack's preview

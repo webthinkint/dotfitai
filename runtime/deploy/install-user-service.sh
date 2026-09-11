@@ -10,7 +10,8 @@
 #      (fail-closed boot: the service refuses to start without one)
 #   3. install the committed unit into ~/.config/systemd/user/ with the
 #      repo/home paths substituted (BIND=... to change the listen address)
-#   4. enable linger (survives logout), enable --now, wait for /healthz
+#   4. install the verdict-log viewer as ~/.local/bin/dotfit-verdict-log
+#   5. enable linger (survives logout), enable --now, wait for /healthz
 #
 # Deployment shape this encodes — a preview, deliberately not production:
 # trusted internal network, port 5199 not exposed externally, one trusted
@@ -71,7 +72,17 @@ sed -e "s|/home/kovach/dotfitai|$REPO_ROOT|g" \
     "$UNIT_SRC" > "$UNIT_DST"
 echo "unit written"
 
-# --- 4. linger + start + health -------------------------------------------
+# --- 4. the verdict-log command on PATH -------------------------------------
+# The traffic view of the journal: only the dotfit.verdict lines (and, with
+# --transcripts, the debug transcript log the unit enables). ~/.local/bin is
+# on PATH on the distros this preview targets.
+if [ -f "$SCRIPT_DIR/verdict-log" ]; then
+    mkdir -p "$HOME/.local/bin"
+    install -m 0755 "$SCRIPT_DIR/verdict-log" "$HOME/.local/bin/dotfit-verdict-log"
+    echo "installed ~/.local/bin/dotfit-verdict-log"
+fi
+
+# --- 5. linger + start + health ---------------------------------------------
 loginctl show-user "$USER" -p Linger | grep -q '^Linger=yes' \
     || loginctl enable-linger "$USER" 2> /dev/null \
     || sudo loginctl enable-linger "$USER"

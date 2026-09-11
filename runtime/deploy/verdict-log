@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""verdict-log — the request/response view of the dotfit-agent-service journal.
+
+§11, open item 20: every accepted request writes exactly one `dotfit.verdict`
+JSON line to the service's stdout, and the service runs as a systemd *user*
+unit, so the journal holds those lines interleaved with the host's own console
+logging. This command picks the verdicts out and prints one readable line per
+request — outcome, escalation reasons, claims outcome, source/citation shape,
+duration — with the raw JSON one flag away. It is the log the owner actually
+watches during a preview; the full journal (`journalctl --user -u …`) is the
+debugging view, this is the traffic view.
+
+`--transcripts` switches to the debug transcript log (`dotfit.transcript`, the
+opt-in DOTFIT_SERVICE_DEBUG_TRANSCRIPT record): one block per request with the
+question, the withheld draft, the retraction and the full failure messages —
+the retraction-debugging view. Transcripts hold the words themselves (owner
+ruling 2026-09-11, preview-only), so treat the output like customer data.
+
+Lines that are not verdicts/transcripts — boot banners, ASP.NET host logs — are
+filtered **by journalctl itself** (`--grep`), which is also what makes
+`-n N` mean "the last N verdicts" rather than "the last N journal lines". The
+`log` tag is verified on the parsed record too, and a line without it is never
+printed, `--raw` included, so `--raw` is safe to hand to a collector.
+
+Usage:
+    verdict-log [options] [-- extra journalctl args]
+
+Options:
+    -f, --follow    keep streaming as requests finish (journalctl -f)
+    --raw           one JSON line per record, untouched
+    --stages        (verdicts) append the per-stage timing breakdown
+    --transcripts   show the debug transcript log instead of the verdicts
+    --utc           timestamps in UTC rather than local time
+    --unit NAME     unit to read (default dotfit-agent-service.service)
+
+Anything after the options is passed to journalctl verbatim, so the usual
+selections work: `verdict-log -n 50` (last 50 verdicts), `verdict-log --since
+"1 hour ago"`, `verdict-log -b`, `verdict-log --transcripts -n 5`. Requires a
+journalctl with PCRE2 support for --grep (systemd ≥ 236).
+
+install-user-service.sh installs this as ~/.local/bin/dotfit-verdict-log.
+Stdlib only — no jq, no uv — because it runs on the preview VM, not in the
+pipeline's environment.
+"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime
+
+DEFAULT_UNIT = "dotfit-agent-service.service"
+VERDICT_TAG = "dotfit.verdict"
+TRANSCRIPT_TAG = "dotfit.transcript"
+
+# Widest of the verdict outcomes, so the column lines up for scanning.
+OUTCOME_WIDTH = 9
+
+
+def fmt_ms(ms):
+    """Seconds with one decimal past ten seconds, milliseconds under it."""
+    return f"{ms / 1000:.1f}s" if ms >= 10_000 else f"{ms}ms"
+
+
+def render_ts(iso, utc):
+    try:
+        dt = datetime.fromisoformat(iso)
+    except (TypeError, ValueError):
+        return iso or "?"
+    if not utc:
+        dt = dt.astimezone()
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def verdict_line(entry, stages, utc):
+    """One line per verdict: fixed head, then only the fields that carry news."""
+    detail = []
+
+    intent = entry.get("intent")
+    if intent and intent != "question":
+        detail.append(f"intent={intent}")
+
+    if entry.get("escalated"):
+        reasons = ",".join(entry.get("reasons") or []) or "?"
+        detail.append(f"reasons=[{reasons}]")
+        if entry.get("history_trigger"):
+            detail.append("via-history")
+        if entry.get("claim_trap"):
+            detail.append("claim-trap")
+    if entry.get("guardrail_degraded"):
+        detail.append("guardrail-degraded")
+    if entry.get("rewrite_degraded"):
+        detail.append("rewrite-degraded")
+
+    failures = entry.get("failures") or []
+    if failures:
+        detail.append("fail=[" + ",".join(failures) + "]")
+    warnings = entry.get("warnings") or []
+    if warnings:
+        detail.append("warn=[" + ",".join(warnings) + "]")
+
+    claims = entry.get("claims", "not_run")
+    if claims != "not_run":
+        violations = entry.get("claims_violations", 0)
+        detail.append(f"claims={claims}" + (f"({violations})" if violations else ""))
+
+    # Multi-turn: what the verdict rests on is only visible with the id join.
+    if entry.get("history_turns"):
+        detail.append(f"hist={entry['history_turns']}")
+        conversation = entry.get("conversation_id")
+        if conversation:
+            detail.append(f"conv={conversation[:8]}")
+
+    n_sources, n_citations = entry.get("n_sources", 0), entry.get("n_citations", 0)
+    if n_sources or n_citations:
+        detail.append(f"src={n_sources} cit={n_citations}")
+    authorities = entry.get("cited_authorities") or []
+    if authorities:
+        detail.append("auth=[" + ",".join(str(a) for a in authorities) + "]")
+    families = entry.get("families") or []
+    if families:
+        detail.append("fam=[" + ",".join(families) + "]")
+
+    if entry.get("error_kind"):
+        detail.append(f"error={entry['error_kind']}")
+
+    head = [
+        render_ts(entry.get("timestamp"), utc),
+        entry.get("request_id", "?"),
+        f"{entry.get('outcome', '?'):<{OUTCOME_WIDTH}}",
+    ]
+    line = " ".join(head + detail) + " " + fmt_ms(entry.get("duration_ms", 0))
+    if stages and entry.get("stage_ms"):
+        line += "  (" + " ".join(
+            f"{stage}={fmt_ms(ms)}" for stage, ms in entry["stage_ms"].items()) + ")"
+    return line
+
+
+def transcript_block(entry, utc):
+    """The retraction-debugging view: one indented block per request.
+
+    Written for the question the owner actually asks — "what was withheld and
+    why" — so the draft, the retraction and the full failure messages come
+    first, and the guardrail detail follows only when it is not the default.
+    """
+    request_id = entry.get("request_id", "?")
+    conversation = entry.get("conversation_id")
+    head = "── " + render_ts(entry.get("timestamp"), utc) + "  " + request_id
+    if conversation:
+        head += f"  conv={conversation[:8]}"
+    if entry.get("error_kind"):
+        head += f"  error={entry['error_kind']}"
+    head += f"  {fmt_ms(entry.get('duration_ms', 0))}"
+
+    lines = [head]
+    lines.append("Q: " + entry.get("question", "?").replace("\n", "\n   "))
+    for turn in entry.get("history") or []:
+        lines.append(f"  {turn.get('role', '?')}: {turn.get('text', '')}")
+    if entry.get("canonical_question"):
+        lines.append("rewrite: " + entry["canonical_question"])
+
+    if entry.get("escalated") or entry.get("history_trigger") or entry.get("claim_trap"):
+        guard = "guardrail:"
+        if entry.get("escalated"):
+            guard += " ESCALATED reasons=[" + ",".join(entry.get("reasons") or []) + "]"
+        if entry.get("history_trigger"):
+            guard += " (via earlier turn)"
+        if entry.get("claim_trap"):
+            guard += " claim-trap"
+        lines.append(guard)
+    if entry.get("notes"):
+        lines.append("guardrail notes: " + entry["notes"])
+    degraded = [name for name, on in
+                (("guardrail", entry.get("guardrail_degraded")),
+                 ("rewrite", entry.get("rewrite_degraded"))) if on]
+    if degraded:
+        lines.append("degraded: " + ", ".join(degraded))
+
+    # The retraction, if there was one — the reason this record exists.
+    if entry.get("retraction"):
+        lines.append("RETRACTED: " + entry["retraction"])
+    for failure in entry.get("failures") or []:
+        lines.append("  fail: " + failure)
+    for warning in entry.get("warnings") or []:
+        lines.append("  warn: " + warning)
+    for violation in entry.get("claims_violations") or []:
+        lines.append("  claims violation: " + violation)
+
+    if entry.get("answer_text"):
+        label = "draft (withheld):" if entry.get("withheld") else "answer:"
+        lines.append(label)
+        lines.append("  " + entry["answer_text"].replace("\n", "\n  "))
+    if entry.get("delivered_text") and entry.get("withheld"):
+        lines.append("delivered instead:")
+        lines.append("  " + entry["delivered_text"].replace("\n", "\n  "))
+
+    sources = entry.get("sources") or []
+    if sources:
+        lines.append("sources: " + "; ".join(
+            f"{s.get('title', '?')} [{s.get('source_type', '?')} a{s.get('authority', '?')}]"
+            for s in sources))
+
+    return "\n".join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="verdict-log",
+        description="Show only the dotfit.verdict / dotfit.transcript lines "
+            "from the service journal.",
+        epilog="Anything unrecognized is passed to journalctl verbatim "
+            "(e.g. -n 50, --since '…', -b, --grep).",
+        add_help=True,
+    )
+    parser.add_argument("-f", "--follow", action="store_true",
+                        help="keep streaming as requests finish")
+    parser.add_argument("--raw", action="store_true",
+                        help="one JSON line per record, untouched")
+    parser.add_argument("--stages", action="store_true",
+                        help="(verdicts) append the per-stage timing breakdown")
+    parser.add_argument("--transcripts", action="store_true",
+                        help="show the debug transcript log instead of the verdicts")
+    parser.add_argument("--utc", action="store_true",
+                        help="timestamps in UTC rather than local time")
+    parser.add_argument("--unit", default=os.environ.get(
+        "DOTFIT_VERDICT_UNIT", DEFAULT_UNIT),
+        help=f"unit to read (default {DEFAULT_UNIT})")
+    args, passthrough = parser.parse_known_args()
+
+    # A user unit is only addressable with a runtime dir; ssh logins have it,
+    # cron-adjacent shells sometimes do not (same fallback as the install
+    # script).
+    os.environ.setdefault("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+
+    tag = TRANSCRIPT_TAG if args.transcripts else VERDICT_TAG
+    # journalctl does the line filtering, so -n N counts *matching* lines; the
+    # tag is still verified per record below, so spacing changes on the wire
+    # cannot let a host line through as a verdict.
+    cmd = ["journalctl", "--user", "-u", args.unit, "-o", "cat", "--no-pager",
+           "--grep", f'"{tag}"']
+    if args.follow:
+        cmd.append("-f")
+    cmd += passthrough
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
+    try:
+        for line in proc.stdout:
+            line = line.strip()
+            if f'"{tag}"' not in line:
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(entry, dict) or entry.get("log") != tag:
+                continue
+            if args.raw:
+                print(line, flush=True)
+            elif args.transcripts:
+                print(transcript_block(entry, args.utc), flush=True)
+                print(flush=True)
+            else:
+                print(verdict_line(entry, args.stages, args.utc), flush=True)
+        proc.wait()
+    except BrokenPipeError:
+        # Piping into `head` and friends is a normal exit, not a traceback.
+        proc.stdout.close()
+        proc.wait()
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

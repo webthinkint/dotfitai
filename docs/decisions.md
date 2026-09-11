@@ -479,6 +479,31 @@ the test.
   caller sees it synchronously as a status code. stdout rather than a file
   because a container's stdout is already collected, and a file sink would buy
   rotation, permissions and a disk-full failure mode for kilobytes a day.
+- **The preview logs the words themselves; public traffic does not** (owner
+  ruling, 2026-09-11). The text-free rule above is priced against *public*
+  traffic, and during the stakeholder preview it was priced against debugging:
+  retractions — a withheld draft, a `claims_language` failure that quotes the
+  wording it rejected — cannot be reconstructed from a log that holds neither,
+  and the owner ruled preview-stage PII acceptable because only stakeholders
+  are on the line. The shape the ruling took, so that it costs nothing to undo:
+  - **A second record, not a widened one.** `dotfit.transcript` (one line per
+    request, same `finally` on the same terminal paths) carries the question,
+    the history as received, the draft *including a withheld one*, the
+    delivered text, the retraction reason, the guardrail's free-prose notes
+    and the full failure messages — every field `VerdictLog` filters away. The
+    verdict log is unchanged and keeps every guarantee it ever had; a test
+    pins the separation with both sinks wired.
+  - **Off by default, and loud when on.** `DOTFIT_SERVICE_DEBUG_TRANSCRIPT`
+    defaults to off — the §4 posture is the state you get by forgetting this
+    exists — and a boot line plus a `/healthz` field say the state a deployment
+    is actually in. The preview unit enables it.
+  - **Off before public customer traffic** — the ruling's scope is the
+    stakeholder audience, so this is a gate on the same line as items 12/17,
+    not a suggestion, and the unit file says so where it turns it on.
+  Both records join on `request_id` and read off the VM with
+  `dotfit-verdict-log` (`runtime/deploy/verdict-log`): the verdicts one line
+  per request, the transcripts as a `--transcripts` block per request built
+  for the question the preview actually raises — what was withheld, and why.
 - **A greeting is not a question, and the branch that answers it retrieves
   nothing** (2026-09-11). Typing "Hi there" came back as the support handoff.
   The cause was not the prompts: the §11 chain runs whatever is typed, hybrid

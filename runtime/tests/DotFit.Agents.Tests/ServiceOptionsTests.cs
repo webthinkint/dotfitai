@@ -113,6 +113,60 @@ public class ServiceOptionsTests
     }
 
     [Fact]
+    public void TheDebugTranscriptIsOffUnlessAskedFor()
+    {
+        // Off is the public-traffic posture, so it is the default — and the
+        // rendered options must say the state, because /healthz and the boot
+        // line both lean on being able to see it.
+        ServiceOptions off = From($"{ServiceOptions.AuthVar}=none");
+        Assert.False(off.DebugTranscript);
+        Assert.Contains("debug_transcript=off", off.ToString());
+
+        ServiceOptions on = From(
+            $"{ServiceOptions.AuthVar}=none",
+            $"{ServiceOptions.DebugTranscriptVar}=1");
+        Assert.True(on.DebugTranscript);
+        Assert.Contains("debug_transcript=on", on.ToString());
+    }
+
+    [Theory]
+    [InlineData("1")]
+    [InlineData("true")]
+    [InlineData("ON")]
+    [InlineData("yes")]
+    public void RecognizedTrueSpellingsTurnItOn(string value)
+    {
+        ServiceOptions o = From(
+            $"{ServiceOptions.AuthVar}=none",
+            $"{ServiceOptions.DebugTranscriptVar}={value}");
+        Assert.True(o.DebugTranscript);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("false")]
+    [InlineData("off")]
+    [InlineData("no")]
+    public void RecognizedFalseSpellingsTurnItOff(string value)
+    {
+        ServiceOptions o = From(
+            $"{ServiceOptions.AuthVar}=none",
+            $"{ServiceOptions.DebugTranscriptVar}={value}");
+        Assert.False(o.DebugTranscript);
+    }
+
+    [Theory]
+    [InlineData("maybe")]
+    [InlineData("enabled")]
+    public void ANonsenseTranscriptValueRaisesRatherThanGuesses(string value)
+    {
+        var e = Assert.Throws<EnvFile.EnvFileException>(() => From(
+            $"{ServiceOptions.AuthVar}=none",
+            $"{ServiceOptions.DebugTranscriptVar}={value}"));
+        Assert.Contains(ServiceOptions.DebugTranscriptVar, e.Message);
+    }
+
+    [Fact]
     public void RejectAnswersWithAReasonOrNull()
     {
         ServiceOptions o = From($"{ServiceOptions.AuthVar}=none",

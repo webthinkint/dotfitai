@@ -25,6 +25,14 @@ ExecStart=/home/kovach/.local/share/dotfit/service/dotfit-agent-service
 # Internal-network bind: the website server reaches this VM directly on 5199;
 # the port is not open on the external firewall.
 Environment=ASPNETCORE_URLS=http://0.0.0.0:5199
+# Debug transcript logging (owner ruling 2026-09-11, docs/decisions.md
+# Runtime §11): the preview writes one dotfit.transcript line per request —
+# question, draft (including withheld ones), delivered text, full failure
+# messages — because retractions cannot be debugged from the text-free verdict
+# log, and the owner ruled preview PII acceptable for the stakeholder-only
+# audience. Remove this line before public customer traffic: off is the
+# default, and the boot line + /healthz say the state either way.
+Environment=DOTFIT_SERVICE_DEBUG_TRANSCRIPT=1
 Restart=on-failure
 RestartSec=2
 
