@@ -86,10 +86,20 @@ steps:
    wherever the assistant differs from it. The wording is in
    `docs/website-integration.md`. It still needs your sign-off once — it is a
    claims-compliance statement, not an engineering one.
-2. **We log what each release actually said** (open item 20). If any state can
-   ship, then when someone asks "what did it tell my partner in March", the
-   verdict log is the only way to answer. That work was optional before this
-   ruling and is not optional now.
+2. **We log what each release actually decided** (item 20 — **built
+   2026-09-11**). If any state can ship, then when someone asks "what did it
+   tell my partner in March", this log is the only way to answer. That work was
+   optional before this ruling and is not optional now, so it was done.
+
+   Worth knowing what it does and does not hold, because it is a privacy
+   question as much as a records one. For every question the assistant is asked,
+   we now keep one line recording **what it decided**: whether it refused and on
+   what grounds, whether it withheld an answer, whether its safety check passed,
+   how many sources it used and cited. We keep **no copy of the question and no
+   copy of the answer** — the website's own database already holds those, and a
+   second copy of real customer wording is a risk we are not willing to take on.
+   The two records are linked by a per-question reference number, so either side
+   can be looked up against the other when someone asks.
 
 The one thing still worth your attention: if anyone in the preview audience
 might quote the assistant in external material, tell us — that is a different

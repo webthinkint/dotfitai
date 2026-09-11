@@ -16,6 +16,9 @@ using DotFit.Agents.Service;
 // question-length cap, a request timeout, and the support route the handoff
 // templates end on. Deliberately *not* here: CORS and rate limiting — one
 // trusted server-side caller, no browser origin.
+//
+// Every request also writes one VerdictLog line to stdout (open item 20) —
+// what was decided, never what was said.
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +44,14 @@ builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(service);
 builder.Services.AddSingleton<IKnowledgeAssistant>(
     _ => RuntimeFactory.CreateAssistant(options));
+
+// One verdict line per request, to stdout (open item 20). Not optional and not
+// configurable: with the preview free to ship at any state (item 21 ruling),
+// this record is the only reconstruction of what an audience was shown, and a
+// switch to turn it off is a switch to lose that. It holds no question and no
+// answer text, so there is nothing to turn off for privacy either — see
+// VerdictLog.
+builder.Services.AddSingleton<IVerdictSink>(_ => new JsonLinesVerdictSink(Console.Out));
 
 // Request binding must use the same naming policy the responses do. It does
 // not by default, and the failure is silent: `conversation_id` bound to
@@ -77,6 +88,7 @@ app.MapPost("/ask", async (
     AskRequest request,
     IKnowledgeAssistant assistant,
     ServiceOptions service,
+    IVerdictSink verdicts,
     HttpContext http,
     CancellationToken ct) =>
 {
@@ -99,7 +111,7 @@ app.MapPost("/ask", async (
     http.Response.Headers["X-Accel-Buffering"] = "no";
 
     var writer = new HttpSseWriter(http.Response);
-    await AskStream.RunAsync(assistant, request, writer, ct, service);
+    await AskStream.RunAsync(assistant, request, writer, ct, service, verdicts);
     return Results.Empty;
 });
 

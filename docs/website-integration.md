@@ -41,6 +41,7 @@ secret (see Auth below); without it you get `401` and no stream.
 {
   "question": "How much creatine should I take?",
   "conversation_id": "1b9f...",
+  "request_id": "turn-8c2e...",
   "history": [
     {"role": "user", "text": "is LeanMeal good for weight loss?"},
     {"role": "assistant", "text": "..."}
@@ -52,7 +53,8 @@ secret (see Auth below); without it you get `401` and no stream.
 | Field | Required | Meaning |
 |---|---|---|
 | `question` | yes | The customer's question, verbatim. Empty or whitespace gets `400`, and so does anything over **2,000 characters** — see Limits. |
-| `conversation_id` | no | **Absent means "new conversation"**, which is what controls the disclosure — see Disclosure below. Send a stable id for every turn after the first. |
+| `conversation_id` | no | **Absent means "new conversation"**, which is what controls the disclosure — see Disclosure below. Send a stable id for every turn after the first. Maximum 64 characters. |
+| `request_id` | no | Your own id for this one turn. We echo it on `result` and `error` and key our verdict log on it — see Our verdict log. If you leave it out we mint one and echo that instead, so you can file it either way. Maximum 64 characters. |
 | `history` | no | Earlier turns of this conversation, oldest first, **not including** `question`. See Multi-turn. Absent or empty is a standalone question. |
 | `top` | no | Sources retrieved and fed to the answer. Default 8, maximum 20 (outside that is a `400`). Leave it unset unless we ask you to change it. |
 
@@ -80,7 +82,7 @@ Event names are the contract. Key on them; do not parse the prose.
 | `delta` | `{text}` | A fragment of answer text. Concatenate in arrival order. |
 | `retraction` | `{reason, mode}` | The post-check failed. See Gating. |
 | `result` | see below | Final, assembled. **Always last.** |
-| `error` | `{message, kind}` | The pipeline threw. Terminal, and always followed by `delta`s carrying a handoff message. |
+| `error` | `{request_id, message, kind}` | The pipeline threw. Terminal, and always followed by `delta`s carrying a handoff message. |
 
 `stage` events exist so you have something to render while the answer is held.
 That is the whole reason gating is affordable — see below.
@@ -89,6 +91,7 @@ That is the whole reason gating is affordable — see below.
 
 ```json
 {
+  "request_id": "turn-8c2e...",
   "question": "...",
   "escalated": false,
   "withheld": false,
@@ -103,6 +106,10 @@ That is the whole reason gating is affordable — see below.
 
 `answer` is the same text the `delta`s carried, assembled — use it as the
 authoritative record rather than your own concatenation.
+
+`request_id` is the one you sent, or the one we minted if you did not. **Store
+it on the turn.** It is the only key that joins your record of what was said to
+our record of what was decided — see Our verdict log.
 
 Note what is deliberately **not** on the wire: retrieved source `content`, the
 post-check's failure reasons, and, when an answer is withheld, the draft that
@@ -254,9 +261,28 @@ the turn as a failed one; the customer has already been given something to read.
 
 **Logging.** Your database is the system of record for transcripts. The service
 deliberately does not keep them. Worth storing per turn, from `result`:
-`escalated`, `withheld`, `post_check.passed`, `citations` and `sources` — that
-is what lets both teams reason about a complaint later without keeping a second
-copy of the conversation anywhere else.
+`request_id`, `escalated`, `withheld`, `post_check.passed`, `citations` and
+`sources` — that is what lets both teams reason about a complaint later without
+keeping a second copy of the conversation anywhere else.
+
+**Our verdict log.** We write one structured line per request recording what the
+assistant *decided* — escalated or not and on what reason code, whether the
+answer was withheld, whether the post-check passed and which checks fired,
+whether the safety verdict rested on an earlier turn, how many sources were
+retrieved and cited. It is keyed by `request_id` and `conversation_id`.
+
+It holds **no question text and no answer text**, by construction — not
+redacted, simply not collected. That is the deal that makes the split work: you
+hold what was said, we hold what was decided, and `request_id` joins the two
+when someone asks weeks later why a particular turn did what it did. Which is
+also why the two ids are the one thing you send us that we keep: put an opaque
+identifier in them, never anything a customer typed. Both are capped at 64
+characters.
+
+One gap to know about: a request rejected with `400` or `401` never reaches the
+pipeline, so it produces no verdict line. Those are transport rejections and you
+see them synchronously as a status code — the log starts once a request has been
+accepted.
 
 **Rate.** One trusted caller, so there is no rate limiting. Every request costs
 several model calls; a retry loop on failure is an expensive mistake.
@@ -289,10 +315,11 @@ only source of claim language; if the assistant's phrasing differs from it, the
 approved copy is right and the assistant is wrong.
 
 One request that follows from the same ruling: **keep your per-turn record of
-`escalated`, `withheld` and `post_check.passed`.** Since any state may ship, that
-record plus our own verdict log is how either side reconstructs what the
-assistant actually told someone, weeks later, without keeping a second copy of
-the conversation anywhere.
+`request_id`, `escalated`, `withheld` and `post_check.passed`.** Since any state
+may ship, that record joined to our verdict log (see Operational notes) is how
+either side reconstructs what the assistant actually told someone, weeks later,
+without keeping a second copy of the conversation anywhere. The `request_id` is
+what makes the join possible, so store it even if you never store the rest.
 
 If anyone in the preview audience may quote the assistant in external material —
 as opposed to testing it internally — tell us before that happens. It is a

@@ -1,0 +1,266 @@
+using System.Text.Json;
+using DotFit.Agents.Guardrails;
+using DotFit.Agents.PostCheck;
+
+namespace DotFit.Agents.Service;
+
+/// <summary>
+/// One structured record of what the service **decided** about one request
+/// (plan §11, progress open item 20).
+///
+/// It exists because of the item 21 ruling: the stakeholder preview may ship at
+/// any state, so this log is the only reconstruction of what that audience was
+/// actually shown. It is also how open items 12 and 17 eventually get
+/// production numbers instead of dev-sweep ones — the claims outcome and the
+/// citation shape are exactly the columns those two metrics are computed from.
+///
+/// **It carries no question and no answer text, by construction.** The caller's
+/// database is the system of record for the conversation (see
+/// <c>docs/website-integration.md</c>); a second copy here would be a new PII
+/// surface, which the §4 posture does not allow for a corpus of real customer
+/// mail. The rule is enforced in three places rather than trusted:
+///
+/// - there is no text field on this record to put an answer in;
+/// - <see cref="Reasons"/> is filtered to the fixed
+///   <see cref="EscalationReasons"/> vocabulary, because
+///   <see cref="GuardrailVerdict.Reasons"/> comes from a model and an
+///   off-vocabulary code could be anything (<see cref="GuardrailVerdict.Notes"/>,
+///   free prose, is not logged at all);
+/// - <see cref="Failures"/> and <see cref="Warnings"/> keep only each check's
+///   *name*, never its message — <c>claims_language: (the offending wording)</c>
+///   quotes the draft back, which is the leak this field would otherwise be.
+///
+/// <see cref="Families"/> is the one descriptive field and is deliberate: the
+/// resolved product families are **our** vocabulary from the §5 alias table,
+/// not the customer's words, and slicing claims failures by product is the
+/// first thing items 12 and 17 need.
+///
+/// Joining back to the conversation is the caller's job and needs an id it
+/// holds: <see cref="RequestId"/> is echoed on the terminal <c>result</c> and
+/// <c>error</c> frames, and a caller may supply its own instead.
+/// </summary>
+public sealed record VerdictLog
+{
+    /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
+    public const string SchemaName = "dotfit.verdict";
+    public const string SchemaVersion = "1.0.0";
+
+    public const string OutcomeAnswered = "answered";
+    public const string OutcomeEscalated = "escalated";
+    public const string OutcomeWithheld = "withheld";
+    public const string OutcomeError = "error";
+    /// <summary>The client hung up: nobody read whatever we had.</summary>
+    public const string OutcomeAbandoned = "abandoned";
+
+    public const string ClaimsNotRun = "not_run";
+    public const string ClaimsSkipped = "skipped";
+    public const string ClaimsDegraded = "degraded";
+    public const string ClaimsCompliant = "compliant";
+    public const string ClaimsViolation = "violation";
+
+    /// <summary><see cref="ErrorKind"/> for a client disconnect, which is not a fault.</summary>
+    public const string ClientClosedKind = "ClientClosed";
+
+    /// <summary>A check name we could not read off a failure message — never the message.</summary>
+    private const string UnnamedCheck = "unnamed";
+
+    /// <summary>Longest thing we will accept as a check name.</summary>
+    private const int MaxCheckNameChars = 40;
+
+    public string Log { get; init; } = SchemaName;
+    public string LogVersion { get; init; } = SchemaVersion;
+
+    public required string RequestId { get; init; }
+    /// <summary>Absent on the first turn of a conversation (§11 disclosure rule).</summary>
+    public string? ConversationId { get; init; }
+    public required DateTimeOffset Timestamp { get; init; }
+
+    /// <summary>One of the <c>Outcome*</c> constants — the column to group by.</summary>
+    public required string Outcome { get; init; }
+
+    public bool Escalated { get; init; }
+    /// <summary>Escalation reason codes, filtered to the known vocabulary.</summary>
+    public IReadOnlyList<string> Reasons { get; init; } = [];
+    /// <summary>
+    /// The verdict rests on an earlier turn (open item 19). The one thing a
+    /// complaint cannot be reconstructed without: the customer sees the same
+    /// handoff whether the trigger was this turn or three turns back.
+    /// </summary>
+    public bool HistoryTrigger { get; init; }
+    public bool ClaimTrap { get; init; }
+    public bool GuardrailDegraded { get; init; }
+    public bool RewriteDegraded { get; init; }
+
+    /// <summary>The generated answer was suppressed before the caller saw it.</summary>
+    public bool Withheld { get; init; }
+    public bool PostCheckPassed { get; init; }
+    /// <summary>Failed check names only (<c>citation_presence</c>, …).</summary>
+    public IReadOnlyList<string> Failures { get; init; } = [];
+    public IReadOnlyList<string> Warnings { get; init; } = [];
+
+    /// <summary>One of the <c>Claims*</c> constants — open item 12's column.</summary>
+    public string Claims { get; init; } = ClaimsNotRun;
+    public int ClaimsViolations { get; init; }
+
+    public int NSources { get; init; }
+    public int NCitations { get; init; }
+    /// <summary>
+    /// Distinct authority levels the answer actually cited, ascending. Whether
+    /// approved copy (1–2) was cited is open item 17's citation rate.
+    /// </summary>
+    public IReadOnlyList<int> CitedAuthorities { get; init; } = [];
+    /// <summary>Product families the §5 alias table resolved from the question.</summary>
+    public IReadOnlyList<string> Families { get; init; } = [];
+
+    /// <summary>Turns the caller sent, before our own trim (<see cref="ConversationHistory"/>).</summary>
+    public int HistoryTurns { get; init; }
+    public int? Top { get; init; }
+
+    public int DurationMs { get; init; }
+    /// <summary>Per-stage wall clock, absent when the run never produced a result.</summary>
+    public IReadOnlyDictionary<string, int>? StageMs { get; init; }
+    /// <summary>Exception type name or <c>Timeout</c>/<c>ClientClosed</c> — never a message.</summary>
+    public string? ErrorKind { get; init; }
+
+    /// <summary>
+    /// Project one finished (or failed) request. <paramref name="result"/> is
+    /// <c>null</c> when the pipeline never reached its <c>ResultEvent</c>, which
+    /// is every error and abandon path.
+    /// </summary>
+    public static VerdictLog From(
+        AskRequest request,
+        string requestId,
+        DateTimeOffset timestamp,
+        TimeSpan duration,
+        AssistantResult? result,
+        string? errorKind)
+    {
+        string outcome = errorKind switch
+        {
+            ClientClosedKind => OutcomeAbandoned,
+            not null => OutcomeError,
+            _ when result is null => OutcomeError,
+            _ when result.Escalated => OutcomeEscalated,
+            _ when result.Withheld => OutcomeWithheld,
+            _ => OutcomeAnswered,
+        };
+
+        var entry = new VerdictLog
+        {
+            RequestId = requestId,
+            ConversationId = request.ConversationId,
+            Timestamp = timestamp,
+            Outcome = outcome,
+            HistoryTurns = request.History?.Count ?? 0,
+            Top = request.Top,
+            DurationMs = (int)duration.TotalMilliseconds,
+            ErrorKind = errorKind,
+        };
+
+        if (result is null)
+            return entry;
+
+        return entry with
+        {
+            Escalated = result.Escalated,
+            Reasons = ReasonCodes(result.Guardrail),
+            HistoryTrigger = result.Guardrail.HistoryTrigger,
+            ClaimTrap = result.Guardrail.ClaimTrap,
+            GuardrailDegraded = result.Guardrail.Degraded,
+            RewriteDegraded = result.Rewrite.Degraded,
+            Withheld = result.Withheld,
+            PostCheckPassed = result.PostCheck.Passed,
+            Failures = CheckNames(result.PostCheck.Failures),
+            Warnings = CheckNames(result.PostCheck.Warnings),
+            Claims = ClaimsOutcome(result.PostCheck.Claims),
+            ClaimsViolations = result.PostCheck.Claims?.Violations.Count ?? 0,
+            NSources = result.Sources.Count,
+            NCitations = result.Citations.Count,
+            CitedAuthorities = CitedLevels(result),
+            Families = result.Expansion.Families,
+            StageMs = result.StageSeconds.ToDictionary(
+                kv => kv.Key, kv => (int)(kv.Value * 1000)),
+        };
+    }
+
+    /// <summary>
+    /// Reason codes we recognise; anything else collapses to <c>other</c>. The
+    /// structured schema constrains these to its enum, but the degraded path and
+    /// any non-structured caller do not, and an unrecognised "code" would be
+    /// free model text landing in a log that promises to hold none.
+    /// </summary>
+    private static IReadOnlyList<string> ReasonCodes(GuardrailVerdict verdict) =>
+        verdict.Reasons
+            .Select(r => EscalationReasons.Display.ContainsKey(r) ? r : "other")
+            .Distinct()
+            .ToList();
+
+    /// <summary>
+    /// The check name a post-check message opens with, and nothing after the
+    /// colon. A message that does not start with a plain <c>snake_case</c> name
+    /// is not guessed at — it becomes <c>unnamed</c>, because the fallback of
+    /// keeping the whole string is exactly the text leak this method prevents.
+    /// </summary>
+    internal static string CheckName(string message)
+    {
+        int colon = message.IndexOf(':');
+        string name = colon > 0 ? message[..colon] : message;
+        bool plain = name.Length is > 0 and <= MaxCheckNameChars
+            && name.All(c => char.IsAsciiLetterLower(c) || c == '_');
+        return plain ? name : UnnamedCheck;
+    }
+
+    private static IReadOnlyList<string> CheckNames(IReadOnlyList<string> messages) =>
+        messages.Select(CheckName).ToList();
+
+    private static string ClaimsOutcome(ClaimsVerdict? claims) => claims switch
+    {
+        null => ClaimsNotRun,
+        { Skipped: true } => ClaimsSkipped,
+        { Degraded: true } => ClaimsDegraded,
+        { Compliant: true } => ClaimsCompliant,
+        _ => ClaimsViolation,
+    };
+
+    private static IReadOnlyList<int> CitedLevels(AssistantResult result) =>
+        result.Citations
+            .Where(c => c.Index >= 1 && c.Index <= result.Sources.Count)
+            .Select(c => result.Sources[c.Index - 1].Authority)
+            .Distinct()
+            .Order()
+            .ToList();
+}
+
+/// <summary>
+/// Where finished verdicts go. One call per request, on every terminal path.
+/// Implementations must be thread-safe and must be cheap: this runs inside the
+/// request, after the last frame is written.
+/// </summary>
+public interface IVerdictSink
+{
+    void Write(VerdictLog entry);
+}
+
+/// <summary>
+/// One JSON object per line, to a <see cref="TextWriter"/> — stdout in the
+/// service, because a container's stdout is already collected and a file sink
+/// would buy rotation, permissions and a disk-full failure mode for a record
+/// that is kilobytes a day. Each line carries <c>log</c> and <c>log_version</c>
+/// so a collector can pick these out of the host's own console logging.
+/// </summary>
+public sealed class JsonLinesVerdictSink(TextWriter output) : IVerdictSink
+{
+    private readonly object _gate = new();
+
+    public void Write(VerdictLog entry)
+    {
+        string line = JsonSerializer.Serialize(entry, AskStream.Json);
+        // Serialized outside the lock; written and flushed inside it, so two
+        // concurrent requests cannot interleave halves of a line.
+        lock (_gate)
+        {
+            output.WriteLine(line);
+            output.Flush();
+        }
+    }
+}

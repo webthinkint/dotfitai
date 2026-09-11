@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (58)** — products.json drop processed, item 2 **closed** (§5).
+  Owner ruling: exports arrive ad hoc when updates are known — no schedule;
+  each drop runs diff → aliases → stage2 → stage4 → index → ping (cache on
+  the stage2 leg), now the recorded chain in decisions.md §5. First drop:
+  SKUs 1470/1471 joined dotBAR via `CURATED_FAMILIES` (flavor singletons were
+  the derivation gap); 2 QA records re-tagged, 0 LLM calls; index 4,002 →
+  **4,006** (1 embed call, 0 errors), new flavors retrievable live. 2 pins
+  updated (**455 py / 143 runtime**).
+
 - **2026-09-10 (57)** — Owner decision pack for the golden re-draw (§12,
   item 8): owner task 8 written, preview drawn to gitignored
   `pipeline/out/golden-preview/` — pool 650 → 653, **208/250 stay, 42 swap**

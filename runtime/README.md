@@ -152,6 +152,43 @@ oldest first, excluding the question being asked. An unknown `role` is a `400`
 rather than a dropped turn. The full client-facing contract is
 `docs/website-integration.md`.
 
+### The verdict log
+
+Every accepted request writes exactly one JSON line to **stdout** (open item
+20) — `VerdictLog`, tagged `"log": "dotfit.verdict"` so a collector can pick it
+out of the host's own console logging:
+
+```json
+{"log":"dotfit.verdict","log_version":"1.0.0","request_id":"…","conversation_id":"…",
+ "outcome":"escalated","escalated":true,"reasons":["under_18"],"history_trigger":true,
+ "post_check_passed":true,"claims":"not_run","n_sources":0,"n_citations":0,
+ "cited_authorities":[],"duration_ms":1981,"stage_ms":{"guardrail":1980,"answer":0}}
+```
+
+`outcome` is one of `answered` / `escalated` / `withheld` / `error` /
+`abandoned` (the client hung up), and there is one line on **every** terminal
+path — the write is in a `finally`, because a run that logged nothing is
+indistinguishable from a run that never happened. A request rejected before the
+stream opens (`400`/`401`) logs nothing: it never reached a verdict.
+
+**It holds no question and no answer text**, and that is enforced rather than
+trusted — there is no text field to put one in, `reasons` is filtered to the
+known escalation vocabulary (the guardrail's free-prose `notes` is not logged at
+all), and `failures`/`warnings` keep only each check's *name*, never its message,
+which for `claims_language` quotes the draft back. `VerdictLogTests` pins each of
+those. It is not configurable and has no off switch: with the preview free to
+ship at any state (item 21), this is the only record of what an audience was
+shown, and there is nothing to switch off for privacy.
+
+`request_id` is echoed on the terminal `result` and `error` frames — in the
+body, not a header, because the website server relays the stream — so the
+caller can join its transcript to our verdicts. A caller may send its own
+`request_id`; both it and `conversation_id` are capped at 64 characters, since
+they are the only caller-supplied values the service retains.
+
+Nothing is logged by the CLI or the eval harness: they drive `AskStream` and
+`IKnowledgeAssistant` without a sink, and already have `--json` and `--trace`.
+
 ## Multi-turn
 
 The service holds no state between requests, so the caller resends the recent
