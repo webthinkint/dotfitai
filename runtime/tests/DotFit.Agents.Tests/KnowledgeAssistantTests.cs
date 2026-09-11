@@ -144,6 +144,41 @@ public class KnowledgeAssistantTests
     }
 
     [Fact]
+    public async Task TheClaimsAuditSeesTheRenameNoteButNotTheClaimTrapNote()
+    {
+        // Open item 17, found in manual chat 2026-09-11: the §5 rename note
+        // instructs the answer agent to mention the rename, and the audit never
+        // saw it — so an obedient "OldTest is now Test Family" read as a product
+        // claim no source supports, and the gated run retracted it.
+        //
+        // The claim-trap note is deliberately held back. It is guidance about
+        // the question, not an attested fact, and telling the auditor a question
+        // was a claim trap biases the verdict it exists to reach.
+        var claimsClient = new ScriptedChatClient(
+            """{"compliant":true,"violations":[],"evidence":[]}""");
+        IClaimsLanguageChecker claims = new AgentClaimsLanguageChecker(
+            new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
+
+        var answer = new FakeAnswerAgent { Reply = "OldTest is now called Test Family [1]." };
+        var assistant = Build(
+            guardrailReply: Trap,
+            rewriteReply: """{"canonical_question":"q","product_mentions":["OldTest"],"topics":[],"confidence":1}""",
+            search: new FakeKnowledgeSearch { Results = [TestDocs.Product()] }, answer: answer, claims: claims);
+
+        AssistantResult result = await assistant.AskAsync("tell me all about OldTest");
+
+        Assert.True(result.PostCheck.Passed);
+        string audited = claimsClient.Calls.Single().Messages.Last().Text ?? "";
+        Assert.Contains("Established facts", audited);
+        Assert.Contains("OldTest was renamed Test Family", audited);
+        Assert.Contains("mention the rename", audited);
+        Assert.DoesNotContain("presumes a claim", audited);
+        // The answer agent got both, which is the divergence being closed.
+        Assert.Contains("OldTest was renamed Test Family", answer.UserMessages.Single());
+        Assert.Contains("presumes a claim", answer.UserMessages.Single());
+    }
+
+    [Fact]
     public async Task NonCompliantClaimsVerdictFailsThePostCheck()
     {
         var claimsClient = new ScriptedChatClient(
@@ -174,7 +209,7 @@ public class KnowledgeAssistantTests
             new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
 
         ClaimsVerdict verdict = await claims.CheckAsync(
-            "q", "answer [1].", [TestDocs.Qa(), TestDocs.Qa("another")]);
+            "q", "answer [1].", [TestDocs.Qa(), TestDocs.Qa("another")], []);
 
         Assert.False(verdict.Compliant);
         Assert.False(verdict.Degraded);
@@ -197,7 +232,7 @@ public class KnowledgeAssistantTests
         IClaimsLanguageChecker claims = new AgentClaimsLanguageChecker(
             new ChatClientAgent(claimsClient, new ChatClientAgentOptions { Name = "claims" }));
 
-        ClaimsVerdict verdict = await claims.CheckAsync("q", "no sourced information.", []);
+        ClaimsVerdict verdict = await claims.CheckAsync("q", "no sourced information.", [], []);
 
         Assert.True(verdict.Compliant);
         Assert.False(verdict.Degraded);
@@ -205,7 +240,7 @@ public class KnowledgeAssistantTests
         Assert.Empty(claimsClient.Calls);
 
         ClaimsVerdict judged = await claims.CheckAsync(
-            "q", "answer [2].", [TestDocs.Product(), TestDocs.Qa()]);
+            "q", "answer [2].", [TestDocs.Product(), TestDocs.Qa()], []);
         Assert.False(judged.Compliant);
         Assert.False(judged.Skipped);
         string sent = claimsClient.Calls.Single().Messages.Last().Text ?? "";

@@ -5,6 +5,18 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-10 (60)** — The 250 are **re-drawn** (§12, item 8 ruled
+  re-draw). Sequencing was option C: item 7's split ruling landed first and
+  left the pool at 653 and the draw unmoved, so the decision pack's preview
+  regenerated **byte-identical** and was promoted — 208/250 stay, 42 swap,
+  125/125 and 29 families unchanged, `(untagged)` 79 → 63, G-012/G-032 (aimed
+  at retired answers) gone. Item numbers and dev/test sides were re-assigned
+  (41/208 keep their number, 114/208 their side). Sample retrieval re-measured
+  on the new dev 125 (retrieval-only, no chat, scratch out — `processed/eval/`
+  still holds the full sweep): recall@8 **100.0%** (was 99.2%), MRR 0.8233;
+  the answer-side sample numbers still read on the old draw. Written 50/20 and
+  120 probes untouched; labeling unblocked. No code (**455 py / 143 runtime**).
+
 - **2026-09-10 (59)** — Item 7 **closed** (§4): both luna-regen conflict
   pairs ruled **split** (owner task 3). LeanMR+creatine is the FirstString
   shape — two turns of one thread; Lean Pack 90's answers agree, but the

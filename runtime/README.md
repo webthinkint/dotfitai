@@ -10,6 +10,10 @@
   deterministic post-check + optional claims-language audit. No tool calls:
   retrieval is single-shot by design in v1. A turn the guardrail reads as
   small talk skips all of that — see "The conversational branch" below.
+  The audit sees the same numbered sources the answer agent did *and* the §5
+  alias notes it was given, so an instruction the pipeline issued — "mention the
+  rename" — is not graded as an invention (open item 17). It does not see the
+  claim-trap note, which would bias its verdict.
 - **`src/DotFit.Agents.Cli`** — `dotfit-agent`, the testing/demo harness.
 - **`src/DotFit.Agents.Service`** — `dotfit-agent-service`, the ASP.NET Core
   SSE endpoint the widget talks to. Transport only: config load, `POST /ask`,

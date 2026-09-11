@@ -420,7 +420,7 @@ public class ConversationalIntentTests
 
         public Task<ClaimsVerdict> CheckAsync(
             string question, string answer, IReadOnlyList<RetrievedDocument> sources,
-            CancellationToken ct = default)
+            IReadOnlyList<string> notes, CancellationToken ct = default)
         {
             Calls++;
             return Task.FromResult(new ClaimsVerdict { Compliant = true });

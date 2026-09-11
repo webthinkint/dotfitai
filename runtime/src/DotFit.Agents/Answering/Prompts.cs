@@ -212,13 +212,28 @@ public static class Prompts
 
         You audit product-claim language, not factual accuracy in general.
 
+        Each source line carries that source's own published title, and the title
+        is attested text just as the body is: a title like "LeanMeal (formerly
+        LeanMR)" supports a statement about what the product is called.
+
+        The user message may also carry an "Established facts" block: curated
+        dotFIT product-identity data — renames, replacements, discontinuations —
+        that the assistant was given along with the question. It is attested
+        reference data, not something the answer invented, and the assistant was
+        instructed to use it. Treat it as authoritative for identity and for
+        identity alone: it never licenses a claim about what a product does,
+        contains, or how to take it.
+
         compliant=false only when the answer:
         - states or implies that a supplement treats, cures, prevents or diagnoses
           a disease; or
         - makes a product claim (what a dotFIT product does, contains, or how to
           take it) that no QUOTABLE source supports — including a stronger version
           of a real claim, and including claim wording taken from a CONTEXT ONLY
-          source and presented as approved product copy.
+          source and presented as approved product copy; or
+        - presents a discontinued product and the different formula that replaced
+          it as one and the same product, or carries either one's claims onto the
+          other. A replacement is not a rename.
 
         These are compliant. Do not report them:
         - general nutrition information that is not a claim about a dotFIT product
@@ -226,6 +241,11 @@ public static class Prompts
         - a statement grounded in a CONTEXT ONLY source, cited to it, and framed as
           expert or community context rather than as approved product copy
         - quoting or closely paraphrasing a QUOTABLE source the answer cites
+        - a product-identity statement that matches a source title or the
+          established facts — that a product was renamed and is now sold under
+          the current name, or that it is discontinued.
+          Identity is not a product claim: a rename is the same product under a
+          new name, and saying so is what the assistant was told to do.
 
         A statement you cannot find in any of the provided sources is a violation
         only if it is a product claim. Otherwise leave it alone.
@@ -367,13 +387,40 @@ public static class Prompts
     /// a one-line answer about the carbohydrates in an apple, which is not a
     /// product claim at all (open items 17 and 12). The §3 claims line is carried
     /// by <see cref="ClaimsMarker"/> on each source, not by omitting sources.
+    ///
+    /// It also carries the §5 alias-expansion notes, for the same reason and with
+    /// the same history. Those notes are the runtime's own instruction to the
+    /// answer agent — "MuscleDefender was renamed GlutamineComplex ... mention the
+    /// rename" (<see cref="Aliases.AliasTable.Expand"/>) — and until 2026-09-11
+    /// they stopped at <see cref="BuildAnswerUserMessage"/>. The audit therefore
+    /// graded the draft on a sentence the pipeline had ordered and then hidden:
+    /// the rename is corpus-attested curated data, but no *source body* states
+    /// it, so an obedient draft read as an unsupported product claim and the
+    /// gated run retracted it. Found in manual chat, not by §12 — nothing in the
+    /// golden set exercises a rename (open item 17).
+    ///
+    /// The notes are passed verbatim, imperative wording and all. Rewording them
+    /// for the auditor would recreate the divergence this closes: the audit must
+    /// see what was actually ordered. Only <see cref="Aliases.AliasExpansion.Notes"/>
+    /// travels — the claim-trap note added alongside it in the answer path is
+    /// guidance about the question, and telling the auditor a question was a claim
+    /// trap biases the verdict it exists to make.
     /// </summary>
     public static string BuildClaimsUserMessage(
-        string question, string answer, IReadOnlyList<Retrieval.RetrievedDocument> sources)
+        string question, string answer, IReadOnlyList<Retrieval.RetrievedDocument> sources,
+        IReadOnlyList<string> notes)
     {
         var sb = new System.Text.StringBuilder();
         sb.Append("Customer question: ").Append(question).Append("\n\n");
         sb.Append("Draft answer:\n").Append(answer).Append("\n\n");
+        if (notes.Count > 0)
+        {
+            sb.Append("Established facts the assistant was given with this question ")
+              .Append("(curated dotFIT product-identity data, not model output):\n");
+            foreach (string note in notes)
+                sb.Append("- ").Append(note.ReplaceLineEndings(" ")).Append('\n');
+            sb.Append('\n');
+        }
         sb.Append("Sources the answer was given (numbered as its [n] citations):\n");
         for (int i = 0; i < sources.Count; i++)
         {

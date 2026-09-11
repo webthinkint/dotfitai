@@ -339,7 +339,12 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         sw.Restart();
         ClaimsVerdict? claimsVerdict = null;
         if (options.ClaimsCheck && _claims is not null)
-            claimsVerdict = await _claims.CheckAsync(question, answer, sources, ct).ConfigureAwait(false);
+            // `expansion.Notes`, not the `notes` list built above: the alias
+            // notes are attested §5 facts the audit must see to grade a rename
+            // sentence it ordered, while the claim-trap note is guidance about
+            // the question and would bias the verdict (see BuildClaimsUserMessage).
+            claimsVerdict = await _claims
+                .CheckAsync(question, answer, sources, expansion.Notes, ct).ConfigureAwait(false);
         PostCheckResult postCheck = PostChecker.Check(verdict, rewrite, expansion, sources, answer, claimsVerdict);
         timings["post-check"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("post-check",

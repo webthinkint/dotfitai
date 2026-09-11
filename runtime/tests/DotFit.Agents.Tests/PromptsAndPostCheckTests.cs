@@ -142,7 +142,7 @@ public class PromptsTests
         {
             TestDocs.Product("P"), TestDocs.Qa("Q"), TestDocs.Pdsrg("G"),
         };
-        string message = Prompts.BuildClaimsUserMessage("q", "answer [2].", sources);
+        string message = Prompts.BuildClaimsUserMessage("q", "answer [2].", sources, []);
 
         Assert.Contains("Draft answer:\nanswer [2].", message);
         Assert.Contains("[2] Q — dotFIT nutrition knowledge base (authority 3) — CONTEXT ONLY", message);
@@ -155,6 +155,51 @@ public class PromptsTests
             Assert.Contains(line, message);
             Assert.Contains(line, Prompts.BuildAnswerUserMessage("q", sources, []));
         }
+    }
+
+    [Fact]
+    public void ClaimsUserMessageCarriesTheAliasNotesTheAnswerWasGiven()
+    {
+        // Regression, open item 17: the §5 rename note told the answer agent to
+        // "mention the rename" and then stopped at the answer prompt, so the
+        // audit graded a sentence the pipeline had ordered and hidden. A
+        // question about a renamed product came back retracted on
+        // claims_language in manual chat 2026-09-11.
+        string[] notes =
+        [
+            "OldTest was renamed Test Family — the same product, the same formula. " +
+            "Use the current name in the answer and mention the rename.",
+        ];
+        string message = Prompts.BuildClaimsUserMessage(
+            "what is OldTest?", "OldTest is now Test Family [1].", [TestDocs.Product()], notes);
+
+        Assert.Contains("Established facts the assistant was given with this question", message);
+        // Verbatim, imperative wording included: the audit must see what was
+        // actually ordered, not a version rewritten for it.
+        Assert.Contains("- " + notes[0], message);
+        // Still before the sources, whose numbering is the citation contract.
+        Assert.True(message.IndexOf(notes[0], StringComparison.Ordinal)
+                    < message.IndexOf("Sources the answer was given", StringComparison.Ordinal));
+
+        // No notes, no block — an empty header would read as "nothing was established".
+        string bare = Prompts.BuildClaimsUserMessage("q", "a [1].", [TestDocs.Product()], []);
+        Assert.DoesNotContain("Established facts", bare);
+    }
+
+    [Fact]
+    public void ClaimsInstructionsExemptIdentityWithoutExemptingReplacements()
+    {
+        // The §5 distinction the carve-out must not blur: a rename is an
+        // identity mapping and saying so is compliant; a replacement is a
+        // different formula and conflating the two is still a violation.
+        Assert.Contains("Identity is not a product claim", Prompts.ClaimsInstructions);
+        Assert.Contains("A replacement is not a rename", Prompts.ClaimsInstructions);
+        Assert.Contains("Established facts", Prompts.ClaimsInstructions);
+        // Authoritative for identity, and for nothing else.
+        Assert.Contains("it never licenses a claim about what a product does", Prompts.ClaimsInstructions);
+        // A source's own published title is attested text — the clause that got
+        // flagged was grounded in one, the PDSRG's "(formerly ...)" title.
+        Assert.Contains("is attested text just as the body is", Prompts.ClaimsInstructions);
     }
 
     [Fact]

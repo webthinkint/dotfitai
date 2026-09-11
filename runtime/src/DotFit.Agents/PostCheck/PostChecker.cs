@@ -150,8 +150,17 @@ public static class PostChecker
 
 public interface IClaimsLanguageChecker
 {
+    /// <param name="notes">
+    /// The §5 alias-expansion notes the answer agent was given
+    /// (<see cref="Aliases.AliasExpansion.Notes"/>), never the claim-trap note
+    /// added beside them — see <see cref="Prompts.BuildClaimsUserMessage"/>.
+    /// Required rather than defaulted: an audit that cannot see what the
+    /// pipeline ordered is the defect this parameter closes, and a silent
+    /// default would let a new call site reopen it.
+    /// </param>
     Task<ClaimsVerdict> CheckAsync(
-        string question, string answer, IReadOnlyList<RetrievedDocument> sources, CancellationToken ct = default);
+        string question, string answer, IReadOnlyList<RetrievedDocument> sources,
+        IReadOnlyList<string> notes, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -178,7 +187,8 @@ public interface IClaimsLanguageChecker
 public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageChecker
 {
     public async Task<ClaimsVerdict> CheckAsync(
-        string question, string answer, IReadOnlyList<RetrievedDocument> sources, CancellationToken ct = default)
+        string question, string answer, IReadOnlyList<RetrievedDocument> sources,
+        IReadOnlyList<string> notes, CancellationToken ct = default)
     {
         if (sources.Count == 0)
             // Nothing retrieved at all: the answer agent was told to say it has
@@ -190,7 +200,7 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
         try
         {
             return await StructuredCall.RunAsync<ClaimsVerdict>(
-                agent, Prompts.BuildClaimsUserMessage(question, answer, sources),
+                agent, Prompts.BuildClaimsUserMessage(question, answer, sources, notes),
                 "dotfit_claims", Schemas.Claims, ct).ConfigureAwait(false);
         }
         catch (Exception e) when (e is not OperationCanceledException)

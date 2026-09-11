@@ -522,3 +522,48 @@ the test.
     this is the one path that delivers text without retrieval, so a run of
     greetings would otherwise read as a healthy answer rate with a citation rate
     of zero, and items 12 and 17 read those columns.
+- **The claims audit is shown what the pipeline told the answer to say**
+  (2026-09-11, open item 17). "Tell me all about MuscleDefender" came back
+  **retracted** on `claims_language`, and the offending wording was the rename
+  sentence the runtime itself had ordered: §5 resolves a deprecated name, hands
+  the answer agent a note — "MuscleDefender was renamed GlutamineComplex … use
+  the current name and mention the rename" — and that note stopped at the answer
+  prompt. The audit saw only the question, the draft and the source bodies, none
+  of which state the rename, so an obedient draft read as a product claim no
+  approved copy supports. **A check that cannot see the instruction it is
+  grading measures obedience as invention**, so `AliasExpansion.Notes` now travel
+  to the claims prompt as an *Established facts* block. Three constraints keep it
+  from becoming a loophole. (1) **Only the alias notes travel** — they are
+  derived from the committed §5 table, corpus-attested and deterministic, not
+  model output; the claim-trap note added beside them in the answer path is
+  guidance *about the question*, and telling the auditor a question was a claim
+  trap would bias the one verdict it exists to reach. (2) **Verbatim, imperative
+  wording included**: rewording the note for the auditor would recreate the
+  divergence this closes. (3) **Attested for identity, and identity only** — the
+  block never licenses a claim about what a product does, contains or how to take
+  it, which stays bound to a QUOTABLE source.
+- **Identity is not a product claim; a replacement still is** (2026-09-11, open
+  item 17). The audit's definition of a claim — what a product *does, contains,
+  or how to take it* — never covered naming, but nothing said so, so the checker
+  applied it to renames anyway. It is now written down, together with the rule
+  that a source's own published title is attested text like its body: a chunk
+  titled "GlutamineComplex (formerly MuscleDefender)" grounds a statement about
+  what the product is called, and the draft that got retracted had in fact cited
+  it. The carve-out is deliberately bounded by the §5 distinction the pipeline
+  already enforces on both sides: a **rename** is an identity mapping and saying
+  so is compliant, while presenting a **replacement** — a different formula that
+  took over the slot — as the same product is now a violation named in its own
+  right, where before it fell under the general unsupported-claim clause. The
+  asymmetry is the point: the fix must not buy a rename false-positive back with
+  a replacement false-negative.
+- **The currency behaviors are a §12 coverage gap, not a 51st adversarial item**
+  (2026-09-11, open items 15/17). The retraction above was found by a person
+  typing into the chat, because nothing in the golden set asks about a renamed,
+  replaced or discontinued product — and §12 fixes the adversarial composition at
+  20/15/15 and reports escalation accuracy and forbidden-content rate against it,
+  so adding one would redefine those numbers in place (the item 19 ruling,
+  applied again). It is therefore recorded on item 15 beside the two behaviors
+  already parked there, and `multiturn.jsonl` is the precedent if it earns a set:
+  its own artifact, its own denominator. Both fixes here are **prompt-side**, so
+  their effect is a live reading and not a test — item 17's withheld 39/125 and
+  faithfulness 0.60 are unre-measured until a full sweep runs.
