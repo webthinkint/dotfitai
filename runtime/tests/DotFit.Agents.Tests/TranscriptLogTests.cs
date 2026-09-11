@@ -82,11 +82,15 @@ public class TranscriptLogTests
         GuardrailVerdict? guardrail = null,
         PostCheckResult? postCheck = null,
         bool withheld = false,
-        string? notes = null)
+        string? notes = null,
+        string? preRepairAnswer = null,
+        PostCheckResult? preRepairPostCheck = null)
     {
         string answer = $"Grounded answer [1] about {AnswerMarker}.";
         return new AssistantResult
         {
+            PreRepairAnswerText = preRepairAnswer,
+            PreRepairPostCheck = preRepairPostCheck,
             Question = $"a question about {QuestionMarker}?",
             Guardrail = guardrail ?? new GuardrailVerdict { Notes = notes ?? "" },
             Rewrite = new RewriteResult { CanonicalQuestion = $"canonical {QuestionMarker}" },
@@ -267,6 +271,46 @@ public class TranscriptLogTests
     }
 
     // --- the wire shape ---------------------------------------------------------
+
+    [Fact]
+    public async Task ARepairedRequestCarriesBothDraftsAndTheWordingThatWasCut()
+    {
+        // The verdict log can say a request was `repaired`; only this log can
+        // say whether the repair excised a bad sentence or deleted a correct
+        // answer. Reading a repair means reading the diff, so both drafts and
+        // the audit's own quotes have to be here.
+        const string cutDraft = "Take one scoop [1]. Loading is optional [2].";
+        var flagged = new PostCheckResult(
+            false, ["claims_language: Loading is optional"], [],
+            new ClaimsVerdict
+            {
+                Compliant = false,
+                Violations = ["Loading is optional"],
+                Evidence = ["[2] the guide is about a different product"],
+            });
+
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result(
+            preRepairAnswer: cutDraft, preRepairPostCheck: flagged))));
+
+        TranscriptLog entry = sink.Single();
+        Assert.Equal(cutDraft, entry.PreRepairAnswerText);
+        Assert.Equal(["claims_language: Loading is optional"], entry.PreRepairFailures);
+        Assert.Equal(["Loading is optional"], entry.PreRepairClaimsViolations);
+        Assert.Equal(["[2] the guide is about a different product"], entry.PreRepairClaimsEvidence);
+        // The delivered draft is still the one in `answer_text`.
+        Assert.Contains(AnswerMarker, entry.AnswerText);
+    }
+
+    [Fact]
+    public async Task AnUnrepairedRequestLeavesTheRepairFieldsEmpty()
+    {
+        TranscriptLog entry = (await Run(new FakeAssistant(new ResultEvent(Result())))).Single();
+
+        Assert.Null(entry.PreRepairAnswerText);
+        Assert.Empty(entry.PreRepairFailures);
+        Assert.Empty(entry.PreRepairClaimsViolations);
+        Assert.Empty(entry.PreRepairClaimsEvidence);
+    }
 
     [Fact]
     public void TheSinkWritesOneSnakeCaseLinePerEntry()

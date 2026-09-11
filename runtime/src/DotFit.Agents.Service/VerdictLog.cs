@@ -43,8 +43,12 @@ public sealed record VerdictLog
 {
     /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
     public const string SchemaName = "dotfit.verdict";
-    /// <summary>1.1.0 added <c>intent</c> and the <c>chitchat</c> outcome (§11 intent branch).</summary>
-    public const string SchemaVersion = "1.1.0";
+    /// <summary>
+    /// 1.1.0 added <c>intent</c> and the <c>chitchat</c> outcome (§11 intent
+    /// branch). 1.2.0 added the <c>repaired</c> outcome, <c>claims_pre_repair</c>
+    /// and <c>pre_repair_failures</c> (§11 stage 6b).
+    /// </summary>
+    public const string SchemaVersion = "1.2.0";
 
     public const string OutcomeAnswered = "answered";
     public const string OutcomeEscalated = "escalated";
@@ -59,6 +63,21 @@ public sealed record VerdictLog
     /// answer rate with a citation rate of zero.
     /// </summary>
     public const string OutcomeChitchat = "chitchat";
+    /// <summary>
+    /// Answered, but only after the §11 stage 6b repair pass — the first draft
+    /// failed the claims audit and one bounded edit cleared it.
+    ///
+    /// Counted apart for the same reason <see cref="OutcomeChitchat"/> is, and
+    /// with more at stake. Folded into <see cref="OutcomeAnswered"/> these rows
+    /// would read <c>claims: compliant</c> — the verdict of the *second* audit —
+    /// and the flag the first one raised would be absent from the log entirely,
+    /// which is precisely open item 12's precision numerator quietly deleting
+    /// itself. "How many did we answer" is now <c>answered + repaired</c>, and
+    /// that sum being two words instead of one is the point: a rising repair
+    /// rate is the answer prompt regressing (open item 17), and it must be
+    /// visible without anyone having thought to look for it.
+    /// </summary>
+    public const string OutcomeRepaired = "repaired";
 
     public const string ClaimsNotRun = "not_run";
     public const string ClaimsSkipped = "skipped";
@@ -120,6 +139,20 @@ public sealed record VerdictLog
     public string Claims { get; init; } = ClaimsNotRun;
     public int ClaimsViolations { get; init; }
 
+    /// <summary>A §11 stage 6b repair pass ran. It may still have been withheld after it.</summary>
+    public bool Repaired { get; init; }
+    /// <summary>
+    /// The claims outcome of the draft the repair replaced — <c>violation</c>
+    /// whenever <see cref="Repaired"/> is true, <c>not_run</c> otherwise. The
+    /// field exists so <see cref="Claims"/> can go on meaning "the verdict on
+    /// what we delivered" without the earlier flag being lost: item 12 counts
+    /// flags raised, and after stage 6b some of those are raised against a
+    /// draft nobody received.
+    /// </summary>
+    public string ClaimsPreRepair { get; init; } = ClaimsNotRun;
+    /// <summary>Failed check names from the pre-repair verdict — names only, as <see cref="Failures"/>.</summary>
+    public IReadOnlyList<string> PreRepairFailures { get; init; } = [];
+
     public int NSources { get; init; }
     public int NCitations { get; init; }
     /// <summary>
@@ -164,6 +197,11 @@ public sealed record VerdictLog
             _ when result.Escalated => OutcomeEscalated,
             _ when result.Withheld => OutcomeWithheld,
             _ when result.Guardrail.Conversational => OutcomeChitchat,
+            // After `Withheld`, deliberately: a repair that did not save the
+            // answer is a withheld request, and reading it as `repaired` would
+            // turn the failure into a success in the one column the owner
+            // groups by. `Repaired` stays true on that row either way.
+            _ when result.Repaired => OutcomeRepaired,
             _ => OutcomeAnswered,
         };
 
@@ -197,6 +235,13 @@ public sealed record VerdictLog
             Warnings = CheckNames(result.PostCheck.Warnings),
             Claims = ClaimsOutcome(result.PostCheck.Claims),
             ClaimsViolations = result.PostCheck.Claims?.Violations.Count ?? 0,
+            Repaired = result.Repaired,
+            ClaimsPreRepair = result.PreRepairPostCheck is null
+                ? ClaimsNotRun
+                : ClaimsOutcome(result.PreRepairPostCheck.Claims),
+            PreRepairFailures = result.PreRepairPostCheck is null
+                ? []
+                : CheckNames(result.PreRepairPostCheck.Failures),
             NSources = result.Sources.Count,
             NCitations = result.Citations.Count,
             CitedAuthorities = CitedLevels(result),

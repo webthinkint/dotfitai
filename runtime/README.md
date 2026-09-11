@@ -7,7 +7,8 @@
   deterministic alias expansion (§5 artifact) → hybrid search on the §9 index
   (`is_current` filter, semantic ranker off by default, authority re-rank) →
   grounded answer with `[n]` citations (chat model, streamed) →
-  deterministic post-check + optional claims-language audit. No tool calls:
+  deterministic post-check + optional claims-language audit → one bounded
+  repair pass when the *only* thing that failed was the audit. No tool calls:
   retrieval is single-shot by design in v1. A turn the guardrail reads as
   small talk skips all of that — see "The conversational branch" below.
   The audit sees the same numbered sources the answer agent did *and* the §5
@@ -107,7 +108,7 @@ keeps no transcript of its own but can be *given* one with `--history` (the
 `--semantic` (ranker on — open item 5; the re-rank then orders on the ranker's
 score, not the fused retrieval score), `--filter <odata>` (ANDed with
 `is_current eq true`), `--raw` (skip alias expansion), `--json`,
-`--no-stream`, `--no-claims-check`, `--gated`, `--trace`,
+`--no-stream`, `--no-claims-check`, `--no-repair`, `--gated`, `--trace`,
 `--history '[{"role":"user","text":"I am 14"}]'` (`ask`/`guardrail`; the
 `POST /ask` shape, oldest first, current question excluded — an unknown role is
 a usage error, not a dropped turn).
@@ -118,6 +119,22 @@ service uses (`Gated` — hold every delta until the post-check has run, and
 on failure deliver the templated handoff instead of the answer, never the
 answer text). See plan §11 "streaming vs. gating"; with `--trace`, a withheld
 draft is still printed for diagnosis.
+
+`--no-repair` turns off the stage 6b repair pass. The gate is whole-or-nothing
+by construction, and that was costing whole correct answers: "How much creatine
+should I take?" returned three bullets quoted verbatim from the approved copy
+plus one appended sentence carrying a NO7 Preworkout3 statement onto
+CreatineMonohydrate, and the customer got the support handoff. The audit was
+right; discarding the other three bullets was not. So a failure where **every**
+failing check is `claims_language` earns exactly one edit — excise or re-ground
+the wording the audit named, change nothing else — and is then judged again by
+the same checks. The bounds are the design: once, never a loop; claims only,
+because `citation_presence` and `escalation_respected` are failures of shape and
+a mixed failure is not repairable; the repaired draft goes back through the same
+audit rather than reporting on itself; and both verdicts survive on the result,
+so a repaired answer can never read as one that was clean the first time.
+`--no-repair` is the diagnostic posture — the only way to see what the audit
+rejected rather than what the repair made of it.
 
 `--json` on `ask`/`chat` is the **§12 eval-harness contract**, not a rendering
 option: stdout carries one JSON object per question (`AskJson`) and nothing
@@ -164,16 +181,29 @@ Every accepted request writes exactly one JSON line to **stdout** (open item
 out of the host's own console logging:
 
 ```json
-{"log":"dotfit.verdict","log_version":"1.0.0","request_id":"…","conversation_id":"…",
+{"log":"dotfit.verdict","log_version":"1.2.0","request_id":"…","conversation_id":"…",
  "outcome":"escalated","escalated":true,"reasons":["under_18"],"history_trigger":true,
  "post_check_passed":true,"claims":"not_run","n_sources":0,"n_citations":0,
  "cited_authorities":[],"duration_ms":1981,"stage_ms":{"guardrail":1980,"answer":0}}
 ```
 
-`outcome` is one of `answered` / `escalated` / `withheld` / `chitchat` (the
-conversational branch below) / `error` / `abandoned` (the client hung up), and
-`intent` carries the guardrail's reading of the turn (`question` /`smalltalk` /
-`out_of_scope`, filtered to that vocabulary like `reasons`). There is one line
+`outcome` is one of `answered` / `repaired` / `escalated` / `withheld` /
+`chitchat` (the conversational branch below) / `error` / `abandoned` (the client
+hung up), and `intent` carries the guardrail's reading of the turn (`question`
+/`smalltalk` / `out_of_scope`, filtered to that vocabulary like `reasons`).
+
+`repaired` is counted apart from `answered` for the same reason `chitchat` is,
+and with more at stake: folded in, those rows would read `claims: compliant` —
+the verdict of the *second* audit — and the flag the first one raised would be
+absent from the log entirely, which is open item 12's precision numerator
+quietly deleting itself. So "how many did we answer" is `answered + repaired`,
+and `claims_pre_repair` / `pre_repair_failures` carry the first verdict
+alongside. `withheld` outranks `repaired`: a repair that did not save the answer
+is a withheld request, and the `repaired` flag stays true on that row either
+way. A rising repair rate is the answer prompt regressing (open item 17) and has
+to be visible without anyone having thought to look for it.
+
+There is one line
 on **every** terminal path — the write is in a `finally`, because a run that logged nothing is
 indistinguishable from a run that never happened. A request rejected before the
 stream opens (`400`/`401`) logs nothing: it never reached a verdict.
@@ -207,7 +237,12 @@ an **opt-in companion record** exists (owner ruling 2026-09-11,
 `dotfit.transcript` line per request carrying exactly what `VerdictLog`
 structurally cannot — the raw question, the history as received, the draft
 answer *including a withheld one*, the delivered text, the retraction reason,
-the guardrail's free-prose `notes` and the **full** failure messages.
+the guardrail's free-prose `notes` and the **full** failure messages. On a
+request the stage 6b repair pass touched it also carries the draft that was
+replaced and the wording the audit cut (`pre_repair_*`): the verdict log can say
+a request was `repaired`, but only this one can say whether the pass excised a
+bad sentence or deleted a correct answer — in every other field those look
+identical.
 
 The posture is paid visibly, not eroded:
 

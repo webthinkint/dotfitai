@@ -84,6 +84,17 @@ public class CliArgsTests
         Assert.True(CliArgs.Parse(["ask", "--gated", "q"]).Flags.Gated);
     }
 
+    [Fact]
+    public void RepairIsOnByDefaultAndOptOut()
+    {
+        // The §11 stage 6b pass runs unless asked not to; --no-repair is the
+        // diagnostic posture, the only way to read what the audit rejected
+        // rather than what the repair made of it.
+        Assert.False(CliArgs.Parse(["ask", "q"]).Flags.NoRepair);
+        Assert.True(CliArgs.Parse(["ask", "--no-repair", "q"]).Flags.NoRepair);
+        Assert.Contains("--no-repair", CliArgs.Usage);
+    }
+
     // --- --history: the §12 multi-turn set's only way in (open item 19) ----------
 
     [Fact]

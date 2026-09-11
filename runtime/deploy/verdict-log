@@ -13,7 +13,8 @@ debugging view, this is the traffic view.
 `--transcripts` switches to the debug transcript log (`dotfit.transcript`, the
 opt-in DOTFIT_SERVICE_DEBUG_TRANSCRIPT record): one block per request with the
 question, the withheld draft, the retraction and the full failure messages —
-the retraction-debugging view. Transcripts hold the words themselves (owner
+the retraction-debugging view. A request the §11 stage 6b repair pass touched
+shows both drafts and the wording the audit cut. Transcripts hold the words themselves (owner
 ruling 2026-09-11, preview-only), so treat the output like customer data.
 
 Lines that are not verdicts/transcripts — boot banners, ASP.NET host logs — are
@@ -105,6 +106,17 @@ def verdict_line(entry, stages, utc):
         violations = entry.get("claims_violations", 0)
         detail.append(f"claims={claims}" + (f"({violations})" if violations else ""))
 
+    # §11 stage 6b. `outcome` already says `repaired` on the rows the pass
+    # saved, but not on the ones it failed to save — those read `withheld`,
+    # and without this they are indistinguishable from a draft that never got
+    # a second chance. `claims_pre_repair` is the flag the first audit raised.
+    if entry.get("repaired"):
+        pre = entry.get("claims_pre_repair", "not_run")
+        detail.append("repaired" + (f"(was {pre})" if pre != "not_run" else ""))
+        pre_failures = entry.get("pre_repair_failures") or []
+        if pre_failures:
+            detail.append("was-fail=[" + ",".join(pre_failures) + "]")
+
     # Multi-turn: what the verdict rests on is only visible with the id join.
     if entry.get("history_turns"):
         detail.append(f"hist={entry['history_turns']}")
@@ -187,8 +199,26 @@ def transcript_block(entry, utc):
     for violation in entry.get("claims_violations") or []:
         lines.append("  claims violation: " + violation)
 
+    # The draft stage 6b replaced, above the one it produced, because reading a
+    # repair means reading the diff: a pass that deleted a correct answer and
+    # one that excised a bad sentence differ in nothing else on this page.
+    if entry.get("pre_repair_answer_text"):
+        for failure in entry.get("pre_repair_failures") or []:
+            lines.append("  repaired-from fail: " + failure)
+        for violation in entry.get("pre_repair_claims_violations") or []:
+            lines.append("  repaired-from violation: " + violation)
+        for evidence in entry.get("pre_repair_claims_evidence") or []:
+            lines.append("  repaired-from evidence: " + evidence)
+        lines.append("draft before repair:")
+        lines.append("  " + entry["pre_repair_answer_text"].replace("\n", "\n  "))
+
     if entry.get("answer_text"):
-        label = "draft (withheld):" if entry.get("withheld") else "answer:"
+        if entry.get("withheld"):
+            label = "draft (withheld):"
+        elif entry.get("pre_repair_answer_text"):
+            label = "answer (repaired):"
+        else:
+            label = "answer:"
         lines.append(label)
         lines.append("  " + entry["answer_text"].replace("\n", "\n  "))
     if entry.get("delivered_text") and entry.get("withheld"):

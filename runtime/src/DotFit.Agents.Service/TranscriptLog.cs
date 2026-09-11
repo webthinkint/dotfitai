@@ -45,7 +45,8 @@ namespace DotFit.Agents.Service;
 public sealed record TranscriptLog
 {
     public const string SchemaName = "dotfit.transcript";
-    public const string SchemaVersion = "1.0.0";
+    /// <summary>1.1.0 added the §11 stage 6b pre-repair draft and its verdict.</summary>
+    public const string SchemaVersion = "1.1.0";
 
     public string Log { get; init; } = SchemaName;
     public string LogVersion { get; init; } = SchemaVersion;
@@ -64,6 +65,15 @@ public sealed record TranscriptLog
     public string? CanonicalQuestion { get; init; }
     /// <summary>The generated draft — including one that was withheld; that is the retraction.</summary>
     public string? AnswerText { get; init; }
+    /// <summary>
+    /// The draft as first written, when a §11 stage 6b repair pass replaced it.
+    /// This is the reason that log exists, one layer further in: the verdict log
+    /// can now say a request was <c>repaired</c>, but "repaired" is only
+    /// debuggable next to the sentence that was cut and the audit's reason for
+    /// cutting it — and a repair that quietly deletes a correct answer looks
+    /// identical, in every other field, to one that did its job.
+    /// </summary>
+    public string? PreRepairAnswerText { get; init; }
     /// <summary>What the caller actually received (the handoff, on a withheld answer).</summary>
     public string? DeliveredText { get; init; }
     public bool Withheld { get; init; }
@@ -93,6 +103,12 @@ public sealed record TranscriptLog
     public IReadOnlyList<string> Warnings { get; init; } = [];
     public IReadOnlyList<string> ClaimsViolations { get; init; } = [];
     public IReadOnlyList<string> ClaimsEvidence { get; init; } = [];
+
+    /// <summary>The full failure messages that earned the repair pass — empty when none ran.</summary>
+    public IReadOnlyList<string> PreRepairFailures { get; init; } = [];
+    /// <summary>The wording the audit rejected in the first draft — what stage 6b was asked to fix.</summary>
+    public IReadOnlyList<string> PreRepairClaimsViolations { get; init; } = [];
+    public IReadOnlyList<string> PreRepairClaimsEvidence { get; init; } = [];
 
     // --- the retrieval shape -----------------------------------------------------
 
@@ -166,6 +182,10 @@ public sealed record TranscriptLog
             Warnings = result.PostCheck.Warnings.ToList(),
             ClaimsViolations = result.PostCheck.Claims?.Violations.ToList() ?? [],
             ClaimsEvidence = result.PostCheck.Claims?.Evidence.ToList() ?? [],
+            PreRepairAnswerText = result.PreRepairAnswerText,
+            PreRepairFailures = result.PreRepairPostCheck?.Failures.ToList() ?? [],
+            PreRepairClaimsViolations = result.PreRepairPostCheck?.Claims?.Violations.ToList() ?? [],
+            PreRepairClaimsEvidence = result.PreRepairPostCheck?.Claims?.Evidence.ToList() ?? [],
             Sources = result.Sources.Select(s => new SourceLine(
                 s.Id, s.SourceType, s.Authority, s.Title, s.Locator)).ToList(),
             Citations = result.Citations.Select(c => new CitationLine(

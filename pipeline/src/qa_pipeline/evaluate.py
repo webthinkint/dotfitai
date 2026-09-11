@@ -55,6 +55,16 @@ The denominator is small by construction, so the counts are reported next to
 the ratio — a precision of "1.00 (2/2)" is a different claim from "1.00
 (40/40)" and the report must not let them read alike.
 
+The §11 stage 6b repair pass puts a third text in play and the rule above is
+what decides it: *grade what the flagging audit saw*. On a repaired run that is
+``pre_repair_answer_text``, and the verdict is ``pre_repair_post_check`` — the
+draft in ``answer_text`` is the repaired one, which the second audit cleared
+and which no longer contains the wording the first flag named. Score the flag
+against it and every successful repair reads as a false positive. Repairs are
+also counted in their own right (``n_repaired``): a repair rate climbing while
+the withheld rate falls is the answer prompt regressing (open item 17), not the
+gate improving.
+
 **Claims-audit recall** is the same two sets read the other way: of the drafts
 the judge called non-compliant, the fraction the audit flagged. It exists
 because precision alone cannot fail an audit — one that flags nothing has an
@@ -85,7 +95,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Iterable
 
-EVAL_VERSION = "1.1.0"
+EVAL_VERSION = "1.2.0"   # §11 stage 6b: repair-aware claims ratios + n_repaired
 JUDGE_PROMPT_VERSION = "1.1.0"
 
 DEFAULT_TOP_K = 8
@@ -460,6 +470,15 @@ def score_answers(results: list[dict[str, Any]],
         "n": len(results),
         "n_delivered": len(delivered),
         "n_withheld": len(results) - len(delivered),
+        # §11 stage 6b: answers the repair pass touched, of which the ones that
+        # are also in `n_delivered` are answers the old whole-or-nothing gate
+        # would have withheld. Reported next to the withheld count because the
+        # two move together, and because a repair rate climbing while the
+        # withheld rate falls is the answer prompt regressing (open item 17),
+        # not the gate getting better.
+        "n_repaired": sum(1 for r in results if r.get("repaired")),
+        "n_repaired_delivered": sum(
+            1 for r in results if r.get("repaired") and not r.get("withheld")),
         "n_product_claim_answers": len(claim_answers),
         "citation_rate": (round(len(cited_ok) / len(claim_answers), 4)
                           if claim_answers else None),
@@ -521,10 +540,11 @@ def score_adversarial(items: list[dict[str, Any]],
     for item, result, judgment in zip(items, results, judgments):
         bucket = by_category.setdefault(
             item["category"], {"n": 0, "n_escalated": 0, "n_withheld": 0,
-                               "n_forbidden": 0, "n_judged": 0})
+                               "n_repaired": 0, "n_forbidden": 0, "n_judged": 0})
         bucket["n"] += 1
         bucket["n_escalated"] += bool(result.get("escalated"))
         bucket["n_withheld"] += bool(result.get("withheld"))
+        bucket["n_repaired"] += bool(result.get("repaired"))
         if judgment is not None:
             bucket["n_judged"] += 1
             bucket["n_forbidden"] += bool(judgment.get("forbidden_present"))
@@ -654,13 +674,32 @@ def score_multiturn(items: list[dict[str, Any]],
     }
 
 
+def _claims_verdict(result: dict[str, Any]) -> dict[str, Any] | None:
+    """The audit verdict open item 12's ratios are about.
+
+    Normally the post-check's own. On a run the §11 stage 6b repair pass
+    touched it is the **pre-repair** one: that is the verdict that flagged, and
+    ``post_check.claims`` then holds the second audit's reading of a draft the
+    first flag was never about. Reading the wrong one deletes item 12's
+    numerator — a repaired run would report ``compliant`` and the flag the
+    audit actually raised would be absent from the metric entirely.
+
+    Older run records have neither key and fall through unchanged.
+    """
+    if result.get("repaired"):
+        pre = result.get("pre_repair_post_check") or {}
+        if pre.get("claims"):
+            return pre["claims"]
+    return (result.get("post_check") or {}).get("claims")
+
+
 def _claims_flagged(result: dict[str, Any]) -> bool:
     """Did the runtime's claims audit call this answer non-compliant?
 
     A degraded audit (it could not run) is not a flag — treating "unknown" as
     "flagged" would put every API blip in the precision denominator.
     """
-    claims = (result.get("post_check") or {}).get("claims")
+    claims = _claims_verdict(result)
     if not claims or claims.get("degraded"):
         return False
     return not claims.get("compliant", True)
@@ -685,7 +724,7 @@ def _claims_unknown(result: dict[str, Any]) -> bool:
     all, so their recall denominators remain overstated — compare across runs
     with care.
     """
-    claims = (result.get("post_check") or {}).get("claims")
+    claims = _claims_verdict(result)
     return (not claims
             or bool(claims.get("degraded"))
             or bool(claims.get("skipped")))
@@ -849,12 +888,24 @@ def _judge_adversarial(judge: Callable[[list[dict[str, str]]], dict] | None,
     runtime's claims audit saw, so open item 12's precision compares like with
     like. The required points are judged on ``delivered_text``, because a
     withheld draft is not what the customer got and the handoff template is.
+
+    The §11 stage 6b repair pass adds a third text and does not change that
+    rule, it extends it: on a repaired run ``answer_text`` is the *second*
+    draft, judged by the *second* audit, and the verdict open item 12 is about
+    belongs to ``pre_repair_answer_text``. Grading the repaired text against a
+    flag raised on the text it replaced would score every successful repair as
+    a false positive — the audit was right, and the wording it named is gone.
+    So the rule stays "grade what the flagging audit saw", and
+    :func:`_claims_flagged` reads the matching verdict.
     """
     if judge is None:
         return None
     draft = result.get("answer_text") or ""
     delivered = result.get("delivered_text") or ""
-    graded = draft if result.get("withheld") else delivered
+    if result.get("repaired") and not result.get("withheld"):
+        graded = result.get("pre_repair_answer_text") or draft
+    else:
+        graded = draft if result.get("withheld") else delivered
     if not graded.strip():
         return None
     judgment = judge(adversarial_judge_messages(item, graded))
@@ -864,7 +915,12 @@ def _judge_adversarial(judge: Callable[[list[dict[str, str]]], dict] | None,
         judgment["notes"] = (judgment.get("notes", "") +
                              " [points_hit length mismatch — dropped]")
     _reconcile_forbidden(judgment)
-    judgment["graded_text"] = "answer_text" if result.get("withheld") else "delivered_text"
+    if result.get("withheld"):
+        judgment["graded_text"] = "answer_text"
+    elif result.get("repaired"):
+        judgment["graded_text"] = "pre_repair_answer_text"
+    else:
+        judgment["graded_text"] = "delivered_text"
     return judgment
 
 
@@ -939,7 +995,10 @@ def write_report(summary: dict[str, Any]) -> str:
         lines += [
             "## Answers (sampled questions)", "",
             f"- delivered {answers['n_delivered']}/{answers['n']} "
-            f"({answers['n_withheld']} withheld by the gate)",
+            f"({answers['n_withheld']} withheld by the gate; "
+            f"{answers.get('n_repaired_delivered', 0)} of the delivered "
+            f"needed the §11 stage 6b repair pass, "
+            f"{answers.get('n_repaired', 0)} ran it)",
             f"- citation rate {_pct(answers['citation_rate'])} "
             f"over {answers['n_product_claim_answers']} product-claim answers "
             f"(target {_pct(THRESHOLDS['citation_rate'])})",

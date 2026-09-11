@@ -28,6 +28,14 @@ public enum AnswerStreamMode
 public sealed record AskOptions
 {
     public bool ClaimsCheck { get; init; } = true;
+    /// <summary>
+    /// Allow the one repair pass a claims-only post-check failure earns (§11
+    /// stage 6b). On by default because withholding a whole answer over one
+    /// flagged sentence is the behavior it replaces; off is the diagnostic
+    /// posture — <c>--no-repair</c> shows what the audit rejected before
+    /// anything edited it.
+    /// </summary>
+    public bool Repair { get; init; } = true;
     public int? Top { get; init; }
     public bool? Semantic { get; init; }
     public string? Filter { get; init; }
@@ -84,9 +92,24 @@ public sealed record AssistantResult
     public required string RenderedCitations { get; init; }
     public required PostCheckResult PostCheck { get; init; }
     public required IReadOnlyDictionary<string, double> StageSeconds { get; init; }
+    /// <summary>
+    /// The draft as first written, when a repair pass replaced it (§11 stage
+    /// 6b); <c>null</c> when none ran. <see cref="AnswerText"/> is always the
+    /// draft that was actually judged and delivered, so every existing reader
+    /// — the gate, §12 faithfulness, the citation projection — keeps grading
+    /// the text the customer got. This field is what makes the edit visible:
+    /// without it a repaired answer is indistinguishable from one that never
+    /// needed repairing, and open item 12's precision is computed from flags
+    /// that would have vanished.
+    /// </summary>
+    public string? PreRepairAnswerText { get; init; }
+    /// <summary>The verdict that triggered the repair — the audit's own violations and evidence.</summary>
+    public PostCheckResult? PreRepairPostCheck { get; init; }
     public bool Escalated => Guardrail.Escalate;
     /// <summary>True when the generated answer was suppressed before the caller saw it.</summary>
     public bool Withheld => DeliveredText != AnswerText;
+    /// <summary>A repair pass ran. It may still have been withheld afterwards.</summary>
+    public bool Repaired => PreRepairAnswerText is not null;
 }
 
 /// <summary>
@@ -317,7 +340,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
 
         bool gated = options.StreamMode == AnswerStreamMode.Gated;
         yield return new StageEvent("answer",
-            $"{(gated ? "generating (gated)" : "streaming")} from {sources.Count} source(s)");
+            $"looking up {sources.Count} source(s)");
 
         sw.Restart();
         var answerText = new System.Text.StringBuilder();
@@ -350,6 +373,75 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         yield return new StageEvent("post-check",
             postCheck.Passed ? "PASS" : $"FAIL ({string.Join("; ", postCheck.Failures)})");
 
+        // --- stage 6b: one repair pass on a claims-only failure --------------------
+        // The gate below is whole-or-nothing by construction, and that was
+        // costing whole correct answers: "How much creatine should I take?"
+        // returned three bullets quoted verbatim from the approved copy plus one
+        // appended sentence that carried a NO7 Preworkout3 statement onto
+        // CreatineMonohydrate, and the customer received the support handoff.
+        // The audit was right; discarding the other three bullets was not.
+        //
+        // So a claims-only failure earns exactly one bounded edit — excise or
+        // re-ground the wording the audit named, change nothing else — and is
+        // then judged again by the same checks, with no further chances. The
+        // bounds are the whole design, because the obvious failure mode is a
+        // model arguing its way past a correct verdict:
+        //
+        // - **Once.** There is no loop. A repaired draft that fails is withheld.
+        // - **Claims only.** `RepairableClaimsOnly` excludes the shape failures;
+        //   a mixed failure is not repairable, because a draft that also broke
+        //   the citation contract needs rewriting, not editing.
+        // - **The same audit, run again.** The repair is not trusted and does not
+        //   report on itself; its output goes back through `_claims` and
+        //   `PostChecker` exactly as the first draft did.
+        // - **Both verdicts survive.** `PreRepairPostCheck` keeps the flag the
+        //   audit raised, so a repaired answer can never read in the logs as one
+        //   that was clean the first time (open item 12's precision denominator).
+        string? preRepairAnswer = null;
+        PostCheckResult? preRepairCheck = null;
+        if (options.Repair && postCheck.RepairableClaimsOnly)
+        {
+            // Under Live the caller has already rendered the draft, so it must be
+            // told to drop it before the replacement arrives. Under Gated nothing
+            // has been emitted and a retraction here would announce a failure the
+            // customer never saw — and one that is about to be fixed.
+            if (!gated)
+                yield return new RetractionEvent(string.Join("; ", postCheck.Failures), options.StreamMode);
+
+            preRepairAnswer = answer;
+            preRepairCheck = postCheck;
+            yield return new StageEvent("repair",
+                $"re-grounding {postCheck.Claims!.Violations.Count} flagged passage(s)");
+
+            sw.Restart();
+            var repairedText = new System.Text.StringBuilder();
+            string repairMessage = Prompts.BuildRepairUserMessage(
+                question, sources, notes, answer, postCheck.Claims!.Violations);
+            await foreach (AgentResponseUpdate update in
+                           _answer.StreamAsync(repairMessage, ct).ConfigureAwait(false))
+            {
+                if (update.Text is { Length: > 0 } delta)
+                {
+                    repairedText.Append(delta);
+                    if (!gated)
+                        yield return new DeltaEvent(delta);
+                }
+            }
+            timings["repair"] = sw.Elapsed.TotalSeconds;
+            answer = repairedText.ToString();
+
+            sw.Restart();
+            ClaimsVerdict? repairedClaims = null;
+            if (options.ClaimsCheck && _claims is not null)
+                repairedClaims = await _claims
+                    .CheckAsync(question, answer, sources, expansion.Notes, ct).ConfigureAwait(false);
+            postCheck = PostChecker.Check(verdict, rewrite, expansion, sources, answer, repairedClaims);
+            timings["post-check-repair"] = sw.Elapsed.TotalSeconds;
+            yield return new StageEvent("post-check", postCheck.Passed
+                ? "PASS (repaired)"
+                : $"FAIL after repair ({string.Join("; ", postCheck.Failures)})");
+        }
+
         // --- stage 7: release or withhold -----------------------------------------
         // The checks that matter are terminal by construction — citation markers
         // are only known at the last delta, and the claims audit is the only check
@@ -357,6 +449,10 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         // no partial gate to run: the answer is either released whole or withheld
         // whole. A gated failure delivers the handoff message and never the text;
         // a live failure can only retract what the caller already rendered.
+        //
+        // Stage 6b does not soften that. It does not release part of a failing
+        // answer — it produces a different answer and sends it through this same
+        // gate. What arrives here is one draft with one verdict, as before.
         string delivered = answer;
         if (!postCheck.Passed)
         {
@@ -385,6 +481,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             Citations = citations,
             RenderedCitations = CitationFormatter.RenderBlock(citations),
             PostCheck = postCheck,
+            PreRepairAnswerText = preRepairAnswer,
+            PreRepairPostCheck = preRepairCheck,
             StageSeconds = timings,
         });
     }

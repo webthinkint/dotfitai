@@ -81,11 +81,15 @@ public class VerdictLogTests
         IReadOnlyList<RetrievedDocument>? sources = null,
         string answer = $"Grounded answer [1] about {AnswerMarker}.",
         bool withheld = false,
-        AliasExpansion? expansion = null)
+        AliasExpansion? expansion = null,
+        string? preRepairAnswer = null,
+        PostCheckResult? preRepairPostCheck = null)
     {
         sources ??= [TestDocs.Product()];
         return new AssistantResult
         {
+            PreRepairAnswerText = preRepairAnswer,
+            PreRepairPostCheck = preRepairPostCheck,
             Question = $"a question about {QuestionMarker}?",
             Guardrail = guardrail ?? new GuardrailVerdict(),
             Rewrite = new RewriteResult { CanonicalQuestion = $"canonical {QuestionMarker}" },
@@ -498,6 +502,66 @@ public class VerdictLogTests
         // Absent rather than null: nothing was set, so nothing is claimed.
         Assert.False(parsed.TryGetProperty("conversation_id", out _));
         Assert.False(parsed.TryGetProperty("error_kind", out _));
+    }
+
+    // --- the §11 stage 6b repair pass ------------------------------------------
+
+    /// <summary>A pre-repair verdict: the audit flagged wording, nothing else failed.</summary>
+    private static PostCheckResult Flagged() => new(
+        false, ["claims_language: loading is optional"], [],
+        new ClaimsVerdict { Compliant = false, Violations = ["loading is optional"] });
+
+    [Fact]
+    public async Task ARepairedAnswerIsCountedApartAndKeepsTheFlagTheAuditRaised()
+    {
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result(
+            postCheck: PostCheckResult.Pass([], new ClaimsVerdict { Compliant = true }),
+            preRepairAnswer: $"draft about {AnswerMarker}", preRepairPostCheck: Flagged()))));
+
+        VerdictLog entry = sink.Single();
+        // Not folded into `answered`: "how many did we answer" is now two words,
+        // and that is what makes a rising repair rate visible (open item 17).
+        Assert.Equal(VerdictLog.OutcomeRepaired, entry.Outcome);
+        Assert.True(entry.Repaired);
+
+        // `claims` is the verdict on what we delivered; the flag the first audit
+        // raised would otherwise have vanished from the log (open item 12).
+        Assert.Equal(VerdictLog.ClaimsCompliant, entry.Claims);
+        Assert.Equal(VerdictLog.ClaimsViolation, entry.ClaimsPreRepair);
+        Assert.Equal(["claims_language"], entry.PreRepairFailures);
+
+        // And still no text — the pre-repair draft is as unloggable as any other.
+        string json = sink.Json();
+        Assert.DoesNotContain(AnswerMarker, json);
+        Assert.DoesNotContain("loading is optional", json);
+    }
+
+    [Fact]
+    public async Task ARepairThatDidNotSaveTheAnswerStillReadsAsWithheld()
+    {
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result(
+            postCheck: Flagged(), withheld: true,
+            preRepairAnswer: "the first draft", preRepairPostCheck: Flagged()))));
+
+        VerdictLog entry = sink.Single();
+        // `withheld` outranks `repaired`: a repair that failed is a request the
+        // customer did not get an answer to, and reading it as `repaired` would
+        // turn the failure into a success in the column the owner groups by.
+        Assert.Equal(VerdictLog.OutcomeWithheld, entry.Outcome);
+        Assert.True(entry.Repaired);   // the row is still readable as both
+        Assert.Equal(VerdictLog.ClaimsViolation, entry.ClaimsPreRepair);
+    }
+
+    [Fact]
+    public async Task AnUnrepairedRequestSaysSoRatherThanLeavingTheFieldsAmbiguous()
+    {
+        RecordingSink sink = await Run(new FakeAssistant(new ResultEvent(Result())));
+
+        VerdictLog entry = sink.Single();
+        Assert.Equal(VerdictLog.OutcomeAnswered, entry.Outcome);
+        Assert.False(entry.Repaired);
+        Assert.Equal(VerdictLog.ClaimsNotRun, entry.ClaimsPreRepair);
+        Assert.Empty(entry.PreRepairFailures);
     }
 
     [Fact]

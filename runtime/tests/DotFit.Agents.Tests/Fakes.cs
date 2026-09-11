@@ -44,11 +44,22 @@ internal sealed class FakeAnswerAgent : IAnswerAgent
     public List<string> UserMessages { get; } = [];
     public string Reply { get; set; } = "";
 
+    /// <summary>
+    /// Replies to hand out in order, one per call, falling back to
+    /// <see cref="Reply"/> once drained. The §11 stage 6b repair pass is the
+    /// reason this exists: it calls the same agent a second time, and a fake
+    /// that answers identically both times cannot tell a repair that changed
+    /// the draft from one that did nothing.
+    /// </summary>
+    public Queue<string> Replies { get; } = new();
+
     public async IAsyncEnumerable<AgentResponseUpdate> StreamAsync(
         string userMessage,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
     {
         UserMessages.Add(userMessage);
+        if (Replies.Count > 0)
+            Reply = Replies.Dequeue();
         await Task.Yield();
         foreach (string chunkText in new[] { Reply[..Math.Min(10, Reply.Length)], Reply[Math.Min(10, Reply.Length)..] })
         {

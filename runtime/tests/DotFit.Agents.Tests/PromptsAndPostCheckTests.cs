@@ -131,6 +131,75 @@ public class PromptsTests
     }
 
     [Fact]
+    public void BothPromptsForbidCarryingOneProductsSourceOntoAnother()
+    {
+        // The defect: "How much creatine should I take?" drew the approved
+        // CreatineMonohydrate copy *and* a PDSRG chunk about NO7 Preworkout3
+        // whose body discusses creatine generally. One draft in four took the
+        // general statement out of that chunk and appended it as a direction
+        // for CreatineMonohydrate — "loading is optional" — and the audit
+        // correctly retracted the whole answer over it.
+        //
+        // The rule now lives in both prompts, which is the point: the audit had
+        // been enforcing on the draft a rule the answer agent was never given.
+        Assert.Contains("A source is about its own subject", Prompts.AnswerInstructions);
+        Assert.Contains("never carry its dosing, timing or", Prompts.AnswerInstructions);
+        Assert.Contains("even when both contain the same", Prompts.AnswerInstructions);
+
+        Assert.Contains("A source is about its", Prompts.ClaimsInstructions);
+        Assert.Contains("states its dosing, timing or usage", Prompts.ClaimsInstructions);
+        // And the escape hatch, in both: attributed to the right product it is fine.
+        Assert.Contains("give it as that source's", Prompts.AnswerInstructions);
+        Assert.Contains("the same sentence is fine", Prompts.ClaimsInstructions);
+    }
+
+    [Fact]
+    public void TheClaimsAuditDoesNotTreatSiteProcedureAsAProductClaim()
+    {
+        // "Can you help me make a program?" retrieved eight Q&A sources, no
+        // approved copy among them, and came back retracted on five sentences
+        // — four of which were navigation ("log in using the icon in the
+        // upper-right corner"). The approved-copy rule is about supplements;
+        // there is no approved claims corpus for a sign-up flow, and applying
+        // one to a UI flow withholds every how-do-I answer the corpus has.
+        Assert.Contains("service and site procedure", Prompts.ClaimsInstructions);
+        Assert.Contains("signing up, logging in", Prompts.ClaimsInstructions);
+        Assert.Contains("included, is enough", Prompts.ClaimsInstructions);
+
+        // Bounded: the carve-out stops at supplements and at outcome claims, so
+        // it cannot be read as "anything about the program is fine".
+        Assert.Contains("The carve-out stops where supplements start", Prompts.ClaimsInstructions);
+        Assert.Contains("health or performance outcome attributed to the program",
+            Prompts.ClaimsInstructions);
+
+        // And the no-QUOTABLE-source paragraph (open item 24) must not undo it:
+        // a context-only set is the ordinary case for these questions.
+        Assert.Contains("Flag the sentences that are product claims", Prompts.ClaimsInstructions);
+    }
+
+    [Fact]
+    public void TheRepairMessageCarriesTheDraftTheFlaggedWordingAndTheSameGrounding()
+    {
+        var sources = new[] { TestDocs.Product(), TestDocs.Qa() };
+        string grounding = Prompts.BuildAnswerUserMessage("how much?", sources, ["note one"]);
+        string repair = Prompts.BuildRepairUserMessage(
+            "how much?", sources, ["note one"], "Draft [1]. Bad bit [2].", ["Bad bit"]);
+
+        // Delegated, not rebuilt: the repair turn sees exactly the sources the
+        // draft was written from, numbered identically, or its [n] markers mean
+        // something different from the ones it is editing.
+        Assert.StartsWith(grounding, repair, StringComparison.Ordinal);
+        Assert.Contains("Draft [1]. Bad bit [2].", repair);
+        Assert.Contains("- Bad bit", repair);
+
+        // Narrow by construction — a free rewrite re-opens every sentence the
+        // audit already cleared.
+        Assert.Contains("Change nothing else", repair);
+        Assert.Contains("leaves the answer thin", repair);
+        Assert.Contains("rewritten answer only", repair);
+    }
+
+    [Fact]
     public void ClaimsUserMessageNumbersEverySourceAsTheAnswerAgentSawThem()
     {
         // Regression, open items 17/12: the checker used to be handed the

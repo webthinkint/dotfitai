@@ -191,7 +191,10 @@ public class KnowledgeAssistantTests
             rewriteReply: """{"canonical_question":"q","product_mentions":["Test Family"],"topics":[],"confidence":1}""",
             search: new FakeKnowledgeSearch { Results = [TestDocs.Product()] }, answer: answer, claims: claims);
 
-        AssistantResult result = await assistant.AskAsync("what does Test Family do?");
+        // Repair off: the subject here is the verdict becoming a failure, not
+        // what §11 stage 6b then does about it (RepairPassTests owns that).
+        AssistantResult result = await assistant.AskAsync(
+            "what does Test Family do?", new AskOptions { Repair = false });
         Assert.False(result.PostCheck.Passed);
         Assert.Contains(result.PostCheck.Failures, f => f.Contains("cures diabetes"));
     }
@@ -316,7 +319,11 @@ public class KnowledgeAssistantTests
         RetractionEvent? retraction = null;
         AssistantResult? result = null;
         await foreach (var e in assistant.AskStreamAsync("what does Test Family do?",
-            new AskOptions { StreamMode = AnswerStreamMode.Gated }))
+            // Repair off: this test is about what the gate does with a failure it
+            // is handed, and with the §11 stage 6b pass on the failure would be
+            // edited before it ever reached the gate. RepairPassTests covers the
+            // draft that fails its repair and lands here anyway.
+            new AskOptions { StreamMode = AnswerStreamMode.Gated, Repair = false }))
         {
             switch (e)
             {
@@ -352,7 +359,8 @@ public class KnowledgeAssistantTests
         var deltas = new System.Text.StringBuilder();
         RetractionEvent? retraction = null;
         AssistantResult? result = null;
-        await foreach (var e in assistant.AskStreamAsync("what does Test Family do?"))  // Live is the default
+        await foreach (var e in assistant.AskStreamAsync(   // Live is the default
+            "what does Test Family do?", new AskOptions { Repair = false }))
         {
             switch (e)
             {

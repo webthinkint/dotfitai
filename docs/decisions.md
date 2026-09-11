@@ -608,3 +608,62 @@ the test.
   its own artifact, its own denominator. Both fixes here are **prompt-side**, so
   their effect is a live reading and not a test — item 17's withheld 39/125 and
   faithfulness 0.60 are unre-measured until a full sweep runs.
+- **A claims-only failure earns one bounded repair pass** (2026-09-11, open
+  items 12/17). "How much creatine should I take?" came back **retracted** about
+  one run in four. The draft was three bullets quoted verbatim from the approved
+  CreatineMonohydrate copy plus one appended sentence — "loading is optional" —
+  carrying a statement out of the NO7 Preworkout3 PDSRG chunk, whose body
+  discusses creatine generally, onto a different product. The audit was **right**
+  and its evidence line said so precisely. What was wrong was the price: the gate
+  is whole-or-nothing, so three correct bullets were discarded and the customer
+  got the support handoff. **A correct verdict on one sentence should not cost
+  the other four.** So `PostCheckResult.RepairableClaimsOnly` now earns exactly
+  one edit — excise or re-ground the wording the audit named, change nothing else
+  — judged again by the same checks. Five bounds keep it from becoming an appeal,
+  and they are the ruling: (1) **once**, no loop, a repaired draft that fails is
+  withheld; (2) **claims only** — `citation_presence` and `escalation_respected`
+  are failures of *shape*, meaning the draft answered the wrong contract, and
+  asking a model to edit its way out of an escalation is asking it to argue with
+  the guardrail; a mixed failure is therefore not repairable (`All`, not `Any`);
+  (3) the repair is **grounded identically**, delegating to
+  `BuildAnswerUserMessage`, or its `[n]` markers would mean something other than
+  the ones it is editing; (4) the repaired draft is **audited again** and does not
+  report on itself; (5) **both verdicts survive** — `PreRepairAnswerText` and
+  `PreRepairPostCheck` on the result, `repaired` as its own verdict-log outcome
+  counted apart from `answered`, and the pre-repair draft in the debug
+  transcript. That last one is not bookkeeping: folded into `answered` these rows
+  read `claims: compliant` — the *second* audit's verdict — and item 12's
+  precision numerator deletes itself. `withheld` outranks `repaired` on the
+  outcome column, because a repair that did not save the answer is a withheld
+  request. Live retracts the draft it already showed before streaming the
+  replacement; Gated emits no retraction, having shown nothing. Measured live:
+  4/4 delivered where 3/4 had been, 2 of them by the pass, each cutting exactly
+  the flagged sentence.
+- **A source is about its own subject, in both prompts** (2026-09-11, open item
+  17). The same retraction exposed a divergence: the audit was enforcing on the
+  draft a rule the answer agent had never been given. Nothing in
+  `AnswerInstructions` said that a source about one product grounds claims about
+  *that* product only — so a draft could read general-sounding science out of
+  another product's chunk and state it as a direction, which is the one thing the
+  audit was sure to catch. The rule is now in both prompts, with the same escape
+  hatch in both: attributed to the product the source is actually about, the
+  sentence is fine. It is also now a **named violation** in the audit rather than
+  an inference it had to reach on its own, which is what its evidence line shows
+  it was doing. Prompt-side, so the effect is a live reading, not a test.
+- **Site and program procedure is not a product claim** (2026-09-11, open items
+  12/17). "Can you help me make a program?" was retracted on **five** sentences,
+  four of which were navigation — "log in using the icon in the upper-right
+  corner", "customize and save menus", "update your measurements weekly". All
+  eight retrieved sources were authority-3 Q&A, because no authority-1 infopage
+  covers how to build a program, so the item 24 rule ("a set with no QUOTABLE
+  source is one where *every* product claim is unsupported") applied to the whole
+  answer. The rule is right and stays; what was wrong is that a UI flow was being
+  read as a product claim at all. **The approved-copy rule is about supplements**
+  — what one does, contains, or how to take it — and there is no approved claims
+  corpus for a sign-up flow, so service and site procedure is judged as ordinary
+  information: grounded in a cited source, a CONTEXT ONLY one included, is
+  enough. Bounded in the same clause: it stops at supplements, and at any health
+  or performance outcome attributed to the program. The item 24 paragraph now
+  also says what a context-only set does *not* mean — flag the sentences that are
+  product claims, not the ones that merely came from a CONTEXT ONLY source. Live:
+  3/3 delivered where 0/3 had been.

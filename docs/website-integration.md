@@ -78,7 +78,7 @@ Event names are the contract. Key on them; do not parse the prose.
 | Event | Payload | Notes |
 |---|---|---|
 | `disclosure` | `{text}` | AI-identity notice. Emitted **once**, only when the request had no `conversation_id`. Render it before any answer text. |
-| `stage` | `{stage, detail}` | Pipeline progress. `stage` is one of `guardrail`, `rewrite`, `aliases`, `search`, `answer`, `post-check`. Not every turn emits all six — a greeting emits `guardrail`, `answer`, `post-check` and nothing between. Render what arrives; do not wait for a fixed set. |
+| `stage` | `{stage, detail}` | Pipeline progress. `stage` is one of `guardrail`, `rewrite`, `aliases`, `search`, `answer`, `repair`, `post-check`. Not every turn emits all of them, and `post-check` may arrive **twice** — a greeting emits `guardrail`, `answer`, `post-check` and nothing between, while a turn that needed a repair emits `post-check`, `repair`, `post-check`. Render what arrives; do not wait for a fixed set, and do not assume a stage name appears at most once. |
 | `delta` | `{text}` | A fragment of answer text. Concatenate in arrival order. |
 | `retraction` | `{reason, mode}` | The post-check failed. See Gating. |
 | `result` | see below | Final, assembled. **Always last.** |
@@ -95,6 +95,7 @@ That is the whole reason gating is affordable — see below.
   "question": "...",
   "escalated": false,
   "withheld": false,
+  "repaired": false,
   "answer": "the delivered text, whole",
   "citations": [{"index": 1, "source_id": "product-...", "title": "..."}],
   "rendered_citations": "a formatted citation block",
@@ -111,6 +112,15 @@ authoritative record rather than your own concatenation.
 it on the turn.** It is the only key that joins your record of what was said to
 our record of what was decided — see Our verdict log.
 
+`repaired` says the compliance audit rejected some wording in the first draft
+and the assistant rewrote that wording before the answer was released. It is a
+fact about how the turn was produced, not about its quality: a repaired answer
+passed exactly the same checks as any other, and `answer` is the released text
+either way. **Nothing in your UI should change because of it** — do not badge
+it, do not warn the customer. Store it, because a repair rate is something we
+watch, and it is the one signal you have that the pipeline worked harder on a
+turn than usual.
+
 Note what is deliberately **not** on the wire: retrieved source `content`, the
 post-check's failure reasons, and, when an answer is withheld, the draft that
 was withheld. Those are operator diagnostics. `post_check.n_failures` tells you
@@ -126,6 +136,15 @@ In `Gated` mode, **no `delta` is emitted until the post-check has passed.** When
 it passes, the answer arrives in one burst. When it fails, you get a
 `retraction` and then `delta`s carrying a handoff message — the customer never
 saw a word of the draft, so nothing has to be un-rendered.
+
+One failure gets a second chance before that: when the *only* thing that failed
+was the compliance audit, the assistant rewrites the wording the audit named and
+the result is judged again by the same checks. You see a `repair` stage event
+and a second `post-check` one; the answer is released only if that second
+judgment passes, and withheld exactly as above if it does not. There is no
+`retraction` for the repaired draft under `Gated`, because you were never shown
+it. This is bounded to one attempt — there is no loop, and no path where a
+draft is released without passing the checks.
 
 This is a deliberate §11 ruling: streaming live means a claims-compliance
 failure cannot retract text a customer has already read. It costs perceived

@@ -29,6 +29,13 @@ public static class Prompts
           source, do not state it as a product claim: attribute it plainly as expert or
           community context. Never attach a QUOTABLE source's
           number to wording that source does not contain.
+        - A source is about its own subject. A source about one product grounds
+          statements about THAT product only — never carry its dosing, timing or
+          usage directions onto a different product, even when both contain the same
+          ingredient and even when the wording reads as general nutrition science.
+          If such a fact is worth giving, give it as that source's, naming its
+          subject ("for NO7 Preworkout3, the practitioner guide notes ..."), and
+          never as a direction for the product being asked about.
         - Never cite a source that was not provided, and never cite from memory.
 
         Hard escalation — refuse and hand off
@@ -238,11 +245,28 @@ public static class Prompts
           source and presented as approved product copy; or
         - presents a discontinued product and the different formula that replaced
           it as one and the same product, or carries either one's claims onto the
-          other. A replacement is not a rename.
+          other. A replacement is not a rename; or
+        - takes a source about one product and states its dosing, timing or usage
+          directions as directions for a different product. A source is about its
+          own subject: a statement about creatine inside the NO7 Preworkout3
+          chunk is support for NO7 Preworkout3, not for the CreatineMonohydrate
+          product, however general the science in it reads. Attributed to the
+          product the source is actually about, the same sentence is fine.
 
         These are compliant. Do not report them:
         - general nutrition information that is not a claim about a dotFIT product
           (foods, nutrients, training, timing), whatever source it came from
+        - service and site procedure: how to use dotFIT's website, program, tools
+          or account — signing up, logging in, where something sits on the page,
+          building or saving a program or menu, what to enter, what the program
+          produces from what you enter. The approved-copy rule you are applying is
+          about supplements — what one does, contains, or how to take it — and
+          there is no approved claims corpus for a sign-up flow, so these are
+          ordinary information: grounded in a cited source, a CONTEXT ONLY one
+          included, is enough. The carve-out stops where supplements start — a
+          health or performance outcome attributed to the program, or a claim
+          about a supplement reached through it, is a product claim and stays
+          bound to a QUOTABLE source
         - a statement grounded in a CONTEXT ONLY source, cited to it, and framed as
           expert or community context rather than as approved product copy
         - quoting or closely paraphrasing a QUOTABLE source the answer cites
@@ -257,9 +281,13 @@ public static class Prompts
 
         A source list may contain no QUOTABLE source at all. That is not a reason
         to pass the answer: judge it the same way. General nutrition information
-        is still fine, and context cited as context is still fine, but there is no
-        approved wording available, so any product claim presented as dotFIT's own
-        is unsupported.
+        is still fine, context cited as context is still fine, and service and
+        site procedure is still fine, but there is no approved wording available,
+        so any product claim presented as dotFIT's own is unsupported. Nor is it a
+        reason to flag the whole answer: a set of Q&A sources answering a "how do
+        I ..." question about the site or the program is the ordinary case, not a
+        suspicious one. Flag the sentences that are product claims, not the ones
+        that merely came from a CONTEXT ONLY source.
 
         violations: short quotes of the offending phrasing from the answer.
         evidence: one entry per violation, in the same order, each starting with the
@@ -436,6 +464,54 @@ public static class Prompts
             sb.Append("    ").Append(doc.Content.ReplaceLineEndings(" ")).Append("\n\n");
         }
         return sb.ToString().TrimEnd() + "\n";
+    }
+
+    /// <summary>
+    /// The user message for the one repair pass a claims-only failure earns
+    /// (§11 stage 6b). Until 2026-09-11 a single flagged sentence discarded the
+    /// whole draft: "How much creatine should I take?" returned three bullets
+    /// quoted verbatim from the approved copy plus one appended sentence that
+    /// carried a NO7 Preworkout3 statement onto CreatineMonohydrate, and the
+    /// customer got the support handoff instead of the three correct bullets.
+    ///
+    /// The grounding is <see cref="BuildAnswerUserMessage"/>'s, delegated rather
+    /// than rebuilt, and that is the contract: the repair turn must see exactly
+    /// the sources the draft was written from, numbered identically, or its [n]
+    /// markers mean something different from the ones it is editing. The draft
+    /// and the audit's own violation quotes are appended to that.
+    ///
+    /// The instruction is deliberately narrow — excise or re-ground the flagged
+    /// wording and leave everything else alone. A repair pass that is allowed to
+    /// rewrite freely is a second draft, and a second draft re-opens every
+    /// sentence the audit already cleared. The audit then runs again on the
+    /// result: this is one bounded edit under the same gate, never an appeal.
+    /// </summary>
+    public static string BuildRepairUserMessage(
+        string question, IReadOnlyList<Retrieval.RetrievedDocument> sources,
+        IReadOnlyList<string> notes, string draft, IReadOnlyList<string> violations)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append(BuildAnswerUserMessage(question, sources, notes));
+        sb.Append("\nYou drafted this answer to that question:\n\n").Append(draft).Append('\n');
+        sb.Append("\nA compliance check rejected this wording in it:\n");
+        foreach (string violation in violations)
+            sb.Append("- ").Append(violation.ReplaceLineEndings(" ")).Append('\n');
+        sb.Append("""
+
+            Rewrite the draft with exactly that wording fixed:
+            - Drop each rejected passage, or restate it so a source you cite does
+              support it — attributed to the product that source is actually about.
+            - Change nothing else. Every other sentence, its wording and its [n]
+              markers stay as they are.
+            - If removing a passage leaves the answer thin, that is the right
+              outcome. Do not replace it with something else you were not asked for.
+            - If nothing supportable is left to say, say plainly that you don't have
+              sourced information on it and suggest contacting dotFIT support.
+            Reply with the rewritten answer only — no preamble, no note about what
+            you changed.
+
+            """);
+        return sb.ToString();
     }
 
     /// <summary>

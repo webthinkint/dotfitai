@@ -136,4 +136,19 @@ public class AskJsonTests
         Assert.True(json.GetProperty("escalated").GetBoolean());
         Assert.False(string.IsNullOrWhiteSpace(json.GetProperty("delivered_text").GetString()));
     }
+
+    [Fact]
+    public async Task TheRepairFieldsAreAdditiveAndSayWhenNoRepairRan()
+    {
+        // §11 stage 6b. `answer_text` stays the draft that was judged and
+        // delivered, so every metric the harness already computes goes on
+        // scoring the text the customer got; these three are how a repaired run
+        // becomes visible to one that looks. Present and false/null rather than
+        // absent — the contract is asserted by name (open item 12 reads them).
+        JsonElement json = await AskJsonFor();
+
+        Assert.False(json.GetProperty("repaired").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, json.GetProperty("pre_repair_answer_text").ValueKind);
+        Assert.Equal(JsonValueKind.Null, json.GetProperty("pre_repair_post_check").ValueKind);
+    }
 }

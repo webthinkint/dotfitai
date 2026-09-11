@@ -44,6 +44,14 @@ public static class AskJson
         StreamMode = mode.ToString(),
         Escalated = r.Escalated,
         Withheld = r.Withheld,
+        // §11 stage 6b. `answer_text` stays the draft that was judged and
+        // delivered, so every metric the harness already computes keeps scoring
+        // the text the customer got; these two say a first draft existed and
+        // what the audit said about it. A harness that ignores them reads a
+        // repaired run exactly as it always did.
+        Repaired = r.Repaired,
+        PreRepairAnswerText = r.PreRepairAnswerText,
+        PreRepairPostCheck = r.PreRepairPostCheck is null ? null : Project(r.PreRepairPostCheck),
         Guardrail = Project(r.Guardrail),
         Rewrite = Project(r.Rewrite),
         Expansion = Project(r.Expansion),

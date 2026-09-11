@@ -40,6 +40,27 @@ public sealed record PostCheckResult(
 {
     public static PostCheckResult Pass(IReadOnlyList<string> warnings, ClaimsVerdict? claims) =>
         new(true, [], warnings, claims);
+
+    /// <summary>
+    /// This failure is one bounded repair pass away from a decision (§11 stage
+    /// 6b) — every failing check is the claims audit, and the audit named the
+    /// wording it rejected, so there is something specific to excise.
+    ///
+    /// The other checks are deliberately excluded, and not because a model
+    /// could not edit its way out of them: they are failures of *shape*, and a
+    /// shape failure means the draft answered the wrong contract.
+    /// <c>escalation_respected</c> is a refusal that must stay a refusal —
+    /// asking the model to fix it is asking it to argue with the guardrail.
+    /// <c>citation_presence</c> and <c>product_claim_citation</c> say the draft
+    /// ignored the citation contract wholesale, which is a different draft, not
+    /// an edit. So a mixed failure is not repairable either: this is
+    /// <c>All</c>, not <c>Any</c>.
+    /// </summary>
+    public bool RepairableClaimsOnly =>
+        !Passed
+        && Claims is { Compliant: false, Violations.Count: > 0 }
+        && Failures.Count > 0
+        && Failures.All(f => f.StartsWith(PostChecker.ClaimsCheck + ":", StringComparison.Ordinal));
 };
 
 /// <summary>
@@ -57,6 +78,14 @@ public sealed record PostCheckResult(
 /// </summary>
 public static class PostChecker
 {
+    /// <summary>
+    /// The claims audit's check name. Named here because
+    /// <see cref="PostCheckResult.RepairableClaimsOnly"/> matches failure
+    /// messages on it — a renamed check that only changed the string below
+    /// would silently stop qualifying for the repair pass.
+    /// </summary>
+    public const string ClaimsCheck = "claims_language";
+
     private static readonly string[] HandoffPhrases =
         ["support team", "healthcare professional", "health care professional"];
 
@@ -138,9 +167,9 @@ public static class PostChecker
         }
 
         if (claims is { Compliant: false })
-            failures.Add($"claims_language: {string.Join("; ", claims.Violations)}");
+            failures.Add($"{ClaimsCheck}: {string.Join("; ", claims.Violations)}");
         if (claims is { Degraded: true })
-            warnings.Add("claims_language: check unavailable — skipped");
+            warnings.Add($"{ClaimsCheck}: check unavailable — skipped");
 
         return failures.Count == 0
             ? PostCheckResult.Pass(warnings, claims)

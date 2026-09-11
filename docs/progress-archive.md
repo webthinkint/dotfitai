@@ -5,6 +5,15 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-11 (63)** — Per-request verdict logging, item 20 **closed** (§11).
+  One `dotfit.verdict` line to stdout per accepted request: outcome
+  (answered/escalated/withheld/error/abandoned), reason codes,
+  `history_trigger`, post-check + failed check *names*, claims outcome,
+  source/citation counts, timings — and **no question or answer text**, enforced
+  rather than promised. Written from a `finally`, so an abandoned run logs too;
+  a 400/401 does not. `request_id` on `result`/`error` is the caller's join key.
+  Smoked live. 28 tests (**455 py / 190 runtime**).
+
 - **2026-09-10 (62)** — Preview VM deployment recorded (§11, item 21): the
   SSE service runs as a **systemd user service** (linger on, survives logout)
   on the test VM — no front proxy, bound `0.0.0.0:5199` on the internal

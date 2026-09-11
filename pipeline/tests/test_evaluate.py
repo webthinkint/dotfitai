@@ -15,6 +15,7 @@ from qa_pipeline.evaluate import (
     AgentCli,
     AgentError,
     _claims_flagged,
+    _judge_adversarial,
     adversarial_judge_messages,
     answer_judge_messages,
     cited_authorities,
@@ -38,10 +39,20 @@ def _source(doc_id, authority=1, content="Approved copy about the product."):
 
 
 def _ask_result(question="q?", answer="Answer text [1].", *, withheld=False,
-                escalated=False, sources=None, citations=None, claims=None):
+                escalated=False, sources=None, citations=None, claims=None,
+                pre_repair_answer=None, pre_repair_claims=None):
     sources = sources if sources is not None else [_source("product-x")]
     delivered = "We can put you in touch with support." if withheld else answer
     return {
+        # §11 stage 6b. Absent on an un-repaired run, as the runtime emits it.
+        "repaired": pre_repair_answer is not None,
+        "pre_repair_answer_text": pre_repair_answer,
+        "pre_repair_post_check": None if pre_repair_answer is None else {
+            "passed": False,
+            "failures": ["claims_language: flagged wording"],
+            "warnings": [],
+            "claims": pre_repair_claims,
+        },
         "question": question,
         "stream_mode": "Gated",
         "escalated": escalated,
@@ -271,6 +282,71 @@ class TestAdversarialScoring:
                     "degraded": True}
         assert _claims_flagged(_ask_result(claims=degraded)) is False
         assert _claims_flagged(_ask_result(claims=None)) is False
+
+    def test_a_repaired_run_keeps_the_flag_the_first_audit_raised(self):
+        # §11 stage 6b: `post_check.claims` is the *second* audit's reading of
+        # a draft the first flag was never about. Reading it would delete open
+        # item 12's numerator — every repair would report `compliant` and the
+        # flag would vanish from the metric.
+        repaired = _ask_result(
+            answer="Repaired answer [1].",
+            claims={"compliant": True, "violations": [], "evidence": [],
+                    "degraded": False},
+            pre_repair_answer="Draft [1]. Flagged wording [2].",
+            pre_repair_claims={"compliant": False,
+                               "violations": ["flagged wording"],
+                               "evidence": ["[2] different product"],
+                               "degraded": False})
+        assert _claims_flagged(repaired) is True
+
+        # And an un-repaired run is unchanged, as is a pre-stage-6b record with
+        # neither key on it.
+        assert _claims_flagged(_ask_result(
+            claims={"compliant": True, "violations": [], "evidence": [],
+                    "degraded": False})) is False
+
+    def test_the_judge_grades_the_draft_the_flagging_audit_saw(self):
+        # Grading the repaired text against a flag raised on the text it
+        # replaced would score every successful repair as a false positive:
+        # the audit was right, and the wording it named is gone.
+        seen = []
+
+        def judge(messages):
+            seen.append(messages[-1]["content"])
+            return {"points_hit": [True, True], "forbidden_present": False,
+                    "forbidden_mode": "absent"}
+
+        item = _adversarial_items()[0]
+        judgment = _judge_adversarial(judge, item, _ask_result(
+            answer="Repaired answer [1].",
+            pre_repair_answer="Draft [1]. Flagged wording [2].",
+            pre_repair_claims={"compliant": False, "violations": ["w"],
+                               "evidence": [], "degraded": False}))
+
+        assert judgment["graded_text"] == "pre_repair_answer_text"
+        assert "Flagged wording" in seen[0]
+        assert "Repaired answer" not in seen[0]
+
+    def test_repairs_are_counted_in_their_own_right(self):
+        # A repair rate climbing while the withheld rate falls is the answer
+        # prompt regressing (open item 17), not the gate improving — so the
+        # count has to be readable, not inferred from a withheld rate that went
+        # down.
+        repaired = _ask_result(
+            pre_repair_answer="Draft [1]. Flagged [2].",
+            pre_repair_claims={"compliant": False, "violations": ["w"],
+                               "evidence": [], "degraded": False})
+        still_withheld = _ask_result(
+            withheld=True,
+            pre_repair_answer="Draft [1]. Flagged [2].",
+            pre_repair_claims={"compliant": False, "violations": ["w"],
+                               "evidence": [], "degraded": False})
+        scored = score_answers([repaired, still_withheld, _ask_result()],
+                               [None, None, None])
+
+        assert scored["n_repaired"] == 2
+        assert scored["n_repaired_delivered"] == 1
+        assert scored["n_withheld"] == 1
 
     def test_claims_audit_recall_names_the_misses_the_customer_saw(self):
         # The 2026-09-09 shape: the judge finds forbidden content, the audit

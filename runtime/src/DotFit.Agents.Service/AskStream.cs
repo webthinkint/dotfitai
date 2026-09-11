@@ -291,6 +291,11 @@ public static class AskStream
         question = r.Question,
         escalated = r.Escalated,
         withheld = r.Withheld,
+        // §11 stage 6b ran. A fact about the turn, like `withheld`, and it
+        // carries no wording — strictly less than `n_failures` below already
+        // says — so the caller can record it against its own copy of the
+        // conversation without the reasons staying server-side being weakened.
+        repaired = r.Repaired,
         answer = r.DeliveredText,
         citations = r.Citations.Select(c => new
         {

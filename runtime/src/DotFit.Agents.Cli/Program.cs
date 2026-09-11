@@ -146,6 +146,7 @@ internal static class Program
         var askOptions = new AskOptions
         {
             ClaimsCheck = !flags.NoClaimsCheck,
+            Repair = !flags.NoRepair,
             Top = flags.Top,
             Semantic = flags.Semantic,
             Filter = flags.Filter,

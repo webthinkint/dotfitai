@@ -11,6 +11,13 @@ public sealed record CliFlags
     public bool Trace { get; init; }
     public bool NoStream { get; init; }
     public bool NoClaimsCheck { get; init; }
+    /// <summary>
+    /// ask/chat: suppress the §11 stage 6b repair pass, so a claims-only
+    /// failure is withheld as it was before the pass existed. The diagnostic
+    /// posture — it is the only way to read what the audit rejected rather than
+    /// what the repair made of it.
+    /// </summary>
+    public bool NoRepair { get; init; }
     /// <summary>ask/chat: hold the answer until the post-check passes (the service default).</summary>
     public bool Gated { get; init; }
     public int? Top { get; init; }
@@ -66,6 +73,9 @@ public static class CliArgs
           --trace               print per-stage trace lines
           --no-stream           print the answer only once complete
           --no-claims-check     skip the claims-language post-check
+          --no-repair           ask/chat: do not let a claims-only post-check failure
+                                earn its one repair pass — withhold the draft as it
+                                stands. Shows what the audit rejected
           --gated               hold the answer until the post-check passes, as the
                                 SSE service does (default here: stream live, so a
                                 failed check is visible only after the fact)
@@ -104,6 +114,7 @@ public static class CliArgs
         string? env = null, aliases = null, index = null, filter = null, historyJson = null;
         int? top = null;
         bool trace = false, noStream = false, noClaims = false, json = false, raw = false;
+        bool noRepair = false;
         bool gated = false;
         bool? semantic = null;
 
@@ -121,6 +132,7 @@ public static class CliArgs
                 case "--trace": trace = true; break;
                 case "--no-stream": noStream = true; break;
                 case "--no-claims-check": noClaims = true; break;
+                case "--no-repair": noRepair = true; break;
                 case "--gated": gated = true; break;
                 case "--json": json = true; break;
                 case "--raw": raw = true; break;
@@ -151,7 +163,8 @@ public static class CliArgs
         return new CliCommand(verb, text, new CliFlags
         {
             EnvPath = env, AliasesPath = aliases, IndexName = index,
-            Trace = trace, NoStream = noStream, NoClaimsCheck = noClaims, Gated = gated,
+            Trace = trace, NoStream = noStream, NoClaimsCheck = noClaims, NoRepair = noRepair,
+            Gated = gated,
             Top = top, Semantic = semantic, Filter = filter, Json = json, Raw = raw,
             History = ParseHistory(historyJson),
         });
