@@ -53,8 +53,28 @@ public sealed record AgenticServiceOptions
 
     public bool AuthDisabled => ApiKey is null;
 
-    public static AgenticServiceOptions Load(RuntimeOptions options) =>
-        FromValues(EnvFile.ReadFile(options.EnvFilePath), options.SupportContact);
+    /// <summary>
+    /// Load the service slice from the <c>.env</c> the given runtime options
+    /// came from. <paramref name="options"/> supplies the support route, which
+    /// is library-wide rather than service-only.
+    ///
+    /// The **process environment wins** over the file for this class's five
+    /// variables — the one v1 departure from the <c>.env</c> contract, carried
+    /// over here deliberately: a deployment injects its posture as a unit /
+    /// container setting rather than editing a shared file, which is exactly
+    /// how the preview unit turns the debug transcript on. The Azure keys keep
+    /// the file-only rule, because <c>azure_config.py</c> mirrors it and these
+    /// variables are not in that mirror.
+    /// </summary>
+    public static AgenticServiceOptions Load(RuntimeOptions options)
+    {
+        var values = new Dictionary<string, string>(EnvFile.ReadFile(options.EnvFilePath));
+        foreach (string name in new[]
+                 { ApiKeyVar, AuthVar, MaxQuestionCharsVar, TimeoutSecondsVar, DebugTranscriptVar })
+            if (Environment.GetEnvironmentVariable(name) is { Length: > 0 } v)
+                values[name] = v;
+        return FromValues(values, options.SupportContact);
+    }
 
     internal static AgenticServiceOptions FromValues(
         IReadOnlyDictionary<string, string> values, string? supportContact)

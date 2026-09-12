@@ -16,3 +16,7 @@ runtime/**/*.user
 /processed/podcasts/runs
 /processed/golden/runs
 /processed/eval/runs
+
+# python bytecode (deploy tooling is python: verdict-log, turn-log)
+__pycache__/
+*.pyc

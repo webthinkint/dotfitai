@@ -16,8 +16,12 @@ system of record for the conversation. The service holds no state between
 requests and stores nothing.
 
 **Status.** Built and verified live end to end (2026-09-12). Not yet run in
-front of an audience. Anything agreed but not implemented is marked **planned**
-in place — do not build against it until we tell you it has landed.
+front of an audience. The preview VM runs both runtimes side by side — the
+previous runtime on port 5199, this one on port 5299 — behind the same shared
+secret and the same request body, so pointing your relay at either (or both,
+for an A/B) is a base-URL change only. Anything agreed but not implemented is
+marked **planned** in place — do not build against it until we tell you it has
+landed.
 
 ---
 

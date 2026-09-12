@@ -64,6 +64,49 @@ public class AgenticServiceOptionsTests
         Assert.True(on.DebugTranscript);
     }
 
+    [Fact]
+    public void Load_lets_the_process_environment_override_the_env_file()
+    {
+        // v1's rule, carried over: a deployment states its posture as a unit /
+        // container setting instead of editing the shared .env — the preview
+        // unit turns the debug transcript on exactly this way, so a unit's
+        // Environment= line must reach the options or it silently does nothing.
+        string envPath = Path.Combine(Path.GetTempPath(), $"dotfit-agentic-test-{Guid.NewGuid():N}.env");
+        File.WriteAllText(envPath, $"{AgenticServiceOptions.ApiKeyVar}=from-file\n");
+        try
+        {
+            var runtime = new RuntimeOptions
+            {
+                AliasTablePath = "aliases.json",
+                EnvFilePath = envPath,
+                SupportContact = null,
+            };
+
+            var fromFile = AgenticServiceOptions.Load(runtime);
+            Assert.False(fromFile.DebugTranscript);
+            Assert.True(fromFile.IsAuthorized("Bearer from-file"));
+
+            Environment.SetEnvironmentVariable(AgenticServiceOptions.DebugTranscriptVar, "1");
+            Environment.SetEnvironmentVariable(AgenticServiceOptions.ApiKeyVar, "from-process");
+            try
+            {
+                var overridden = AgenticServiceOptions.Load(runtime);
+                Assert.True(overridden.DebugTranscript);
+                Assert.True(overridden.IsAuthorized("Bearer from-process"));
+                Assert.False(overridden.IsAuthorized("Bearer from-file"));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(AgenticServiceOptions.DebugTranscriptVar, null);
+                Environment.SetEnvironmentVariable(AgenticServiceOptions.ApiKeyVar, null);
+            }
+        }
+        finally
+        {
+            File.Delete(envPath);
+        }
+    }
+
     private static AgenticServiceOptions Options() => AgenticServiceOptions.FromValues(
         Env((AgenticServiceOptions.ApiKeyVar, "k")), supportContact: null);
 

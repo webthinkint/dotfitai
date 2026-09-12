@@ -89,6 +89,7 @@ PDSRG: PDF → `pdsrg` → `index`; products.json + infopages + menus + podcasts
 | `runtime/src/DotFit.Agentic/` | the tools, the loop, the system prompt, the turn log | §6–§8, §10 |
 | `runtime/src/DotFit.Agentic.Cli/` | `dotfit-agentic` — chat + one-shot, trace, smoke runner | §12 |
 | `runtime/src/DotFit.Agentic.Service/` | SSE endpoint, new event vocabulary | §9 |
+| `runtime/deploy-agentic/` | the preview deploy: user unit on **5299**, installer, `turn-log` viewer. v1's `runtime/deploy/` (5199) untouched — both run together | §9, §10 |
 | `runtime/smoke/` | the written conversational set, and how to read a transcript | §11.2 |
 | `runtime/src/DotFit.Agents*` (v1 projects) | the baseline. Keep buildable, change only to keep it building | `docs/v1/` |
 

@@ -1,0 +1,46 @@
+# dotfit-agentic-service — systemd *user* unit for the preview VM (§9).
+#
+# The committed record of how the agentic runtime is deployed beside v1: a
+# second user-level unit, a second publish directory, a second port. It coexists
+# with dotfit-agent-service deliberately (decision D1: the baseline stays
+# runnable as the thing this branch is measured against) — the website team can
+# point the same relay at either runtime, because the transport and the shared
+# secret are the same contract (D6) and only the event stream differs.
+#
+#   v1  dotfit-agent-service     port 5199  ~/.local/share/dotfit/service
+#   v2  dotfit-agentic-service   port 5299  ~/.local/share/dotfit/agentic-service
+#
+# install-user-service.sh installs this file into ~/.config/systemd/user/ with
+# the paths below substituted for the actual repo/home, so it is safe to commit
+# with this VM's paths spelled out.
+#
+# Transport only; the loop is DotFit.Agentic. Hardening lives in
+# AgenticServiceOptions, not here — fail-closed on the shared secret, carried
+# over from v1 unchanged.
+[Unit]
+Description=dotFIT agentic knowledge assistant SSE service (test)
+After=network-online.target
+
+[Service]
+# Repo root, so the .env walk-up and processed/aliases/alias_table.json
+# (resolved relative to the .env) are both found without extra config.
+WorkingDirectory=/home/kovach/dotfitai
+# A separate publish dir from v1's — one deploy must never overwrite the
+# other's binaries; that is the whole point of two units.
+ExecStart=/home/kovach/.local/share/dotfit/agentic-service/dotfit-agentic-service
+# Internal-network bind on its own port: 5199 is v1's and stays v1's, so both
+# runtimes answer simultaneously and an A/B preview is a base-URL change for
+# the caller, nothing else.
+Environment=ASPNETCORE_URLS=http://0.0.0.0:5299
+# Debug transcript logging (the same preview-only posture v1's unit carries,
+# owner ruling 2026-09-11): the service writes one dotfit.agentic.transcript
+# line per request — question, tool calls, full answer — because with nothing
+# gated (D3) the text-free turn log cannot say what a bad turn actually said.
+# Remove this line before public customer traffic: off is the default, and the
+# boot line + /healthz say the state either way.
+Environment=DOTFIT_AGENTIC_DEBUG_TRANSCRIPT=1
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

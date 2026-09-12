@@ -23,6 +23,7 @@ has not had is a person using it.
 | CLI `dotfit-agentic` | §12.4 | **done** | `ask`, `chat`, `search`, `smoke`, `prompt`, `config`; `--trace` shows every tool call and its arguments, `--log` prints the turn-log line |
 | Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3) |
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
+| Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 29 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
 | Tests | §11 | **85 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
 
@@ -74,6 +75,20 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-12 — deployed beside v1 as a second user unit (§9)
+
+`runtime/deploy-agentic/`, touching nothing of v1's `runtime/deploy/`: unit
+`dotfit-agentic-service` on **5299** (v1 keeps 5199), its own publish dir
+(`~/.local/share/dotfit/agentic-service`), the same `DOTFIT_SERVICE_API_KEY`
+so one caller secret works against both runtimes, and `dotfit-turn-log` as the
+journal view of `dotfit.turn` / `dotfit.agentic.transcript`. Found and fixed
+while deploying: `AgenticServiceOptions.Load` read the `.env` only, so the
+unit's `Environment=` lines were inert — v1's process-env-wins rule for the
+five service vars is now carried over too (one test added; 86 agentic + 264 v1
+green). Verified live: both units healthy, 401/400 paths on both, and one full
+SSE turn through the new service (LeanMR rename, 0 tools, 1,737 ms first
+delta). The deploy scripts get no tests — run-on-the-VM tooling, like v1's.
 
 ### 2026-09-12 — the caller contract, rewritten (§9, items 3 and 7)
 
