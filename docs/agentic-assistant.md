@@ -1,4 +1,4 @@
-# dotFIT Agentic Assistant — Design
+| 7 | **The website relay contract changes** (§9) — `retraction` is gone, `source` is new, `escalated` is gone | **documented** 2026-09-12 in `docs/website-integration.md`, with a migration checklist. Still needs **sending**, and it asks the website team one question back: whether anything on their side relied on the `escalated` flag || 3 | **Search queries in the turn log** (§10) are the model's text but may echo the customer's closely | **closed** 2026-09-12 — owner ruled it acceptable. The distinction it rests on is that these are the model's words, not the customer's; if that ever stops being good enough the fix is a config flag, not a redaction |# dotFIT Agentic Assistant — Design
 
 The second runtime. One frontier model, given the corpus as tools, deciding for
 itself what to look up and what to say.
@@ -454,9 +454,9 @@ including the two latency targets in §6 that the first live turns did not meet.
 |---|---|---|
 | 1 | **The escalation guarantee is now a tendency.** D3/D5 traded a barrier for a conversation. The owner made this call knowingly; it needs evidence before public traffic — §11's smoke set is the minimum, §8.3's out-of-band review is the cheap upgrade | open, owner-acknowledged |
 | 2 | **Claims exposure without a gate.** No mechanism now stops a paraphrased product claim from reaching a customer. The mitigation is that §8.2 makes quoting easier than inventing; the evidence is owner sessions | open |
-| 3 | **Search queries in the turn log** (§10) are the model's text but may echo the customer's closely. Owner decision needed if that is a privacy problem | open, needs owner |
+| 3 | **Search queries in the turn log** (§10) are the model's text but may echo the customer's closely | **closed** 2026-09-12 — owner ruled it acceptable. The distinction it rests on is that these are the model's words, not the customer's. If that ever stops being good enough the fix is a config flag, not a redaction — a half-logged query is worse than none |
 | 4 | **History replays no tool results** (§6). Costs a repeat search on follow-ups; fix is server-side sessions, which is a D6 contract change | open, measure first |
 | 5 | **Budgets are guessed** (§6) — 8 calls, 60 s. Replace with the observed distribution once the turn log has one | open |
 | 6 | **Streaming the model's pre-tool text.** If the model narrates before searching, that narration streams to the customer. Whether that reads as conversational or as noise is a judgement to make on real transcripts | open, decide on evidence |
-| 7 | **The website relay contract changes** (§9) — `retraction` is gone, `source` is new. Needs telling before anything points at it | open, needs comms |
+| 7 | **The website relay contract changes** (§9) — `retraction` gone, `source` new, and `escalated` gone from `result`, which is the one that may need work on their side | **documented** 2026-09-12 in `docs/website-integration.md`, with a migration checklist. Still needs **sending**, and it asks one question back: did anything rely on the `escalated` flag? If so, §8.3's out-of-band classifier stops being optional |
 | 8 | **v1's open pipeline items still apply**: golden-set labeling and the Stage 2 PII review queue are corpus work this branch inherits, not runtime work it replaced. They live in `docs/v1/` and are unchanged by anything here | carried over |

@@ -14,6 +14,10 @@ govern nothing here.
   docstrings, commit messages and progress entries; keep citing them.
 - `docs/progress.md` — living status: what is built, what is open, the newest
   log entries. Check the open items before claiming something is "next".
+- `docs/website-integration.md` — the caller-facing contract, written for the
+  website team. If you change an event name, a `result` field or a limit, it
+  changes here in the same commit; they build against this document, not against
+  the code.
 - `docs/v1/decisions.md` — **still binding upstream.** The corpus, PII, alias,
   PDSRG and index rulings constrain the pipeline this branch reuses unchanged.
   Read the group for the area before changing pipeline behavior. Its Runtime

@@ -61,11 +61,11 @@ clock — see open item 10.
 |---|---|---|
 | 1 | **The escalation guarantee is a tendency, not a barrier** (§13.1) — D3/D5 traded the blocking guardrail for in-prompt, conversational handling | open, owner-acknowledged. The `safety` tier of the smoke set (S-040…S-044) is the first evidence and has **not been run**; §8.3's out-of-band review is the cheap upgrade if it slips |
 | 2 | **Claims exposure without a gate** (§13.2) — nothing stops a paraphrased product claim reaching a customer | open. Mitigation is that `get_product` makes quoting the cheap path; evidence is the `claims` tier and owner sessions |
-| 3 | **Search queries in the turn log** (§13.3) — the model's text, but it can echo the customer's question closely | open, **needs an owner ruling**. The first live turn logged `"recommended daily creatine dose and whether loading is needed"` against the question "how much creatine should I take?" — close in substance, not in words. If it is a problem it becomes a config flag, not a redaction |
+| 3 | **Search queries in the turn log** (§13.3) — the model's text, but it can echo the customer's question closely | **closed** 2026-09-12 — owner ruled it acceptable. The reading it was ruled on: the first live turn logged `"recommended daily creatine dose and whether loading is needed"` against "how much creatine should I take?" — close in substance, not in words. Stated plainly to the website team in `docs/website-integration.md` |
 | 4 | **History replays no tool results** (§13.4) — costs a repeat search on some follow-ups | open, measure before fixing. S-030's third turn is the case. The fix is server-side sessions, which is a D6 contract change |
 | 5 | **Budgets are guessed** (§13.5) — 8 tool calls, 60 s | open. The four live turns used 0 or 1 call, which says nothing yet. Replace with the observed distribution once the turn log has one |
 | 6 | **Streaming the model's pre-tool narration** (§13.6) | open. Not seen in the four live turns — the model called its tool without preamble. Decide on real transcripts, not on this |
-| 7 | **Website relay contract changes** (§13.7) — `retraction` gone, `source` added | open, **needs comms** to the website team before anything points at this branch |
+| 7 | **Website relay contract changes** (§13.7) — `retraction` gone, `source` added, **`escalated` gone** | **documented, not sent.** `docs/website-integration.md` rewritten for this runtime 2026-09-12: four changes that reach their code, a migration checklist, and the full contract standalone. Two things it asks of them — decide how to render `stage.detail` (model text, straight to a customer), and say whether anything relied on the `escalated` flag. If it did, item 1's out-of-band classifier stops being optional |
 | 8 | **v1 pipeline items carried over** — golden-set labeling and the Stage 2 PII review queue are corpus work, not runtime work | carried over unchanged; see `docs/v1/progress.md` items 8 and 13 |
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
@@ -74,6 +74,18 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-12 — the caller contract, rewritten (§9, items 3 and 7)
+
+`docs/website-integration.md` written for this runtime — the previous one moved
+to `docs/v1/` with the branch and was never replaced, so item 7 had been "needs
+comms" with nothing to send. Four changes reach the website's code: deltas
+stream live (build the typing effect they were previously told not to),
+`retraction` and `withheld` are gone, `source` is new and lands before the text
+citing it, and **`escalated` is gone from `result`** — escalation is now inside
+the answer text and invisible to their code. That last one is the one that may
+cost them work, and the doc asks the question directly rather than assuming.
+Item 3 closed: owner ruled the logged search queries acceptable.
 
 ### 2026-09-12 — the runtime, built and live (§12 steps 1–7)
 
