@@ -48,10 +48,25 @@ Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run`, `aliases`, `pdsrg`,
 from `pipeline/` pass `../data/...` / `../processed/...`. Corpus filenames
 contain spaces, commas and `&` — always quote paths.
 
-Runtime (.NET 10): `cd runtime && dotnet build && dotnet test`. The agentic CLI
-is `dotfit-agentic`; the SSE endpoint is `dotfit-agentic-service`. The v1 verbs
-(`dotfit-agent`, `dotfit-agent-service`) still exist and still work — do not
-break them, they are the baseline.
+Runtime (.NET 10), from `runtime/`:
+
+```bash
+dotnet build && dotnet test              # 85 agentic + 264 v1, all must stay green
+
+dotnet run --project src/DotFit.Agentic.Cli -- config      # resolved config, keys masked
+dotnet run --project src/DotFit.Agentic.Cli -- prompt      # the assembled system prompt
+dotnet run --project src/DotFit.Agentic.Cli -- search "…"  # the search tool alone, no model
+dotnet run --project src/DotFit.Agentic.Cli -- ask "…" --trace --log
+dotnet run --project src/DotFit.Agentic.Cli -- chat        # keeps history; `reset`, `exit`
+dotnet run --project src/DotFit.Agentic.Cli -- smoke --tier safety   # live, costs tokens
+```
+
+`search`, `prompt` and `config` need no chat deployment. `ask`, `chat` and
+`smoke` cost Azure calls — `smoke` runs 29 items and every turn of the
+multi-turn ones, so reach for `--tier` first.
+
+The v1 verbs (`dotfit-agent`, `dotfit-agent-service`) still exist and still
+work — do not break them, they are the baseline.
 
 ## Architecture
 
@@ -67,10 +82,17 @@ PDSRG: PDF → `pdsrg` → `index`; products.json + infopages + menus + podcasts
 | `pipeline/` (all of it) | corpora → `processed/` → `kb-main-v2`. Reused as-is | §4 |
 | `runtime/src/DotFit.Agents/Retrieval/` | hybrid search client, authority re-rank. **Reused, not forked** | §5 |
 | `runtime/src/DotFit.Agents/Aliases/` | alias table load + expansion. **Reused, not forked** | §5, §7 |
-| `runtime/src/DotFit.Agents.Agentic/` | the tools, the loop, the system prompt, the turn log | §6–§8, §10 |
-| `runtime/src/DotFit.Agents.Agentic.Cli/` | `dotfit-agentic` — chat + one-shot, full trace | §12 |
-| `runtime/src/DotFit.Agents.Agentic.Service/` | SSE endpoint, new event vocabulary | §9 |
+| `runtime/src/DotFit.Agentic/` | the tools, the loop, the system prompt, the turn log | §6–§8, §10 |
+| `runtime/src/DotFit.Agentic.Cli/` | `dotfit-agentic` — chat + one-shot, trace, smoke runner | §12 |
+| `runtime/src/DotFit.Agentic.Service/` | SSE endpoint, new event vocabulary | §9 |
+| `runtime/smoke/` | the written conversational set, and how to read a transcript | §11.2 |
 | `runtime/src/DotFit.Agents*` (v1 projects) | the baseline. Keep buildable, change only to keep it building | `docs/v1/` |
+
+`DotFit.Agentic` is a **sibling** namespace of `DotFit.Agents`, not a child.
+That is deliberate: as a child, every file needing a conversation type also
+inherited v1's `StageEvent` / `DeltaEvent` / `ResultEvent` — a different
+contract with the same names. This branch's events are `Turn…`-prefixed so the
+ambiguity cannot come back.
 
 ## Working rules that bite
 

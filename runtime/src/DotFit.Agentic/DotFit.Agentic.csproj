@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>DotFit.Agentic</RootNamespace>
+    <!--
+      dotFIT agentic assistant (design §6-§8). One frontier model, three tools,
+      no stage before or after it.
+
+      The package set is deliberately the same as DotFit.Agents' — same Agent
+      Framework, same prerelease Azure.AI.OpenAI pin (the stable GA build only
+      offers api-version 2024-10-21, which the Foundry v2 resource 404s). What
+      this project adds is Microsoft.Extensions.AI, for AIFunctionFactory: the
+      tools are plain C# delegates and the Agent Framework's function-invoking
+      decorator runs the loop over them.
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Tests reach the deterministic tool layer: SourceLedger numbering, the
+         OData filter builders, budget enforcement, currency-fact rendering.
+         That layer is the part with a right answer (design §11). -->
+    <InternalsVisibleTo Include="DotFit.Agentic.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
+    <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
+    <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.20.0" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Reuse, not a fork (design §4). This project takes DotFit.Agents for its
+      Retrieval/ (hybrid search client, authority re-rank), Aliases/ (the §5
+      artifact and its tier rules), Config/ (the .env contract) and the §3
+      source vocabulary in Answering.Prompts. It takes none of the v1
+      orchestration — no guardrail, no rewriter, no post-checker.
+    -->
+    <ProjectReference Include="..\DotFit.Agents\DotFit.Agents.csproj" />
+  </ItemGroup>
+
+</Project>

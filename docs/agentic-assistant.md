@@ -417,9 +417,17 @@ Not 264 tests. Not a port of v1's suite.
 
 ## 12. Build order
 
-1. **Project skeleton** — `runtime/src/DotFit.Agents.Agentic`, project reference
+1. **Project skeleton** — `runtime/src/DotFit.Agentic`, project reference
    to `DotFit.Agents` for `Retrieval/`, `Aliases/`, `EnvFile`. Config + boot
    validation.
+
+   **A sibling namespace, not a child** (design call, made while building).
+   `DotFit.Agentic`, not `DotFit.Agents.Agentic`: as a child namespace every
+   file that needed a conversation type also inherited v1's `StageEvent`,
+   `DeltaEvent` and `ResultEvent`, which are a *different contract with the same
+   names*. Making it a sibling and prefixing this branch's events `Turn…` means
+   the ambiguity cannot recur in a consumer that uses both. The two runtimes are
+   peers; the namespace now says so.
 2. **The three tools** (§7) with source numbering and budget enforcement, plus
    their unit tests. Runnable against the live index before any agent exists.
 3. **The loop** (§6) and the system-prompt assembly, including the alias-derived
@@ -432,6 +440,13 @@ Not 264 tests. Not a port of v1's suite.
 
 Steps 1–4 are what "does this feel better" needs; 5–7 are what shipping it
 anywhere needs.
+
+**Built 2026-09-12**, all seven steps: `DotFit.Agentic` (the loop, the three
+tools, the prompt assembly, the turn log), `dotfit-agentic` (`ask`, `chat`,
+`search`, `smoke`, `prompt`, `config`), `dotfit-agentic-service` (`POST /ask`,
+`GET /healthz`), 85 tests, and the 29-item smoke set in `runtime/smoke/`.
+Verified live end to end. `docs/progress.md` carries the first readings —
+including the two latency targets in §6 that the first live turns did not meet.
 
 ## 13. Open questions and known risks
 

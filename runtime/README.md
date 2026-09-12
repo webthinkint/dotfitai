@@ -1,6 +1,25 @@
-# dotFIT runtime — knowledge assistant (plan §11)
+# dotFIT runtime
 
-.NET 10 solution with three projects:
+**Two runtimes live here.** This document is the v1 one. If you are working on
+the agentic branch, you want `docs/agentic-assistant.md` and `AGENTS.md`.
+
+| Projects | What | Docs |
+|---|---|---|
+| `src/DotFit.Agentic*` | **The agentic runtime.** One frontier model with three tools (`search`, `fetch`, `get_product`), no stage before or after it, nothing gated. CLI `dotfit-agentic`, service `dotfit-agentic-service`. Written set in `smoke/` | `docs/agentic-assistant.md` |
+| `src/DotFit.Agents*` | **v1, the baseline.** The fixed §11 chain, described below. Kept buildable and runnable so the two can be compared; not deprecated | `docs/v1/` |
+
+They share the index, the alias table, the `.env` contract and
+`DotFit.Agents`'s `Retrieval/` and `Aliases/` — the agentic project references
+those rather than forking them. `DotFit.Agentic` is a *sibling* namespace, not
+a child: as a child it inherited v1's identically-named event types.
+
+`dotnet build && dotnet test` builds and tests both (85 + 264).
+
+---
+
+## v1 — knowledge assistant (plan §11)
+
+Three projects:
 
 - **`src/DotFit.Agents`** — the library. The §11 pipeline as components:
   guardrail pre-check (small model) → query rewrite (small model) +

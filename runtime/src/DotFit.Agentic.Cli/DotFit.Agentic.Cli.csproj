@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>DotFit.Agentic.Cli</RootNamespace>
+    <!-- The exe is `dotfit-agentic`, beside v1's `dotfit-agent`. -->
+    <AssemblyName>dotfit-agentic</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DotFit.Agentic.Tests" />
+    <ProjectReference Include="..\DotFit.Agentic\DotFit.Agentic.csproj" />
+  </ItemGroup>
+
+</Project>

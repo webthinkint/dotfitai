@@ -3,8 +3,12 @@
     <Project Path="src/DotFit.Agents.Cli/DotFit.Agents.Cli.csproj" />
     <Project Path="src/DotFit.Agents.Service/DotFit.Agents.Service.csproj" />
     <Project Path="src/DotFit.Agents/DotFit.Agents.csproj" />
+    <Project Path="src/DotFit.Agentic/DotFit.Agentic.csproj" />
+    <Project Path="src/DotFit.Agentic.Cli/DotFit.Agentic.Cli.csproj" />
+    <Project Path="src/DotFit.Agentic.Service/DotFit.Agentic.Service.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/DotFit.Agents.Tests/DotFit.Agents.Tests.csproj" />
+    <Project Path="tests/DotFit.Agentic.Tests/DotFit.Agentic.Tests.csproj" />
   </Folder>
 </Solution>
