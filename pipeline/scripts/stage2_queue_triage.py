@@ -5,7 +5,7 @@
 dispositions are the owner's; what this does is make the pass a sign-off
 instead of a 219-item read, the same way the alias worksheet did for §5.
 
-Reading it right depends on one thing (`docs/decisions.md`, Stage 2 triage
+Reading it right depends on one thing (`docs/v1/decisions.md`, Stage 2 triage
 shape): **this queue does not gate.** A flagged record is already redacted and
 already indexed — the queue is an audit trail to work, not a hold. That is why
 the report leads with how many flagged records are live in the index: that
@@ -44,7 +44,7 @@ Groups, in the order an owner should work them:
 
 Deliberately absent, still: the **evidence spans themselves**. They live only
 in the gitignored Stage 2 cache and never in a committed artifact
-(`docs/decisions.md`). This report reads them to decide a group and then
+(`docs/v1/decisions.md`). This report reads them to decide a group and then
 reports the group — never the string. It writes nothing and prints no answer
 text for the same reason.
 
@@ -241,7 +241,7 @@ def main() -> int:
     print(f"Stage 2 review queue: {len(queue)} rows "
           f"({n_current} are is_current and therefore live in the index)")
     print("This queue does not gate — flagged records are redacted, not "
-          "withheld (docs/decisions.md).")
+          "withheld (docs/v1/decisions.md).")
     if not evidence:
         print("!! Stage 2 cache not found — no evidence spans, so residual-PII "
               "rows land in 'unverifiable'. Run on the machine that has "

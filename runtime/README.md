@@ -172,7 +172,7 @@ The wire is snake_case in both directions.
 `POST /ask` also takes `history`: `[{"role":"user"|"assistant","text":"…"}]`,
 oldest first, excluding the question being asked. An unknown `role` is a `400`
 rather than a dropped turn. The full client-facing contract is
-`docs/website-integration.md`.
+`docs/v1/website-integration.md`.
 
 ### The verdict log
 
@@ -232,7 +232,7 @@ The verdict log's text-free rule is priced against *public* traffic. The
 preview is a different audience, and retractions cannot be debugged from a log
 that holds neither the withheld draft nor the wording the check rejected — so
 an **opt-in companion record** exists (owner ruling 2026-09-11,
-`docs/decisions.md` Runtime §11): with
+`docs/v1/decisions.md` Runtime §11): with
 `DOTFIT_SERVICE_DEBUG_TRANSCRIPT=true`, the same `finally` writes one
 `dotfit.transcript` line per request carrying exactly what `VerdictLog`
 structurally cannot — the raw question, the history as received, the draft

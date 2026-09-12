@@ -2,7 +2,7 @@
 
 _Status: v1.1 — living document. Written 2026-08-26; corrections folded in
 as they are found (each is cited to the `progress.md` entry that made it).
-Implementation is under way — `docs/progress.md` is the authority on what
+Implementation is under way — `docs/v1/progress.md` is the authority on what
 is built; this document is the authority on what we intend to build._
 
 ---
@@ -484,7 +484,7 @@ prefilled source candidates, `adversarial.md` scaffold for the hand-written
 ## 14. Open items
 
 Definitions live here; **current status lives in the "Open items" table in
-`docs/progress.md`**, which is updated per work item.
+`docs/v1/progress.md`**, which is updated per work item.
 
 1. **Region + SKU pricing** for Azure OpenAI / AI Search (needs an Azure sub decision).
 2. **Freshness owner** for products.json re-export cadence (monthly diff proposed).
@@ -535,13 +535,13 @@ Definitions live here; **current status lives in the "Open items" table in
     containment failure and the 5% audit sample. Unlike the Stage 0 flag, this one
     does not gate — Stage 2 redacts what it flags, so flagged records index and the
     queue is an audit trail to work, not a hold. The bulk-disposition shape is in
-    `docs/decisions.md`.
+    `docs/v1/decisions.md`.
 14. ~~**Podcast citation URLs** (opened 2026-09-07)~~ — **CLOSED 2026-09-08**:
     all 47 `archive.txt` ids resolved through YouTube's oEmbed endpoint and
     matched all 47 episodes at Dice 1.00 — the mapping was never ambiguous, only
     unverified. Frozen as `podcast.PODCAST_VIDEO_IDS` (the pipeline stays offline,
     so it reads a constant, not a lookup); all 1,800 segments now deep-link to
-    their start second. See `docs/decisions.md`, Podcast.
+    their start second. See `docs/v1/decisions.md`, Podcast.
 15. **§12 evaluation coverage** (opened 2026-09-07) — three things §12 does not
     currently measure, to settle per-gap when the eval harness is built: the
     claims-audit precision item 12 asks for (there is no metric line for it);

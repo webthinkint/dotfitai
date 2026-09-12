@@ -5,7 +5,7 @@
 stakeholder preview is *never* blocked on a measurement; it may ship at any
 state so the project can be tested continuously. Kept here as the record of
 what was decided and what it commits us to.
-**Tracked as:** open item 21 (closed); the ruling is in `docs/decisions.md`
+**Tracked as:** open item 21 (closed); the ruling is in `docs/v1/decisions.md`
 
 The assistant is going onto the dotFIT website behind the website team's own
 server. The first version is for **stakeholders and approved partners**, not the
@@ -84,7 +84,7 @@ steps:
    first. The audience needs to know, on an ongoing basis, that product-claim
    wording is not yet validated and that dotFIT's approved copy is right
    wherever the assistant differs from it. The wording is in
-   `docs/website-integration.md`. It still needs your sign-off once — it is a
+   `docs/v1/website-integration.md`. It still needs your sign-off once — it is a
    claims-compliance statement, not an engineering one.
 2. **We log what each release actually decided** (item 20 — **built
    2026-09-11**). If any state can ship, then when someone asks "what did it

@@ -7,7 +7,7 @@ Two layers, both versioned in code (the emitted JSON is a derived artifact):
      (``AminoFormula - Blue Raspberry`` -> ``AminoFormula``)
    - legacy names from ``(formerly X)`` markers (``LeanMR``, ``Muscle
      Defender L-Glutamine``) — these drive the Stage 4 currency rules
-2. **Curated overlay** (decisions confirmed 2026-09-01, see docs/decisions.md):
+2. **Curated overlay** (decisions confirmed 2026-09-01, see docs/v1/decisions.md):
    - WheySmooth universe (incl. All Natural + BULK lines) = ONE family
    - dotBARs = one family (flavor variations); dotWAFER separate
    - Creatine Monohydrate drink mix + unflavored = one family;

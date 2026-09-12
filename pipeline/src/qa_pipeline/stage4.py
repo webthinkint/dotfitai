@@ -18,7 +18,7 @@ table and stamps every record with its retrieval currency:
   gpt-5-mini formulation-independence call for replacement/discontinued cues:
   ``independent`` / ``dependent`` / ``low_confidence`` / ``no_llm`` / error.
 
-Owner rulings baked in (2026-09-07, docs/decisions.md):
+Owner rulings baked in (2026-09-07, docs/v1/decisions.md):
 
 - **Renames never supersede.** A rename (LeanMR→LeanMeal and the other
   legacy entries) is an identity mapping — same product, same formula — so a
@@ -289,7 +289,7 @@ def products_conflict(members: list[dict[str, Any]]) -> bool:
 
 DISPOSITION_SPLIT = "split"
 
-# Owner dispositions for queued clusters (§4 step 3; docs/decisions.md). Keyed
+# Owner dispositions for queued clusters (§4 step 3; docs/v1/decisions.md). Keyed
 # by ``cluster_id`` (= min member id); ``members`` pins the exact membership
 # the ruling was made on, so a corpus change that reshapes the cluster raises
 # rather than silently re-applying a ruling nobody made for it.

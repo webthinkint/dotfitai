@@ -1,6 +1,6 @@
 # Phase 1 — Progress Archive
 
-Rotated-out log entries, newest first. `docs/progress.md` keeps the five most
+Rotated-out log entries, newest first. `docs/v1/progress.md` keeps the five most
 recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
@@ -206,7 +206,7 @@ end to end. Entries are verbatim — numbering and dates are continuous with
   dispositioned, queue 2 → 0**. The corpus's one `cluster_conflict` is ruled
   **split** — the pair is two turns of one email thread, and Stage 1 keeps only
   the new expert reply, so the newer record is a delta, not a superset
-  (reasoning in `docs/decisions.md`). Both members stay `is_current`. Rulings
+  (reasoning in `docs/v1/decisions.md`). Both members stay `is_current`. Rulings
   live in `CURATED_CLUSTER_DISPOSITIONS`, membership-attested. Stage 4
   regenerated, rerun byte-identical, 0 API calls; index untouched. 8 new tests
   (**404 python**).
@@ -271,8 +271,8 @@ end to end. Entries are verbatim — numbering and dates are continuous with
   `podcast.py`/`cli.py` rows, `pipeline/README.md` the `kb-main` warning. 338 tests.
 - **2026-09-07 (32)** — `progress.md` split three ways so the per-session read
   stops growing: this file keeps the status table, open items and the newest
-  five log entries; owner rulings moved verbatim to `docs/decisions.md`, rotated
-  entries to `docs/progress-archive.md`. Table rows lost their narrative —
+  five log entries; owner rulings moved verbatim to `docs/v1/decisions.md`, rotated
+  entries to `docs/v1/progress-archive.md`. Table rows lost their narrative —
   mechanism to the docstrings that already own it, history to the log. **36 KB →
   10 KB** read every session, nothing deleted. Cross-refs repointed in
   `AGENTS.md`, the plan, `pipeline/README.md`, `alias.py`, `stage4.py`. Docs

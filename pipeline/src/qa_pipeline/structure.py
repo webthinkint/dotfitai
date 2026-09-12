@@ -1,6 +1,6 @@
 """Shared structural markers for QA corpus documents.
 
-Two email shapes exist (see docs/phase1-knowledge-assistant.md §4):
+Two email shapes exist (see docs/v1/phase1-knowledge-assistant.md §4):
 
 (a) saved email threads — expert answer on top, quoted customer message below,
     delimited by a thread header (``From:/Sent:/To:/Subject:``) and a contact

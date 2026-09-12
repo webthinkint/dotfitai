@@ -1,6 +1,6 @@
 # dotFIT Phase 1 offline pipeline — QA stages, PDSRG, podcast, index, golden set
 
-Implements the offline half of `docs/phase1-knowledge-assistant.md`: §4 (QA
+Implements the offline half of `docs/v1/phase1-knowledge-assistant.md`: §4 (QA
 Stages 0–2 and 4), §5 (alias table), §6 (PDSRG chunking), §7 (podcast
 segmentation), §8 (menu descriptions), §9 (index build) and §12 (golden-set
 sampling). The overview bullets below skip `aliases` and `podcast`; both are
@@ -327,7 +327,7 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
   0 errors — 338 docs gained part_nos (42 newly tagged), unresolved mentions
   3,474 → 2,292 (−34%)
 - Review queue **222** (21%, down from 590 pre-triage), fully dispositioned
-  (rounds 1–2, `docs/progress-archive.md` entries 19–20): 168 residual-PII flags
+  (rounds 1–2, `docs/v1/progress-archive.md` entries 19–20): 168 residual-PII flags
   (customer-side names correctly caught; staff bulk-accepted via silent-redact
   vocabulary), 48 deterministic 5% audit samples, 1 containment fail,
   5 low-confidence
@@ -366,7 +366,7 @@ them. Filenames are neither scrubbed nor flagged (owner disposition
 - DOI strings like `10.1007/s13197-011-0571` are correctly *not* matched as
   phones; the address rule was corpus-verified with zero false positives
 
-Earlier entries in `docs/progress-archive.md` quote per-*document* pattern counts: the
+Earlier entries in `docs/v1/progress-archive.md` quote per-*document* pattern counts: the
 counter incremented once per pattern per file until 2026-09-02 (2).
 
 §12 evaluation (plan §12) — measures the live runtime, so build the agent first:

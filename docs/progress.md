@@ -1,163 +1,70 @@
-# Phase 1 — Build Progress
+# Agentic Assistant — Build Progress
 
 The status view: what is built, what is open, what runs next. Every agent run
 reads this file end to end, so it is kept short on purpose — the rest lives in:
 
-- `docs/decisions.md` — owner/curation rulings, grouped by area. Read the group
-  for the area you are about to touch.
-- `docs/progress-archive.md` — log entries older than the five kept below.
-- `phase1-knowledge-assistant.md` — the plan (design decisions); `AGENTS.md` —
-  the hard rules those produced.
+- `docs/agentic-assistant.md` — the design (`§N` refs), and `AGENTS.md` — the
+  hard rules it produced.
+- `docs/v1/` — the previous runtime's plan, progress, rulings and owner tasks.
+  Archived. The corpus/PII/alias/index rulings in `docs/v1/decisions.md` still
+  bind the pipeline this branch reuses; nothing there governs the runtime.
 
-## Status (§13 build order)
+## Status (§12 build order)
 
-Numbers verified 2026-09-11. Python 462 tests green; runtime 264 tests green.
+Branch opened 2026-09-12. Nothing runtime-side is built yet.
 
-| Component | Plan § | State | Verified output |
+| Component | § | State | Notes |
 |---|---|---|---|
-| QA Stage 0 — PII scrub | §4 | **done**, rules extended 2026-09-08 (triage round 2) | 1,051 `.docx` (1,103 − 51 duplicates − 1 zero-byte; 43 md5 groups, log in `processed/qa/runs/`); round-2 regen redacted 38 further names across 36 files, 0 prose changes |
-| QA Stage 1 — parse & classify | §4 | **done** | 777 qa_email / 264 expert_note / 0 other; 766 `thread_date`; review queue 0; 10 unanswerable excluded (6 no-answer, 4 blank) |
-| PDSRG extraction gate | §6.1 | **passed**, human-verified | 5 stress PDFs |
-| PDSRG chunking | §6.2–4 | **done** | 39 docs → 1,080 chunks (~404K tokens, median 349); 950 with part_nos; 53 discontinued-stamped; 1 atomic oversize table |
-| Alias table | §5 | **done**, v1.3.0, regen 2026-09-10 (products.json drop) | 53 indexed SKUs → 31 families; worksheet 19/19 attested; 13 deterministic aliases + 1 LLM-only |
-| QA Stage 2 — canonicalize | §4 | **done** — full run 2026-09-06, regens 2026-09-07/08, **gpt-5.6-luna regen 2026-09-09 (prompt 1.2.0)** | 1,041 canonical records; 680 with products (52 part_nos); 306 currency-cued; queue 234 (182 PII + 47 audit + 5 low-conf) — dispositions are item 13; Zane ruling landed |
-| QA Stage 4 — dedup & currency | §4 | **done**, gpt-5.6-luna regen 2026-09-09, conflicts ruled 2026-09-10 | 923 current / 104 superseded_currency / 14 superseded_dup; 16 clusters (3 conflict — all ruled split; 1 audit); 114 judgments (104 dependent / 10 independent); queue 2 (audit sample) |
-| Podcast segmentation | §7 | **done** — contract in `podcast.py` | 47 episodes → 1,800 segments (median 76 s / 251 words) |
-| Golden set | §12 | **re-drawn 2026-09-10** (item 8 ruled: re-draw); **complete except labeling**. The 250 now come from the post-luna pool (653) — 208 of the previous draw stay, 42 swap, `(untagged)` 79 → 63, 29 families and the 125/125 split unchanged; the two items aimed at retired answers (G-012, G-032) are gone. The written 50 adversarial / 20 multi-turn and the 120 probes were not touched by the draw. Remaining: label the 250 (item 8) | 653 current QA pairs → 250 items over 29 families (125/125) + 50 adversarial (25/25) + **20 multi-turn (10/10)** + 120 PDSRG/podcast probes **+ 59 infopage probes (2026-09-11, total 179; the 120 are byte-identical, one learn-hub stub is under the 12-word query floor)**; `processed/golden/` |
-| Podcast ASR | §7 | **transcribed + QC PASS, indexed, cited** — 47/47, 5-episode spot-check clean; citation URLs verified and stamped 2026-09-08 (item 14 closed). Remaining: speaker-map rewrite + re-upload (non-blocking) | 38.0 h audio → 35,050 phrases (~437K words); 37 eps × 2 speakers, 10 × 3; 1,800/1,800 segments deep-linked |
-| Index + retrieval | §9–11 | **live** on `kb-main-v2`, the code default on both sides. Re-uploaded 2026-09-09 after the luna regen (0 errors, all Stage 2 re-canonicalization), 2026-09-10 after the products.json drop (1470/1471 dotBAR flavors) and **2026-09-11 with the new infopages source** (authority-1 site copy, owner ruling — decisions Index §9). Ranker ruled **off** — item 5 closed | 4,122 docs — 1,080 pdsrg / 181 product / **116 infopage** / 10 menu / 1,800 podcast / 935 qa; 258 embed calls (fresh cache), 0 pruned, 0 errors; live `search_ping` PASS at 4,122 |
-| v1 runtime | §11 | **built + live** — the full §11 chain verified end to end and traced. Delivery mode is explicit: `Gated` for the service, `Live` for the CLI. Multi-turn landed 2026-09-10 (items 18/19): history reaches the guardrail and the rewrite, never the answer agent. Re-swept 2026-09-10: multiturn 10/10 live; remaining is the claims audit catching none of the judged violations (item 12). **Conversational branch landed 2026-09-11** (item 25): the guardrail classifies `intent` and a smalltalk turn skips retrieval entirely, so a greeting is answered instead of withheld on `citation_presence`; safety outranks intent and `out_of_scope` is logged only. **Stage 6b repair pass landed 2026-09-11** (items 12/17, decisions Runtime §11): a failure where every failing check is `claims_language` earns one bounded edit — excise the wording the audit named, change nothing else — re-judged by the same checks, once, with both verdicts kept; two prompt fixes beside it (a source grounds claims about its own product, in both prompts; site/program procedure is not a product claim) | `runtime/`, 264 tests |
-| SSE service | §11 | **built + live** 2026-09-08, **multi-turn 2026-09-10** — `POST /ask` streams disclosure/stage/delta/retraction/result and accepts `history`; always `Gated`; config validated at startup. **Stakeholder preview is unblocked** (item 21) — the website server relays the stream, contract in `docs/website-integration.md`. Safety is judged over the conversation as of item 19. **Hardened 2026-09-10** (item 22): shared-secret auth on `/ask` (fail-closed boot), 2,000-char question cap, `top` 1–20, 256 KB body, 120 s request timeout, `/healthz` reports the posture; handoffs carry a real support route. **Verdict logging landed 2026-09-11** (item 20): one `dotfit.verdict` JSON line to stdout per accepted request — outcome, reason codes, `history_trigger`, post-check and claims outcome, source/citation counts, stage timings, and no question or answer text; `request_id` echoed on `result`/`error` is the caller's join key. **Debug transcript + log viewer landed 2026-09-11** (owner ruling, decisions Runtime §11): `DOTFIT_SERVICE_DEBUG_TRANSCRIPT=1` (on in the preview unit) writes one `dotfit.transcript` line per request with the question, the withheld draft, the delivered text and the full failure messages — off by default, off before public traffic; `runtime/deploy/verdict-log` (installed as `dotfit-verdict-log`) reads both out of the journal. **Repair-aware 2026-09-11**: verdict schema **1.2.0** adds the `repaired` outcome (counted apart from `answered`, so the first audit's flag is not lost), `claims_pre_repair` and `pre_repair_failures`; transcript **1.1.0** carries the replaced draft and the wording that was cut; `result` gains `repaired`. Remaining before public traffic: items 12/17 | `runtime/src/DotFit.Agents.Service`; normal + escalation paths smoked live, hardening re-smoked live 2026-09-10 (fail-closed boot, 401/400, both answer paths), verdict log smoked live 2026-09-11 (answered + history-triggered escalation, id caps 400); deployed on the preview VM as a systemd user service — `runtime/deploy/` holds the unit + install script |
-| §12 eval harness | §12 | **built + live** — label-free metrics run, label-dependent report `null` with a reason | dev sweep 2026-09-10 (post items 23/24; first `--workers` run — 345 agent calls in minutes): sample recall@8 99.2%, probes 98.3%, escalation 10/10, multiturn 10/10 (item 19 measured), points-hit 0.87; withheld 39 of 125 (29 claims_language + 10 citation), faithfulness 0.60 (target 0.9), citation rate 87.9% over 33 claim answers; claims-audit precision undefined (0 flags) / recall **0/3** — items 12/17 stay open. The answer-side numbers above are a reading of the **superseded** draw (the 250 were re-drawn 2026-09-10, 42 items different); probe, escalation and multiturn tiers are unaffected and stand. **Sample retrieval re-measured on the new draw 2026-09-10** (retrieval-only, no chat): recall@8 **100.0%** (125/125, was 99.2% / 124/125), MRR 0.8233. Still owed on the new draw: faithfulness, citation rate, withheld counts and the claims-audit denominators — those need a full sweep. **Repair-aware 2026-09-11** (eval **1.2.0**): the claims ratios and the adversarial judge read the *pre-repair* draft and verdict — scoring a flag against the text that replaced it would read every successful repair as a false positive — and `n_repaired` / `n_repaired_delivered` are reported beside the withheld count |
+| Design + branch docs | — | **done** 2026-09-12 | `docs/agentic-assistant.md`, new `AGENTS.md`, this file; v1 docs moved to `docs/v1/` |
+| Project skeleton | §12.1 | **not started** | `DotFit.Agents.Agentic`, project reference to `DotFit.Agents` for `Retrieval/`, `Aliases/`, `EnvFile`; boot-time config validation |
+| Tools — `search` / `fetch` / `get_product` | §7 | **not started** | Deterministic, no model call. Source numbering + budget enforcement live here. First thing runnable against the live index |
+| The loop + system prompt | §6 | **not started** | One agent, one model; prompt assembled at boot, currency facts generated from `alias_table.json` |
+| CLI `dotfit-agentic` | §12.4 | **not started** | What the first owner session runs against |
+| Turn log | §10 | **not started** | One JSON line per request; no question/answer text by schema |
+| SSE service | §9 | **not started** | New event vocabulary (`source` added, `retraction` gone); v1 hardening carried over |
+| Smoke set + probes | §11 | **not started** | 20–30 written conversational turns; the 179 retrieval probes are reused as-is |
 
-Artifacts: `processed/qa/`, `processed/pdsrg/`, `processed/aliases/`,
-`processed/golden/`, `processed/index/`, `processed/eval/` (the one that
-measures a live service, so its numbers are a dated reading, not a rerun).
-Per-run counts live in each `summary.json`; numbers quoted here must match a
-regenerated run.
+**Reused unchanged, and verified as of the branch point** (§4) — this branch
+adds no pipeline code:
 
-## Open items (§14)
+| Reused | State at branch point |
+|---|---|
+| `pipeline/` | 462 tests green |
+| `processed/` artifacts | committed, regenerable |
+| `kb-main-v2` index | live, 4,122 docs — 1,080 pdsrg / 181 product / 116 infopage / 10 menu / 1,800 podcast / 935 qa |
+| `alias_table.json` | v1.3.0 — 53 indexed SKUs → 31 families, 10 legacy renames, 1 replacement, 2 discontinued |
+| Retrieval probes | 179, label-free |
+| v1 runtime (`DotFit.Agents*`) | builds, 264 tests green — the comparison baseline, keep it that way |
 
-The ones that need a *person* rather than code are written up in plain
-language for non-engineers in `docs/owner-tasks/` — one document per task,
-with what it is, why it matters and how long it takes. Keep the two in step:
-this table is the engineering status, that folder is what gets handed to an
-owner.
+## Open items
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Azure region + SKU | **closed** 2026-09-09 — quota arrived; both chat roles now `gpt-5.6-luna` (one deployment, 333K TPM; embedding unchanged), smoke-verified end to end; corpus regen + re-measure done (owner task 5a resolved) |
-| 2 | products.json freshness owner | **closed** 2026-09-10 — owner ruled: exports arrive **ad hoc** when updates are known, no schedule; at each drop engineering runs the recorded chain (diff → aliases → stage2 → stage4 → index → ping, in `docs/decisions.md` §5). First drop processed same day: dotBAR flavors 1470/1471 → one dotBAR family, index 4,002 → 4,006, live-verified |
-| 3 | Alias-table curation session | **closed** 2026-09-07 (pass 2) — outcomes are the `alias.py` curated constants, the worksheet is the session record. A pass 3 starts from the 2,292 unresolved Stage 2 mentions |
-| 4 | PPTX disposition | parked |
-| 5 | Semantic ranker on/off | **closed** 2026-09-09 — **off**. Full dev split: sample recall@8 99.2% off vs 75.2% on (n=125); the ranker's only win is one podcast probe (59/60 → 60/60). The off default stands; `--semantic` remains a flag |
-| 6 | Stage 3 review-queue dispositions | **closed** 2026-09-05, queue 0 |
-| 7 | Stage 4 review-queue dispositions | **closed** 2026-09-10 — both luna-regen pairs ruled **split** (owner task 3): LeanMR+creatine read as two turns of one thread (the FirstString shape), Lean Pack 90 kept both because the 2023 record carries the fuller FAQ text. All 3 conflict clusters dispositioned and pinned by membership; queue 2 (audit sample only, no decision owed) |
-| 8 | Golden-set labeling | **open, unblocked** — the re-draw is **ruled and committed** 2026-09-10: the 250 are re-drawn from the post-luna pool (653), 208 stay / 42 swap, deterministic and byte-identical to the decision pack's preview. What remains is the human pass: label the 250 with points-to-hit and expected sources (nutritionist + support lead, ~2–3 days; §12 rubric in the worksheet header). Until then the harness reports those two metrics as `null` with a reason. **Owner task 1** may start now; owner task 8 is closed |
-| 9 | Runtime live smoke | **closed** 2026-09-07 — root cause was the wedged index (item 10), not the service |
-| 10 | Orphaned `kb-main` index | **closed** 2026-09-08 — the delete finished server-side: `GET /indexes/kb-main` now returns the clean-miss 404 (not the wedged `"is being deleted"` body) and servicestats counts only `kb-main-v2` — 1 index, 3,996 docs, ~110 MB; the orphan's 7,992 docs / 213 MB no longer counted. Verified via statistics, not the portal, which hides deleting-state indexes. Support ticket moot; the name is free but `kb-main-v2` stays the code default on both sides — moving back is cosmetic, an owner option, not a task |
-| 11 | Answer agent sourced claim language from authority 3 | **fixed** 2026-09-07, re-measured on the frontier 2026-09-09 — the dev sweep's audit saw no authority-3 sourcing; the residual claims-language concern on luna is item 17 |
-| 12 | Claims-audit precision **and recall** under gating | **open — honestly measured at last** (re-swept 2026-09-10 after the 23/24 fixes; the morning's recall reading was withdrawn same day). Both earlier defects are closed live: the audit no longer skips (item 24 — no `skipped` verdicts, denominator 3/3) and the three judge false positives read `mentioned` (item 23). What is left is the finding itself: the audit flagged **nothing** while the judge found 3 asserted violations — **A-021 and A-029** (claim traps) and **A-047** (the derived 57.9% margin) — and **all three were delivered**: recall **0/3**, precision undefined (0 flags — the "flags nothing, looks clean" case §12 warns about). The audit's instructions/threshold are the work; A-047 has been real across two sweeps. **2026-09-11**: two live retractions moved the work the other way — the audit was *right* both times and the gate's price was wrong, so a claims-only failure now earns one bounded repair pass (§11 stage 6b). The metric plumbing moved with it: the verdict log counts `repaired` apart from `answered` and keeps `claims_pre_repair`, and eval 1.2.0 scores the ratios off the **pre-repair** draft and verdict — otherwise `post_check.claims` holds the *second* audit's reading and this item's precision numerator deletes itself. Recall 0/3 is untouched and is still the finding. Needed before **public customer** traffic; the stakeholder preview does not wait on it (item 21) |
-| 13 | Stage 2 review-queue dispositions (**absorbed item 16** 2026-09-08) | **open, regrouped** — 220 → 234 (182 PII + 47 audit + 5 low-conf; the earlier "+6" did not sum to 234). Round-3 groups read off the triage script 2026-09-10 and owner task 2 rewritten to them: **unresolved 2 → 20** (15 indexed — the sharper luna canonicalization sees names gpt-5-mini read past), text_residue 121 → 153, confirmed-clean 42 → 9, audit 47, low-conf 5. The Zane row cleared (ruling landed with prompt 1.2.0). Standing human items: 2 third-party prose mentions no rule can reach (1 indexed), 1 committed-tree ruling over the `text_residue` records, the bulk pile. **Scoped to the public launch 2026-09-10** — owner ruled the 211 already-searchable records acceptable for a stakeholder/partner audience, so this does not gate the preview; the standard is unchanged (ruling in `docs/decisions.md`, Corpus & PII) |
-| 14 | Podcast citation URLs | **closed** 2026-09-08 — all 47 ids resolved via YouTube oEmbed and matched all 47 episodes at Dice 1.00; frozen as `PODCAST_VIDEO_IDS`, 1,800/1,800 segments deep-linked to their start second, re-uploaded with 0 embed calls and verified live |
-| 15 | §12 evaluation coverage | **mostly closed** 2026-09-08 — the precision metric is in §12's list; PDSRG/podcast have 120 retrieval probes; the degraded-guardrail path is pinned by tests and fixed a real defect. **Remaining**: probes measure retrieval only, so end-to-end coverage of those two corpora still needs written questions, and three §11 standing behaviors (conversation-start disclosure, prompt-injection, and **product currency** — renames, replacements, discontinuations, added 2026-09-11 when a rename question was retracted in manual chat) have no adversarial item because §12 fixes the split at 20/15/15. The currency gap is the one with a live defect behind it: `multiturn.jsonl` is the precedent if it earns its own set |
-| 16 | Customer names in `question_original` | **closed into item 13** 2026-09-08 — it was the same defect seen through a different probe: the scrub had no rule for a name that is neither a salutation nor a closer. `SELF_INTRO_RE` closed it (11 spans redacted, the one public figure on `ACCEPTED_HONORIFIC_NAMES` correctly quoted verbatim) and the `my name is` probe is now 0. Residual-PII work continues under item 13; do not re-open this row |
-| 17 | Answer-prompt tuning for `gpt-5.6-luna` | **open** — checker fixed and re-swept twice (2026-09-10); the latest sweep (post item 24, which audits more drafts) reads withheld **39 of 125** (29 claims_language + 10 product_claim_citation, up from 24), faithfulness **0.60** against the 0.9 target (judged on delivered answers only), citation rate **87.9%** over 33 product-claim answers. The remaining work is the answer prompt itself — much of the claims_language pile is quotable-looking context phrasing the draft puts forward as dotFIT's own. **One cause of that pile is closed 2026-09-11**: the §5 alias notes now reach the claims audit (`BuildClaimsUserMessage`), which had been grading the rename sentence the pipeline itself ordered, and the instructions carve identity out while keeping replacement-as-rename a violation. **Three more causes closed 2026-09-11**, all found by a person typing into the chat rather than by §12. (a) The gate was whole-or-nothing, so one flagged sentence discarded three bullets quoted verbatim from approved copy — stage 6b now repairs a claims-only failure once. (b) `AnswerInstructions` never said a source grounds claims about *its own* product, so a draft could carry a NO7 Preworkout3 statement onto CreatineMonohydrate and the audit would correctly catch it; the rule is now in both prompts and is a named violation in the audit. (c) Site and program procedure was being judged as product-claim language, which retracted all five sentences of a how-do-I question on a context-only set. Live: creatine 4/4 delivered (was 3/4), program 3/3 (was 0/3). Prompt-side, so the 39/125 and 0.60 above are **unre-measured** — a full sweep is owed before either number is quoted again, and it now also owes a repair rate. Blocks **public customer** SSE with item 12, not the stakeholder preview (item 21) |
-| 18 | Multi-turn conversation support | **closed** 2026-09-10 — `POST /ask` takes `history` (`role`/`text`, oldest first, current question excluded; unknown role = 400), `AskOptions.History` carries it, and the CLI's `chat` keeps the session transcript (`reset` clears it). History reaches the **rewrite stage only** — it collapses a follow-up into one standalone question, and search / answer / post-check see no conversational state. The answer agent is never shown it (the `[n]` contract needs retrieved sources; an earlier turn is not one), which is pinned by a test, as is the guardrail gap left to item 19. Bounds are ours not the caller's: newest 8 turns, 1,000 chars each, trailing echo of the question dropped (`ConversationHistory`). `docs/website-integration.md` now documents it as built, with the single-turn safety limit stated plainly |
-| 19 | Guardrail over the conversation, not the turn | **closed and measured 2026-09-10** — history reaches the guardrail; a trigger stated in an earlier turn escalates the question that follows it, and `history_trigger` says a verdict rests on it. The countervailing rule is in the same prompt (one trigger must not refuse every later turn) and is measured: §12's `multiturn.jsonl` — 20 items, 10 delayed triggers / 5 delayed claim traps / 5 controls, scored off the runtime's own flags with misses and over-escalations reported apart. **Live sweep 2026-09-10: 10/10** on the dev split — 5/5 delayed triggers (all credited to history, including M-012 which the spot-check missed), 3/3 delayed claim traps, 2/2 controls, **0 over-escalations**. Ruling in `docs/decisions.md` (Runtime §11) |
-| 20 | Per-request verdict logging | **closed** 2026-09-11 — one `dotfit.verdict` JSON line per accepted request to stdout (`VerdictLog`): outcome (`answered`/`escalated`/`withheld`/`error`/`abandoned`), escalation reason codes, `history_trigger`, withheld, post-check verdict + failed check names, claims outcome (`not_run`/`skipped`/`degraded`/`compliant`/`violation`), source/citation counts, `cited_authorities`, families, stage timings. **No question or answer text**, enforced not promised: no text field exists, `reasons` is filtered to the known vocabulary, `failures`/`warnings` keep names and drop messages. Written from a `finally` so every terminal path logs — a `400`/`401` deliberately does not, it never reached a verdict. `request_id` (caller's or minted) is echoed on `result`/`error` as the join key; both ids capped at 64 chars. Not configurable, no off switch (item 21's price). 28 tests; smoked live |
-| 21 | Stakeholder-release scope decision | **closed** 2026-09-10 — owner ruling: the stakeholder preview is **never blocked on a metric**, so the project can be tested continuously at any state. Items 12 and 17 gate **public customer traffic only**. Recorded in `docs/decisions.md` (Runtime §11) with its two consequences: the claim-wording caveat becomes a standing condition on every preview release, and item 20's verdict logging is now load-bearing — if any state may ship, the log is the only reconstruction of what the audience saw |
-| 22 | Service hardening for the preview | **closed** 2026-09-10 — all four landed and smoked live: shared-secret auth on `POST /ask` (`Authorization: Bearer`, fixed-time compare) that **fails the boot** rather than serve an open endpoint — `DOTFIT_SERVICE_AUTH=none` is the explicit opt-out for an mTLS boundary; a 2,000-char question cap plus `top` 1–20 and a 256 KB body, all rejected as 400s before the SSE stream commits the response to 200; a 120 s request timeout that ends in `error`+handoff rather than a stream that silently stops; and the two handoff templates now carry `support@dotfit.com or (877) 436-8348`, the route the PDSRG itself publishes (owner ruling: ship the attested pair, keep it configurable). CORS and rate limiting stay out as ruled. Rulings in `docs/decisions.md` (Runtime §11); caller-facing contract in `docs/website-integration.md` |
-| 23 | Adversarial `forbidden` rubric cannot tell use from mention | **closed** 2026-09-10 — two changes. The 50 items' `forbidden` clauses are now verbs the response would have to *perform* ("asserting that a product cures …"), not noun keyword lists, pinned by a test that every clause reads as one; and the judge returns `forbidden_mode` (`absent` / `mentioned` / `asserted`) with `forbidden_present` **derived** from it, so a denial that names the claim it denies cannot be counted as the claim. The system prompt says so in the same words the 3 false positives failed on (A-023/A-031/A-033). `golden --written-only` rebuilt the written sets without re-drawing the 250 (item 8's target is untouched); golden_version 1.1.0, judge prompt 1.1.0, eval 1.1.0. **Re-swept 2026-09-10**: A-023/A-031/A-033 read `mentioned` and no longer count as violations; forbidden rate 3/25, none of them denials |
-| 24 | The claims audit does not run when no approved copy is retrieved | **closed** 2026-09-10 — decided: **run it**. The short-circuit predated the item 17 fix, when the checker could only see authority 1–2 and had nothing to compare against; it now sees every source, so the justification was gone and the skipped case was the *high-risk* one (A-047). `AgentClaimsLanguageChecker` now audits any non-empty source set, and the audit instructions say what a set with no QUOTABLE source means — context cited as context still passes, a product claim presented as dotFIT's own has nothing to support it. `Skipped` survives for the empty-source case and for reading pre-fix run records. **Re-swept 2026-09-10**: no skipped audits on the non-escalated adversarial set — recall now reads on a full denominator (3/3), and it is 0 (item 12) |
-| 25 | The assistant answers a greeting as if it were a question | **branch landed 2026-09-11, measurement open** (§11). `"Hi there"` was withheld on `citation_presence` and delivered as the support handoff; the guardrail now classifies `intent` (question / smalltalk / out_of_scope) and a **smalltalk** turn skips rewrite/aliases/search/answer for a small-model reply with no sources — so the citation checks, already conditioned on a non-empty source list, have nothing to fire on. Nothing was relaxed. Safety outranks intent (escalation and claim traps take the normal path, a degraded pre-check never branches), the branch is shown no history, and it logs as `chitchat` with an `intent` column (verdict schema 1.1.0). `out_of_scope` is classified and **logged only** — §12 reads `n_withheld: 0` on all 7 dev out-of-scope items, so that redirect works and is not being rerouted. **What is open is the measurement**, not the code: (a) §12 has no chat tier, so the branch is pinned by 30 runtime tests and by nothing on a live sweep — the numbers that matter are that escalation accuracy (10/10) and the multi-turn 20 do not move, plus a small written set of greetings, thanks and meta questions; (b) the adversarial tier reports no delivered/withheld split per category, which is why the out-of-scope reading above had to be taken from `by_category` rather than read off the report; (c) the live classifier has had one **44-probe smoke pass** 2026-09-11 (guardrail stage only, dev split, `dotfit-agent guardrail --json`, 0 errors / 0 degraded) and no scored sweep. That pass reads: over-classification **0/18** — no real question was taken for small talk, including 3 deliberately greeting-wrapped ones; small talk **8/8** branched; escalation **11/11** intact with none branched, "hi! I'm 14, what should I take?" among them; out-of-scope 5/7, none branched. One golden dev question (G-005, getting a gym listed on the club website) read `out_of_scope` — behavior unchanged because that intent does not branch, and direct evidence for why it must not: rerouting it would cost answers on real corpus questions. A smoke pass is not the tier — one run of a non-deterministic classifier, no answer-side effects, no multi-turn. Not a public-traffic gate on its own, but (a) should land before the next stakeholder release |
+| 1 | **The escalation guarantee is a tendency, not a barrier** (§13.1) — D3/D5 traded the blocking guardrail for in-prompt, conversational handling | open, owner-acknowledged. Needs the §11 smoke set before public traffic; §8.3's out-of-band review is the cheap upgrade if it slips |
+| 2 | **Claims exposure without a gate** (§13.2) — nothing stops a paraphrased product claim reaching a customer | open. Mitigation is that `get_product` makes quoting the cheap path; evidence is owner sessions |
+| 3 | **Search queries in the turn log** (§13.3) — the model's text, but it can echo the customer's question closely | open, needs an owner ruling. If it's a problem it becomes a config flag, not a redaction |
+| 4 | **History replays no tool results** (§13.4) — costs a repeat search on some follow-ups | open, measure before fixing. The fix is server-side sessions, which is a D6 contract change |
+| 5 | **Budgets are guessed** (§13.5) — 8 tool calls, 60 s wall clock | open. Replace with the observed distribution once the turn log has one |
+| 6 | **Streaming the model's pre-tool narration** (§13.6) — reads as conversational or as noise, unknown | open, decide on real transcripts |
+| 7 | **Website relay contract changes** (§13.7) — `retraction` gone, `source` added | open, needs comms to the website team before anything points at this branch |
+| 8 | **v1 pipeline items carried over** — golden-set labeling and the Stage 2 PII review queue are corpus work, not runtime work | carried over unchanged; see `docs/v1/progress.md` items 8 and 13 |
+| 9 | **A/B against v1** — the point of keeping the baseline runnable | open, after §12.4. Latency and owner read of the same turns through both runtimes |
 
 ## Log
 
-Newest first, one entry per work item, 8 wrapped lines maximum (see Writing
-entries). The five most recent live here; older ones are in
-`docs/progress-archive.md`. Detail belongs in the commit, the code, or the
-artifact it describes.
+Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
+in the commit, the code, or the artifact it describes.
 
+### 2026-09-12 — branch opened, design written
 
-- **2026-09-11 (68)** — A claims-only failure earns one repair pass (§11
-  stage 6b, items 12/17). Two live retractions, one cause: the gate is
-  whole-or-nothing, so a correct verdict on one sentence discarded the whole
-  answer. Now one bounded edit — excise the wording the audit named, change
-  nothing else — judged again by the same checks: once, claims-only, same
-  grounding, not self-reported, and both verdicts kept (`repaired` outcome,
-  verdict 1.2.0; transcript 1.1.0 holds the cut draft; eval 1.2.0 reads the
-  pre-repair verdict or item 12's numerator deletes itself). Two prompt fixes
-  beside it — a source grounds claims about **its own** product, now in *both*
-  prompts, and site/program procedure is not a product claim. Live: creatine
-  4/4 delivered (was 3/4), program 3/3 (was 0/3); both owe a full sweep.
-  22 tests (**462 py / 264 runtime**).
-
-- **2026-09-11 (67)** — Index the dotFIT.com info pages, new source
-  `infopage` (§9). Owner ruled them **authority-1 site copy** — same export
-  channel as products.json — so `infopage_documents` reuses
-  `split_sections` (page H1 dropped, intro → description), stamps public
-  `citation_url`s, and `PAGE_META` curates title/topic per coid (unknown
-  coid raises). 20 pages → 116 docs; index 4,006 → **4,122**, re-uploaded
-  0 errors, `search_ping` PASS. Guardrail splits published-policy questions
-  (now answerable) from support-owned order/account actions; runtime labels
-  the source; probes 120 → **179** (old rows byte-identical). Live smoke:
-  return policy answered + cited, "where is my order" still `out_of_scope`.
-  4 py + 1 runtime tests (**459 py / 245 runtime**).
-
-- **2026-09-11 (66)** — Request/response debugging for the preview (§11,
-  owner ruling recorded in decisions Runtime §11). The verdict log could not
-  explain a retraction: it keeps a check's *name* and drops its message, and
-  the message is the wording the check rejected. New opt-in
-  `dotfit.transcript` line per request — question, history as received, the
-  draft *including a withheld one*, the delivered text, retraction reason,
-  guardrail notes, full failure messages — from the same `finally`. Off by
-  default (`DOTFIT_SERVICE_DEBUG_TRANSCRIPT`), loud when on (boot line +
-  `/healthz`), **on in the preview unit, off before public traffic**.
-  `VerdictLog` unchanged; a test pins the separation with both sinks wired.
-  `runtime/deploy/verdict-log` (installed as `dotfit-verdict-log`) filters the
-  journal server-side so `-n N` counts verdicts, and `--transcripts` renders
-  the debug blocks. Smoked live. 21 tests (**455 py / 244 runtime**).
-
-- **2026-09-11 (65)** — The claims audit sees what the pipeline ordered (§11,
-  item 17). A rename question came back **retracted** on `claims_language`:
-  the §5 alias note orders the answer to mention the rename, then stopped at
-  the answer prompt, so an obedient draft read as unsupported. The notes now
-  reach the audit (not the claim-trap note — it would bias the verdict),
-  identity and source titles are carved out, and replacement-as-rename is its
-  own violation. Item 17's 29 withholds want a **live re-sweep**; §12 has no
-  rename item (gap, item 15). 3 tests (**455 py / 223 runtime**).
-
-- **2026-09-11 (64)** — The conversational branch (§11, new item 25). "Hi
-  there" came back as the **support handoff**: the chain runs whatever is
-  typed, search returns its `top` neighbours anyway, the greeting cites
-  nothing, and `citation_presence` failed it — so `Gated` withheld it. Fixed
-  with a branch, not a looser check: the guardrail now returns `intent`
-  (question / smalltalk / out_of_scope) on the call it already makes, and a
-  smalltalk turn skips rewrite/aliases/search/answer for a small-model reply,
-  leaving the source list empty so the citation checks have nothing to fire
-  on. Escalation and claim traps still win, a degraded pre-check never
-  branches, no history reaches it, and it logs as `chitchat` (verdict schema
-  1.1.0). `out_of_scope` is logged only — §12 shows those 7 delivered.
-  30 tests (**455 py / 220 runtime**).
-
-## Writing entries
-
-Update **Status** (numbers), **Open items**, and add one **Log** entry per work
-item, newest first, with plan-§ refs. Then **rotate**: move whatever falls past
-the newest five to the top of `docs/progress-archive.md`, so this file's length
-stays flat instead of growing one entry per work item.
-
-**Budget: 8 wrapped lines per log entry, hard.** Wrap at 80 columns like the
-rest of the file — a single 3,000-byte line is exactly what this rule exists to
-prevent. Keep the numbers (counts, test totals), the §refs and the open-item
-pointers; drop the mechanism, which belongs in the commit message, the
-docstring, or the artifact.
-
-**Table rows are status, not history**, in both tables: the state, plus the
-numbers a rerun must reproduce, plus what remains. A post-mortem in a row is a
-log entry in the wrong place; a mechanism in a row is a docstring in the wrong
-place. When an item closes, cut the row to its outcome and any remainder.
-
-Owner rulings that constrain future work go to `docs/decisions.md` — not here,
-and not twice.
+`agentic-rag` branched from `master` at `0536302`. Owner review found the v1
+runtime slow, refusal-prone and unconversational; all three read as
+architectural rather than prompt-level, so this branch replaces the runtime and
+nothing upstream of it. Eight owner decisions recorded as §2 D1–D8: new .NET
+project beside v1 (not in place of it), same swappable Azure Foundry model
+config, **prompt- and tool-enforced only — no gating** (D3), three tools
+(`search` / `fetch` / `get_product`), conversational non-blocking handling of
+the escalation list (D5), the same stateless `POST /ask` SSE contract (D6),
+minimal tests with the unlabeled 250-item golden set explicitly not a validity
+signal (D7), and a clean docs slate with v1's moved to `docs/v1/` (D8). Design
+in `docs/agentic-assistant.md`; hard rules in `AGENTS.md`. No code yet.

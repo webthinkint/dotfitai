@@ -12,7 +12,7 @@ What it reports, in the order that matters:
    same one the index builds documents from: a changed ``description`` is a
    changed claim document, and its old embedding is now stale.
 2. **Added / removed SKUs** — a removed SKU with corpus mentions becomes an
-   alias-table currency question (§5, `docs/decisions.md`: discontinued with no
+   alias-table currency question (§5, `docs/v1/decisions.md`: discontinued with no
    successor stays indexable and tags nothing).
 3. **Renames** — ``longname`` changed on the same ``part_no``. A rename is an
    identity mapping and never supersedes (AGENTS.md), so it belongs in the
@@ -130,7 +130,7 @@ def main() -> int:
          "New claim documents; check the alias table covers the new names (§5)."),
         ("removed_skus", "removed SKUs",
          "A removed SKU still mentioned in the corpus is a currency question, "
-         "not a deletion — see docs/decisions.md."),
+         "not a deletion — see docs/v1/decisions.md."),
     ):
         if report[key]:
             print(f"## {title} ({len(report[key])})")

@@ -8,7 +8,7 @@ namespace DotFit.Agents.Service;
 /// One structured record of what the service **said** about one request —
 /// the debug companion to <see cref="VerdictLog"/>, and the deliberate
 /// exception to its ruling (owner ruling, 2026-09-11, recorded in
-/// <c>docs/decisions.md</c> Runtime §11).
+/// <c>docs/v1/decisions.md</c> Runtime §11).
 ///
 /// The verdict log's rule — "what was decided and never what was said" — was
 /// priced against *public* traffic, where the caller's database is the system

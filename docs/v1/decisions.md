@@ -1,7 +1,7 @@
 # Phase 1 — Decisions
 
 Owner/curation decisions and the reasoning that is not obvious from the code.
-Read the group for the area you are touching; `docs/progress.md` is the status
+Read the group for the area you are touching; `docs/v1/progress.md` is the status
 view and does not repeat these. Everything else (rules, index contract, stage
 design) is in `phase1-knowledge-assistant.md`, and the hard rules those
 decisions produced are in `AGENTS.md`.
@@ -441,7 +441,7 @@ the test.
   faces customers" line stands, and the preview audience is not customers.
   Two consequences, and they are the price of the ruling: the
   claim-wording caveat is a **standing** condition on every preview release
-  rather than a one-off note (it lives in `docs/website-integration.md`), and
+  rather than a one-off note (it lives in `docs/v1/website-integration.md`), and
   per-request verdict logging (item 20) stops being nice-to-have — if any state
   may ship, the record of what the preview audience was actually shown is the
   only way to reconstruct a complaint.

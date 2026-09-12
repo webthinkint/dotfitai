@@ -16,7 +16,7 @@ namespace DotFit.Agents.Service;
 ///
 /// **It carries no question and no answer text, by construction.** The caller's
 /// database is the system of record for the conversation (see
-/// <c>docs/website-integration.md</c>); a second copy here would be a new PII
+/// <c>docs/v1/website-integration.md</c>); a second copy here would be a new PII
 /// surface, which the §4 posture does not allow for a corpus of real customer
 /// mail. The rule is enforced in three places rather than trusted:
 ///

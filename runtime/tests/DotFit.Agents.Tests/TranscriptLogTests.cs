@@ -11,7 +11,7 @@ namespace DotFit.Agents.Tests;
 
 /// <summary>
 /// The debug transcript log — the opt-in companion to the verdict log (owner
-/// ruling 2026-09-11, recorded in <c>docs/decisions.md</c> Runtime §11).
+/// ruling 2026-09-11, recorded in <c>docs/v1/decisions.md</c> Runtime §11).
 /// These pin the three things it is for:
 ///
 /// - that it carries **the words** — question, history, the withheld draft,
