@@ -1,6 +1,7 @@
 using DotFit.Agentic.Config;
 using DotFit.Agentic.Turn;
 using DotFit.Agents;
+using DotFit.Agents.Retrieval;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
@@ -16,14 +17,16 @@ public class LoopTests
     private static AgenticAssistant Build(
         IChatClient client,
         out FakeSearch search,
-        AgenticOptions? options = null)
+        AgenticOptions? options = null,
+        PriceSheet? prices = null)
     {
         search = new FakeSearch(
             Fixtures.Document(id: "pdsrg-example-001", title: "Dosing"),
             Fixtures.Document(id: "pdsrg-example-002", title: "Mechanism"));
         var store = new FakeDocumentStore();
         AIAgent agent = client.AsAIAgent(instructions: "test instructions", name: "test");
-        return new AgenticAssistant(agent, search, store, Fixtures.Aliases(), options ?? new AgenticOptions());
+        return new AgenticAssistant(
+            agent, search, store, Fixtures.Aliases(), options ?? new AgenticOptions(), prices: prices);
     }
 
     private static async Task<List<TurnEvent>> RunAsync(AgenticAssistant assistant, AskRequest request)
@@ -304,6 +307,80 @@ public class LoopTests
 
         Assert.Equal(600, result.InputTokens);
         Assert.Equal(30, result.OutputTokens);
+    }
+
+    [Fact]
+    public async Task The_cost_block_prices_all_three_components_from_observed_usage()
+    {
+        // §9's `cost`: chat tokens off the model's own reports (cached input
+        // kept apart — it is billed at a different rate), embedding tokens off
+        // the search call's report, index queries off the calls the tool made.
+        // Nothing is estimated and nothing is rounded — the arithmetic must be
+        // exactly the sheet times the counts, or the owners are reading a
+        // number nobody can stand behind.
+        var sheet = new PriceSheet
+        {
+            Id = "test-sheet",
+            ChatInputPerMillion = 1m,
+            ChatCachedInputPerMillion = 0.1m,
+            ChatOutputPerMillion = 10m,
+            EmbeddingPerMillion = 0.2m,
+            SearchPerThousand = 2m,
+        };
+        var client = new ScriptedChatClient(
+            [
+                new FunctionCallContent("c1", "search",
+                    new Dictionary<string, object?> { ["query"] = "creatine dosing" }),
+                new UsageContent(new UsageDetails
+                {
+                    InputTokenCount = 1_000, CachedInputTokenCount = 400, OutputTokenCount = 10,
+                }),
+            ],
+            [
+                new TextContent("Take 5 g daily [1]."),
+                new UsageContent(new UsageDetails
+                {
+                    InputTokenCount = 2_000, CachedInputTokenCount = 1_000, OutputTokenCount = 20,
+                }),
+            ]);
+        AgenticAssistant assistant = Build(client, out FakeSearch search, prices: sheet);
+        search.Handler = p =>
+        {
+            p.UsageSink?.Embedding(31);   // what the embedding API would have reported
+            return (IReadOnlyList<RetrievedDocument>)[Fixtures.Document(id: "pdsrg-example-001")];
+        };
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "how much creatine?" });
+        TurnCost cost = events.OfType<TurnResultEvent>().Single().Result.Cost!;
+
+        Assert.Equal(3_000, cost.ChatInputTokens);
+        Assert.Equal(1_400, cost.ChatCachedInputTokens);
+        Assert.Equal(30, cost.ChatOutputTokens);
+        Assert.Equal(1_600 * 1m / 1_000_000m + 1_400 * 0.1m / 1_000_000m + 30 * 10m / 1_000_000m, cost.ChatUsd);
+        Assert.Equal(1, cost.EmbeddingCalls);
+        Assert.Equal(31, cost.EmbeddingTokens);
+        Assert.Equal(31 * 0.2m / 1_000_000m, cost.EmbeddingUsd);
+        Assert.Equal(1, cost.IndexQueries);
+        Assert.Equal(1 * 2m / 1_000m, cost.SearchUsd);
+        Assert.Equal(cost.ChatUsd + cost.EmbeddingUsd + cost.SearchUsd, cost.TotalUsd);
+        Assert.Equal("test-sheet", cost.PriceSheet);
+    }
+
+    [Fact]
+    public async Task A_turn_with_no_usage_still_gets_a_zero_cost_block()
+    {
+        // The scripted fake reports no usage and calls no tool — small talk's
+        // shape. The cost block exists and says zero, rather than being absent
+        // and reading as "unknown".
+        var client = new ScriptedChatClient(ScriptedChatClient.Text("Hey!"));
+        AgenticAssistant assistant = Build(client, out _);
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "hi" });
+        TurnCost cost = events.OfType<TurnResultEvent>().Single().Result.Cost!;
+
+        Assert.Equal(0m, cost.TotalUsd);
+        Assert.Equal(0, cost.IndexQueries);
+        Assert.Equal(0, cost.EmbeddingCalls);
     }
 
     [Fact]

@@ -46,10 +46,12 @@ public static class AgenticFactory
         RuntimeOptions options,
         AgenticOptions? agentic = null,
         AliasTable? aliases = null,
-        SearchSettings? settings = null)
+        SearchSettings? settings = null,
+        PriceSheet? prices = null)
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
         agentic ??= AgenticOptions.Load(options.EnvFilePath);
+        prices ??= PriceSheet.Load(options.EnvFilePath);
         // Not `DefaultTop`: on this branch `top` is the model's per-call choice,
         // clamped against AgenticOptions, and SearchParameters always carries it
         // explicitly — so setting it here would describe a default nothing
@@ -69,6 +71,7 @@ public static class AgenticFactory
             aliases: aliases,
             options: agentic,
             supportContact: options.SupportContact,
-            settings: settings);
+            settings: settings,
+            prices: prices);
     }
 }

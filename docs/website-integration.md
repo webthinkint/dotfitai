@@ -41,7 +41,7 @@ Four consequences reach your code.
 
 Also gone from `result`: `post_check`, `repaired`, `citations`,
 `rendered_citations`, `question`. Added: `cited`, `tool_calls`,
-`budget_exhausted`, `first_delta_ms`, `total_ms`.
+`budget_exhausted`, `first_delta_ms`, `total_ms`, `cost`.
 
 Unchanged: the endpoints, the auth scheme, the request body, `conversation_id`
 and the disclosure rule, the `history` contract, every limit, the timeout
@@ -71,6 +71,11 @@ hardening posture, and the assistant's own budgets:
   "max_tool_calls": 8,
   "turn_timeout_seconds": 60,
   "default_top": 6,
+  "price_sheet": "builtin-2026-09",
+  "price_currency": "USD",
+  "price_chat_usd_per_1m": {"input": 1.25, "cached_input": 0.125, "output": 10},
+  "price_embedding_usd_per_1m": 0.13,
+  "price_search_usd_per_1k": 0.25,
   "gating": "none"
 }
 ```
@@ -78,6 +83,12 @@ hardening posture, and the assistant's own budgets:
 `"runtime": "agentic"` and `"gating": "none"` are how you tell which of the two
 runtimes you are pointed at — worth asserting in a smoke check if both are
 deployed anywhere.
+
+The `price_*` fields are the sheet behind `result.cost` (see below), exposed
+so anyone can check what a turn is being priced against without asking us. The
+`price_search_usd_per_1k` rate is a **placeholder** until we derive a real
+cost-per-query from billing data — read `cost.search.queries` as the reliable
+number and its `usd` as provisional.
 
 The service validates its whole configuration at **startup** — a missing key,
 deployment or shared secret fails the boot rather than the first question. If it
@@ -194,7 +205,16 @@ list, which is what makes live streaming worth having.
   "tool_calls": 1,
   "budget_exhausted": false,
   "first_delta_ms": 5809,
-  "total_ms": 5820
+  "total_ms": 5820,
+  "cost": {
+    "currency": "USD",
+    "price_sheet": "builtin-2026-09",
+    "chat": {"input_tokens": 18432, "cached_input_tokens": 9216,
+              "output_tokens": 1204, "usd": 0.0483},
+    "embedding": {"calls": 2, "tokens": 61, "usd": 0.0000079},
+    "search": {"queries": 3, "ranker_queries": 0, "usd": 0.00075},
+    "total_usd": 0.0490579
+  }
 }
 ```
 
@@ -210,6 +230,22 @@ source list showing six entries when the answer leaned on one reads as padding.
 worked. `budget_exhausted: true` means the assistant hit its research limit and
 answered with what it had — rare, and not something to surface to a customer,
 but worth logging.
+
+**`cost` is what the turn spent, on every Azure call it made.** The counts are
+observed — token counts from the model's own usage reports (summed across
+round trips, so a tool-calling turn's re-sent context is fully counted;
+`cached_input_tokens` is the discounted subset of `input_tokens`), embedding
+calls and tokens from the embedding API, `search.queries` counting every index
+call the turn made (searches, product-copy filters, document fetches — one
+count each, plus one per neighbour a fetch probed). The `usd` figures are those
+counts priced against the sheet named in `price_sheet` — the same sheet
+`/healthz` exposes. Two honest caveats: the **search rate is a placeholder**
+(our AI Search tier bills the month, not the query; a real per-query figure
+will replace it and bump `price_sheet`), and the numbers are priced, not
+invoiced — Azure's invoice is the authority if the two ever disagree. `cost` is
+absent only on the service-timeout handoff, where the turn's usage was lost
+with the cancelled request. Store it per turn if you want cost dashboards;
+`total_usd` is the headline number.
 
 `request_id` is the one you sent, or the one we minted. **Store it on the turn.**
 It is the only key joining your record of what was said to our record of what
@@ -367,8 +403,8 @@ is appended to it rather than replacing it, and `result.answer` carries both —
 so `answer` is always the whole of what the customer saw, on every path.
 
 **Logging.** Your database is the system of record for transcripts. Worth
-storing per turn from `result`: `request_id`, `cited`, `sources`, `tool_calls`
-and `first_delta_ms`.
+storing per turn from `result`: `request_id`, `cited`, `sources`, `tool_calls`,
+`first_delta_ms` and `cost`.
 
 **Our turn log.** We write one structured line per request recording what the
 assistant *did* — how many tool calls, which tools, the search queries it chose,

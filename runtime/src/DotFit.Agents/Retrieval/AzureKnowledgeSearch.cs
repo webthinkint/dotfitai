@@ -32,9 +32,16 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
 
     public async Task<IReadOnlyList<RetrievedDocument>> SearchAsync(SearchParameters p, CancellationToken ct = default)
     {
-        ReadOnlyMemory<float> vector =
-            (await _embeddings.GenerateEmbeddingAsync(p.QueryText, cancellationToken: ct).ConfigureAwait(false))
-            .Value.ToFloats();
+        // The plural call is the only one that exposes the usage the API
+        // reports back, and the usage is the only thing wanted from it: the
+        // embedding itself is byte-identical to the single-input call, so v1
+        // callers see no change beyond an extra field on the request.
+        OpenAIEmbeddingCollection embeddings =
+            (await _embeddings.GenerateEmbeddingsAsync([p.QueryText], cancellationToken: ct).ConfigureAwait(false))
+            .Value;
+        ReadOnlyMemory<float> vector = embeddings[0].ToFloats();
+        if (embeddings.Usage?.InputTokenCount is { } embeddingTokens)
+            p.UsageSink?.Embedding(embeddingTokens);
 
         var options = new SearchOptions
         {

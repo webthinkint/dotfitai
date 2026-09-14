@@ -245,6 +245,53 @@ public class AskStreamTests
     }
 
     [Fact]
+    public async Task The_result_frame_carries_the_turns_cost()
+    {
+        // §9: the cost block is on `result`, always last, so the owners can
+        // see a turn's spend while chatting. Counts and money, snake_case —
+        // the same field names the turn log's `cost` object uses.
+        var cost = new TurnCost
+        {
+            Currency = "USD",
+            PriceSheet = "test-sheet",
+            ChatInputTokens = 3_000,
+            ChatCachedInputTokens = 1_400,
+            ChatOutputTokens = 30,
+            EmbeddingCalls = 1,
+            EmbeddingTokens = 31,
+            IndexQueries = 1,
+            RankerQueries = 0,
+            ChatUsd = 0.00204m,
+            EmbeddingUsd = 0.0000062m,
+            SearchUsd = 0.002m,
+        };
+        var assistant = new FakeAssistant(new TurnResultEvent(Result() with { Cost = cost }));
+
+        (RecordingWriter writer, _) = await RunAsync(assistant, new AskBody { Question = "q" });
+        string frame = writer.Frames.Single(f => f.Event == AskStream.EventResult).Json;
+
+        Assert.Contains("\"price_sheet\":\"test-sheet\"", frame, StringComparison.Ordinal);
+        Assert.Contains("\"input_tokens\":3000", frame, StringComparison.Ordinal);
+        Assert.Contains("\"cached_input_tokens\":1400", frame, StringComparison.Ordinal);
+        Assert.Contains("\"queries\":1", frame, StringComparison.Ordinal);
+        Assert.Contains("\"total_usd\":0.0040462", frame, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_result_the_loop_never_priced_omits_the_cost_block()
+    {
+        // The service-timeout handoff builds a synthetic result with no meter
+        // behind it. Omitting the block is the honest shape — a guessed cost
+        // would be indistinguishable from a measured one on the wire.
+        var assistant = new FakeAssistant(new TurnResultEvent(Result()));
+
+        (RecordingWriter writer, _) = await RunAsync(assistant, new AskBody { Question = "q" });
+        string frame = writer.Frames.Single(f => f.Event == AskStream.EventResult).Json;
+
+        Assert.DoesNotContain("cost", frame, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task There_is_no_retraction_event_on_this_branch()
     {
         // D3. The name is retired rather than reused — a caller that still
@@ -267,7 +314,9 @@ public class AskStreamTests
     [Fact]
     public async Task A_source_frame_carries_no_content()
     {
-        // This endpoint is public; the source text is an operator diagnostic.
+        // The endpoint is the website backend's, private — but the wire stays
+        // narrow anyway: corpus text is an operator diagnostic, not something
+        // a widget needs to render a turn.
         var assistant = new FakeAssistant(new TurnSourceEvent(Result().Sources[0]), new TurnResultEvent(Result()));
 
         (RecordingWriter writer, _) = await RunAsync(assistant, new AskBody { Question = "q" });

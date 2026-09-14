@@ -21,11 +21,12 @@ has not had is a person using it.
 | Tools — `search` / `fetch` / `get_product` | §7 | **done** | Deterministic, no model call. Alias tiers mapped onto the two inputs: `products` is a judged mention (may resolve LLM-only aliases), `query` is a blind scan (deterministic tier only). Turn-scoped numbering, budget, OData filters. Live: `dotfit-agentic search` returns numbered, labelled sources off `kb-main-v2` |
 | The loop + system prompt | §6 | **done** | One agent, one model, no stage before or after. Prompt assembled at boot from posture + authority + currency facts (generated from `alias_table.json`) + tool contract + safety. Budgets: 8 tool calls, 60 s research, 110 s hard ceiling |
 | CLI `dotfit-agentic` | §12.4 | **done** | `ask`, `chat`, `search`, `smoke`, `prompt`, `config`; `--trace` shows every tool call and its arguments, `--log` prints the turn-log line |
-| Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3) |
+| Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3). Schema 1.1.0 carries the `cost` block |
+| Per-turn cost | §9, §10 | **done** 2026-09-15 | `result.cost` on the wire and `cost` in the turn log: observed counts (chat tokens with cached input split out, embedding tokens, index queries) priced against a `DOTFIT_PRICE_*` sheet from `.env`. Search rate is a **placeholder** (open item 11); chat/embedding prices are the builtin sheet's defaults until the owner sets real ones |
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **106 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
+| Tests | §11 | **120 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -70,12 +71,35 @@ clock — see open item 10.
 | 8 | **v1 pipeline items carried over** — golden-set labeling and the Stage 2 PII review queue are corpus work, not runtime work | carried over unchanged; see `docs/v1/progress.md` items 8 and 13 |
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
+| 11 | **The search price in the cost sheet is a placeholder** (new 2026-09-15) | **open.** `result.cost.search.usd` prices index queries at a dummy `DOTFIT_PRICE_SEARCH_PER_1K` — a provisioned AI Search tier bills the month, not the query, so there is no per-query price to read. The counts (`search.queries`, `search.ranker_queries`) are exact. Replace the rate from the service's real billing data, set a new `DOTFIT_PRICE_SHEET` id in the same edit, and update `docs/website-integration.md`'s caveat. The chat/embedding prices in the builtin sheet are the current list prices, also worth confirming against the actual invoice |
 
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-15 — per-turn cost on the wire and in the log (§9, §10)
+
+Every `result` now carries a `cost` block, and the turn log (schema 1.1.0)
+carries the same one: chat tokens with the cached-input subset split out (it is
+billed at a different rate, and a tool-calling turn re-sends its context every
+round trip), embedding tokens read off the embedding API's own usage report —
+captured by switching `AzureKnowledgeSearch` to the plural embeddings call and
+an additive, optional `SearchParameters.UsageSink` v1 never sets — and index-
+query counts per call the tools make (search 1, fetch 1 + one per neighbour
+probe, get_product 1). Money is those counts priced against a `DOTFIT_PRICE_*`
+sheet from the same `.env`; every block names its sheet id so old numbers stay
+interpretable. The search rate is a **dummy** per the owner's instruction —
+open item 11 tracks replacing it from billing data. `/healthz` exposes the live
+sheet; the CLI prints cost in its turn summary and `config`; `dotfit-turn-log`
+renders `$0.0000` per line. Owner rulings recorded: the endpoint is the website
+backend's and private, so cost belongs on the wire; and additive v1-file
+instrumentation is permitted when behavior is unchanged — one bend made,
+264 v1 tests green beside the 14 new agentic ones (120 total). Verified live
+2026-09-15, one-search ask on `gpt-5.6-luna`: cost `$0.008541955` — chat
+6,748 tok (2,449 cached) $0.008290, embedding 16 tok $0.000002, 1 index query
+$0.00025.
 
 ### 2026-09-14 — the transcripts learn the show's name (and Neal's)
 

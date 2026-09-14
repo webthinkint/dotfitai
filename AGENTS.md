@@ -55,7 +55,7 @@ contain spaces, commas and `&` — always quote paths.
 Runtime (.NET 10), from `runtime/`:
 
 ```bash
-dotnet build && dotnet test              # 85 agentic + 264 v1, all must stay green
+dotnet build && dotnet test              # 120 agentic + 264 v1, all must stay green
 
 dotnet run --project src/DotFit.Agentic.Cli -- config      # resolved config, keys masked
 dotnet run --project src/DotFit.Agentic.Cli -- prompt      # the assembled system prompt
@@ -91,7 +91,7 @@ PDSRG: PDF → `pdsrg` → `index`; products.json + infopages + menus + podcasts
 | `runtime/src/DotFit.Agentic.Service/` | SSE endpoint, new event vocabulary | §9 |
 | `runtime/deploy-agentic/` | the preview deploy: user unit on **5299**, installer, `turn-log` viewer. v1's `runtime/deploy/` (5199) untouched — both run together | §9, §10 |
 | `runtime/smoke/` | the written conversational set, and how to read a transcript | §11.2 |
-| `runtime/src/DotFit.Agents*` (v1 projects) | the baseline. Keep buildable, change only to keep it building | `docs/v1/` |
+| `runtime/src/DotFit.Agents*` (v1 projects) | the baseline. Keep buildable and behavior-identical; additive shared instrumentation (no behavior change for v1, e.g. the optional `SearchParameters.UsageSink` behind `result.cost`) is allowed — owner-ruled 2026-09-15 | `docs/v1/` |
 
 `DotFit.Agentic` is a **sibling** namespace of `DotFit.Agents`, not a child.
 That is deliberate: as a child, every file needing a conversation type also
@@ -123,6 +123,11 @@ ambiguity cannot come back.
   expand queries.
 - **`products.json` is the legal-approved claims corpus** — quote it, never
   paraphrase claims. `get_product` exists to make quoting the cheap path.
+- **Per-turn cost is priced, not invoiced.** `result.cost` and the log's
+  `cost` block are observed counts against the `DOTFIT_PRICE_*` sheet — the
+  search rate is a placeholder (open item 11). When prices change, the sheet
+  id changes in the same `.env` edit, and `docs/website-integration.md` in
+  the same commit; a cost number without its sheet id means nothing.
 - **`is_current eq true` is always in the filter.** AI Search does not match a
   filter against null, so an unstamped document is invisible to every query.
   `product_status` is a separate axis: a discontinued product's documents stay

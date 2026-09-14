@@ -29,6 +29,19 @@ public sealed record RetrievedDocument
     public double BoostedScore { get; init; }
 }
 
+/// <summary>
+/// Receives the embedding usage of a search call: one callback per query
+/// embedding, carrying the input token count the API reported. Purely
+/// additive instrumentation — v1 constructs <see cref="SearchParameters"/>
+/// with no sink and its behavior is unchanged; the agentic runtime sets one
+/// so a turn's cost can be priced from observed usage rather than estimates.
+/// </summary>
+public interface IEmbeddingUsageSink
+{
+    /// <summary>One embedding call, with the input token count the API reported.</summary>
+    void Embedding(long inputTokens);
+}
+
 /// <summary>What to search for and how (built by the orchestrator / CLI).</summary>
 public sealed record SearchParameters
 {
@@ -42,6 +55,14 @@ public sealed record SearchParameters
     public bool Semantic { get; init; }
     /// <summary>Extra OData filter, ANDed with the is_current filter.</summary>
     public string? AdditionalFilter { get; init; }
+
+    /// <summary>
+    /// Optional, additive: where the query-embedding usage is reported. The
+    /// embedding is metered per input token, so pricing a search call exactly
+    /// means reading the count the API returned — which, without this, was
+    /// discarded the moment the vector was taken off the response.
+    /// </summary>
+    public IEmbeddingUsageSink? UsageSink { get; init; }
 }
 
 public sealed record SearchSettings

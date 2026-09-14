@@ -34,7 +34,7 @@ public sealed record TurnLog
     /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
     public const string SchemaName = "dotfit.turn";
 
-    public const string SchemaVersion = "1.0.0";
+    public const string SchemaVersion = "1.1.0";
 
     /// <summary>The model answered, with or without having searched.</summary>
     public const string OutcomeAnswered = "answered";
@@ -100,6 +100,15 @@ public sealed record TurnLog
     [JsonPropertyName("input_tokens")] public long? InputTokens { get; init; }
     [JsonPropertyName("output_tokens")] public long? OutputTokens { get; init; }
 
+    /// <summary>
+    /// The turn's cost, counts and derived money (added in 1.1.0). The token
+    /// counts above remain the raw pair; this carries the fuller breakdown —
+    /// cached input, embedding usage, index queries — and the sheet that
+    /// priced it, which is the only way a dollar figure in an old line still
+    /// means anything.
+    /// </summary>
+    [JsonPropertyName("cost")] public TurnCost? Cost { get; init; }
+
     private static readonly JsonSerializerOptions LineOptions = new(JsonSerializerDefaults.Web)
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -147,6 +156,7 @@ public sealed record TurnLog
             HistoryTurns = historyTurns,
             InputTokens = result.InputTokens,
             OutputTokens = result.OutputTokens,
+            Cost = result.Cost,
         };
     }
 }

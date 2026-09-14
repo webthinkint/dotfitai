@@ -81,6 +81,14 @@ public sealed record TurnResult
     /// not the customer's, which is what makes it safe to log (§10).
     /// </summary>
     public required IReadOnlyList<string> Families { get; init; }
+
+    /// <summary>
+    /// What the turn cost, counts and money together, priced against the
+    /// assistant's sheet. Absent only on synthetic results built outside the
+    /// loop — the service's own-timeout handoff, where usage was lost with the
+    /// cancelled turn and a guess would be worse than a gap.
+    /// </summary>
+    public TurnCost? Cost { get; init; }
 }
 
 /// <summary>

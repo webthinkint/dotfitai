@@ -130,6 +130,13 @@ def turn_line(entry, show_queries, utc):
     if tokens_in is not None or tokens_out is not None:
         detail.append(f"tok={tokens_in or 0}/{tokens_out or 0}")
 
+    # The turn's cost, as priced by the sheet the cost block names — owners
+    # watching spend live read it right of this line. Four decimals: the
+    # numbers are small by construction (a heavy turn is cents).
+    cost = entry.get("cost") or {}
+    if cost.get("total_usd") is not None:
+        detail.append(f"${cost['total_usd']:.4f}")
+
     head = [
         render_ts(entry.get("ts"), utc),
         entry.get("request_id", "?"),

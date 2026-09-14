@@ -334,10 +334,10 @@ What changes is the event stream, because the pipeline behind it changed.
 |---|---|---|
 | `disclosure` | `{text}` | Unchanged. Once, on a request with no `conversation_id` |
 | `stage` | `{stage, detail}` | **New vocabulary**: `thinking`, `search`, `fetch`, `product`, `answer`. `detail` carries what was searched for, so the widget can render "looking up creatine dosing" — the conversational texture that replaces a progress bar |
-| `source` | `{n, source_type, authority, title, citation_url, locator}` | **New.** Emitted when a source is assigned its number (§7), before any delta cites it. No `content` — this endpoint is public |
+| `source` | `{n, source_type, authority, title, citation_url, locator}` | **New.** Emitted when a source is assigned its number (§7), before any delta cites it. No `content` on the wire — the wire stays narrow even though the endpoint is private to the website backend |
 | `delta` | `{text}` | **Streams live.** Nothing is buffered and nothing is gated |
 | `retraction` | — | **Gone.** Nothing is withheld, so nothing is retracted |
-| `result` | assembled answer + sources + usage | `withheld` and the post-check block are gone; `tool_calls` and timings are added |
+| `result` | assembled answer + sources + usage | `withheld` and the post-check block are gone; `tool_calls`, timings and a `cost` block are added. The cost is observed counts (tokens, embedding calls, index queries) priced against a versioned price sheet — the owners' live view of spend per turn, with the search rate an explicit placeholder until billing data replaces it |
 | `error` | `{request_id, message, kind}` | Unchanged, still terminal, still followed by a handoff message |
 
 The client contract that survives verbatim: **event names are the contract, do
@@ -363,13 +363,26 @@ Config is the same gitignored root `.env` both sides already read, loaded by the
 existing `EnvFile` walker. The whole configuration validates at **startup** — if
 the service is up, it is configured.
 
+**Per-turn cost (the price sheet).** `result.cost` and the turn log's `cost`
+block are observed usage counts — chat tokens (cached input kept apart: it is
+billed at a different rate and a tool-calling turn re-sends its context every
+round trip), embedding tokens off the embedding API's own report, and index
+queries counted per call the tools make — priced against a `DOTFIT_PRICE_*`
+sheet from the same `.env`. The LLM numbers are exact against the sheet; the
+search rate is a **placeholder** (a provisioned AI Search tier bills the month,
+not the query), replaced when real cost data exists. Every emitted cost names
+its sheet id, so a dollar figure in an old log line still means something.
+Nothing about this adds a stage: it is deterministic arithmetic on numbers the
+APIs already returned.
+
 **The turn log.** One JSON line per accepted request to stdout, on the v1
 pattern and for the v1 reason (§8.3), carrying: outcome, tool-call count and
 per-tool breakdown, the *queries issued* (the model's own search text — this is
 the single most useful field for tuning and it does not exist in v1), source
 count and cited authorities, families touched, escalation-topic flag if the
 prompt-side handling reports one, first-delta latency, total latency, token
-usage, and `request_id` as the caller's join key.
+usage, the cost block (schema 1.1.0), and `request_id` as the caller's join
+key.
 
 **No question or answer text**, enforced structurally rather than promised: no
 text field exists in the schema. Search queries are the one exception and they

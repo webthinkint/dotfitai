@@ -51,8 +51,10 @@ public interface ISseWriter
 ///   <c>[3]</c> the moment it arrives instead of waiting for <c>result</c>.
 ///
 /// What the caller is sent is narrower than what the CLI shows: no source
-/// <c>content</c>, no tool-call arguments beyond the stage detail. This
-/// endpoint is public; those are operator diagnostics.
+/// <c>content</c>, no tool-call arguments beyond the stage detail. The
+/// endpoint is private to the website backend — but the wire stays narrow
+/// anyway: retrieved text and tool arguments are operator diagnostics, and
+/// nothing on this side needs them to render a turn.
 /// </summary>
 public static class AskStream
 {
@@ -277,6 +279,40 @@ public static class AskStream
         budget_exhausted = result.BudgetExhausted,
         first_delta_ms = result.FirstDeltaMs,
         total_ms = result.TotalMs,
+        // Null only on the service-timeout handoff, where the loop's meter was
+        // lost with the cancelled turn — omitted rather than guessed.
+        cost = result.Cost is { } cost ? Wire(cost) : null,
+    };
+
+    /// <summary>
+    /// The per-turn cost block (§9). Counts are observed, money is the counts
+    /// priced against the sheet the block names — see <see cref="TurnCost"/>
+    /// for why the search line is a placeholder rate.
+    /// </summary>
+    private static object Wire(TurnCost cost) => new
+    {
+        currency = cost.Currency,
+        price_sheet = cost.PriceSheet,
+        chat = new
+        {
+            input_tokens = cost.ChatInputTokens,
+            cached_input_tokens = cost.ChatCachedInputTokens,
+            output_tokens = cost.ChatOutputTokens,
+            usd = cost.ChatUsd,
+        },
+        embedding = new
+        {
+            calls = cost.EmbeddingCalls,
+            tokens = cost.EmbeddingTokens,
+            usd = cost.EmbeddingUsd,
+        },
+        search = new
+        {
+            queries = cost.IndexQueries,
+            ranker_queries = cost.RankerQueries,
+            usd = cost.SearchUsd,
+        },
+        total_usd = cost.TotalUsd,
     };
 
     private static IReadOnlyList<ConversationTurn> ParseHistory(IReadOnlyList<AskBody.Turn>? history)

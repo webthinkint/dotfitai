@@ -75,6 +75,7 @@ public sealed class AgenticAssistant : IAgenticAssistant
     private readonly AliasTable _aliases;
     private readonly AgenticOptions _options;
     private readonly SearchSettings _settings;
+    private readonly PriceSheet _prices;
     private readonly string? _supportContact;
 
     public AgenticAssistant(
@@ -84,7 +85,8 @@ public sealed class AgenticAssistant : IAgenticAssistant
         AliasTable aliases,
         AgenticOptions? options = null,
         string? supportContact = Prompts.DefaultSupportContact,
-        SearchSettings? settings = null)
+        SearchSettings? settings = null,
+        PriceSheet? prices = null)
     {
         _agent = agent;
         _search = search;
@@ -94,6 +96,10 @@ public sealed class AgenticAssistant : IAgenticAssistant
         // Passed on to the tools so the query knobs — ranker, candidate pool —
         // are read where the query is built, not only where the client was.
         _settings = settings ?? new SearchSettings();
+        // What the turn's usage is priced against (§9's `cost` block). The
+        // default is the built-in placeholder sheet; the service and the CLI
+        // load theirs from the same .env everything else reads.
+        _prices = prices ?? new PriceSheet();
         _supportContact = supportContact;
     }
 
@@ -139,7 +145,14 @@ public sealed class AgenticAssistant : IAgenticAssistant
 
         var ledger = new SourceLedger(turnOptions.MaxSourceChars);
         var budget = new ToolBudget(turnOptions.MaxToolCalls, turnOptions.TurnTimeout);
-        var tools = new KnowledgeTools(_search, _store, _aliases, turnOptions, ledger, budget, _settings);
+        // One meter per turn, shared by the loop and the tools, so the result's
+        // `cost` block is one account of the turn — chat usage recorded as the
+        // model reports it, embedding and index queries as the tools incur
+        // them. Deterministic counting; the money is derived once, at result
+        // time, against the sheet.
+        var meter = new TurnMeter();
+        var tools = new KnowledgeTools(
+            _search, _store, _aliases, turnOptions, ledger, budget, _settings, meter);
 
         yield return new TurnStageEvent(Stages.Thinking);
 
@@ -150,8 +163,6 @@ public sealed class AgenticAssistant : IAgenticAssistant
         var answer = new StringBuilder();
         long firstDeltaMs = -1;
         bool answerStageSent = false;
-        long? inputTokens = null;
-        long? outputTokens = null;
         TurnErrorEvent? failure = null;
 
         IAsyncEnumerator<AgentResponseUpdate> updates = _agent
@@ -225,11 +236,14 @@ public sealed class AgenticAssistant : IAgenticAssistant
                         // the output tokens of every round trip but the final
                         // one and report the last call's context as the input —
                         // understating exactly the expensive turns the log
-                        // exists to price (§10, open item 5).
-                        if (usage.Details.InputTokenCount is { } input)
-                            inputTokens = (inputTokens ?? 0) + input;
-                        if (usage.Details.OutputTokenCount is { } output)
-                            outputTokens = (outputTokens ?? 0) + output;
+                        // exists to price (§10, open item 5). The cached-input
+                        // breakdown is kept beside the totals because it is
+                        // billed at a different rate, and a multi-round-trip
+                        // turn re-sends its context every time.
+                        meter.Chat(
+                            usage.Details.InputTokenCount,
+                            usage.Details.CachedInputTokenCount,
+                            usage.Details.OutputTokenCount);
                     }
                 }
 
@@ -283,6 +297,12 @@ public sealed class AgenticAssistant : IAgenticAssistant
         if (firstDeltaMs < 0)
             firstDeltaMs = totalClock.ElapsedMilliseconds;
 
+        // Priced once, here: every count the meter holds is final by now — the
+        // last tool call finished before the model's closing text, and the
+        // closing text is what ends this loop.
+        TurnCost cost = meter.Cost(_prices);
+        bool chatReported = meter.ChatReported;
+
         yield return new TurnResultEvent(new TurnResult
         {
             AnswerText = answerText,
@@ -291,10 +311,11 @@ public sealed class AgenticAssistant : IAgenticAssistant
             FirstDeltaMs = firstDeltaMs,
             TotalMs = totalClock.ElapsedMilliseconds,
             BudgetExhausted = budget.Exhausted,
-            InputTokens = inputTokens,
-            OutputTokens = outputTokens,
+            InputTokens = chatReported ? cost.ChatInputTokens : null,
+            OutputTokens = chatReported ? cost.ChatOutputTokens : null,
             CitedSources = ledger.CitedIn(answerText),
             Families = tools.Families,
+            Cost = cost,
         });
     }
 

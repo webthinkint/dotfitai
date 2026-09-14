@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Azure;
 using DotFit.Agentic.Config;
@@ -87,7 +88,7 @@ internal static class Program
         return command.Verb switch
         {
             CliArgs.Prompt => Print(SystemPrompt.Build(aliases, options.SupportContact)),
-            CliArgs.Config => Print($"{options}\n{agentic}\nalias table v{aliases.Version}, " +
+            CliArgs.Config => Print($"{options}\n{agentic}\n{PriceSheet.Load(options.EnvFilePath)}\nalias table v{aliases.Version}, " +
                                     $"{aliases.Families.Count} families"),
             CliArgs.Search => await SearchAsync(options, aliases, agentic, command.Text).ConfigureAwait(false),
             CliArgs.Ask => await AskAsync(options, aliases, agentic, flags, command.Text).ConfigureAwait(false),
@@ -256,7 +257,11 @@ internal static class Program
             Console.Out.WriteLine(
                 $"  ({result.ToolCalls.Count} tool calls, {result.Sources.Count} sources, " +
                 $"{result.CitedSources.Count} cited, first delta {result.FirstDeltaMs} ms, " +
-                $"total {result.TotalMs} ms{(result.BudgetExhausted ? ", budget exhausted" : "")})");
+                $"total {result.TotalMs} ms" +
+                (result.Cost is { } cost
+                    ? $", cost {cost.TotalUsd.ToString("0.####", CultureInfo.InvariantCulture)} {cost.Currency}"
+                    : "") +
+                (result.BudgetExhausted ? ", budget exhausted" : "") + ")");
             Console.Out.WriteLine();
 
             if (flags.Log)
@@ -342,6 +347,16 @@ internal static class Program
             new Microsoft.Extensions.AI.AIFunctionArguments { ["query"] = query }).ConfigureAwait(false);
 
         Console.Out.WriteLine(result?.ToString() ?? "(no result)");
+
+        // What this one call cost, search side and embedding side — chat usage
+        // does not exist on this verb, there is no model in it. The same block
+        // the loop would emit, read off the same meter the tool recorded into.
+        PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
+        TurnCost cost = tools.Meter.Cost(prices);
+        Console.Out.WriteLine(
+            $"  ({cost.IndexQueries} index queries, {cost.EmbeddingCalls} embeddings " +
+            $"({cost.EmbeddingTokens} tok), cost {cost.TotalUsd.ToString("0.####", CultureInfo.InvariantCulture)} " +
+            $"{cost.Currency} at sheet '{cost.PriceSheet}')");
         return 0;
     }
 }

@@ -29,6 +29,10 @@ if (builder.Configuration["DotFit:Index"] is { Length: > 0 } index)
 
 AgenticServiceOptions service = AgenticServiceOptions.Load(options);
 AgenticOptions agentic = AgenticOptions.Load(options.EnvFilePath);
+// The sheet the per-turn `cost` block is priced against (§9). Validated here
+// for the same reason everything else is: if the service is up, the numbers
+// it emits are interpretable — which sheet, which currency.
+PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
 // Both ceilings are independent knobs; inverted, the host kills the turn before
 // the loop can hand off, and the customer gets a truncated stream (§6, §9).
 service.RequireRoomForTurn(agentic);
@@ -41,8 +45,9 @@ builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = AgenticServi
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(service);
 builder.Services.AddSingleton(agentic);
+builder.Services.AddSingleton(prices);
 builder.Services.AddSingleton<IAgenticAssistant>(
-    _ => AgenticFactory.Create(options, agentic, aliases));
+    _ => AgenticFactory.Create(options, agentic, aliases, prices: prices));
 
 // Not optional and not configurable. With nothing gated, this log is the only
 // reconstruction of what an audience was shown (§8.3) — and it holds no
@@ -73,7 +78,7 @@ builder.Services.ConfigureHttpJsonOptions(json =>
 
 WebApplication app = builder.Build();
 
-app.MapGet("/healthz", (RuntimeOptions opts, AgenticServiceOptions svc, AgenticOptions agent) => Results.Ok(new
+app.MapGet("/healthz", (RuntimeOptions opts, AgenticServiceOptions svc, AgenticOptions agent, PriceSheet sheet) => Results.Ok(new
 {
     status = "ok",
     runtime = "agentic",
@@ -92,6 +97,20 @@ app.MapGet("/healthz", (RuntimeOptions opts, AgenticServiceOptions svc, AgenticO
     max_tool_calls = agent.MaxToolCalls,
     turn_timeout_seconds = (int)agent.TurnTimeout.TotalSeconds,
     default_top = agent.DefaultTop,
+    // The prices behind `result.cost`, said out loud so an operator can check
+    // what a turn is being priced against without asking anyone. The search
+    // rate is a placeholder until real billing data replaces it — the sheet
+    // id is the version to bump when it does.
+    price_sheet = sheet.Id,
+    price_currency = sheet.Currency,
+    price_chat_usd_per_1m = new
+    {
+        input = sheet.ChatInputPerMillion,
+        cached_input = sheet.ChatCachedInputPerMillion,
+        output = sheet.ChatOutputPerMillion,
+    },
+    price_embedding_usd_per_1m = sheet.EmbeddingPerMillion,
+    price_search_usd_per_1k = sheet.SearchPerThousand,
     // Said out loud, because it is the difference from v1 a caller most needs
     // to know: there is no retraction event and no withheld answer.
     gating = "none",

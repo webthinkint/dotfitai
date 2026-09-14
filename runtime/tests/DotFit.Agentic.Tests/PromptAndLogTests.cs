@@ -165,6 +165,39 @@ public class TurnLogTests
     }
 
     [Fact]
+    public void The_line_carries_the_cost_block_with_its_sheet()
+    {
+        // The money is only interpretable against the prices that produced it,
+        // so the sheet id travels with every cost — a line read months later
+        // still says what priced it.
+        TurnResult result = Result() with
+        {
+            Cost = new TurnCost
+            {
+                Currency = "USD",
+                PriceSheet = "test-sheet",
+                ChatInputTokens = 3_000,
+                ChatCachedInputTokens = 1_400,
+                ChatOutputTokens = 30,
+                EmbeddingCalls = 1,
+                EmbeddingTokens = 31,
+                IndexQueries = 1,
+                RankerQueries = 0,
+                ChatUsd = 0.00204m,
+                EmbeddingUsd = 0.0000062m,
+                SearchUsd = 0.002m,
+            },
+        };
+
+        string line = TurnLog.From(result, TurnLog.OutcomeAnswered).ToJsonLine();
+
+        Assert.Contains("\"cost\":{", line, StringComparison.Ordinal);
+        Assert.Contains("\"price_sheet\":\"test-sheet\"", line, StringComparison.Ordinal);
+        Assert.Contains("\"total_usd\":0.0040462", line, StringComparison.Ordinal);
+        Assert.Equal("1.1.0", TurnLog.SchemaVersion);
+    }
+
+    [Fact]
     public void The_error_line_keeps_the_kind_and_drops_the_message()
     {
         string line = TurnLog.From(Result(), TurnLog.OutcomeError, errorKind: "RequestFailedException").ToJsonLine();

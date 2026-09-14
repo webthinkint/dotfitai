@@ -35,6 +35,7 @@ public sealed partial class KnowledgeTools
     private readonly AliasTable _aliases;
     private readonly AgenticOptions _options;
     private readonly SearchSettings _settings;
+    private readonly TurnMeter _meter;
     private readonly List<ToolCallRecord> _calls = [];
     private readonly SortedSet<string> _families = new(StringComparer.Ordinal);
     private readonly Lock _callGate = new();
@@ -46,7 +47,8 @@ public sealed partial class KnowledgeTools
         AgenticOptions options,
         SourceLedger ledger,
         ToolBudget budget,
-        SearchSettings? settings = null)
+        SearchSettings? settings = null,
+        TurnMeter? meter = null)
     {
         _search = search;
         _store = store;
@@ -56,12 +58,19 @@ public sealed partial class KnowledgeTools
         // the ranker and candidate-pool knobs are read on the one path that
         // builds SearchParameters rather than quietly defaulting past them.
         _settings = settings ?? new SearchSettings();
+        // The loop passes its own so chat usage and search usage land in one
+        // cost block; standalone callers (the CLI `search` verb) get a private
+        // one and read it off `Meter`.
+        _meter = meter ?? new TurnMeter();
         Ledger = ledger;
         Budget = budget;
     }
 
     public SourceLedger Ledger { get; }
     public ToolBudget Budget { get; }
+
+    /// <summary>The usage this instance's calls accumulated, for standalone callers.</summary>
+    public TurnMeter Meter => _meter;
 
     /// <summary>Every tool call this turn, in completion order, for the log and the trace.</summary>
     public IReadOnlyList<ToolCallRecord> Calls
@@ -163,6 +172,7 @@ public sealed partial class KnowledgeTools
             productFilter);
 
         int requested = Math.Clamp(top ?? _options.DefaultTop, 1, _options.MaxTop);
+        bool semantic = _settings.SemanticDefault;
         IReadOnlyList<RetrievedDocument> hits;
         try
         {
@@ -173,9 +183,12 @@ public sealed partial class KnowledgeTools
                 // tool argument; the rest of how a query runs is deployment
                 // configuration and comes from the settings.
                 Top = requested,
-                Semantic = _settings.SemanticDefault,
+                Semantic = semantic,
                 VectorCandidates = _settings.VectorCandidates,
                 AdditionalFilter = string.IsNullOrEmpty(filter) ? null : filter,
+                // Where the query embedding's usage is reported, so the cost
+                // block prices the call from the API's own count.
+                UsageSink = _meter,
             }, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -186,6 +199,13 @@ public sealed partial class KnowledgeTools
         {
             return Record(Stages.Search, query, $"The search failed: {e.Message}. Try a different query.", clock);
         }
+
+        // Served, not merely attempted: a call that threw did not run a query
+        // against the index — though its embedding, if one was generated, was
+        // already metered by the sink above.
+        _meter.IndexQuery();
+        if (semantic)
+            _meter.RankerQuery();
 
         var body = new StringBuilder();
         AppendExpansionNotes(body, expansion, products);
@@ -242,6 +262,11 @@ public sealed partial class KnowledgeTools
             return Record(Stages.Fetch, id, $"The fetch failed: {e.Message}.", clock);
         }
 
+        // Counted whether or not the id resolved: a 404 lookup was a request
+        // the index served. A transport failure above was not, and counts
+        // nothing.
+        _meter.IndexQuery();
+
         if (document is null)
             return Record(Stages.Fetch, id,
                 $"No document has id \"{id}\". Ids come from search results — copy one exactly, or search again.",
@@ -249,7 +274,12 @@ public sealed partial class KnowledgeTools
 
         var found = new List<RetrievedDocument> { document };
         if (neighbors)
-            found.AddRange(await NeighborsAsync(document.Id, ct).ConfigureAwait(false));
+        {
+            (IReadOnlyList<RetrievedDocument> docs, int lookups) =
+                await NeighborsAsync(document.Id, ct).ConfigureAwait(false);
+            found.AddRange(docs);
+            _meter.IndexQuery(lookups);
+        }
 
         var body = new StringBuilder();
         if (neighbors && found.Count == 1)
@@ -268,27 +298,30 @@ public sealed partial class KnowledgeTools
     /// sections carry no ordinal, and for those "no neighbours" is the honest
     /// answer rather than a guess at adjacency.
     /// </summary>
-    private async Task<IReadOnlyList<RetrievedDocument>> NeighborsAsync(string id, CancellationToken ct)
+    private async Task<(IReadOnlyList<RetrievedDocument> Docs, int Lookups)> NeighborsAsync(
+        string id, CancellationToken ct)
     {
         Match match = ChunkIdRegex().Match(id);
         if (!match.Success)
-            return [];
+            return ([], 0);
 
         string stem = match.Groups["stem"].Value;
         string ordinal = match.Groups["n"].Value;
         int n = int.Parse(ordinal);
 
         var found = new List<RetrievedDocument>();
+        int lookups = 0;
         foreach (int neighbor in new[] { n - 1, n + 1 })
         {
             if (neighbor < 0)
                 continue;
+            lookups++;
             string neighborId = $"{stem}-{neighbor.ToString(new string('0', ordinal.Length))}";
             RetrievedDocument? document = await _store.GetAsync(neighborId, ct).ConfigureAwait(false);
             if (document is not null)
                 found.Add(document);
         }
-        return found;
+        return (found, lookups);
     }
 
     // ----------------------------------------------------------- get_product
@@ -344,6 +377,7 @@ public sealed partial class KnowledgeTools
         {
             return Record(Stages.Product, name_or_part_no, $"The lookup failed: {e.Message}.", clock);
         }
+        _meter.IndexQuery();
 
         if (sections.Count == 0)
         {
