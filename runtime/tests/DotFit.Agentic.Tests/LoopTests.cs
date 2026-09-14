@@ -70,6 +70,64 @@ public class LoopTests
     }
 
     [Fact]
+    public async Task A_tools_stage_reaches_the_caller_while_the_tool_is_still_running()
+    {
+        // §9 sells stage.detail as the texture that stands in for a progress
+        // bar, which it only is if it arrives during the wait. A loop that
+        // drained on the model's next update could not: for a tool call that
+        // update *is* the tool's own result, so "looking up creatine dosing"
+        // landed once the lookup was done (open item 11).
+        var client = new ScriptedChatClient(
+            ScriptedChatClient.Call("c1", "search", new { query = "creatine dosing" }),
+            ScriptedChatClient.Text("Take 5 g daily [1]."));
+        AgenticAssistant assistant = Build(client, out FakeSearch search);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        search.Gate = gate.Task;
+
+        IAsyncEnumerator<TurnEvent> events =
+            assistant.AskAsync(new AskRequest { Question = "how much creatine?" }).GetAsyncEnumerator();
+
+        // The gate is never opened until after the stage is in hand, so without
+        // the race this pull cannot complete — the loop would be waiting on the
+        // model, the model on the tool, the tool on a gate nobody opens. The
+        // timeout is what turns that deadlock into a readable failure.
+        TurnStageEvent? stage = null;
+        try
+        {
+            while (await Next(events))
+            {
+                if (events.Current is TurnStageEvent s && s.Stage == Stages.Search)
+                {
+                    stage = s;
+                    break;
+                }
+            }
+        }
+        catch (TimeoutException)
+        {
+            // Deliberately not disposed on this path: disposing with the pull
+            // still outstanding throws NotSupportedException and buries this.
+            Assert.Fail("the search stage never arrived while the search was in flight — the loop is " +
+                        "waiting on the model's next update, which is waiting on the tool (open item 11)");
+        }
+
+        Assert.NotNull(stage);
+        Assert.Equal("creatine dosing", stage.Detail);
+        Assert.Single(search.Queries);
+        Assert.False(gate.Task.IsCompleted, "the search returned before the stage was observed");
+
+        gate.SetResult();
+        while (await Next(events))
+        {
+        }
+        await events.DisposeAsync();
+    }
+
+    /// <summary>One pull, bounded, so a loop that cannot make progress fails instead of hanging.</summary>
+    private static Task<bool> Next(IAsyncEnumerator<TurnEvent> events) =>
+        events.MoveNextAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
+
+    [Fact]
     public async Task A_search_stage_carries_what_the_model_searched_for()
     {
         var client = new ScriptedChatClient(

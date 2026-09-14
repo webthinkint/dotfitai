@@ -120,6 +120,29 @@ public class SourceLedgerTests
         Assert.Equal([1, 3], ledger.CitedIn("Take it with food [1]. It mixes well [3]."));
         Assert.Empty(ledger.CitedIn("No citations here."));
     }
+
+    [Fact]
+    public async Task Queued_completes_on_the_enqueue_and_re_arms_after_the_drain()
+    {
+        // What lets the loop wake on a tool's stage line instead of on the
+        // model's next update (§9, open item 11). Re-arming matters as much as
+        // completing: a signal left completed after a drain would spin the loop.
+        var ledger = new SourceLedger(1000);
+
+        Task waiting = ledger.Queued;
+        Assert.False(waiting.IsCompleted);
+
+        ledger.Stage(Stages.Search, "creatine dosing");
+        await waiting.WaitAsync(TimeSpan.FromSeconds(10));
+
+        Assert.Single(ledger.Drain());
+        Assert.False(ledger.Queued.IsCompleted);
+
+        // Already queued when asked: a caller that arrives after the enqueue
+        // must not have to wait for the next one.
+        ledger.Add(Fixtures.Document(id: "pdsrg-example-009"));
+        Assert.True(ledger.Queued.IsCompleted);
+    }
 }
 
 public class FilterTests

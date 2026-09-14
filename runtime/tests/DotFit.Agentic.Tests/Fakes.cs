@@ -103,11 +103,20 @@ internal sealed class FakeSearch(params RetrievedDocument[] documents) : IKnowle
     public List<SearchParameters> Queries { get; } = [];
     public Func<SearchParameters, IReadOnlyList<RetrievedDocument>>? Handler { get; set; }
 
-    public Task<IReadOnlyList<RetrievedDocument>> SearchAsync(
+    /// <summary>
+    /// When set, the search records its query and then waits on this before
+    /// returning — a tool held mid-flight, which is the only way to observe
+    /// what the loop emits *during* a lookup rather than after it (§9).
+    /// </summary>
+    public Task? Gate { get; set; }
+
+    public async Task<IReadOnlyList<RetrievedDocument>> SearchAsync(
         SearchParameters parameters, CancellationToken ct = default)
     {
         Queries.Add(parameters);
-        return Task.FromResult(Handler?.Invoke(parameters) ?? (IReadOnlyList<RetrievedDocument>)documents);
+        if (Gate is not null)
+            await Gate.WaitAsync(ct).ConfigureAwait(false);
+        return Handler?.Invoke(parameters) ?? (IReadOnlyList<RetrievedDocument>)documents;
     }
 }
 

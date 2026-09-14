@@ -148,17 +148,14 @@ whether to render it verbatim, render a generic label per stage type
 supported integration. If you render it verbatim, treat it as untrusted text and
 escape it like any other.
 
-**One timing caveat, stated plainly because it affects what you build.** A
-lookup's `stage` frame currently reaches you when that lookup *returns*, not
-when it starts — the assistant hands us the detail as it begins the call, but we
-only get to forward it on the next update from the model, which is the tool's
-own result. In practice the frame arrives a second or two later than the work it
-describes, and then the `source` frames and the answer follow quickly behind it.
-So a spinner keyed on `stage` will not fill the gap it looks like it should.
-Render the detail as a "what it looked at" line rather than as live progress, or
-show your own generic indicator from the `thinking` stage until the first
-`delta`. We would like to fix this; it is on our list and it will not change the
-event names when we do.
+**On timing** — this changed on 2026-09-14, and in your favour. A lookup's
+`stage` frame now reaches you when that lookup *starts*, so the frame leads the
+work it describes by however long the lookup takes, and the `source` frames and
+the answer follow behind it. A spinner keyed on `stage` does fill the gap. (It
+did not before: the frame used to arrive only with the tool's own result, i.e.
+once the work was already done. If you built against that and chose a "what it
+looked at" past-tense line, it still reads correctly — nothing about the event
+names or payloads changed, only when they arrive.)
 
 ### `source`, and inline citations
 

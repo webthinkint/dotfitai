@@ -70,16 +70,30 @@ clock — see open item 10.
 | 8 | **v1 pipeline items carried over** — golden-set labeling and the Stage 2 PII review queue are corpus work, not runtime work | carried over unchanged; see `docs/v1/progress.md` items 8 and 13 |
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
-| 11 | **Stage detail reaches the caller after the wait, not during it** (new 2026-09-14) | open. Tools queue `Ledger.Stage(…)` before running, but the loop drains the queue only when the next model update arrives — which is that tool's own result. So the widget renders "looking up creatine dosing" once the lookup has finished. §9 sells `stage.detail` as the texture that replaces a progress bar; it is stated as a caveat in `docs/website-integration.md` rather than sold as something it is not. The fix races the drain against `MoveNextAsync`, which is a change to the loop's core await and wants doing deliberately |
+
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
 
+### 2026-09-14 — the stage line leads the lookup
+
+The loop drained the ledger *after* the model's next update, and for a tool call
+that update is the tool's own result — so "looking up creatine dosing" rendered
+once the lookup had finished, and §9's replacement for a progress bar could not
+be one. `MoveNextAsync` is now started as a `Task` and raced against a new
+`SourceLedger.Queued` signal, draining on whichever wins; the post-update drain
+stays for updates that complete synchronously, so the §7 sources-before-deltas
+ordering is untouched. No model call added, nothing gated, no event renamed —
+only when a frame arrives. The loop test gates a fake search mid-flight and
+fails in 10 s rather than hanging if the race is removed (verified by removing
+it). 106 agentic tests green (was 104), 264 v1 green.
+`docs/website-integration.md` drops the timing caveat in the same commit.
+
 ### 2026-09-14 — defect sweep of the whole runtime (§6, §7, §9)
 
-Ten findings from a read of `DotFit.Agentic*` (`docs/agentic-issues.md`), fixed
+Ten findings from a read of `DotFit.Agentic*`, fixed
 inside the loop, the tool layer and the transport — no model call added, nothing
 gated. The two a customer would notice: **alias expansion from the question text
 became a hard `products` filter** (v1 builds none, and 58.6% of `kb-main-v2`
@@ -89,7 +103,7 @@ answer** in `result.answer`. Also fixed: the request timeout escaped `AskStream`
 leaving no terminal event, usage was overwritten per round trip not summed, the
 time-budget refusal never consumed a call, `fetch` bypassed `is_current`, and
 `TurnTimeout` 111–115 inverted the budget/ceiling ordering. 104 agentic tests
-green (was 86), 264 v1 green. One finding deferred: open item 11.
+green (was 86), 264 v1 green.
 
 ### 2026-09-12 — deployed beside v1 as a second user unit (§9)
 

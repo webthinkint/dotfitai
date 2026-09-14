@@ -32,6 +32,7 @@ public sealed class SourceLedger(int maxSourceChars)
     private readonly List<SourceRef> _ordered = [];
     private readonly Queue<TurnEvent> _pending = new();
     private readonly Dictionary<string, RetrievedDocument> _documents = new(StringComparer.Ordinal);
+    private TaskCompletionSource _queued = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     /// <summary>Every source assigned this turn, in citation-number order.</summary>
     public IReadOnlyList<SourceRef> Sources
@@ -72,7 +73,7 @@ public sealed class SourceLedger(int maxSourceChars)
             _byId[document.Id] = source;
             _documents[document.Id] = document;
             _ordered.Add(source);
-            _pending.Enqueue(new TurnSourceEvent(source));
+            Enqueue(new TurnSourceEvent(source));
             return (source, true);
         }
     }
@@ -80,12 +81,26 @@ public sealed class SourceLedger(int maxSourceChars)
     /// <summary>Queue a stage event from inside a tool, so it reaches the caller in call order.</summary>
     public void Stage(string stage, string? detail = null)
     {
-        lock (_gate) _pending.Enqueue(new TurnStageEvent(stage, detail));
+        lock (_gate) Enqueue(new TurnStageEvent(stage, detail));
     }
 
     /// <summary>
-    /// Take everything queued since the last drain. Called by the loop before
-    /// it yields a delta and once after the run ends, so nothing is stranded.
+    /// Completes as soon as the queue is non-empty, so the loop can wake on a
+    /// tool's stage line instead of on the model's next update (§9, open item
+    /// 11). A tool queues "search — <em>query</em>" and then blocks on the
+    /// round trip to AI Search; the update that ends the loop's await is that
+    /// same tool's result, so a loop that only drained on an update rendered
+    /// "looking up X" after X had been looked up. Already-completed when
+    /// something is waiting, so the caller need not check first.
+    /// </summary>
+    public Task Queued
+    {
+        get { lock (_gate) return _pending.Count > 0 ? Task.CompletedTask : _queued.Task; }
+    }
+
+    /// <summary>
+    /// Take everything queued since the last drain. Called by the loop each
+    /// time it wakes and once after the run ends, so nothing is stranded.
     /// </summary>
     public IReadOnlyList<TurnEvent> Drain()
     {
@@ -96,8 +111,20 @@ public sealed class SourceLedger(int maxSourceChars)
             var drained = new List<TurnEvent>(_pending.Count);
             while (_pending.Count > 0)
                 drained.Add(_pending.Dequeue());
+            // Arm the next wait. Fresh rather than reset because a
+            // TaskCompletionSource is single-use, and under the same lock as
+            // the dequeue so no enqueue can land between emptying the queue
+            // and the signal that would have announced it.
+            _queued = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             return drained;
         }
+    }
+
+    /// <summary>Enqueue and wake anyone waiting. Callers hold <c>_gate</c>.</summary>
+    private void Enqueue(TurnEvent e)
+    {
+        _pending.Enqueue(e);
+        _queued.TrySetResult();
     }
 
     /// <summary>

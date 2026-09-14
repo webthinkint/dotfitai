@@ -55,7 +55,9 @@ public interface IAgenticAssistant
 /// - **Sources are published before the text that cites them.** Tools number
 ///   sources and queue their events as they run; the loop drains that queue
 ///   before yielding any delta. A client streaming live therefore always holds
-///   source 3 by the time "[3]" arrives.
+///   source 3 by the time "[3]" arrives. The drain races the model's next
+///   update rather than following it, so a tool's stage line reaches the caller
+///   while the tool is still running and not once it has returned (§9).
 /// - **A result always ends the turn**, including after a failure. An error is
 ///   followed by the templated handoff and then the result carrying it, so a
 ///   caller has exactly one place to look for what the customer saw. On a
@@ -109,6 +111,24 @@ public sealed class AgenticAssistant : IAgenticAssistant
             : $"I couldn't put an answer together for that one. Try asking it a different way, or reach the " +
               $"dotFIT support team at {_supportContact}.";
 
+    /// <summary>
+    /// The next update as a <see cref="Task"/> so it can be raced against the
+    /// ledger without being awaited twice — a <c>ValueTask</c> is single-await
+    /// and <c>WhenAny</c> would consume it. A synchronous throw is folded into
+    /// the task so there is one place that handles a failed update, not two.
+    /// </summary>
+    private static Task<bool> Start(IAsyncEnumerator<AgentResponseUpdate> updates)
+    {
+        try
+        {
+            return updates.MoveNextAsync().AsTask();
+        }
+        catch (Exception e)
+        {
+            return Task.FromException<bool>(e);
+        }
+    }
+
     public async IAsyncEnumerable<TurnEvent> AskAsync(
         AskRequest request, [EnumeratorCancellation] CancellationToken ct = default)
     {
@@ -142,10 +162,28 @@ public sealed class AgenticAssistant : IAgenticAssistant
         {
             while (true)
             {
+                // Started once and then raced, because the queue fills while
+                // this is outstanding. A tool queues its stage line *before* it
+                // runs, and the update that completes this await is that same
+                // tool's result — so draining only on an update renders
+                // "looking up creatine dosing" once the lookup has finished
+                // (§9, open item 11). Waking on either lets the detail arrive
+                // during the wait, which is what §9 sells it as.
+                Task<bool> next = Start(updates);
+                while (!next.IsCompleted)
+                {
+                    // Never throws, whichever task wins: a faulted or cancelled
+                    // `next` simply completes the race and is re-thrown by the
+                    // `await next` below, where the handling for it lives.
+                    await Task.WhenAny(next, ledger.Queued).ConfigureAwait(false);
+                    foreach (TurnEvent queued in ledger.Drain())
+                        yield return queued;
+                }
+
                 bool moved;
                 try
                 {
-                    moved = await updates.MoveNextAsync().ConfigureAwait(false);
+                    moved = await next.ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested)
                 {
@@ -170,9 +208,10 @@ public sealed class AgenticAssistant : IAgenticAssistant
 
                 AgentResponseUpdate update = updates.Current;
 
-                // Stage and source events queued by tools that ran since the
-                // last update. Drained *before* the delta, which is the whole
-                // ordering contract (§7).
+                // Anything queued while this update was being produced — which
+                // on a synchronously-completed update the race above never got
+                // to see. Drained *before* the delta either way, which is the
+                // whole ordering contract (§7).
                 foreach (TurnEvent queued in ledger.Drain())
                     yield return queued;
 
