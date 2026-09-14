@@ -80,6 +80,17 @@ entries). The five most recent live here; older ones are in
 artifact it describes.
 
 
+- **2026-09-14 (69)** — The transcripts learn the show's name (and Neal's).
+  Found from the agentic branch's turn log: "What's SuppBeast?" answered from
+  QA signatures because ASR heard the name five ways (~52×, never the official
+  spelling), so BM25 by the customer spelling reached no transcript.
+  `podcast.TRANSCRIPT_CORRECTIONS` (attested 2026-09-14 audit, every occurrence
+  checked in context; the one idiom "nature of the beast" is out of pattern
+  reach) corrects phrase text at chunk build — raw ASR artifacts stay verbatim,
+  ids/titles/citation URLs unchanged. `Neil`→`Neal` (35×) rode along. Segments
+  + `kb-main-v2` regenerated (69 chunks re-embedded); the same change landed as
+  commit 81cd611 on `agentic-rag`, artifacts byte-identical. 467 tests green.
+
 - **2026-09-11 (68)** — A claims-only failure earns one repair pass (§11
   stage 6b, items 12/17). Two live retractions, one cause: the gate is
   whole-or-nothing, so a correct verdict on one sentence discarded the whole
@@ -128,18 +139,6 @@ artifact it describes.
   own violation. Item 17's 29 withholds want a **live re-sweep**; §12 has no
   rename item (gap, item 15). 3 tests (**455 py / 223 runtime**).
 
-- **2026-09-11 (64)** — The conversational branch (§11, new item 25). "Hi
-  there" came back as the **support handoff**: the chain runs whatever is
-  typed, search returns its `top` neighbours anyway, the greeting cites
-  nothing, and `citation_presence` failed it — so `Gated` withheld it. Fixed
-  with a branch, not a looser check: the guardrail now returns `intent`
-  (question / smalltalk / out_of_scope) on the call it already makes, and a
-  smalltalk turn skips rewrite/aliases/search/answer for a small-model reply,
-  leaving the source list empty so the citation checks have nothing to fire
-  on. Escalation and claim traps still win, a degraded pre-check never
-  branches, no history reaches it, and it logs as `chitchat` (verdict schema
-  1.1.0). `out_of_scope` is logged only — §12 shows those 7 delivered.
-  30 tests (**455 py / 220 runtime**).
 
 ## Writing entries
 

@@ -5,6 +5,18 @@ recent; everything older lands here so the live status file stays cheap to read
 end to end. Entries are verbatim — numbering and dates are continuous with
 `progress.md`.
 
+- **2026-09-11 (64)** — The conversational branch (§11, new item 25). "Hi
+  there" came back as the **support handoff**: the chain runs whatever is
+  typed, search returns its `top` neighbours anyway, the greeting cites
+  nothing, and `citation_presence` failed it — so `Gated` withheld it. Fixed
+  with a branch, not a looser check: the guardrail now returns `intent`
+  (question / smalltalk / out_of_scope) on the call it already makes, and a
+  smalltalk turn skips rewrite/aliases/search/answer for a small-model reply,
+  leaving the source list empty so the citation checks have nothing to fire
+  on. Escalation and claim traps still win, a degraded pre-check never
+  branches, no history reaches it, and it logs as `chitchat` (verdict schema
+  1.1.0). `out_of_scope` is logged only — §12 shows those 7 delivered.
+  30 tests (**455 py / 220 runtime**).
 - **2026-09-11 (63)** — Per-request verdict logging, item 20 **closed** (§11).
   One `dotfit.verdict` line to stdout per accepted request: outcome
   (answered/escalated/withheld/error/abandoned), reason codes,

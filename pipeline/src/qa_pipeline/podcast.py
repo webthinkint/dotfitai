@@ -14,6 +14,13 @@ the labels with a line-anchored substitution — and so clip segments (third-
 party audio diarizes as its own speaker, e.g. Layne Norton in the David
 Protein Bar episode) stay visibly distinct from host turns.
 
+Phrase text passes through ``TRANSCRIPT_CORRECTIONS`` before it enters a
+chunk: attested ASR proper-noun mis-hearings (2026-09-14 audit, below). The
+raw transcripts (``transcripts/*.json`` and their ``.txt`` renderings) stay
+verbatim-ASR — they are the provenance record of what the API returned —
+and the correction applies at the one chokepoint all indexed podcast text
+flows through.
+
 Phrases are atomic: one long API phrase can overshoot the caps, so maxima
 (observed: 343 words / 130 s) sit just above the targets while medians
 (251 words / 76 s) land in range — the same atomicity deal as PDSRG tables.
@@ -47,6 +54,43 @@ GAP_SECONDS = 3.0
 # a trailing stub shorter than this merges into the previous chunk rather
 # than indexing as a near-empty document (single-chunk episodes exempt).
 MIN_WORDS = 50
+
+# --- ASR proper-noun corrections (2026-09-14 corpus audit) --------------------
+#
+# How ASR mis-heard the two names customers actually search for. Every
+# occurrence in all 47 transcripts was checked in context before joining
+# this table — curation lives in code, same ruling as PODCAST_VIDEO_IDS
+# below. Two invariants:
+#
+# - Episode titles are NOT corrected: titles come from the .mp3 filenames
+#   and feed the slug/id, so a title correction would change document ids
+#   and break fetch-by-id and the citation deep links.
+# - The only other "beast" in the corpus is the idiom "nature of the
+#   beast", which no pattern below can match (each requires a
+#   sup/sub/sut/south prefix), so no context rule is needed.
+#
+# Attestation counts are case-insensitive across transcripts/*.txt:
+#   "Sup Beast"-family 48 (sup beast 37, subbeast 6, supbeast 3, sub beast 2)
+#   + sutbeast 3 + "South Beast" 1 = 52 total, all intro/name boilerplate;
+#   the official spelling SuppBeast never once appears (it does in QA ×56,
+#   the chat-box URL and the golden set). "Neil" 35 — always the co-host
+#   Neal Spruce (correct spelling attested 61×; no guest named Neil).
+TRANSCRIPT_CORRECTIONS: list[tuple["re.Pattern[str]", str]] = [
+    # the show's name — one pattern per distinct ASR hearing
+    (re.compile(r"\bSu[pb]p? ?Beast\b", re.IGNORECASE), "SuppBeast"),
+    (re.compile(r"\bSutbeast\b", re.IGNORECASE), "SuppBeast"),
+    (re.compile(r"\bSouth Beast\b", re.IGNORECASE), "SuppBeast"),
+    # the co-host — title-case only: "Neil" is always the host, never a
+    # sentence-starting "neil" (unattested) or an acronym (unattested)
+    (re.compile(r"\bNeil\b"), "Neal"),
+]
+
+
+def correct_text(text: str) -> str:
+    """Apply TRANSCRIPT_CORRECTIONS to one phrase's text (idempotent)."""
+    for pattern, replacement in TRANSCRIPT_CORRECTIONS:
+        text = pattern.sub(replacement, text)
+    return text
 
 
 def slugify(name: str) -> str:
@@ -136,7 +180,7 @@ def build_chunk(slug: str, title: str, source_file: str, index: int,
     turns: list[list[str]] = []
     for p in group:
         label = f"Speaker {p['speaker']}" if p.get("speaker") is not None else "Speaker ?"
-        text = str(p.get("text") or "").strip()
+        text = correct_text(str(p.get("text") or "").strip())
         if turns and turns[-1][0] == label:
             turns[-1][1] += " " + text
         else:
