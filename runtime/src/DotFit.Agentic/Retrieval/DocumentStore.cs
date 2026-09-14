@@ -21,7 +21,12 @@ namespace DotFit.Agentic.Retrieval;
 /// </summary>
 public interface IDocumentStore
 {
-    /// <summary>One document by key. Null when the key does not exist.</summary>
+    /// <summary>
+    /// One document by key. Null when the key does not exist — and null when it
+    /// exists but is not current: a key lookup is not an exemption from the
+    /// <c>is_current</c> contract, and <c>fetch</c> is the tool that numbers
+    /// whatever it gets as a citable source.
+    /// </summary>
     Task<RetrievedDocument?> GetAsync(string id, CancellationToken ct = default);
 
     /// <summary>
@@ -43,7 +48,7 @@ public sealed class AzureDocumentStore(SearchClient search, SearchSettings? sett
         {
             Response<KbDoc> response = await search.GetDocumentAsync<KbDoc>(id, cancellationToken: ct)
                 .ConfigureAwait(false);
-            return ToDocument(response.Value);
+            return CurrentOnly(response.Value);
         }
         catch (RequestFailedException e) when (e.Status == 404)
         {
@@ -74,6 +79,19 @@ public sealed class AzureDocumentStore(SearchClient search, SearchSettings? sett
             docs.Add(ToDocument(result.Document));
         return docs;
     }
+
+    /// <summary>
+    /// The <c>is_current</c> contract on the one path that cannot express it as
+    /// a filter. A key lookup is not an exemption: <c>fetch</c> numbers what it
+    /// gets as a citable source, so a superseded document reached by id would
+    /// be quoted verbatim with a citation number on it — while being invisible
+    /// to <c>search</c> and <c>get_product</c>, which do filter.
+    ///
+    /// Latent while the index holds only current documents, which it does
+    /// today: every builder writes <c>is_current: True</c> except
+    /// <c>pdsrg_documents</c>, which passes an upstream value through.
+    /// </summary>
+    internal static RetrievedDocument? CurrentOnly(KbDoc d) => d.IsCurrent ? ToDocument(d) : null;
 
     private static RetrievedDocument ToDocument(KbDoc d) => new()
     {

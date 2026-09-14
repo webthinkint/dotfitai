@@ -34,6 +34,7 @@ public sealed partial class KnowledgeTools
     private readonly IDocumentStore _store;
     private readonly AliasTable _aliases;
     private readonly AgenticOptions _options;
+    private readonly SearchSettings _settings;
     private readonly List<ToolCallRecord> _calls = [];
     private readonly SortedSet<string> _families = new(StringComparer.Ordinal);
     private readonly Lock _callGate = new();
@@ -44,12 +45,17 @@ public sealed partial class KnowledgeTools
         AliasTable aliases,
         AgenticOptions options,
         SourceLedger ledger,
-        ToolBudget budget)
+        ToolBudget budget,
+        SearchSettings? settings = null)
     {
         _search = search;
         _store = store;
         _aliases = aliases;
         _options = options;
+        // The same instance the search client and the document store hold, so
+        // the ranker and candidate-pool knobs are read on the one path that
+        // builds SearchParameters rather than quietly defaulting past them.
+        _settings = settings ?? new SearchSettings();
         Ledger = ledger;
         Budget = budget;
     }
@@ -115,7 +121,10 @@ public sealed partial class KnowledgeTools
         string query,
         [Description("Restrict to one corpus: product, infopage, pdsrg, qa, podcast, menu_desc. Omit to search everything.")]
         string? source_type = null,
-        [Description("Restrict to these product names or part numbers. Names are alias-resolved; former names work.")]
+        [Description("Restrict to these product names or part numbers — a real restriction: documents carrying " +
+                     "no product tag (podcasts, info pages, menus, most general guidance) cannot match. Omit it " +
+                     "unless the answer must come from those products' own material. Names are alias-resolved; " +
+                     "former names work.")]
         string[]? products = null,
         [Description("How many sources to return. Default 6, maximum 20.")]
         int? top = null,
@@ -140,7 +149,15 @@ public sealed partial class KnowledgeTools
         if (sourceTypeError is not null)
             return Record(Stages.Search, query, sourceTypeError, clock);
 
-        string productFilter = Filters.AnyProduct(PartNoFilterValues(expansion, products));
+        // Only the *mention* path may restrict (§7.1). A name the customer
+        // happened to type widens the query text; it must not become a hard
+        // `products/any(...)`, because 59% of the corpus — every podcast, every
+        // info page, every menu description and much of PDSRG and QA — carries
+        // no product tag at all and would fall out of the candidate set. The
+        // model asks for a restriction by passing `products`, or it does not
+        // get one.
+        IReadOnlyList<string> restrictTo = MentionPartNos(products);
+        string productFilter = Filters.AnyProduct(restrictTo);
         string filter = Filters.And(
             sourceTypeFilter is null ? null : Filters.SourceType(sourceTypeFilter),
             productFilter);
@@ -152,7 +169,12 @@ public sealed partial class KnowledgeTools
             hits = await _search.SearchAsync(new SearchParameters
             {
                 QueryText = BuildQueryText(query, expansion),
+                // `top` is the model's per-call choice, so it comes from the
+                // tool argument; the rest of how a query runs is deployment
+                // configuration and comes from the settings.
                 Top = requested,
+                Semantic = _settings.SemanticDefault,
+                VectorCandidates = _settings.VectorCandidates,
                 AdditionalFilter = string.IsNullOrEmpty(filter) ? null : filter,
             }, ct).ConfigureAwait(false);
         }
@@ -167,12 +189,22 @@ public sealed partial class KnowledgeTools
 
         var body = new StringBuilder();
         AppendExpansionNotes(body, expansion, products);
+        AppendRestrictionNote(body, restrictTo, sourceTypeFilter);
 
         if (hits.Count == 0)
         {
-            body.AppendLine(
-                "No current documents matched. Try broader wording, drop the filters, or search for the " +
-                "underlying nutrient or goal rather than the product name.");
+            // Said in terms of the filters that were actually applied: "nothing
+            // matched" under a product restriction is a statement about the
+            // restriction, not about the corpus, and a model that reads it the
+            // second way tells a customer dotFIT has nothing on a topic it has
+            // plenty on.
+            body.AppendLine(restrictTo.Count > 0
+                ? "No current documents matched *under those filters*. This is not evidence that the corpus " +
+                  "has nothing on the topic: most of it — podcasts, info pages, menu descriptions and much " +
+                  "of the reference guide — carries no product tag, so a products filter hides it. Search " +
+                  "again without `products`, or for the underlying nutrient or goal."
+                : "No current documents matched. Try broader wording, drop the filters, or search for the " +
+                  "underlying nutrient or goal rather than the product name.");
             return Record(Stages.Search, query, body.ToString(), clock, 0, 0);
         }
 
@@ -352,6 +384,22 @@ public sealed partial class KnowledgeTools
     }
 
     /// <summary>
+    /// Part numbers a restriction may be built from: the mention path only
+    /// (§5, §7.1). <see cref="AliasTable.Expand"/> merges both paths into one
+    /// <see cref="AliasExpansion.PartNos"/>, so the query is re-expanded here
+    /// without it — deterministic dictionary lookups over a handful of
+    /// mentions, no model call and no second index round trip.
+    ///
+    /// The blind path's resolutions still reach the search: they feed
+    /// <see cref="BuildQueryText"/>, the currency notes and
+    /// <see cref="Families"/>, which is all §5 asks of them.
+    /// </summary>
+    private IReadOnlyList<string> MentionPartNos(IReadOnlyList<string>? products) =>
+        products is { Count: > 0 }
+            ? PartNoFilterValues(_aliases.Expand("", products), products)
+            : [];
+
+    /// <summary>
     /// Part numbers for the <c>products</c> filter: what the alias table
     /// resolved, plus any bare digits the model passed. A bare part number is
     /// not an alias — the table keys on names — so without this a model that
@@ -402,26 +450,68 @@ public sealed partial class KnowledgeTools
     /// and says out loud that the search ran on terms the model did not type,
     /// which it otherwise has no way to know.
     /// </summary>
-    private static void AppendExpansionNotes(
+    private void AppendExpansionNotes(
         StringBuilder body, AliasExpansion expansion, IEnumerable<string>? products)
     {
         foreach (string note in expansion.Notes)
             body.Append("Note: ").AppendLine(note);
 
-        var unresolved = (products ?? [])
-            .Select(p => p.Trim())
-            .Where(p => p.Length > 0 && !p.All(char.IsAsciiDigit))
-            .Where(p => !expansion.Families.Any(f => AliasTable.Norm(f) == AliasTable.Norm(p)))
-            .ToList();
-        if (unresolved.Count > 0 && expansion.Notes.Count == 0)
+        // Unconditional. Gating this on "no other note" meant a rename note
+        // swallowed it: ask about a renamed product and an unknown one in the
+        // same breath and the model was told about the first and never told the
+        // second matched nothing.
+        IReadOnlyList<string> unresolved = UnresolvedMentions(products);
+        if (unresolved.Count > 0)
             body.Append("Note: ").Append(string.Join(", ", unresolved.Select(u => $"\"{u}\""))).AppendLine(
-                " did not resolve to a known product family, so no product filter was applied. " +
+                " did not resolve to a known product family, so nothing was filtered on it. " +
                 "It may be a third-party product, an ingredient, or a misspelling.");
 
         if (expansion.Families.Count > 0)
             body.Append("Searched with: ").AppendLine(string.Join(", ", expansion.Families));
         if (body.Length > 0)
             body.AppendLine();
+    }
+
+    /// <summary>
+    /// The mentions the alias table had nothing at all to say about — asked one
+    /// at a time, because a merged expansion cannot say *which* name produced
+    /// which resolution. A rename, a replacement and a discontinued SKU all
+    /// resolve (to a note, if not to a family) and are not unresolved; a bare
+    /// part number is not a name and is never reported.
+    /// </summary>
+    private IReadOnlyList<string> UnresolvedMentions(IEnumerable<string>? products)
+    {
+        var unresolved = new List<string>();
+        foreach (string raw in products ?? [])
+        {
+            string token = raw.Trim();
+            if (token.Length == 0 || token.All(char.IsAsciiDigit))
+                continue;
+            AliasExpansion one = _aliases.Expand("", [token]);
+            if (one.Families.Count == 0 && one.Notes.Count == 0)
+                unresolved.Add(token);
+        }
+        return unresolved;
+    }
+
+    /// <summary>
+    /// Says out loud that this search was *restricted*, not merely expanded.
+    /// Only <c>search</c> calls it: <c>get_product</c> is a restriction by
+    /// definition and says so in its own preamble. Without this the model reads
+    /// "Searched with: LeanMeal" as widening and never reaches for its
+    /// documented recovery — dropping the filter it does not know it has.
+    /// </summary>
+    private static void AppendRestrictionNote(
+        StringBuilder body, IReadOnlyList<string> restrictTo, string? sourceTypeFilter)
+    {
+        if (restrictTo.Count == 0)
+            return;
+        body.Append("Restricted to part numbers ").Append(string.Join(", ", restrictTo))
+            .Append(sourceTypeFilter is null ? "" : $" and source_type {sourceTypeFilter}")
+            .AppendLine(", because you passed `products`. Documents with no product tag — podcasts, info " +
+                        "pages, menu descriptions and general reference material — cannot match. Omit " +
+                        "`products` to search the whole corpus.");
+        body.AppendLine();
     }
 
     private void NoteFamilies(AliasExpansion expansion)

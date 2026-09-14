@@ -148,6 +148,18 @@ whether to render it verbatim, render a generic label per stage type
 supported integration. If you render it verbatim, treat it as untrusted text and
 escape it like any other.
 
+**One timing caveat, stated plainly because it affects what you build.** A
+lookup's `stage` frame currently reaches you when that lookup *returns*, not
+when it starts — the assistant hands us the detail as it begins the call, but we
+only get to forward it on the next update from the model, which is the tool's
+own result. In practice the frame arrives a second or two later than the work it
+describes, and then the `source` frames and the answer follow quickly behind it.
+So a spinner keyed on `stage` will not fill the gap it looks like it should.
+Render the detail as a "what it looked at" line rather than as live progress, or
+show your own generic indicator from the `thinking` stage until the first
+`delta`. We would like to fix this; it is on our list and it will not change the
+event names when we do.
+
 ### `source`, and inline citations
 
 Sources are numbered per turn, starting at 1, in the order the assistant
@@ -353,6 +365,9 @@ not a measured distribution, and we are still working on the second one.
 **Errors.** Any exception yields `error` plus a handoff `delta` plus `result`,
 never a stack trace, never a bare stream end. `kind` is the exception type;
 `message` is deliberately generic, because the real one can name a deployment.
+If the failure lands *after* some answer text has already streamed, the handoff
+is appended to it rather than replacing it, and `result.answer` carries both —
+so `answer` is always the whole of what the customer saw, on every path.
 
 **Logging.** Your database is the system of record for transcripts. Worth
 storing per turn from `result`: `request_id`, `cited`, `sources`, `tool_calls`

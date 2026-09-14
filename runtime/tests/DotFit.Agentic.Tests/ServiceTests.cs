@@ -1,3 +1,4 @@
+using DotFit.Agentic.Config;
 using DotFit.Agentic.Service;
 using DotFit.Agentic.Turn;
 using DotFit.Agents.Config;
@@ -109,6 +110,30 @@ public class AgenticServiceOptionsTests
 
     private static AgenticServiceOptions Options() => AgenticServiceOptions.FromValues(
         Env((AgenticServiceOptions.ApiKeyVar, "k")), supportContact: null);
+
+    [Fact]
+    public void A_request_ceiling_below_the_turn_ceiling_fails_the_boot()
+    {
+        // The two are independent environment knobs. Inverted, the host kills
+        // the turn before the loop can hand off — and this service prefers
+        // failing at startup over failing on a customer's question.
+        AgenticServiceOptions tooTight = AgenticServiceOptions.FromValues(
+            Env((AgenticServiceOptions.ApiKeyVar, "k"), (AgenticServiceOptions.TimeoutSecondsVar, "30")),
+            supportContact: null);
+
+        EnvFile.EnvFileException error = Assert.Throws<EnvFile.EnvFileException>(
+            () => tooTight.RequireRoomForTurn(new AgenticOptions()));
+        Assert.Contains(AgenticServiceOptions.TimeoutSecondsVar, error.Message, StringComparison.Ordinal);
+
+        // The shipped pair — 120 s outside, 110 s inside — is fine.
+        Options().RequireRoomForTurn(new AgenticOptions());
+    }
+
+    [Fact]
+    public void The_caller_facing_top_cap_is_the_loops_own()
+    {
+        Assert.Equal(new AgenticOptions().MaxTop, AgenticServiceOptions.MaxTop);
+    }
 
     [Fact]
     public void Every_rejection_happens_before_the_stream_opens()
@@ -300,6 +325,64 @@ public class AskStreamTests
 
         Assert.Equal(10, assistant.Seen!.Top);
         Assert.Single(assistant.Seen.History);
+    }
+
+    /// <summary>Yields one stage and then waits for a cancellation that is not its own.</summary>
+    private sealed class StallingAssistant : IAgenticAssistant
+    {
+        public async IAsyncEnumerable<TurnEvent> AskAsync(
+            AskRequest request,
+            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+        {
+            yield return new TurnStageEvent(Stages.Thinking);
+            // What the loop does with its own token cancelled: rethrow.
+            await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
+        }
+    }
+
+    [Fact]
+    public async Task A_request_timeout_ends_the_stream_the_way_every_other_failure_does()
+    {
+        // The catch filtered on the caller's token, so our *own* request
+        // timeout escaped RunAsync: the stream ended with no error and no
+        // result — breaking "`result` is always last", which the website team
+        // builds against — the turn logged `abandoned` (the operator view
+        // saying the customer left when the service gave up), and the host
+        // logged an unhandled exception per occurrence.
+        var writer = new RecordingWriter();
+        var sink = new RecordingTurnSink();
+        AgenticServiceOptions options = Options() with { RequestTimeout = TimeSpan.FromMilliseconds(50) };
+
+        await AskStream.RunAsync(
+            new StallingAssistant(), new AskBody { Question = "q", RequestId = "turn-3" },
+            writer, options, sink, NullTranscriptSink.Instance, CancellationToken.None);
+
+        Assert.Equal(
+            [AskStream.EventError, AskStream.EventDelta, AskStream.EventResult],
+            writer.Frames.TakeLast(3).Select(f => f.Event));
+        Assert.Contains("timeout", writer.Frames[^3].Json, StringComparison.Ordinal);
+
+        TurnLog log = Assert.Single(sink.Logs);
+        Assert.Equal(TurnLog.OutcomeError, log.Outcome);
+        Assert.Equal("timeout", log.ErrorKind);
+    }
+
+    [Fact]
+    public async Task A_caller_that_hangs_up_is_still_abandoned_and_writes_nothing_back()
+    {
+        // The other half of the same catch: an aborted request must not try to
+        // write a handoff to a socket that is gone.
+        var writer = new RecordingWriter();
+        var sink = new RecordingTurnSink();
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        await AskStream.RunAsync(
+            new StallingAssistant(), new AskBody { Question = "q", RequestId = "turn-4" },
+            writer, Options(), sink, NullTranscriptSink.Instance, cts.Token);
+
+        Assert.DoesNotContain(writer.Frames, f => f.Event == AskStream.EventResult);
+        Assert.Equal(TurnLog.OutcomeAbandoned, Assert.Single(sink.Logs).Outcome);
     }
 
     [Fact]

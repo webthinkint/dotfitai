@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using DotFit.Agentic.Config;
 using DotFit.Agents.Answering;
 using DotFit.Agents.Config;
 
@@ -41,7 +42,7 @@ public sealed record AgenticServiceOptions
 
     public const int DefaultMaxQuestionChars = 2_000;
     public const int DefaultTimeoutSeconds = 120;
-    public const int MaxTop = 20;
+    public const int MaxTop = AgenticOptions.MaxTopCeiling;
     public const long MaxRequestBytes = 256 * 1024;
     public const int MaxIdChars = 64;
 
@@ -123,6 +124,25 @@ public sealed record AgenticServiceOptions
             SupportContact = supportContact,
             DebugTranscript = Value(DebugTranscriptVar) is "1" or "true" or "on",
         };
+    }
+
+    /// <summary>
+    /// The request ceiling must sit *above* the loop's own hard ceiling (§6):
+    /// the loop is meant to lose to itself, ending in a handoff the customer
+    /// reads, rather than losing to the host mid-sentence. Both are independent
+    /// environment knobs, so the ordering is checked at boot — this service
+    /// already prefers failing at startup over failing on a customer's
+    /// question.
+    /// </summary>
+    public void RequireRoomForTurn(AgenticOptions agentic)
+    {
+        if (RequestTimeout > agentic.HardTimeout)
+            return;
+        throw new EnvFile.EnvFileException(
+            $"{EnvFile.FileName}: {TimeoutSecondsVar}={RequestTimeout.TotalSeconds:0} is not above the " +
+            $"assistant's {agentic.HardTimeout.TotalSeconds:0}-second turn ceiling (raised by " +
+            $"{AgenticOptions.TurnTimeoutVar}). The request timeout must be the outer one, or a slow turn " +
+            "ends with no answer instead of with a handoff.");
     }
 
     /// <summary>

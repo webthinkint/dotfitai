@@ -133,7 +133,12 @@ public sealed class SourceLedger(int maxSourceChars)
         string content = document.Content ?? "";
         if (content.Length > maxSourceChars)
         {
-            sb.AppendLine(content[..maxSourceChars].TrimEnd());
+            // Never split a surrogate pair: cutting between the halves of an
+            // astral character hands the model a lone half, which is not text.
+            int cut = maxSourceChars;
+            if (cut > 0 && char.IsHighSurrogate(content[cut - 1]))
+                cut--;
+            sb.AppendLine(content[..cut].TrimEnd());
             sb.Append("… [truncated — call fetch(\"").Append(document.Id)
               .AppendLine("\") for the rest of this section]");
         }

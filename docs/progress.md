@@ -25,7 +25,7 @@ has not had is a person using it.
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 29 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **85 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
+| Tests | §11 | **104 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -70,11 +70,26 @@ clock — see open item 10.
 | 8 | **v1 pipeline items carried over** — golden-set labeling and the Stage 2 PII review queue are corpus work, not runtime work | carried over unchanged; see `docs/v1/progress.md` items 8 and 13 |
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
+| 11 | **Stage detail reaches the caller after the wait, not during it** (new 2026-09-14) | open. Tools queue `Ledger.Stage(…)` before running, but the loop drains the queue only when the next model update arrives — which is that tool's own result. So the widget renders "looking up creatine dosing" once the lookup has finished. §9 sells `stage.detail` as the texture that replaces a progress bar; it is stated as a caveat in `docs/website-integration.md` rather than sold as something it is not. The fix races the drain against `MoveNextAsync`, which is a change to the loop's core await and wants doing deliberately |
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-14 — defect sweep of the whole runtime (§6, §7, §9)
+
+Ten findings from a read of `DotFit.Agentic*` (`docs/agentic-issues.md`), fixed
+inside the loop, the tool layer and the transport — no model call added, nothing
+gated. The two a customer would notice: **alias expansion from the question text
+became a hard `products` filter** (v1 builds none, and 58.6% of `kb-main-v2`
+carries no product tag, so every search naming a product lost every podcast,
+info page and menu description), and **a mid-stream failure replaced the partial
+answer** in `result.answer`. Also fixed: the request timeout escaped `AskStream`
+leaving no terminal event, usage was overwritten per round trip not summed, the
+time-budget refusal never consumed a call, `fetch` bypassed `is_current`, and
+`TurnTimeout` 111–115 inverted the budget/ceiling ordering. 104 agentic tests
+green (was 86), 264 v1 green. One finding deferred: open item 11.
 
 ### 2026-09-12 — deployed beside v1 as a second user unit (§9)
 

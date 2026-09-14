@@ -67,6 +67,36 @@ internal sealed class ScriptedChatClient(params IEnumerable<IList<AIContent>> tu
     public void Dispose() { }
 }
 
+/// <summary>
+/// Streams some text and then throws — the failure that happens *while the
+/// model composes*, which is the one the §6 hard ceiling is most likely to
+/// produce and the one where deltas have already reached the customer.
+/// </summary>
+internal sealed class ThrowsAfterDeltasChatClient(Exception failure, params string[] deltas) : IChatClient
+{
+    public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
+        IEnumerable<ChatMessage> messages,
+        ChatOptions? options = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (string delta in deltas)
+        {
+            await Task.Yield();
+            yield return new ChatResponseUpdate(ChatRole.Assistant, delta);
+        }
+        await Task.Yield();
+        throw failure;
+    }
+
+    public Task<ChatResponse> GetResponseAsync(
+        IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+        => throw failure;
+
+    public object? GetService(Type serviceType, object? serviceKey = null) => null;
+
+    public void Dispose() { }
+}
+
 /// <summary>Search that returns a fixed list, recording what it was asked for.</summary>
 internal sealed class FakeSearch(params RetrievedDocument[] documents) : IKnowledgeSearch
 {

@@ -89,9 +89,11 @@ public static class AskStream
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeout.CancelAfter(options.RequestTimeout);
 
+        var clock = System.Diagnostics.Stopwatch.StartNew();
         string outcome = TurnLog.OutcomeAbandoned;
         string? errorKind = null;
         TurnResult? result = null;
+        var sources = new List<SourceRef>();
         var sourceIds = new List<string>();
 
         try
@@ -116,6 +118,7 @@ public static class AskStream
                         break;
 
                     case TurnSourceEvent source:
+                        sources.Add(source.Source);
                         sourceIds.Add(source.Source.Id);
                         await writer.WriteAsync(EventSource, Wire(source.Source), ct).ConfigureAwait(false);
                         break;
@@ -150,6 +153,24 @@ public static class AskStream
             // The caller hung up. Nothing to write to, and nothing was read.
             outcome = TurnLog.OutcomeAbandoned;
         }
+        catch (OperationCanceledException)
+        {
+            // Our own request timeout, not the caller's abort: the connection
+            // is still open and the response has been 200 since the first
+            // frame, so the only honest ending is the one every other failure
+            // gets — `error`, the handoff as a delta, then `result` last. The
+            // filtered catch above must not swallow this: without this branch
+            // the exception left RunAsync, the stream ended with no terminal
+            // event (breaking "`result` is always last"), and the turn logged
+            // `abandoned` — the operator view saying the customer left when in
+            // fact the service gave up.
+            outcome = TurnLog.OutcomeError;
+            errorKind = "timeout";
+            result = await FailAsync(
+                writer, requestId,
+                DotFit.Agentic.Prompting.SystemPrompt.HandoffMessage(options.SupportContact),
+                sources, clock.ElapsedMilliseconds, ct).ConfigureAwait(false);
+        }
         finally
         {
             // Written from a finally so every terminal path logs — with nothing
@@ -163,6 +184,53 @@ public static class AskStream
 
             if (result is not null)
                 transcripts.Write(requestId, request.Question, result, sourceIds);
+        }
+    }
+
+    /// <summary>
+    /// The terminal pair for a failure the loop could not emit for itself:
+    /// <c>error</c>, the handoff as a <c>delta</c>, then <c>result</c> — the
+    /// same shape and the same order <see cref="IAgenticAssistant"/> uses, so a
+    /// client needs no second code path. Returns the result it wrote, or null
+    /// if the connection went away while writing it (in which case the turn was
+    /// abandoned after all, and the log says so).
+    /// </summary>
+    private static async Task<TurnResult?> FailAsync(
+        ISseWriter writer,
+        string requestId,
+        string handoff,
+        IReadOnlyList<SourceRef> sources,
+        long elapsedMs,
+        CancellationToken ct)
+    {
+        var result = new TurnResult
+        {
+            AnswerText = handoff,
+            // What was numbered before the ceiling fired. The customer may have
+            // seen citations to them, so they are part of the record.
+            Sources = sources,
+            ToolCalls = [],
+            FirstDeltaMs = elapsedMs,
+            TotalMs = elapsedMs,
+            BudgetExhausted = false,
+            CitedSources = [],
+            Families = [],
+        };
+        try
+        {
+            // The message stays generic for the same reason the loop's does:
+            // the detail is the operator's, and this one names our own limits.
+            await writer.WriteAsync(EventError,
+                new { request_id = requestId, kind = "timeout", message = "the assistant failed" }, ct)
+                .ConfigureAwait(false);
+            await writer.WriteAsync(EventDelta, new { text = handoff }, ct).ConfigureAwait(false);
+            await writer.WriteAsync(EventResult, Wire(result, requestId), ct).ConfigureAwait(false);
+            await writer.FlushAsync(ct).ConfigureAwait(false);
+            return result;
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
         }
     }
 

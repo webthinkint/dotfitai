@@ -66,13 +66,16 @@ if ! grep -q '^DOTFIT_SERVICE_API_KEY=' "$ENV_FILE"; then
     fi
     printf '\n# --- added by runtime/deploy-agentic/install-user-service.sh ---\nDOTFIT_SERVICE_API_KEY=%s\n' \
         "$KEY" >> "$ENV_FILE"
-    chmod 600 "$ENV_FILE"
     echo "generated DOTFIT_SERVICE_API_KEY into .env (gitignored) — the caller sends it"
     echo "as 'Authorization: Bearer <key>'. Retrieve with:"
     echo "    grep DOTFIT_SERVICE_API_KEY $ENV_FILE"
 else
     echo "DOTFIT_SERVICE_API_KEY already present in .env (shared with v1 — one secret, both runtimes)"
 fi
+# Outside the branch: the file holds the Azure keys and the shared secret
+# whether or not this run is what generated them, and a repo that arrived with
+# a world-readable .env kept whatever mode it had.
+chmod 600 "$ENV_FILE"
 
 # --- 3. install the unit ---------------------------------------------------
 mkdir -p "$(dirname "$UNIT_DST")"

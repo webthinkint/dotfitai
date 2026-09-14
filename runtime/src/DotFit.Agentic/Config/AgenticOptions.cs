@@ -32,8 +32,26 @@ public sealed record AgenticOptions
     /// Wall clock for one turn (§6), below the service's 120 s request timeout
     /// so the budget — which ends in an answer — wins the race against the
     /// timeout, which ends in a handoff.
+    ///
+    /// It must also stay below <see cref="HardTimeout"/>, which is capped at
+    /// 110 s: above that the ceiling would sit *under* the research budget, the
+    /// budget refusal could never fire, and every long turn would end in the
+    /// handoff instead of in an answer. <see cref="MaxTurnTimeoutSeconds"/> is
+    /// where that is enforced.
     /// </summary>
     public TimeSpan TurnTimeout { get; init; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
+    /// The ceiling on the whole turn, in seconds, before the doubling rule
+    /// clamps it. Named because two other limits are stated against it.
+    /// </summary>
+    public const int HardTimeoutSeconds = 110;
+
+    /// <summary>
+    /// The largest research budget that keeps <c>TurnTimeout &lt; HardTimeout</c>:
+    /// one second under the ceiling, so the budget always wins the race.
+    /// </summary>
+    public const int MaxTurnTimeoutSeconds = HardTimeoutSeconds - 1;
 
     /// <summary>
     /// The ceiling on the whole turn, including the answer the model writes
@@ -44,7 +62,7 @@ public sealed record AgenticOptions
     /// loop always loses to itself before it loses to the host.
     /// </summary>
     public TimeSpan HardTimeout =>
-        TimeSpan.FromSeconds(Math.Min(TurnTimeout.TotalSeconds * 2, 110));
+        TimeSpan.FromSeconds(Math.Min(TurnTimeout.TotalSeconds * 2, HardTimeoutSeconds));
 
     /// <summary>
     /// Default <c>top</c> for the search tool (§7.1). Six rather than v1's
@@ -52,8 +70,16 @@ public sealed record AgenticOptions
     /// </summary>
     public int DefaultTop { get; init; } = 6;
 
+    /// <summary>
+    /// The caller-facing cap on <c>top</c>, in one place. The service rejects a
+    /// larger <c>top</c> with a 400 against this same number — two independent
+    /// 20s would drift, and the customer-visible symptom of the drift would be
+    /// a request accepted at the edge and then silently clamped.
+    /// </summary>
+    public const int MaxTopCeiling = 20;
+
     /// <summary>Ceiling on <c>top</c>, matching the service's caller-facing cap.</summary>
-    public int MaxTop { get; init; } = 20;
+    public int MaxTop { get; init; } = MaxTopCeiling;
 
     /// <summary>
     /// Characters of a single source's content handed to the model. A PDSRG
@@ -76,11 +102,19 @@ public sealed record AgenticOptions
             return parsed;
         }
 
+        // Fallbacks read off a default instance rather than repeated as
+        // literals. Repeating them made the property initializers dead on every
+        // real path — the service and the CLI both load through here — so
+        // changing a default changed nothing that shipped, which is a trap for
+        // exactly the edit open item 5 exists to make.
+        var defaults = new AgenticOptions();
+
         var options = new AgenticOptions
         {
-            MaxToolCalls = Int(MaxToolCallsVar, 8, 1, 64),
-            TurnTimeout = TimeSpan.FromSeconds(Int(TurnTimeoutVar, 60, 5, 115)),
-            DefaultTop = Int(DefaultTopVar, 6, 1, 20),
+            MaxToolCalls = Int(MaxToolCallsVar, defaults.MaxToolCalls, 1, 64),
+            TurnTimeout = TimeSpan.FromSeconds(Int(
+                TurnTimeoutVar, (int)defaults.TurnTimeout.TotalSeconds, 5, MaxTurnTimeoutSeconds)),
+            DefaultTop = Int(DefaultTopVar, defaults.DefaultTop, 1, defaults.MaxTop),
         };
         if (options.DefaultTop > options.MaxTop)
             throw new EnvFile.EnvFileException(

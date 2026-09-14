@@ -165,10 +165,15 @@ internal static class Program
                 flags).ConfigureAwait(false);
 
             // The transcript the caller would keep: text only, no tool calls
-            // and no sources — the same thing the service is sent (§6).
-            history.Add(new ConversationTurn(ConversationRole.User, question));
+            // and no sources — the same thing the service is sent (§6). A turn
+            // that produced no result — Ctrl-C — contributes neither half: a
+            // user turn with nothing after it would reach the model as an
+            // unanswered question and change what the next turn means.
             if (result is not null)
+            {
+                history.Add(new ConversationTurn(ConversationRole.User, question));
                 history.Add(new ConversationTurn(ConversationRole.Assistant, result.AnswerText));
+            }
         }
     }
 
@@ -183,66 +188,95 @@ internal static class Program
         TurnResult? result = null;
         bool answering = false;
 
-        await foreach (TurnEvent turnEvent in assistant.AskAsync(request).ConfigureAwait(false))
+        // Ctrl-C cancels the turn instead of killing the process: the loop
+        // treats a cancelled caller as "the caller went away" and unwinds — the
+        // in-flight Azure calls are cancelled with it, and `chat` gets its
+        // prompt back rather than a dead shell.
+        using var cancel = new CancellationTokenSource();
+        ConsoleCancelEventHandler onCancel = (_, e) =>
         {
-            switch (turnEvent)
+            if (cancel.IsCancellationRequested)
+                return;     // a second Ctrl-C is the operator insisting; let it kill
+            e.Cancel = true;
+            cancel.Cancel();
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("  ... cancelled");
+        };
+        Console.CancelKeyPress += onCancel;
+
+        try
+        {
+            await foreach (TurnEvent turnEvent in assistant.AskAsync(request, cancel.Token).ConfigureAwait(false))
             {
-                case TurnStageEvent stage:
-                    if (stage.Stage == Stages.Answer)
+                switch (turnEvent)
+                {
+                    case TurnStageEvent stage:
+                        if (stage.Stage == Stages.Answer)
+                            break;
+                        Console.Out.WriteLine(stage.Detail is { Length: > 0 } detail
+                            ? $"  ... {stage.Stage}: {detail}"
+                            : $"  ... {stage.Stage}");
                         break;
-                    Console.Out.WriteLine(stage.Detail is { Length: > 0 } detail
-                        ? $"  ... {stage.Stage}: {detail}"
-                        : $"  ... {stage.Stage}");
-                    break;
 
-                case TurnSourceEvent source when flags.Trace:
-                    Console.Out.WriteLine(
-                        $"      [{source.Source.N}] {source.Source.SourceType} " +
-                        $"a{source.Source.Authority} {source.Source.Title}");
-                    break;
+                    case TurnSourceEvent source when flags.Trace:
+                        Console.Out.WriteLine(
+                            $"      [{source.Source.N}] {source.Source.SourceType} " +
+                            $"a{source.Source.Authority} {source.Source.Title}");
+                        break;
 
-                case TurnDeltaEvent delta:
-                    if (!answering)
-                    {
-                        answering = true;
-                        Console.Out.WriteLine();
-                    }
-                    Console.Out.Write(delta.Text);
-                    break;
+                    case TurnDeltaEvent delta:
+                        if (!answering)
+                        {
+                            answering = true;
+                            Console.Out.WriteLine();
+                        }
+                        Console.Out.Write(delta.Text);
+                        break;
 
-                case TurnErrorEvent error:
-                    Console.Error.WriteLine($"  !!! {error.Kind}: {error.Message}");
-                    break;
+                    case TurnErrorEvent error:
+                        Console.Error.WriteLine($"  !!! {error.Kind}: {error.Message}");
+                        break;
 
-                case TurnResultEvent finished:
-                    result = finished.Result;
-                    break;
+                    case TurnResultEvent finished:
+                        result = finished.Result;
+                        break;
+                }
             }
+
+            Console.Out.WriteLine();
+            if (result is null)
+                return null;
+
+            if (flags.Trace)
+                RenderTrace(result);
+            if (flags.ShowSources && result.Sources.Count > 0)
+                RenderSources(result);
+
+            Console.Out.WriteLine();
+            Console.Out.WriteLine(
+                $"  ({result.ToolCalls.Count} tool calls, {result.Sources.Count} sources, " +
+                $"{result.CitedSources.Count} cited, first delta {result.FirstDeltaMs} ms, " +
+                $"total {result.TotalMs} ms{(result.BudgetExhausted ? ", budget exhausted" : "")})");
+            Console.Out.WriteLine();
+
+            if (flags.Log)
+                Console.Error.WriteLine(TurnLog.From(
+                    result,
+                    TurnLog.OutcomeAnswered,
+                    historyTurns: request.History.Count).ToJsonLine());
+
+            return result;
         }
-
-        Console.Out.WriteLine();
-        if (result is null)
+        catch (OperationCanceledException) when (cancel.IsCancellationRequested)
+        {
+            // Ctrl-C during a turn. Nothing was assembled, so there is nothing
+            // to add to the conversation — `chat` keeps its history and prompts.
             return null;
-
-        if (flags.Trace)
-            RenderTrace(result);
-        if (flags.ShowSources && result.Sources.Count > 0)
-            RenderSources(result);
-
-        Console.Out.WriteLine();
-        Console.Out.WriteLine(
-            $"  ({result.ToolCalls.Count} tool calls, {result.Sources.Count} sources, " +
-            $"{result.CitedSources.Count} cited, first delta {result.FirstDeltaMs} ms, " +
-            $"total {result.TotalMs} ms{(result.BudgetExhausted ? ", budget exhausted" : "")})");
-        Console.Out.WriteLine();
-
-        if (flags.Log)
-            Console.Error.WriteLine(TurnLog.From(
-                result,
-                TurnLog.OutcomeAnswered,
-                historyTurns: request.History.Count).ToJsonLine());
-
-        return result;
+        }
+        finally
+        {
+            Console.CancelKeyPress -= onCancel;
+        }
     }
 
     private static void RenderTrace(TurnResult result)
@@ -285,7 +319,10 @@ internal static class Program
         RuntimeOptions options, AliasTable aliases, AgenticOptions agentic, string query)
     {
         var searchClient = RuntimeFactory.CreateSearchClient(options);
-        var settings = new SearchSettings { DefaultTop = agentic.DefaultTop };
+        // The same object the factory builds, passed the same three places, so
+        // this verb runs the query the loop would run rather than one that only
+        // looks like it (`top` comes from AgenticOptions on both paths).
+        var settings = new SearchSettings();
         var openAi = RuntimeFactory.CreateOpenAiClient(options);
 
         var tools = new KnowledgeTools(
@@ -294,7 +331,8 @@ internal static class Program
             aliases,
             agentic,
             new SourceLedger(agentic.MaxSourceChars),
-            new ToolBudget(agentic.MaxToolCalls, agentic.TurnTimeout));
+            new ToolBudget(agentic.MaxToolCalls, agentic.TurnTimeout),
+            settings);
 
         // Invoke through the same AIFunction the model would call, so what this
         // prints is exactly what the model would have been handed — including

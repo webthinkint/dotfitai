@@ -97,6 +97,19 @@ public class SourceLedgerTests
     }
 
     [Fact]
+    public void Truncation_never_splits_a_surrogate_pair()
+    {
+        // content[..max] cutting between the halves of an astral character
+        // hands the model a lone surrogate, which is not text.
+        var ledger = new SourceLedger(maxSourceChars: 5);
+        RetrievedDocument document = Fixtures.Document(content: "abcd\U0001F600efgh");
+        (SourceRef source, _) = ledger.Add(document);
+
+        string rendered = ledger.Render(source, document, isNew: true);
+        Assert.All(rendered, ch => Assert.False(char.IsSurrogate(ch)));
+    }
+
+    [Fact]
     public void Cited_reads_the_delivered_text_not_the_sources_given()
     {
         var ledger = new SourceLedger(1000);
@@ -156,12 +169,54 @@ public class ToolBudgetTests
         Assert.False(budget.TryConsume(out string refusal));
         Assert.Contains("research budget", refusal, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void A_refused_call_is_still_a_call_on_both_branches()
+    {
+        // The time branch used to return before the counter moved, so a model
+        // that kept calling tools after the research budget expired got a free
+        // instant refusal each time — and each refusal is a full paid model
+        // round trip carrying the whole conversation. The call budget is what
+        // stops a spinner; it cannot if the spinning does not count.
+        var expired = new ToolBudget(maxCalls: 3, TimeSpan.Zero);
+        for (int i = 0; i < 10; i++)
+            Assert.False(expired.TryConsume(out _));
+        Assert.Equal(10, expired.Used);
+
+        // And the count still wins once it is the binding limit.
+        var counted = new ToolBudget(maxCalls: 1, TimeSpan.FromMinutes(5));
+        Assert.True(counted.TryConsume(out _));
+        Assert.False(counted.TryConsume(out string refusal));
+        Assert.Contains("all 1 of its tool calls", refusal, StringComparison.Ordinal);
+        Assert.Equal(2, counted.Used);
+    }
+}
+
+public class DocumentStoreTests
+{
+    [Fact]
+    public void A_key_lookup_that_lands_on_a_superseded_document_returns_nothing()
+    {
+        // `fetch` is a key lookup, so it carries no filter and used to be the
+        // one path past `is_current` — while being the tool that numbers what
+        // it gets as a citable source. Latent (the index holds only current
+        // documents today) and pinned here while the invariant is still true.
+        static AzureDocumentStore.KbDoc Doc(bool isCurrent) => new()
+        {
+            Id = "pdsrg-example-004", SourceType = "pdsrg", Authority = 2,
+            Title = "Old Section", Content = "superseded body", IsCurrent = isCurrent,
+        };
+
+        Assert.Null(AzureDocumentStore.CurrentOnly(Doc(isCurrent: false)));
+        Assert.NotNull(AzureDocumentStore.CurrentOnly(Doc(isCurrent: true)));
+    }
 }
 
 public class AliasTierTests
 {
     private static KnowledgeTools Tools(
-        out FakeSearch search, out FakeDocumentStore store, AgenticOptions? options = null)
+        out FakeSearch search, out FakeDocumentStore store,
+        AgenticOptions? options = null, SearchSettings? settings = null)
     {
         search = new FakeSearch(Fixtures.Document());
         store = new FakeDocumentStore(
@@ -169,7 +224,7 @@ public class AliasTierTests
                 products: ["9001"]));
         return new KnowledgeTools(
             search, store, Fixtures.Aliases(), options ?? new AgenticOptions(),
-            new SourceLedger(6000), new ToolBudget(8, TimeSpan.FromMinutes(5)));
+            new SourceLedger(6000), new ToolBudget(8, TimeSpan.FromMinutes(5)), settings);
     }
 
     [Fact]
@@ -227,6 +282,131 @@ public class AliasTierTests
             ["products"] = new[] { "the example one" },
         });
         Assert.Contains("9001", search.Queries[1].AdditionalFilter ?? "", StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_product_name_in_the_query_text_widens_the_search_and_never_restricts_it()
+    {
+        // The regression the branch shipped and v1 never had. `Expand` merges
+        // both paths into one PartNos list, so a family name, a deterministic
+        // alias or a legacy name that merely *appeared in the question* became
+        // a hard products/any(...) — and 59% of the corpus (every podcast,
+        // every info page, every menu description, much of PDSRG and QA) has no
+        // products tag at all, so all of it fell out of the candidate set.
+        //
+        // The blind path widens the query text. Only `products` narrows (§7.1).
+        KnowledgeTools tools = Tools(out FakeSearch search, out _);
+        var function = (AIFunction)tools.AsTools()[0];
+
+        foreach (string query in new[]
+                 {
+                     "is ExampleFormula safe with creatine?",   // family name
+                     "how much EF per day?",                    // deterministic alias
+                     "is OldExample still sold?",               // legacy rename
+                 })
+        {
+            await function.InvokeAsync(new AIFunctionArguments { ["query"] = query });
+        }
+
+        Assert.All(search.Queries, q => Assert.Null(q.AdditionalFilter));
+        // …while still reaching the query text, which is what expansion is for.
+        Assert.Contains("ExampleFormula", search.Queries[1].QueryText, StringComparison.Ordinal);
+        Assert.Contains("ExampleFormula", search.Queries[2].QueryText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_source_type_search_keeps_its_own_filter_and_gains_no_product_one()
+    {
+        // The reproduction from the defect report: no podcast document carries
+        // a products tag, so a product filter inferred from the question text
+        // could only ever return nothing.
+        KnowledgeTools tools = Tools(out FakeSearch search, out _);
+        var function = (AIFunction)tools.AsTools()[0];
+
+        await function.InvokeAsync(new AIFunctionArguments
+        {
+            ["query"] = "what did the podcast say about ExampleFormula?",
+            ["source_type"] = "podcast",
+        });
+
+        Assert.Equal("(source_type eq 'podcast')", search.Queries[0].AdditionalFilter);
+    }
+
+    [Fact]
+    public async Task A_restricted_search_says_it_is_restricted_and_names_the_way_out()
+    {
+        // "Searched with: X" reads as expansion. A model that cannot tell it
+        // has a filter cannot take its documented recovery — dropping it.
+        KnowledgeTools tools = Tools(out FakeSearch search, out _);
+        var function = (AIFunction)tools.AsTools()[0];
+
+        object? result = await function.InvokeAsync(new AIFunctionArguments
+        {
+            ["query"] = "is it safe with creatine?",
+            ["products"] = new[] { "ExampleFormula" },
+        });
+
+        Assert.Contains("9001", search.Queries[0].AdditionalFilter ?? "", StringComparison.Ordinal);
+        string text = result?.ToString() ?? "";
+        Assert.Contains("Restricted to part numbers", text, StringComparison.Ordinal);
+        Assert.Contains("Omit `products`", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_empty_restricted_result_is_not_reported_as_an_empty_corpus()
+    {
+        // Zero hits under a filter is a fact about the filter. Reported as a
+        // fact about the corpus, it invites the model to tell a customer dotFIT
+        // has nothing on a topic it has plenty on.
+        var tools = new KnowledgeTools(
+            new FakeSearch(), new FakeDocumentStore(), Fixtures.Aliases(), new AgenticOptions(),
+            new SourceLedger(6000), new ToolBudget(8, TimeSpan.FromMinutes(5)));
+        var function = (AIFunction)tools.AsTools()[0];
+
+        object? result = await function.InvokeAsync(new AIFunctionArguments
+        {
+            ["query"] = "is it safe with creatine?",
+            ["products"] = new[] { "ExampleFormula" },
+        });
+
+        Assert.Contains("under those filters", result?.ToString() ?? "", StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_unknown_name_is_reported_even_when_another_name_produced_a_note()
+    {
+        // The rename note used to swallow the warning, so the model heard about
+        // the first product and never heard that the second matched nothing.
+        KnowledgeTools tools = Tools(out _, out _);
+        var function = (AIFunction)tools.AsTools()[0];
+
+        object? result = await function.InvokeAsync(new AIFunctionArguments
+        {
+            ["query"] = "can I take them together?",
+            ["products"] = new[] { "OldExample", "NotAThing" },
+        });
+
+        string text = result?.ToString() ?? "";
+        Assert.Contains("renamed", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"NotAThing\" did not resolve", text, StringComparison.Ordinal);
+        // A name that resolves to a note rather than to a family has resolved.
+        Assert.DoesNotContain("\"OldExample\" did not resolve", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task The_query_knobs_come_from_the_search_settings()
+    {
+        // SemanticDefault and VectorCandidates used to be read by nothing on
+        // this branch: SearchParameters was built without them, so the settings
+        // object looked wired and was not.
+        KnowledgeTools tools = Tools(out FakeSearch search, out _, settings:
+            new SearchSettings { SemanticDefault = true, VectorCandidates = 17 });
+        var function = (AIFunction)tools.AsTools()[0];
+
+        await function.InvokeAsync(new AIFunctionArguments { ["query"] = "creatine dosing" });
+
+        Assert.True(search.Queries[0].Semantic);
+        Assert.Equal(17, search.Queries[0].VectorCandidates);
     }
 
     [Fact]

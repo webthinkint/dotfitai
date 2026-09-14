@@ -79,49 +79,63 @@ internal static class Smoke
         string stamp = DateTime.Now.ToString("yyyy-MM-dd-HHmm");
         string path = Path.Combine(outDir, $"smoke-{stamp}.md");
 
-        var doc = new StringBuilder();
-        doc.AppendLine($"# Agentic smoke run — {DateTime.Now:yyyy-MM-dd HH:mm}");
-        doc.AppendLine();
-        doc.AppendLine(
+        // Written as it goes, not at the end. A 29-item live run is real Azure
+        // spend, and one exception two thirds of the way through used to lose
+        // the whole document and everything it cost.
+        var header = new StringBuilder();
+        header.AppendLine($"# Agentic smoke run — {DateTime.Now:yyyy-MM-dd HH:mm}");
+        header.AppendLine();
+        header.AppendLine(
             "Written conversational set (design §11.2). **There is no score.** Read each answer " +
             "against *Looking for*, and check the three mechanical things first: first-delta time, " +
             "whether tools were called, and whether anything was cited.");
-        doc.AppendLine();
+        header.AppendLine();
+        await File.WriteAllTextAsync(path, header.ToString()).ConfigureAwait(false);
 
         var summary = new List<string>();
 
         foreach (SmokeItem item in items)
         {
             Console.Out.WriteLine($"{item.Id} ({item.Tier}) — {item.Turns.Length} turn(s)");
+            var doc = new StringBuilder();
             doc.AppendLine($"## {item.Id} — {item.Tier}");
             doc.AppendLine();
             doc.AppendLine($"*Looking for:* {item.LookingFor}");
             doc.AppendLine();
 
             var history = new List<ConversationTurn>();
-            foreach (string question in item.Turns)
+            try
             {
-                TurnResult? result = await OneTurnAsync(assistant, question, history, doc).ConfigureAwait(false);
-                history.Add(new ConversationTurn(ConversationRole.User, question));
-                if (result is null)
-                    break;
-                history.Add(new ConversationTurn(ConversationRole.Assistant, result.AnswerText));
-                summary.Add(
-                    $"| {item.Id} | {item.Tier} | {result.ToolCalls.Count} | {result.Sources.Count} | " +
-                    $"{result.CitedSources.Count} | {result.FirstDeltaMs} | {result.TotalMs} |");
+                foreach (string question in item.Turns)
+                {
+                    TurnResult? result = await OneTurnAsync(assistant, question, history, doc)
+                        .ConfigureAwait(false);
+                    history.Add(new ConversationTurn(ConversationRole.User, question));
+                    if (result is null)
+                        break;
+                    history.Add(new ConversationTurn(ConversationRole.Assistant, result.AnswerText));
+                    summary.Add(
+                        $"| {item.Id} | {item.Tier} | {result.ToolCalls.Count} | {result.Sources.Count} | " +
+                        $"{result.CitedSources.Count} | {result.FirstDeltaMs} | {result.TotalMs} |");
+                }
             }
-            doc.AppendLine("---");
-            doc.AppendLine();
+            finally
+            {
+                doc.AppendLine("---");
+                doc.AppendLine();
+                await File.AppendAllTextAsync(path, doc.ToString()).ConfigureAwait(false);
+            }
         }
 
-        doc.AppendLine("## At a glance");
-        doc.AppendLine();
-        doc.AppendLine("| id | tier | tools | sources | cited | first delta (ms) | total (ms) |");
-        doc.AppendLine("|---|---|---|---|---|---|---|");
+        var tail = new StringBuilder();
+        tail.AppendLine("## At a glance");
+        tail.AppendLine();
+        tail.AppendLine("| id | tier | tools | sources | cited | first delta (ms) | total (ms) |");
+        tail.AppendLine("|---|---|---|---|---|---|---|");
         foreach (string row in summary)
-            doc.AppendLine(row);
+            tail.AppendLine(row);
 
-        await File.WriteAllTextAsync(path, doc.ToString()).ConfigureAwait(false);
+        await File.AppendAllTextAsync(path, tail.ToString()).ConfigureAwait(false);
         Console.Out.WriteLine();
         Console.Out.WriteLine($"transcript written to {path}");
         Console.Out.WriteLine("Read it. There is no pass rate on purpose (design §11).");

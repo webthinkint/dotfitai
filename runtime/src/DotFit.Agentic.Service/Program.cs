@@ -29,6 +29,9 @@ if (builder.Configuration["DotFit:Index"] is { Length: > 0 } index)
 
 AgenticServiceOptions service = AgenticServiceOptions.Load(options);
 AgenticOptions agentic = AgenticOptions.Load(options.EnvFilePath);
+// Both ceilings are independent knobs; inverted, the host kills the turn before
+// the loop can hand off, and the customer gets a truncated stream (§6, §9).
+service.RequireRoomForTurn(agentic);
 AliasTable aliases = AliasTable.Load(options.AliasTablePath);
 
 // A question plus eight trimmed history turns. Kestrel's 30 MB default is for

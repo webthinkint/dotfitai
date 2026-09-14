@@ -226,4 +226,42 @@ public class AgenticOptionsTests
         var options = AgenticOptions.FromValues(new Dictionary<string, string>());
         Assert.Equal(new AgenticOptions(), options);
     }
+
+    [Fact]
+    public void The_defaults_that_ship_are_the_property_initializers()
+    {
+        // FromValues used to repeat 8 / 60 / 6 as literals, which made the
+        // initializers dead on every real path — the service and the CLI both
+        // load through here, so changing a default changed nothing that
+        // shipped. That is a trap for exactly the edit open item 5 exists to
+        // make, so it is pinned by construction rather than by number.
+        var moved = new AgenticOptions { MaxToolCalls = 5, DefaultTop = 4 };
+        var loaded = AgenticOptions.FromValues(new Dictionary<string, string>());
+
+        Assert.Equal(new AgenticOptions().MaxToolCalls, loaded.MaxToolCalls);
+        Assert.Equal(new AgenticOptions().DefaultTop, loaded.DefaultTop);
+        Assert.Equal(new AgenticOptions().TurnTimeout, loaded.TurnTimeout);
+        // A sanity check that the comparison above could fail at all.
+        Assert.NotEqual(moved.MaxToolCalls, loaded.MaxToolCalls);
+    }
+
+    [Fact]
+    public void The_accepted_turn_timeout_can_never_invert_the_ceiling()
+    {
+        // Above 110 the ceiling sat *below* the research budget, so the budget
+        // refusal — the one that ends in an answer — could never fire and every
+        // long turn ended in the handoff instead.
+        EnvFile.EnvFileException error = Assert.Throws<EnvFile.EnvFileException>(() =>
+            AgenticOptions.FromValues(new Dictionary<string, string>
+            {
+                [AgenticOptions.TurnTimeoutVar] = "115",
+            }));
+        Assert.Contains(AgenticOptions.TurnTimeoutVar, error.Message, StringComparison.Ordinal);
+
+        var highest = AgenticOptions.FromValues(new Dictionary<string, string>
+        {
+            [AgenticOptions.TurnTimeoutVar] = AgenticOptions.MaxTurnTimeoutSeconds.ToString(),
+        });
+        Assert.True(highest.TurnTimeout < highest.HardTimeout);
+    }
 }

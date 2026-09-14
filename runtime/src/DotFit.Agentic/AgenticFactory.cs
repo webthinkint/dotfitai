@@ -50,7 +50,13 @@ public static class AgenticFactory
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
         agentic ??= AgenticOptions.Load(options.EnvFilePath);
-        settings ??= new SearchSettings { DefaultTop = agentic.DefaultTop };
+        // Not `DefaultTop`: on this branch `top` is the model's per-call choice,
+        // clamped against AgenticOptions, and SearchParameters always carries it
+        // explicitly — so setting it here would describe a default nothing
+        // reads. What this object does carry to the loop is the is_current
+        // filter, the authority weights, the ranker switch and the candidate
+        // pool, all of them read.
+        settings ??= new SearchSettings();
 
         AzureOpenAIClient openAi = RuntimeFactory.CreateOpenAiClient(options);
         SearchClient searchClient = RuntimeFactory.CreateSearchClient(options);
@@ -62,6 +68,7 @@ public static class AgenticFactory
             store: new AzureDocumentStore(searchClient, settings),
             aliases: aliases,
             options: agentic,
-            supportContact: options.SupportContact);
+            supportContact: options.SupportContact,
+            settings: settings);
     }
 }

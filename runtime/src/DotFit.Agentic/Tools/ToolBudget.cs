@@ -33,6 +33,15 @@ public sealed class ToolBudget(int maxCalls, TimeSpan timeout)
     /// </summary>
     public bool TryConsume(out string refusal)
     {
+        // Counted first, so *both* refusals consume a call. Checking the clock
+        // before incrementing made the time refusal free: between the research
+        // budget expiring and the hard ceiling, a model that kept calling tools
+        // got an instant refusal each time — and each refusal is a full paid
+        // round trip carrying the whole conversation. With the count advancing,
+        // the call-count refusal takes over from the time refusal for a model
+        // that keeps trying.
+        int used = Interlocked.Increment(ref _used);
+
         if (_clock.Elapsed > timeout)
         {
             Exhausted = true;
@@ -42,7 +51,6 @@ public sealed class ToolBudget(int maxCalls, TimeSpan timeout)
             return false;
         }
 
-        int used = Interlocked.Increment(ref _used);
         if (used > MaxCalls)
         {
             Exhausted = true;

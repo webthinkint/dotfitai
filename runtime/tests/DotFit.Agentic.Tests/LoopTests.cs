@@ -14,7 +14,7 @@ namespace DotFit.Agentic.Tests;
 public class LoopTests
 {
     private static AgenticAssistant Build(
-        ScriptedChatClient client,
+        IChatClient client,
         out FakeSearch search,
         AgenticOptions? options = null)
     {
@@ -196,6 +196,69 @@ public class LoopTests
         Assert.Equal(error.HandoffText, result.AnswerText);
         Assert.Equal(error.HandoffText, events.OfType<TurnDeltaEvent>().Last().Text);
         Assert.IsType<TurnResultEvent>(events[^1]);
+    }
+
+    [Fact]
+    public async Task A_failure_mid_answer_keeps_the_text_the_customer_already_read()
+    {
+        // The result is the record of the turn: the website team persists
+        // `result.answer`. Replacing the partial text with the handoff stored
+        // an answer nobody saw and lost the one they did — and took `cited`
+        // with it, biasing the §8.3 record that stands in for a gate.
+        var client = new ThrowsAfterDeltasChatClient(
+            new InvalidOperationException("deployment exploded"), "Take 5 g daily", " with food");
+        AgenticAssistant assistant = Build(client, out _);
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "how much creatine?" });
+        TurnErrorEvent error = events.OfType<TurnErrorEvent>().Single();
+        TurnResult result = events.OfType<TurnResultEvent>().Single().Result;
+        string streamed = string.Concat(events.OfType<TurnDeltaEvent>().Select(d => d.Text));
+
+        Assert.Equal(streamed, result.AnswerText);
+        Assert.StartsWith("Take 5 g daily with food", result.AnswerText, StringComparison.Ordinal);
+        Assert.EndsWith(error.HandoffText, result.AnswerText, StringComparison.Ordinal);
+        // Appended with a break, not run on from the half-finished sentence.
+        Assert.Contains("food\n\nSomething went wrong", result.AnswerText, StringComparison.Ordinal);
+        Assert.IsType<TurnResultEvent>(events[^1]);
+    }
+
+    [Fact]
+    public async Task Token_usage_is_summed_across_round_trips()
+    {
+        // Every round trip reports its own usage. Taking the last one dropped
+        // the output tokens of every tool-calling round trip and reported the
+        // last call's context as the input — understating exactly the expensive
+        // turns the log exists to price (open item 5).
+        var client = new ScriptedChatClient(
+            [
+                new FunctionCallContent("c1", "search",
+                    new Dictionary<string, object?> { ["query"] = "creatine dosing" }),
+                new UsageContent(new UsageDetails { InputTokenCount = 100, OutputTokenCount = 10 }),
+            ],
+            [
+                new TextContent("Take 5 g daily [1]."),
+                new UsageContent(new UsageDetails { InputTokenCount = 500, OutputTokenCount = 20 }),
+            ]);
+        AgenticAssistant assistant = Build(client, out _);
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "how much creatine?" });
+        TurnResult result = events.OfType<TurnResultEvent>().Single().Result;
+
+        Assert.Equal(600, result.InputTokens);
+        Assert.Equal(30, result.OutputTokens);
+    }
+
+    [Fact]
+    public async Task Usage_stays_null_when_nothing_ever_reported_it()
+    {
+        var client = new ScriptedChatClient(ScriptedChatClient.Text("Hey!"));
+        AgenticAssistant assistant = Build(client, out _);
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "hi" });
+        TurnResult result = events.OfType<TurnResultEvent>().Single().Result;
+
+        Assert.Null(result.InputTokens);
+        Assert.Null(result.OutputTokens);
     }
 
     [Fact]

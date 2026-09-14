@@ -58,7 +58,9 @@ public interface IAgenticAssistant
 ///   source 3 by the time "[3]" arrives.
 /// - **A result always ends the turn**, including after a failure. An error is
 ///   followed by the templated handoff and then the result carrying it, so a
-///   caller has exactly one place to look for what the customer saw.
+///   caller has exactly one place to look for what the customer saw. On a
+///   failure mid-answer the result carries the partial text *and* the handoff,
+///   in that order: the deltas already sent are part of what was seen.
 ///
 /// Nothing here inspects the answer. Deltas are forwarded as they arrive and
 /// the text is never held back (decision D3).
@@ -70,6 +72,7 @@ public sealed class AgenticAssistant : IAgenticAssistant
     private readonly IDocumentStore _store;
     private readonly AliasTable _aliases;
     private readonly AgenticOptions _options;
+    private readonly SearchSettings _settings;
     private readonly string? _supportContact;
 
     public AgenticAssistant(
@@ -78,13 +81,17 @@ public sealed class AgenticAssistant : IAgenticAssistant
         IDocumentStore store,
         AliasTable aliases,
         AgenticOptions? options = null,
-        string? supportContact = Prompts.DefaultSupportContact)
+        string? supportContact = Prompts.DefaultSupportContact,
+        SearchSettings? settings = null)
     {
         _agent = agent;
         _search = search;
         _store = store;
         _aliases = aliases;
         _options = options ?? new AgenticOptions();
+        // Passed on to the tools so the query knobs — ranker, candidate pool —
+        // are read where the query is built, not only where the client was.
+        _settings = settings ?? new SearchSettings();
         _supportContact = supportContact;
     }
 
@@ -112,7 +119,7 @@ public sealed class AgenticAssistant : IAgenticAssistant
 
         var ledger = new SourceLedger(turnOptions.MaxSourceChars);
         var budget = new ToolBudget(turnOptions.MaxToolCalls, turnOptions.TurnTimeout);
-        var tools = new KnowledgeTools(_search, _store, _aliases, turnOptions, ledger, budget);
+        var tools = new KnowledgeTools(_search, _store, _aliases, turnOptions, ledger, budget, _settings);
 
         yield return new TurnStageEvent(Stages.Thinking);
 
@@ -173,8 +180,17 @@ public sealed class AgenticAssistant : IAgenticAssistant
                 {
                     if (content is UsageContent usage)
                     {
-                        inputTokens = usage.Details.InputTokenCount ?? inputTokens;
-                        outputTokens = usage.Details.OutputTokenCount ?? outputTokens;
+                        // Summed, not overwritten: every round trip in a turn
+                        // reports its own usage, so a tool-calling turn's real
+                        // spend is the total. Taking the last one would drop
+                        // the output tokens of every round trip but the final
+                        // one and report the last call's context as the input —
+                        // understating exactly the expensive turns the log
+                        // exists to price (§10, open item 5).
+                        if (usage.Details.InputTokenCount is { } input)
+                            inputTokens = (inputTokens ?? 0) + input;
+                        if (usage.Details.OutputTokenCount is { } output)
+                            outputTokens = (outputTokens ?? 0) + output;
                     }
                 }
 
@@ -207,8 +223,17 @@ public sealed class AgenticAssistant : IAgenticAssistant
         if (failure is not null)
         {
             yield return failure;
-            yield return new TurnDeltaEvent(failure.HandoffText);
-            answerText = failure.HandoffText;
+            // Appended, never substituted. Text already streamed is text the
+            // customer read — the likely trigger here is the hard ceiling
+            // firing mid-composition — and a result that replaced it would
+            // store an answer nobody saw while the one they did see went
+            // nowhere. The paragraph break keeps the handoff from running on
+            // from a half-finished sentence.
+            string handoff = answerText.Length > 0
+                ? "\n\n" + failure.HandoffText
+                : failure.HandoffText;
+            yield return new TurnDeltaEvent(handoff);
+            answerText += handoff;
         }
         else if (answerText.Length == 0)
         {
