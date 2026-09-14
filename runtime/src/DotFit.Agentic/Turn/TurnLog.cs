@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

@@ -3,6 +3,7 @@ using DotFit.Agents.Answering;
 using DotFit.Agents.Guardrails;
 using DotFit.Agents.Retrieval;
 using DotFit.Agents.Rewrite;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Structured;
 using Microsoft.Agents.AI;
 
@@ -187,9 +188,13 @@ public interface IClaimsLanguageChecker
     /// pipeline ordered is the defect this parameter closes, and a silent
     /// default would let a new call site reopen it.
     /// </param>
+    /// <param name="meter">
+    /// Optional per-request cost meter (additive): the audit runs on the small
+    /// deployment, and this is where its usage is reported.
+    /// </param>
     Task<ClaimsVerdict> CheckAsync(
         string question, string answer, IReadOnlyList<RetrievedDocument> sources,
-        IReadOnlyList<string> notes, CancellationToken ct = default);
+        IReadOnlyList<string> notes, CancellationToken ct = default, TurnMeter? meter = null);
 }
 
 /// <summary>
@@ -217,7 +222,7 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
 {
     public async Task<ClaimsVerdict> CheckAsync(
         string question, string answer, IReadOnlyList<RetrievedDocument> sources,
-        IReadOnlyList<string> notes, CancellationToken ct = default)
+        IReadOnlyList<string> notes, CancellationToken ct = default, TurnMeter? meter = null)
     {
         if (sources.Count == 0)
             // Nothing retrieved at all: the answer agent was told to say it has
@@ -230,7 +235,7 @@ public sealed class AgentClaimsLanguageChecker(AIAgent agent) : IClaimsLanguageC
         {
             return await StructuredCall.RunAsync<ClaimsVerdict>(
                 agent, Prompts.BuildClaimsUserMessage(question, answer, sources, notes),
-                "dotfit_claims", Schemas.Claims, ct).ConfigureAwait(false);
+                "dotfit_claims", Schemas.Claims, ct, meter).ConfigureAwait(false);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {

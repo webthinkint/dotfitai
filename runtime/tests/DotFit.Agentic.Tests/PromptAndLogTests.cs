@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using DotFit.Agentic.Config;
 using DotFit.Agentic.Prompting;
 using DotFit.Agentic.Turn;
@@ -179,11 +180,15 @@ public class TurnLogTests
                 ChatInputTokens = 3_000,
                 ChatCachedInputTokens = 1_400,
                 ChatOutputTokens = 30,
+                SmallChatInputTokens = 0,
+                SmallChatCachedInputTokens = 0,
+                SmallChatOutputTokens = 0,
                 EmbeddingCalls = 1,
                 EmbeddingTokens = 31,
                 IndexQueries = 1,
                 RankerQueries = 0,
                 ChatUsd = 0.00204m,
+                SmallChatUsd = 0m,
                 EmbeddingUsd = 0.0000062m,
                 SearchUsd = 0.002m,
             },

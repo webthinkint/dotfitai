@@ -1,4 +1,5 @@
 using DotFit.Agents.Aliases;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Answering;
 using DotFit.Agents.Guardrails;
 using DotFit.Agents.PostCheck;
@@ -312,7 +313,7 @@ public class RepairPassTests
 
         public Task<ClaimsVerdict> CheckAsync(
             string question, string answer, IReadOnlyList<RetrievedDocument> sources,
-            IReadOnlyList<string> notes, CancellationToken ct = default)
+            IReadOnlyList<string> notes, CancellationToken ct = default, TurnMeter? meter = null)
         {
             Answers.Add(answer);
             return Task.FromResult(verdicts[Math.Min(_call++, verdicts.Count - 1)]);

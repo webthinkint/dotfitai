@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DotFit.Agents.Cost;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
@@ -18,14 +19,28 @@ public static class StructuredCall
 {
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
+    /// <summary>
+    /// <paramref name="meter"/> is the per-request cost meter, optional and
+    /// additive. Every <c>StructuredCall</c> site in this codebase is a
+    /// small-deployment stage (guardrail, rewrite, claims audit), so usage is
+    /// recorded on the meter's small-chat tier; a main-deployment structured
+    /// call would need to say so before this default stops being right.
+    /// </summary>
     public static async Task<T> RunAsync<T>(
-        AIAgent agent, string userText, string schemaName, JsonElement schema, CancellationToken ct = default)
+        AIAgent agent, string userText, string schemaName, JsonElement schema,
+        CancellationToken ct = default, TurnMeter? meter = null)
     {
         var options = new AgentRunOptions
         {
             ResponseFormat = ChatResponseFormat.ForJsonSchema(schema, schemaName, null),
         };
         AgentResponse response = await agent.RunAsync(userText, null, options, ct).ConfigureAwait(false);
+        // Observed, additive: the usage the deployment reported on this call,
+        // toward the turn's cost block. Recorded even when the JSON below
+        // fails to parse — the tokens were spent either way, and that is
+        // exactly the spend the owners are reading.
+        if (response.Usage is { } usage)
+            meter?.ChatSmall(usage.InputTokenCount, usage.CachedInputTokenCount, usage.OutputTokenCount);
         string text = response.Text ?? "";
         T? value;
         try

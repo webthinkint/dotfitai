@@ -46,9 +46,11 @@ public sealed record VerdictLog
     /// <summary>
     /// 1.1.0 added <c>intent</c> and the <c>chitchat</c> outcome (§11 intent
     /// branch). 1.2.0 added the <c>repaired</c> outcome, <c>claims_pre_repair</c>
-    /// and <c>pre_repair_failures</c> (§11 stage 6b).
+    /// and <c>pre_repair_failures</c> (§11 stage 6b). 1.3.0 added the additive
+    /// <c>cost</c> block (owner-ruled 2026-09-15) — the same schema the agentic
+    /// runtime's turn log carries.
     /// </summary>
-    public const string SchemaVersion = "1.2.0";
+    public const string SchemaVersion = "1.3.0";
 
     public const string OutcomeAnswered = "answered";
     public const string OutcomeEscalated = "escalated";
@@ -174,6 +176,14 @@ public sealed record VerdictLog
     public string? ErrorKind { get; init; }
 
     /// <summary>
+    /// What the turn cost (added in 1.3.0, additive): observed counts — main
+    /// and small chat tokens, embedding tokens, index queries — priced against
+    /// the sheet the block names. No text, so nothing for the §4 posture to
+    /// protect; absent only when the run never reached a result.
+    /// </summary>
+    public Cost.TurnCost? Cost { get; init; }
+
+    /// <summary>
     /// Project one finished (or failed) request. <paramref name="result"/> is
     /// <c>null</c> when the pipeline never reached its <c>ResultEvent</c>, which
     /// is every error and abandon path.
@@ -248,6 +258,7 @@ public sealed record VerdictLog
             Families = result.Expansion.Families,
             StageMs = result.StageSeconds.ToDictionary(
                 kv => kv.Key, kv => (int)(kv.Value * 1000)),
+            Cost = result.Cost,
         };
     }
 

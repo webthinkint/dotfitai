@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using System.Text;
 using System.Text.Json;
 using DotFit.Agentic;
@@ -108,6 +109,15 @@ app.MapGet("/healthz", (RuntimeOptions opts, AgenticServiceOptions svc, AgenticO
         input = sheet.ChatInputPerMillion,
         cached_input = sheet.ChatCachedInputPerMillion,
         output = sheet.ChatOutputPerMillion,
+    },
+    // Unused by this runtime (no small model in the loop, §10) but on the
+    // sheet v1's service prices from — shown so the two health checks read as
+    // one price list.
+    price_small_chat_usd_per_1m = new
+    {
+        input = sheet.SmallChatInputPerMillion,
+        cached_input = sheet.SmallChatCachedInputPerMillion,
+        output = sheet.SmallChatOutputPerMillion,
     },
     price_embedding_usd_per_1m = sheet.EmbeddingPerMillion,
     price_search_usd_per_1k = sheet.SearchPerThousand,

@@ -2,11 +2,13 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using DotFit.Agents.Aliases;
 using DotFit.Agents.Answering;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Guardrails;
 using DotFit.Agents.PostCheck;
 using DotFit.Agents.Retrieval;
 using DotFit.Agents.Rewrite;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 
 namespace DotFit.Agents;
 
@@ -93,6 +95,14 @@ public sealed record AssistantResult
     public required PostCheckResult PostCheck { get; init; }
     public required IReadOnlyDictionary<string, double> StageSeconds { get; init; }
     /// <summary>
+    /// What the turn cost, counts and derived money together, priced against
+    /// the assistant's <see cref="Cost.PriceSheet"/>. Additive instrumentation
+    /// (owner-ruled 2026-09-15); absent only on results built by hand outside
+    /// the pipeline — every path through <see cref="AskStreamAsync"/> sets it,
+    /// because every path makes at least the guardrail call.
+    /// </summary>
+    public TurnCost? Cost { get; init; }
+    /// <summary>
     /// The draft as first written, when a repair pass replaced it (§11 stage
     /// 6b); <c>null</c> when none ran. <see cref="AnswerText"/> is always the
     /// draft that was actually judged and delivered, so every existing reader
@@ -140,6 +150,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
     private readonly SearchSettings _settings;
     /// <summary>Where the handoff templates send a refused customer (item 22).</summary>
     private readonly string? _supportContact;
+    /// <summary>What <see cref="AssistantResult.Cost"/> is priced against.</summary>
+    private readonly Cost.PriceSheet _prices;
 
     public KnowledgeAssistant(
         IGuardrail guardrail,
@@ -150,7 +162,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         SearchSettings settings,
         IClaimsLanguageChecker? claimsChecker = null,
         string? supportContact = Answering.Prompts.DefaultSupportContact,
-        IChatReplyAgent? chatReply = null)
+        IChatReplyAgent? chatReply = null,
+        Cost.PriceSheet? prices = null)
     {
         _guardrail = guardrail;
         _rewriter = rewriter;
@@ -161,6 +174,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         _settings = settings;
         _supportContact = supportContact;
         _chatReply = chatReply;
+        _prices = prices ?? new Cost.PriceSheet();
     }
 
     /// <summary>Full pipeline, streamed. Always ends with exactly one <see cref="ResultEvent"/>.</summary>
@@ -171,6 +185,12 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
     {
         options ??= new AskOptions();
         var timings = new Dictionary<string, double>();
+        // One meter per request, threaded through every model call and the
+        // search below — guardrail/rewrite/claims/chat-reply report their
+        // small-deployment usage through it, the answer stream its main-
+        // deployment usage, the search its embedding and index query. The
+        // money is derived once per result, against the assistant's sheet.
+        var meter = new TurnMeter();
         var sw = Stopwatch.StartNew();
 
         // Trimmed once, here, so the CLI and the SSE service cannot disagree
@@ -185,7 +205,8 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         // current turn answers the minor. This is the second and last stage
         // shown history — the answer agent still is not, because an earlier
         // turn is not a citable source.
-        GuardrailVerdict verdict = await _guardrail.CheckAsync(question, history, ct).ConfigureAwait(false);
+        GuardrailVerdict verdict =
+            await _guardrail.CheckAsync(question, history, ct, meter).ConfigureAwait(false);
         timings["guardrail"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("guardrail", verdict.Escalate
             ? $"ESCALATE ({string.Join(", ", verdict.Reasons)})" +
@@ -215,6 +236,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
                 PostCheck = PostChecker.Check(verdict,
                     new RewriteResult { CanonicalQuestion = question }, AliasExpansion.Empty, [], refusal),
                 StageSeconds = timings,
+                Cost = meter.Cost(_prices),
             });
             yield break;
         }
@@ -238,7 +260,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             sw.Restart();
             string? generated = _chatReply is null
                 ? null
-                : await _chatReply.ReplyAsync(Prompts.BuildChatReplyUserMessage(question), ct)
+                : await _chatReply.ReplyAsync(Prompts.BuildChatReplyUserMessage(question), ct, meter)
                     .ConfigureAwait(false);
             string reply = generated ?? Prompts.SmallTalkMessage();
             timings["answer"] = sw.Elapsed.TotalSeconds;
@@ -292,13 +314,15 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
                 RenderedCitations = "",
                 PostCheck = chatCheck,
                 StageSeconds = timings,
+                Cost = meter.Cost(_prices),
             });
             yield break;
         }
 
         // --- stage 2: query rewrite (small model) -------------------------------
         sw.Restart();
-        RewriteResult rewrite = await _rewriter.RewriteAsync(question, history, ct).ConfigureAwait(false);
+        RewriteResult rewrite =
+            await _rewriter.RewriteAsync(question, history, ct, meter).ConfigureAwait(false);
         timings["rewrite"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("rewrite",
             $"{(rewrite.Degraded ? "(degraded) " : "")}canonical: {rewrite.CanonicalQuestion}" +
@@ -323,10 +347,19 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             VectorCandidates = _settings.VectorCandidates,
             Semantic = semantic,
             AdditionalFilter = options.Filter,
+            // Where the query embedding's usage is reported (additive), so the
+            // cost block prices the call from the API's own count.
+            UsageSink = meter,
         };
         sw.Restart();
         IReadOnlyList<RetrievedDocument> sources =
             await _search.SearchAsync(searchParameters, ct).ConfigureAwait(false);
+        // Served, not merely attempted: a call that threw did not run a query
+        // against the index — though its embedding, if one was generated, was
+        // already metered by the sink above.
+        meter.IndexQuery();
+        if (semantic)
+            meter.RankerQuery();
         timings["search"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("search",
             $"{sources.Count} source(s) · semantic={(semantic ? "on" : "off")} · top={searchParameters.Top}");
@@ -346,6 +379,17 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
         var answerText = new System.Text.StringBuilder();
         await foreach (AgentResponseUpdate update in _answer.StreamAsync(userMessage, ct).ConfigureAwait(false))
         {
+            // Usage arrives as content on the round trip that carries it —
+            // recorded even when the text is empty, which the update that
+            // closes a streamed completion usually is.
+            foreach (AIContent content in update.Contents)
+            {
+                if (content is UsageContent usage)
+                    meter.Chat(
+                        usage.Details.InputTokenCount,
+                        usage.Details.CachedInputTokenCount,
+                        usage.Details.OutputTokenCount);
+            }
             if (update.Text is { Length: > 0 } delta)
             {
                 answerText.Append(delta);
@@ -367,7 +411,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             // sentence it ordered, while the claim-trap note is guidance about
             // the question and would bias the verdict (see BuildClaimsUserMessage).
             claimsVerdict = await _claims
-                .CheckAsync(question, answer, sources, expansion.Notes, ct).ConfigureAwait(false);
+                .CheckAsync(question, answer, sources, expansion.Notes, ct, meter).ConfigureAwait(false);
         PostCheckResult postCheck = PostChecker.Check(verdict, rewrite, expansion, sources, answer, claimsVerdict);
         timings["post-check"] = sw.Elapsed.TotalSeconds;
         yield return new StageEvent("post-check",
@@ -420,6 +464,14 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             await foreach (AgentResponseUpdate update in
                            _answer.StreamAsync(repairMessage, ct).ConfigureAwait(false))
             {
+                foreach (AIContent content in update.Contents)
+                {
+                    if (content is UsageContent usage)
+                        meter.Chat(
+                            usage.Details.InputTokenCount,
+                            usage.Details.CachedInputTokenCount,
+                            usage.Details.OutputTokenCount);
+                }
                 if (update.Text is { Length: > 0 } delta)
                 {
                     repairedText.Append(delta);
@@ -434,7 +486,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             ClaimsVerdict? repairedClaims = null;
             if (options.ClaimsCheck && _claims is not null)
                 repairedClaims = await _claims
-                    .CheckAsync(question, answer, sources, expansion.Notes, ct).ConfigureAwait(false);
+                    .CheckAsync(question, answer, sources, expansion.Notes, ct, meter).ConfigureAwait(false);
             postCheck = PostChecker.Check(verdict, rewrite, expansion, sources, answer, repairedClaims);
             timings["post-check-repair"] = sw.Elapsed.TotalSeconds;
             yield return new StageEvent("post-check", postCheck.Passed
@@ -484,6 +536,7 @@ public sealed class KnowledgeAssistant : IKnowledgeAssistant
             PreRepairAnswerText = preRepairAnswer,
             PreRepairPostCheck = preRepairCheck,
             StageSeconds = timings,
+            Cost = meter.Cost(_prices),
         });
     }
 

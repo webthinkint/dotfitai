@@ -137,6 +137,13 @@ def verdict_line(entry, stages, utc):
     if entry.get("error_kind"):
         detail.append(f"error={entry['error_kind']}")
 
+    # The turn's cost, as priced by the sheet the cost block names (verdict
+    # log schema 1.3.0) — same placement and format as the turn-log viewer's,
+    # so an A/B read compares like with like.
+    cost = entry.get("cost") or {}
+    if cost.get("total_usd") is not None:
+        detail.append(f"${cost['total_usd']:.4f}")
+
     head = [
         render_ts(entry.get("timestamp"), utc),
         entry.get("request_id", "?"),

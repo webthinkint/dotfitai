@@ -74,6 +74,7 @@ hardening posture, and the assistant's own budgets:
   "price_sheet": "builtin-2026-09",
   "price_currency": "USD",
   "price_chat_usd_per_1m": {"input": 1.25, "cached_input": 0.125, "output": 10},
+  "price_small_chat_usd_per_1m": {"input": 1.25, "cached_input": 0.125, "output": 10},
   "price_embedding_usd_per_1m": 0.13,
   "price_search_usd_per_1k": 0.25,
   "gating": "none"
@@ -211,6 +212,8 @@ list, which is what makes live streaming worth having.
     "price_sheet": "builtin-2026-09",
     "chat": {"input_tokens": 18432, "cached_input_tokens": 9216,
               "output_tokens": 1204, "usd": 0.0483},
+    "small_chat": {"input_tokens": 0, "cached_input_tokens": 0,
+                    "output_tokens": 0, "usd": 0},
     "embedding": {"calls": 2, "tokens": 61, "usd": 0.0000079},
     "search": {"queries": 3, "ranker_queries": 0, "usd": 0.00075},
     "total_usd": 0.0490579
@@ -239,7 +242,11 @@ calls and tokens from the embedding API, `search.queries` counting every index
 call the turn made (searches, product-copy filters, document fetches — one
 count each, plus one per neighbour a fetch probed). The `usd` figures are those
 counts priced against the sheet named in `price_sheet` — the same sheet
-`/healthz` exposes. Two honest caveats: the **search rate is a placeholder**
+`/healthz` exposes. `small_chat` is always **zeros here**: this runtime calls
+no small model, and the block exists so its schema matches the previous
+runtime's (port 5199), where that block carries the guardrail/rewrite/audit
+stages — one cost contract across both, which is what makes A/B spend
+comparisons readable. Two honest caveats: the **search rate is a placeholder**
 (our AI Search tier bills the month, not the query; a real per-query figure
 will replace it and bump `price_sheet`), and the numbers are priced, not
 invoiced — Azure's invoice is the authority if the two ever disagree. `cost` is

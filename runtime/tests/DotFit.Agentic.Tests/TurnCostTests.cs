@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using DotFit.Agentic.Config;
 using DotFit.Agentic.Turn;
 using DotFit.Agentic.Tools;
@@ -30,6 +31,28 @@ public class PriceSheetTests
         Assert.Equal(10m, sheet.ChatOutputPerMillion);
         Assert.Equal(0.13m, sheet.EmbeddingPerMillion);
         Assert.Equal(0.25m, sheet.SearchPerThousand);
+        // Unset small-chat prices mirror the chat trio's numbers ON PURPOSE:
+        // the deployment SMALL_CHAT currently points at is the same model as
+        // CHAT, so the chat rate is the honest default for the small tier.
+        Assert.Equal(sheet.ChatInputPerMillion, sheet.SmallChatInputPerMillion);
+        Assert.Equal(sheet.ChatCachedInputPerMillion, sheet.SmallChatCachedInputPerMillion);
+        Assert.Equal(sheet.ChatOutputPerMillion, sheet.SmallChatOutputPerMillion);
+    }
+
+    [Fact]
+    public void Unset_small_chat_prices_follow_the_configured_chat_trio()
+    {
+        // The deployment this repo runs has real chat prices configured and
+        // no small-chat prices — which priced the small tier at builtin
+        // frontier rates until this fallback existed, overstating it ~5x.
+        var sheet = PriceSheet.FromValues(Env(
+            (PriceSheet.ChatInputVar, "0.25"),
+            (PriceSheet.ChatCachedInputVar, "0.02"),
+            (PriceSheet.ChatOutputVar, "1.2")));
+
+        Assert.Equal(0.25m, sheet.SmallChatInputPerMillion);
+        Assert.Equal(0.02m, sheet.SmallChatCachedInputPerMillion);
+        Assert.Equal(1.2m, sheet.SmallChatOutputPerMillion);
     }
 
     [Fact]
@@ -39,6 +62,9 @@ public class PriceSheetTests
             (PriceSheet.ChatInputVar, "2.5"),
             (PriceSheet.ChatCachedInputVar, "0.25"),
             (PriceSheet.ChatOutputVar, "15"),
+            (PriceSheet.SmallChatInputVar, "0.3"),
+            (PriceSheet.SmallChatCachedInputVar, "0.03"),
+            (PriceSheet.SmallChatOutputVar, "1.2"),
             (PriceSheet.EmbeddingVar, "0.06"),
             (PriceSheet.SearchVar, "1"),
             (PriceSheet.CurrencyVar, "eur"),
@@ -47,6 +73,9 @@ public class PriceSheetTests
         Assert.Equal(2.5m, sheet.ChatInputPerMillion);
         Assert.Equal(0.25m, sheet.ChatCachedInputPerMillion);
         Assert.Equal(15m, sheet.ChatOutputPerMillion);
+        Assert.Equal(0.3m, sheet.SmallChatInputPerMillion);
+        Assert.Equal(0.03m, sheet.SmallChatCachedInputPerMillion);
+        Assert.Equal(1.2m, sheet.SmallChatOutputPerMillion);
         Assert.Equal(0.06m, sheet.EmbeddingPerMillion);
         Assert.Equal(1m, sheet.SearchPerThousand);
         Assert.Equal("EUR", sheet.Currency);
@@ -124,6 +153,32 @@ public class TurnMeterTests
         Assert.Equal(cost.ChatUsd + cost.EmbeddingUsd + cost.SearchUsd, cost.TotalUsd);
         Assert.Equal("test-sheet", cost.PriceSheet);
         Assert.Equal("USD", cost.Currency);
+    }
+
+    [Fact]
+    public void Small_chat_usage_is_priced_at_its_own_tier()
+    {
+        // v1's guardrail/rewrite/claims/chat-reply run on the small
+        // deployment; the agentic runtime never touches it and reports zeros.
+        var meter = new TurnMeter();
+        meter.ChatSmall(1_000, 400, 10);
+        meter.Chat(1_000, 400, 10);
+
+        TurnCost cost = meter.Cost(new PriceSheet
+        {
+            ChatInputPerMillion = 1m,
+            ChatCachedInputPerMillion = 0.1m,
+            ChatOutputPerMillion = 10m,
+            SmallChatInputPerMillion = 2m,
+            SmallChatCachedInputPerMillion = 0.2m,
+            SmallChatOutputPerMillion = 20m,
+        });
+
+        Assert.Equal(0.0006m + 0.00004m + 0.0001m, cost.ChatUsd);
+        // Double rate, same counts — visibly a different tier.
+        Assert.Equal(2 * cost.ChatUsd, cost.SmallChatUsd);
+        Assert.Equal(1_000, cost.SmallChatInputTokens);
+        Assert.Equal(400, cost.SmallChatCachedInputTokens);
     }
 
     [Fact]

@@ -22,7 +22,7 @@ has not had is a person using it.
 | The loop + system prompt | §6 | **done** | One agent, one model, no stage before or after. Prompt assembled at boot from posture + authority + currency facts (generated from `alias_table.json`) + tool contract + safety. Budgets: 8 tool calls, 60 s research, 110 s hard ceiling |
 | CLI `dotfit-agentic` | §12.4 | **done** | `ask`, `chat`, `search`, `smoke`, `prompt`, `config`; `--trace` shows every tool call and its arguments, `--log` prints the turn-log line |
 | Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3). Schema 1.1.0 carries the `cost` block |
-| Per-turn cost | §9, §10 | **done** 2026-09-15 | `result.cost` on the wire and `cost` in the turn log: observed counts (chat tokens with cached input split out, embedding tokens, index queries) priced against a `DOTFIT_PRICE_*` sheet from `.env`. Search rate is a **placeholder** (open item 11); chat/embedding prices are the builtin sheet's defaults until the owner sets real ones |
+| Per-turn cost | §9, §10 | **done** 2026-09-15, both runtimes | `result.cost` on the wire and `cost` in both logs (turn log 1.1.0, verdict log 1.3.0): observed counts priced against one shared `DOTFIT_PRICE_*` sheet from `.env`. v1 additionally splits its small-model stages into `small_chat` (the agentic runtime reports that block at zeros). Search rate is a **placeholder** (open item 11); chat/embedding prices are the builtin sheet's defaults until the owner sets real ones |
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
@@ -55,7 +55,7 @@ clock — see open item 10.
 | `kb-main-v2` index | live, 4,122 docs — 1,080 pdsrg / 181 product / 116 infopage / 10 menu / 1,800 podcast / 935 qa |
 | `alias_table.json` | v1.3.0 — 53 indexed SKUs → 31 families, 10 legacy renames, 1 replacement, 2 discontinued |
 | Retrieval probes | 179, label-free |
-| v1 runtime (`DotFit.Agents*`) | builds, **264 tests still green** — the comparison baseline, keep it that way |
+| v1 runtime (`DotFit.Agents*`) | builds, **271 tests green** — the comparison baseline, behavior-identical (additive cost instrumentation only) |
 
 ## Open items
 
@@ -100,6 +100,20 @@ instrumentation is permitted when behavior is unchanged — one bend made,
 2026-09-15, one-search ask on `gpt-5.6-luna`: cost `$0.008541955` — chat
 6,748 tok (2,449 cached) $0.008290, embedding 16 tok $0.000002, 1 index query
 $0.00025.
+
+Same day, the **v1 runtime** got the same block, from the same shared sheet
+(the `PriceSheet`/`TurnCost`/`TurnMeter` primitives moved to `DotFit.Agents.Cost`
+so both runtimes price from one implementation): optional `TurnMeter?` trailing
+parameters on the four small-model stage interfaces, `StructuredCall` and the
+chat-reply agent reporting `AgentResponse.Usage`, the answer loop reading
+`UsageContent` off its own stream, the search's `UsageSink` + one index-query
+count in the pipeline, and `small_chat` as a fourth component — the
+agentic wire reports that block at zeros, honestly: it calls no small model.
+`AssistantResult.Cost` reaches v1's `result` frame and its verdict log (schema
+1.3.0); `/healthz` on both services shows the same price list; the CLI prints a
+cost line; `dotfit-verdict-log` renders `$0.0000` per line. 264 v1 tests stayed
+green untouched through the wiring; 7 new v1 cost tests (271 total) and 2 new
+agentic ones (122) pin the arithmetic, the fallback and the shared wire shape.
 
 ### 2026-09-14 — the transcripts learn the show's name (and Neal's)
 

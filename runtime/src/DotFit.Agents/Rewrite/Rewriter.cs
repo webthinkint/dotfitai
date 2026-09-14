@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Structured;
 using Microsoft.Agents.AI;
 
@@ -27,8 +28,13 @@ public interface IQueryRewriter
     /// wrong-topic answer rather than an obvious failure. Pass <c>[]</c> to
     /// rewrite a question standalone.
     /// </summary>
+    /// <param name="meter">
+    /// Optional per-request cost meter (additive): the rewrite runs on the
+    /// small deployment, and this is where its usage is reported.
+    /// </param>
     Task<RewriteResult> RewriteAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default);
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null);
 }
 
 /// <summary>
@@ -46,13 +52,14 @@ public interface IQueryRewriter
 public sealed class AgentQueryRewriter(AIAgent agent, IReadOnlyList<string> knownFamilies) : IQueryRewriter
 {
     public async Task<RewriteResult> RewriteAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null)
     {
         string user = Answering.Prompts.BuildRewriteUserMessage(question, knownFamilies, history);
         try
         {
             return await StructuredCall.RunAsync<RewriteResult>(
-                agent, user, "dotfit_rewrite", Schemas.Rewrite, ct).ConfigureAwait(false);
+                agent, user, "dotfit_rewrite", Schemas.Rewrite, ct, meter).ConfigureAwait(false);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {

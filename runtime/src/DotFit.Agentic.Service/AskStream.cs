@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DotFit.Agentic.Turn;
@@ -280,39 +281,10 @@ public static class AskStream
         first_delta_ms = result.FirstDeltaMs,
         total_ms = result.TotalMs,
         // Null only on the service-timeout handoff, where the loop's meter was
-        // lost with the cancelled turn — omitted rather than guessed.
-        cost = result.Cost is { } cost ? Wire(cost) : null,
-    };
-
-    /// <summary>
-    /// The per-turn cost block (§9). Counts are observed, money is the counts
-    /// priced against the sheet the block names — see <see cref="TurnCost"/>
-    /// for why the search line is a placeholder rate.
-    /// </summary>
-    private static object Wire(TurnCost cost) => new
-    {
-        currency = cost.Currency,
-        price_sheet = cost.PriceSheet,
-        chat = new
-        {
-            input_tokens = cost.ChatInputTokens,
-            cached_input_tokens = cost.ChatCachedInputTokens,
-            output_tokens = cost.ChatOutputTokens,
-            usd = cost.ChatUsd,
-        },
-        embedding = new
-        {
-            calls = cost.EmbeddingCalls,
-            tokens = cost.EmbeddingTokens,
-            usd = cost.EmbeddingUsd,
-        },
-        search = new
-        {
-            queries = cost.IndexQueries,
-            ranker_queries = cost.RankerQueries,
-            usd = cost.SearchUsd,
-        },
-        total_usd = cost.TotalUsd,
+        // lost with the cancelled turn — omitted rather than guessed. The shape
+        // is `TurnCost.ToWire()`, shared with v1's service so an A/B caller
+        // reads one cost schema.
+        cost = result.Cost?.ToWire(),
     };
 
     private static IReadOnlyList<ConversationTurn> ParseHistory(IReadOnlyList<AskBody.Turn>? history)

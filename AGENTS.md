@@ -55,7 +55,7 @@ contain spaces, commas and `&` — always quote paths.
 Runtime (.NET 10), from `runtime/`:
 
 ```bash
-dotnet build && dotnet test              # 120 agentic + 264 v1, all must stay green
+dotnet build && dotnet test              # 122 agentic + 271 v1, all must stay green
 
 dotnet run --project src/DotFit.Agentic.Cli -- config      # resolved config, keys masked
 dotnet run --project src/DotFit.Agentic.Cli -- prompt      # the assembled system prompt
@@ -123,8 +123,9 @@ ambiguity cannot come back.
   expand queries.
 - **`products.json` is the legal-approved claims corpus** — quote it, never
   paraphrase claims. `get_product` exists to make quoting the cheap path.
-- **Per-turn cost is priced, not invoiced.** `result.cost` and the log's
-  `cost` block are observed counts against the `DOTFIT_PRICE_*` sheet — the
+- **Per-turn cost is priced, not invoiced.** Both runtimes emit a `cost`
+  block (agentic `result.cost` + turn log; v1 `result.cost` + verdict log)
+  from observed counts against the one shared `DOTFIT_PRICE_*` sheet — the
   search rate is a placeholder (open item 11). When prices change, the sheet
   id changes in the same `.env` edit, and `docs/website-integration.md` in
   the same commit; a cost number without its sheet id means nothing.

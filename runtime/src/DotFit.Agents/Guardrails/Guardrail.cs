@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Structured;
 using Microsoft.Agents.AI;
 
@@ -118,8 +119,13 @@ public interface IGuardrail
     /// gets a safety check that cannot see "I'm 14" (open item 19). Pass
     /// <c>[]</c> to judge a question standalone.
     /// </summary>
+    /// <param name="meter">
+    /// Optional per-request cost meter (additive): the guardrail runs on the
+    /// small deployment, and this is where its usage is reported.
+    /// </param>
     Task<GuardrailVerdict> CheckAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default);
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null);
 }
 
 /// <summary>
@@ -140,13 +146,14 @@ public interface IGuardrail
 public sealed class AgentGuardrail(AIAgent agent) : IGuardrail
 {
     public async Task<GuardrailVerdict> CheckAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null)
     {
         try
         {
             GuardrailVerdict verdict = await StructuredCall.RunAsync<GuardrailVerdict>(
                 agent, Answering.Prompts.BuildGuardrailUserMessage(question, history),
-                "dotfit_guardrail", Schemas.Guardrail, ct).ConfigureAwait(false);
+                "dotfit_guardrail", Schemas.Guardrail, ct, meter).ConfigureAwait(false);
             // The schema constrains the enum, but the value decides whether a
             // turn skips retrieval — so it is re-checked here rather than
             // trusted, the same way VerdictLog re-checks the reason codes.

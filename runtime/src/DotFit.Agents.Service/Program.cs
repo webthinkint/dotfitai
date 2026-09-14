@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using DotFit.Agents;
 using DotFit.Agents.Aliases;
+using DotFit.Agents.Cost;
 using DotFit.Agents.Config;
 using DotFit.Agents.Service;
 
@@ -37,6 +38,11 @@ if (builder.Configuration["DotFit:Index"] is { Length: > 0 } index)
 // answers anyway is the one mistake this service cannot survive.
 ServiceOptions service = ServiceOptions.Load(options);
 
+// The sheet the per-turn `cost` block is priced against (additive, owner-
+// ruled 2026-09-15). Validated at boot like everything else: if the service
+// is up, the numbers it emits are interpretable — which sheet, which currency.
+PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
+
 // One request body cannot be larger than a question plus eight trimmed history
 // turns. Kestrel's 30 MB default is for file uploads, and this endpoint feeds
 // model prompts.
@@ -44,8 +50,9 @@ builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = ServiceOptio
 
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(service);
+builder.Services.AddSingleton(prices);
 builder.Services.AddSingleton<IKnowledgeAssistant>(
-    _ => RuntimeFactory.CreateAssistant(options));
+    _ => RuntimeFactory.CreateAssistant(options, prices: prices));
 
 // One verdict line per request, to stdout (open item 20). Not optional and not
 // configurable: with the preview free to ship at any state (item 21 ruling),
@@ -83,7 +90,7 @@ builder.Services.ConfigureHttpJsonOptions(json =>
 
 WebApplication app = builder.Build();
 
-app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc) => Results.Ok(new
+app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, PriceSheet sheet) => Results.Ok(new
 {
     status = "ok",
     index = opts.IndexName,
@@ -103,6 +110,26 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc) => Results.Ok(n
     // The transcript posture, readable for the same reason auth is: a
     // deployment that is logging the words must be visibly doing so.
     debug_transcript = svc.DebugTranscript ? "on" : "off",
+    // The prices behind `result.cost`, so an operator can check what a turn
+    // is being priced against without asking anyone. The search rate is a
+    // placeholder until real billing data replaces it — the sheet id is the
+    // version to bump when it does.
+    price_sheet = sheet.Id,
+    price_currency = sheet.Currency,
+    price_chat_usd_per_1m = new
+    {
+        input = sheet.ChatInputPerMillion,
+        cached_input = sheet.ChatCachedInputPerMillion,
+        output = sheet.ChatOutputPerMillion,
+    },
+    price_small_chat_usd_per_1m = new
+    {
+        input = sheet.SmallChatInputPerMillion,
+        cached_input = sheet.SmallChatCachedInputPerMillion,
+        output = sheet.SmallChatOutputPerMillion,
+    },
+    price_embedding_usd_per_1m = sheet.EmbeddingPerMillion,
+    price_search_usd_per_1k = sheet.SearchPerThousand,
 }));
 
 app.MapPost("/ask", async (

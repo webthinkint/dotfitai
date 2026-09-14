@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using System.Globalization;
 using System.Text;
 using Azure;

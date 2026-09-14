@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using Azure.AI.OpenAI;
 using Azure.Search.Documents;
 using DotFit.Agentic.Config;

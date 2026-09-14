@@ -101,7 +101,18 @@ That is the whole reason gating is affordable — see below.
   "rendered_citations": "a formatted citation block",
   "sources": [{"id": "...", "source_type": "product", "authority": 1,
                "title": "...", "citation_url": "...", "locator": "..."}],
-  "post_check": {"passed": true, "n_failures": 0}
+  "post_check": {"passed": true, "n_failures": 0},
+  "cost": {
+    "currency": "USD",
+    "price_sheet": "builtin-2026-09",
+    "chat": {"input_tokens": 3200, "cached_input_tokens": 900,
+              "output_tokens": 380, "usd": 0.00775},
+    "small_chat": {"input_tokens": 2400, "cached_input_tokens": 600,
+                    "output_tokens": 90, "usd": 0.00555},
+    "embedding": {"calls": 1, "tokens": 18, "usd": 0.0000023},
+    "search": {"queries": 1, "ranker_queries": 0, "usd": 0.00025},
+    "total_usd": 0.0135523
+  }
 }
 ```
 
@@ -120,6 +131,20 @@ either way. **Nothing in your UI should change because of it** — do not badge
 it, do not warn the customer. Store it, because a repair rate is something we
 watch, and it is the one signal you have that the pipeline worked harder on a
 turn than usual.
+
+**`cost` is what the turn spent, on every Azure call it made** — added
+2026-09-15, additive, safe to ignore. The counts are observed: `chat` is the
+main deployment's answer (and repair pass, when one ran), `small_chat` is the
+guardrail + rewrite + claims audit trio (the conversational reply when that
+branch runs), `embedding` is the query embedding, `search.queries` counts index
+calls. The `usd` figures are those counts priced against the sheet named in
+`price_sheet` — exposed on `/healthz` as `price_*`. Two honest caveats: the
+**search rate is a placeholder** (our AI Search tier bills the month, not the
+query; a real per-query figure will replace it and bump `price_sheet`), and the
+numbers are priced, not invoiced — Azure's invoice is the authority if the two
+ever disagree. Store it per turn if you want cost dashboards; `total_usd` is
+the headline number. The agentic runtime on port 5299 emits the **same schema**
+except its `small_chat` block is always zeros — it calls no small model.
 
 Note what is deliberately **not** on the wire: retrieved source `content`, the
 post-check's failure reasons, and, when an answer is withheld, the draft that
@@ -290,9 +315,9 @@ the turn as a failed one; the customer has already been given something to read.
 
 **Logging.** Your database is the system of record for transcripts. The service
 deliberately does not keep them. Worth storing per turn, from `result`:
-`request_id`, `escalated`, `withheld`, `post_check.passed`, `citations` and
-`sources` — that is what lets both teams reason about a complaint later without
-keeping a second copy of the conversation anywhere else.
+`request_id`, `escalated`, `withheld`, `post_check.passed`, `citations`,
+`sources` and `cost` — that is what lets both teams reason about a complaint
+later without keeping a second copy of the conversation anywhere else.
 
 **Our verdict log.** We write one structured line per request recording what the
 assistant *decided* — escalated or not and on what reason code, whether the

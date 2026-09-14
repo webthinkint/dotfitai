@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using DotFit.Agents.Aliases;
 using DotFit.Agents.Answering;
 using DotFit.Agents.Guardrails;
@@ -420,7 +421,7 @@ public class ConversationalIntentTests
 
         public Task<ClaimsVerdict> CheckAsync(
             string question, string answer, IReadOnlyList<RetrievedDocument> sources,
-            IReadOnlyList<string> notes, CancellationToken ct = default)
+            IReadOnlyList<string> notes, CancellationToken ct = default, TurnMeter? meter = null)
         {
             Calls++;
             return Task.FromResult(new ClaimsVerdict { Compliant = true });

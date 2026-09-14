@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using DotFit.Agentic.Config;
 using DotFit.Agentic.Service;
 using DotFit.Agentic.Turn;
@@ -257,11 +258,15 @@ public class AskStreamTests
             ChatInputTokens = 3_000,
             ChatCachedInputTokens = 1_400,
             ChatOutputTokens = 30,
+            SmallChatInputTokens = 0,
+            SmallChatCachedInputTokens = 0,
+            SmallChatOutputTokens = 0,
             EmbeddingCalls = 1,
             EmbeddingTokens = 31,
             IndexQueries = 1,
             RankerQueries = 0,
             ChatUsd = 0.00204m,
+            SmallChatUsd = 0m,
             EmbeddingUsd = 0.0000062m,
             SearchUsd = 0.002m,
         };
@@ -275,6 +280,10 @@ public class AskStreamTests
         Assert.Contains("\"cached_input_tokens\":1400", frame, StringComparison.Ordinal);
         Assert.Contains("\"queries\":1", frame, StringComparison.Ordinal);
         Assert.Contains("\"total_usd\":0.0040462", frame, StringComparison.Ordinal);
+        // The small-chat block is on the agentic wire too, at zeros: the loop
+        // calls no small model, and "zero" is a different statement from an
+        // absent block when the two runtimes are read side by side.
+        Assert.Contains("\"small_chat\":{\"input_tokens\":0", frame, StringComparison.Ordinal);
     }
 
     [Fact]

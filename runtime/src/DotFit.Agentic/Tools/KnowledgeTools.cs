@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;

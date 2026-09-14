@@ -66,10 +66,12 @@ public static class RuntimeFactory
 
     /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
     public static KnowledgeAssistant CreateAssistant(
-        RuntimeOptions options, AliasTable? aliases = null, SearchSettings? settings = null)
+        RuntimeOptions options, AliasTable? aliases = null, SearchSettings? settings = null,
+        Cost.PriceSheet? prices = null)
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
         settings ??= new SearchSettings();
+        prices ??= Cost.PriceSheet.Load(options.EnvFilePath);
         AzureOpenAIClient openAi = CreateOpenAiClient(options);
         return new KnowledgeAssistant(
             guardrail: new AgentGuardrail(CreateGuardrailAgent(options, openAi)),
@@ -81,7 +83,8 @@ public static class RuntimeFactory
             settings: settings,
             claimsChecker: new AgentClaimsLanguageChecker(CreateClaimsAgent(options, openAi)),
             supportContact: options.SupportContact,
-            chatReply: new AgentChatReplyAgent(CreateChatReplyAgent(options, openAi)));
+            chatReply: new AgentChatReplyAgent(CreateChatReplyAgent(options, openAi)),
+            prices: prices);
     }
 
     /// <summary>Retrieval-only wiring for the search command (no chat deployments needed).</summary>

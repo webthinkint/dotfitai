@@ -15,6 +15,12 @@ internal sealed class ScriptedChatClient : IChatClient
 
     public List<RecordedCall> Calls { get; } = [];
 
+    /// <summary>
+    /// Usage reported on every call, when set — how cost tests give the
+    /// structured stages a spend to report without a network.
+    /// </summary>
+    public UsageDetails? Usage { get; set; }
+
     public ScriptedChatClient(params string[] replies) => _replies = new Queue<string>(replies);
 
     public ScriptedChatClient(params IEnumerable<string>[] repliesPerCall)
@@ -26,7 +32,9 @@ internal sealed class ScriptedChatClient : IChatClient
         Calls.Add(new RecordedCall(messages.ToList(), options));
         if (_replies.Count == 0)
             throw new InvalidOperationException("ScriptedChatClient ran out of scripted replies");
-        return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, _replies.Dequeue())));
+        var response = new ChatResponse(new ChatMessage(ChatRole.Assistant, _replies.Dequeue()));
+        response.Usage = Usage;
+        return Task.FromResult(response);
     }
 
     public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
@@ -41,6 +49,11 @@ internal sealed class ScriptedChatClient : IChatClient
         {
             await Task.Yield();
             yield return new ChatResponseUpdate { Contents = { new TextContent(piece) } };
+        }
+        if (Usage is { } usage)
+        {
+            await Task.Yield();
+            yield return new ChatResponseUpdate { Contents = { new UsageContent(usage) } };
         }
 
         static IEnumerable<string> Slice(string text)

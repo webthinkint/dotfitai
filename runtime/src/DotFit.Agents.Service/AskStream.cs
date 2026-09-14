@@ -314,6 +314,12 @@ public static class AskStream
             // fired and, for claims_language, quote the offending wording.
             n_failures = r.PostCheck.Failures.Count,
         },
+        // What the turn spent, on every Azure call it made — main chat, small
+        // chat (guardrail, rewrite, claims audit), embeddings, index queries.
+        // The shape is `TurnCost.ToWire()`, the same schema the agentic
+        // runtime emits, so an A/B caller reads one cost contract. Omitted
+        // rather than guessed when a result carries none.
+        cost = r.Cost?.ToWire(),
     };
 }
 

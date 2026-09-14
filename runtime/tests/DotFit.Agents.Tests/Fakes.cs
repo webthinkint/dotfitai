@@ -1,8 +1,10 @@
+using DotFit.Agents.Cost;
 using DotFit.Agents.Answering;
 using DotFit.Agents.Guardrails;
 using DotFit.Agents.Retrieval;
 using DotFit.Agents.Rewrite;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 
 namespace DotFit.Agents.Tests;
 
@@ -14,7 +16,8 @@ internal sealed class FakeRewriter : IQueryRewriter
     public RewriteResult Result { get; set; } = new() { CanonicalQuestion = "canonical q" };
 
     public Task<RewriteResult> RewriteAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null)
     {
         Questions.Add(question);
         Histories.Add(history);
@@ -30,7 +33,8 @@ internal sealed class FakeGuardrail : IGuardrail
     public GuardrailVerdict Verdict { get; set; } = new();
 
     public Task<GuardrailVerdict> CheckAsync(
-        string question, IReadOnlyList<ConversationTurn> history, CancellationToken ct = default)
+        string question, IReadOnlyList<ConversationTurn> history,
+        CancellationToken ct = default, TurnMeter? meter = null)
     {
         Questions.Add(question);
         Histories.Add(history);
@@ -53,6 +57,9 @@ internal sealed class FakeAnswerAgent : IAnswerAgent
     /// </summary>
     public Queue<string> Replies { get; } = new();
 
+    /// <summary>Usage reported once per call, when set — the main-deployment spend.</summary>
+    public UsageDetails? Usage { get; set; }
+
     public async IAsyncEnumerable<AgentResponseUpdate> StreamAsync(
         string userMessage,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
@@ -67,6 +74,11 @@ internal sealed class FakeAnswerAgent : IAnswerAgent
                 continue;
             yield return new AgentResponseUpdate(null, chunkText);
         }
+        if (Usage is not null)
+        {
+            await Task.Yield();
+            yield return new AgentResponseUpdate { Contents = { new UsageContent(Usage) } };
+        }
     }
 }
 
@@ -80,7 +92,8 @@ internal sealed class FakeChatReplyAgent : IChatReplyAgent
     /// <summary><c>null</c> is the failed-call shape: the caller must template.</summary>
     public string? Reply { get; set; } = "Hi! Ask me about dotFIT products and I'll cite my sources.";
 
-    public Task<string?> ReplyAsync(string userMessage, CancellationToken ct = default)
+    public Task<string?> ReplyAsync(
+        string userMessage, CancellationToken ct = default, TurnMeter? meter = null)
     {
         UserMessages.Add(userMessage);
         return Task.FromResult(Reply);
@@ -93,10 +106,19 @@ internal sealed class FakeKnowledgeSearch : IKnowledgeSearch
     public List<SearchParameters> Calls { get; } = [];
     public IReadOnlyList<RetrievedDocument> Results { get; set; } = [];
 
+    /// <summary>
+    /// When set, the search reports this many embedding tokens through the
+    /// <see cref="SearchParameters.UsageSink"/> it was given — what the real
+    /// client reads off the embedding API's own response.
+    /// </summary>
+    public long? EmbeddingTokens { get; set; }
+
     public Task<IReadOnlyList<RetrievedDocument>> SearchAsync(
         SearchParameters parameters, CancellationToken ct = default)
     {
         Calls.Add(parameters);
+        if (EmbeddingTokens is { } tokens)
+            parameters.UsageSink?.Embedding(tokens);
         return Task.FromResult(Results);
     }
 }

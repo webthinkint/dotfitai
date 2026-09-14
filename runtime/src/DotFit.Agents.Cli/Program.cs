@@ -202,6 +202,13 @@ internal static class Program
             Console.WriteLine(result.RenderedCitations);
         }
         Console.WriteLine(Dim(PostCheckLine(result)));
+        if (result.Cost is { } cost)
+            Console.WriteLine(Dim(
+                $"cost {cost.TotalUsd.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture)} " +
+                $"{cost.Currency} at sheet '{cost.PriceSheet}' " +
+                $"(chat {cost.ChatInputTokens}/{cost.ChatOutputTokens} tok, " +
+                $"small {cost.SmallChatInputTokens}/{cost.SmallChatOutputTokens}, " +
+                $"embed {cost.EmbeddingTokens}, queries {cost.IndexQueries})"));
         if (result.Withheld && flags.Trace)   // the harness still wants to read what failed
             Console.WriteLine(Dim($"withheld draft:\n{result.AnswerText}"));
         if (flags.Trace)

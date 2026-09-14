@@ -1,3 +1,4 @@
+using DotFit.Agents.Cost;
 using Microsoft.Agents.AI;
 
 namespace DotFit.Agents.Answering;
@@ -18,17 +19,24 @@ namespace DotFit.Agents.Answering;
 public interface IChatReplyAgent
 {
     /// <summary>The reply text, or <c>null</c> when the call failed and the caller should template.</summary>
-    Task<string?> ReplyAsync(string userMessage, CancellationToken ct = default);
+    /// <param name="meter">
+    /// Optional per-request cost meter (additive): the reply runs on the small
+    /// deployment, and this is where its usage is reported.
+    /// </param>
+    Task<string?> ReplyAsync(string userMessage, CancellationToken ct = default, TurnMeter? meter = null);
 }
 
 /// <inheritdoc cref="IChatReplyAgent" />
 public sealed class AgentChatReplyAgent(AIAgent agent) : IChatReplyAgent
 {
-    public async Task<string?> ReplyAsync(string userMessage, CancellationToken ct = default)
+    public async Task<string?> ReplyAsync(
+        string userMessage, CancellationToken ct = default, TurnMeter? meter = null)
     {
         try
         {
             AgentResponse response = await agent.RunAsync(userMessage, null, null, ct).ConfigureAwait(false);
+            if (response.Usage is { } usage)
+                meter?.ChatSmall(usage.InputTokenCount, usage.CachedInputTokenCount, usage.OutputTokenCount);
             string text = (response.Text ?? "").Trim();
             return text.Length > 0 ? text : null;
         }
@@ -36,6 +44,10 @@ public sealed class AgentChatReplyAgent(AIAgent agent) : IChatReplyAgent
         {
             // Best-effort, like every other small-model call in the pipeline:
             // an unavailable model degrades to the template, never to an error.
+            // (A call that threw before returning a response reports no usage —
+            // the SDK surfaces it only on a completed response — so that spend,
+            // if any, is under-counted here. The failed-call path is rare and
+            // the alternative is inventing a number.)
             return null;
         }
     }
