@@ -9,8 +9,8 @@ import pytest
 
 from qa_pipeline.podcast import (
     MAX_WORDS, PODCAST_VIDEO_IDS, TARGET_WORDS, build_chunk, citation_url,
-    clean_title, ms_to_mmss, resolve_titles, segment_episode, segment_phrases,
-    slugify, summarize,
+    clean_title, correct_text, ms_to_mmss, resolve_titles, segment_episode,
+    segment_phrases, slugify, summarize,
 )
 
 
@@ -105,6 +105,46 @@ def test_build_chunk_turn_lines_are_speaker_map_rewritable() -> None:
     mapped = re.sub(r"^Speaker 2:", "Neal Spruce:", chunk["text"],
                     flags=re.M)
     assert mapped.split("\n")[0].startswith("Neal Spruce:")
+
+
+def test_corrections_fix_every_attested_asr_spelling() -> None:
+    # every hearing found in the 47 transcripts (2026-09-14 audit): the
+    # show's name, however ASR heard it, becomes the official spelling
+    raw = ("welcome back to another episode of Sup Beast. SUP Beast, "
+           "SupBeast, SUPBeast, SubBeast, Sub Beast, Sutbeast, "
+           "following on South Beast.")
+    fixed = correct_text(raw)
+    assert fixed.count("SuppBeast") == 8
+    # nothing beast-shaped survives outside the corrected name
+    assert not re.search(r"beast", fixed.replace("SuppBeast", ""), re.IGNORECASE)
+
+
+def test_corrections_leave_the_idiom_alone() -> None:
+    # the one non-name "beast" in the corpus — no pattern can reach it,
+    # and the test is the guard on that staying true
+    raw = "that's just the nature of the beast, you know."
+    assert correct_text(raw) == raw
+
+
+def test_corrections_fix_neal_possessive_and_direct_address() -> None:
+    assert correct_text("Neil's stack. Neil, listen.") == "Neal's stack. Neal, listen."
+
+
+def test_corrections_are_idempotent() -> None:
+    once = correct_text("an episode of Sup Beast with Neil")
+    assert correct_text(once) == once
+
+
+def test_build_chunk_corrects_text_but_not_id_or_title() -> None:
+    # ids and titles are filename-derived; a correction there would change
+    # document ids and break fetch-by-id and the citation deep links
+    group = [_phrase(0, 3, speaker=1)]
+    group[0]["text"] = "welcome to Sup Beast with Neil"
+    chunk = build_chunk("about-sup-beast-ep-00", "About Sup Beast | Ep 00",
+                        "About Sup Beast ｜ Ep 00.mp3", 0, group)
+    assert chunk["id"] == "about-sup-beast-ep-00-000"
+    assert chunk["episode_title"] == "About Sup Beast | Ep 00"
+    assert chunk["text"] == "Speaker 1: welcome to SuppBeast with Neal"
 
 
 def test_resolve_titles_collision_raises(tmp_path) -> None:

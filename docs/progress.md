@@ -24,8 +24,8 @@ has not had is a person using it.
 | Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3) |
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
-| Smoke set | §11.2 | **written, not yet run whole** | 29 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **104 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
+| Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
+| Tests | §11 | **106 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -76,6 +76,22 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-14 — the transcripts learn the show's name (and Neal's)
+
+"What's SuppBeast?" answered from QA email signatures because the transcripts
+never spelled the name right: ASR heard it five ways (~52× "Sup Beast"-family,
+zero "SuppBeast"), so BM25 could not reach 44% of the corpus by the customer's
+spelling. Fixed in the pipeline, both branches: `podcast.TRANSCRIPT_CORRECTIONS`
+(attested 2026-09-14 audit, every occurrence checked in context; "nature of the
+beast" provably out of reach) corrects phrase text at chunk build — raw ASR
+artifacts stay verbatim; ids/titles/citation URLs unchanged, so nothing the
+runtime or website holds moved. `Neil`→`Neal` (35×) rode along. Segments and
+`kb-main-v2` regenerated (69 chunks re-embedded, cache covered the rest); the
+live search now returns podcast chunks in the top 6 for that query (was 0).
+Smoke item S-082 is the regression guard. 467 pipeline + 106 agentic + 264 v1
+tests green. This touches pipeline code this branch rules say it doesn't
+carry — owner directed it here and on master, same commit both sides.
 
 ### 2026-09-14 — the stage line leads the lookup
 
