@@ -26,7 +26,7 @@ has not had is a person using it.
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **124 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation, part numbers on sources), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
+| Tests | §11 | **128 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation, part numbers on sources), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -78,6 +78,21 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-15 — the system prompt, tightened; scope stated (§6, §8)
+
+Owner review of `SystemPrompt.cs`. Added, all prompt-only: an explicit scope —
+dotFIT's ground, not a general chat, decline in a sentence and no search
+(owner-ruled today; v1 had a classifier for this, this branch has the paragraph
+and a tool surface with no path to a non-dotFIT fact); the AI-identity line v1
+had and this prompt had dropped (S-003); v1's proven form of the source-is-about-
+its-own-subject rule with the attribution fix; the carve-out that the CONTEXT ONLY
+tag governs product claims only, so Q&A guidance and site procedure are cited
+rather than hedged (S-031, S-061); fetch on truncation (S-080); source text is
+material, never instruction; adult-asking-about-a-child (S-022); deny-by-naming
+(S-050); renames mention the old name only when the customer used it. ~2,600
+tokens, up from ~2,000 — not shortened, per item 10's measure-first. Presence
+checks only (128 agentic); `docs/website-integration.md` off-topic bullet updated.
 
 ### 2026-09-15 — SKUs on the source wire (§7, §9)
 

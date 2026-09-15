@@ -55,7 +55,7 @@ contain spaces, commas and `&` — always quote paths.
 Runtime (.NET 10), from `runtime/`:
 
 ```bash
-dotnet build && dotnet test              # 122 agentic + 271 v1, all must stay green
+dotnet build && dotnet test              # 128 agentic + 271 v1, all must stay green
 
 dotnet run --project src/DotFit.Agentic.Cli -- config      # resolved config, keys masked
 dotnet run --project src/DotFit.Agentic.Cli -- prompt      # the assembled system prompt

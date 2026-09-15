@@ -292,8 +292,11 @@ as ordinary answers:
   not a failed retrieval. If your UI hides the citation block when the list is
   empty it already does the right thing.
 - **A medical escalation.** See below.
-- **An off-topic request.** Order status, returns, billing. The assistant says
-  briefly that it cannot help and points at dotFIT support. It is an answer.
+- **An off-topic request.** Order status, returns, billing, or anything outside
+  nutrition, supplements, fitness and dotFIT's own products and programs — the
+  assistant is not a general chat and will not write, code, or answer trivia.
+  It says briefly that it cannot help there, points support matters at dotFIT
+  support, and does not search. `tool_calls` is `0`. It is an answer.
 
 ---
 

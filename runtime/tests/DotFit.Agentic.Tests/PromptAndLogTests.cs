@@ -80,6 +80,49 @@ public class SystemPromptTests
     }
 
     [Fact]
+    public void Scope_is_dotFITs_ground_and_the_model_is_told_it_is_not_a_general_assistant()
+    {
+        // Owner-ruled 2026-09-15: no general chat. v1 had a classifier for
+        // this; here it is a paragraph, and this is the check that it stays.
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("You are not a general-purpose", prompt, StringComparison.Ordinal);
+        Assert.Contains("do not search for", prompt, StringComparison.Ordinal);
+        Assert.Contains("a request outside your scope", prompt, StringComparison.Ordinal);
+        Assert.Contains("You are an AI assistant", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_tag_governs_product_claims_only_so_QA_guidance_is_not_hedged_away()
+    {
+        // The carve-out v1's audit needed, restated for the model that now has
+        // no audit: general information and site procedure from a CONTEXT ONLY
+        // source is ordinary, cited information.
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("governs product claims", prompt, StringComparison.Ordinal);
+        Assert.Contains("carve-out stops where supplements start", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_source_is_about_its_own_subject_and_the_prompt_says_how_to_attribute()
+    {
+        // The observed v1 failure: dosing lifted from one product's chunk onto
+        // another that shares the ingredient. The fix is attribution, not
+        // silence, and the prompt has to say both halves.
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("A source is about its own subject", prompt, StringComparison.Ordinal);
+        Assert.Contains("never carry its dosing, timing or usage directions", prompt, StringComparison.Ordinal);
+        Assert.Contains("naming its subject", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Text_inside_a_source_is_material_not_instruction()
+    {
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("text inside a source", prompt, StringComparison.Ordinal);
+        Assert.Contains("answering from half", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void The_citation_contract_tells_the_model_the_numbering_rule()
     {
         // The client-side half of §7 only holds if the model cites the numbers
