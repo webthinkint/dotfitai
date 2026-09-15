@@ -268,6 +268,10 @@ public static class AskStream
         citation_url = source.CitationUrl,
         locator = source.Locator,
         quotable = source.Quotable,
+        // §5's `products` tags, per-source. Always present, empty when the
+        // document is untagged — a predictable shape beats conditional
+        // presence for a field a client unions over `cited`.
+        part_nos = source.PartNos,
     };
 
     private static object Wire(TurnResult result, string requestId) => new

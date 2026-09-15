@@ -26,7 +26,7 @@ has not had is a person using it.
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
 | Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **120 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
+| Tests | §11 | **124 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation, part numbers on sources), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -78,6 +78,18 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-15 — SKUs on the source wire (§7, §9)
+
+`source` frames and `result.sources` now carry `part_nos`: the dotFIT part
+numbers the index tags each document with (§5's `products` field), copied onto
+`SourceRef` in the ledger at numbering time — deterministic catalog metadata,
+never model text, which is why this beat asking the model to name SKUs
+(hallucinated part numbers aimed at real commerce) or a post-answer extraction
+call (a model outside the loop). Per-source by decision, no turn-level union
+field: the relay unions over `cited` for "products this answer leaned on".
+Over-approximation stated plainly in `docs/website-integration.md`, updated in
+the same commit. 2 new tests (124 agentic; v1's 271 untouched).
 
 ### 2026-09-15 — per-turn cost on the wire and in the log (§9, §10)
 

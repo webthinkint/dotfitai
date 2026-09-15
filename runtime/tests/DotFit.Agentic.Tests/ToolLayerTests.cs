@@ -54,6 +54,21 @@ public class SourceLedgerTests
     }
 
     [Fact]
+    public void A_source_carries_the_documents_part_nos()
+    {
+        // §5's `products` tags copied onto the caller-facing source at
+        // numbering time — deterministic catalog metadata, never model text.
+        // Pinned on the queued event because that is what reaches the wire.
+        var ledger = new SourceLedger(1000);
+        ledger.Add(Fixtures.Document(id: "a", products: ["9001", "9002"]));
+        ledger.Add(Fixtures.Document(id: "b"));
+
+        TurnSourceEvent queued = Assert.IsType<TurnSourceEvent>(ledger.Drain()[0]);
+        Assert.Equal(["9001", "9002"], queued.Source.PartNos);
+        Assert.Equal([], ledger.Sources[1].PartNos);
+    }
+
+    [Fact]
     public void Stage_events_drain_in_the_order_they_were_queued()
     {
         var ledger = new SourceLedger(1000);

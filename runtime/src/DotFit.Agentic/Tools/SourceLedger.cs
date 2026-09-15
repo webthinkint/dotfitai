@@ -69,6 +69,7 @@ public sealed class SourceLedger(int maxSourceChars)
                 CitationUrl = document.CitationUrl,
                 Locator = document.Locator,
                 Quotable = Prompts.ClaimsQuotable(document.Authority),
+                PartNos = [.. document.Products],
             };
             _byId[document.Id] = source;
             _documents[document.Id] = document;

@@ -45,6 +45,19 @@ public sealed record SourceRef
     public string? Locator { get; init; }
     /// <summary>§3: authority 1–2 may supply product-claim wording; 3–5 is context.</summary>
     public required bool Quotable { get; init; }
+
+    /// <summary>
+    /// The dotFIT part numbers (SKUs) the index tags this document with — §5's
+    /// <c>products</c> field, copied onto the source at numbering time. That is
+    /// deterministic catalog metadata, never model output, which is the point
+    /// of carrying SKUs here rather than in the answer text: a part number on
+    /// the wire is one the corpus attests. It is an over-approximation of
+    /// "products the answer mentioned" — a cited document may carry tags the
+    /// answer never discussed, and untagged documents (some infopage, menu)
+    /// carry none. The caller unions over <c>cited</c> if it wants the turn's
+    /// products; we send no turn-level union by decision.
+    /// </summary>
+    public IReadOnlyList<string> PartNos { get; init; } = [];
 }
 
 /// <summary>One tool call, as recorded for the turn log (§10) and the CLI trace.</summary>

@@ -188,6 +188,16 @@ product-claim wording. You do not have to surface it, but it is the field to
 use if you ever want to style a citation to approved copy differently from one
 to a podcast.
 
+`part_nos` is the list of dotFIT part numbers (SKUs) our catalog tags that
+source with — empty for sources with no product tag (some website pages,
+menus). It is index metadata copied when the source is numbered, not something
+the model wrote, so a SKU on the wire is one the catalog attests. Read it as
+"this source is about these SKUs" — which is a mild over-approximation of
+"the answer discussed them": a cited customer Q&A can carry several tags the
+answer never touched. If you want "the products this answer leaned on", union
+`part_nos` over the sources listed in `cited`; we deliberately do not send
+that union, it is yours to compute.
+
 Numbers appear in the text as `[1]`, `[2]`. There is no `rendered_citations`
 field any more — the assistant emits inline markers and your client renders the
 list, which is what makes live streaming worth having.
@@ -200,7 +210,8 @@ list, which is what makes live streaming worth having.
   "answer": "the delivered text, whole",
   "sources": [
     {"n": 1, "source_type": "pdsrg", "authority": 2, "title": "...",
-     "citation_url": "...", "locator": "p. 20", "quotable": true}
+     "citation_url": "...", "locator": "p. 20", "quotable": true,
+     "part_nos": ["2101", "2102"]}
   ],
   "cited": [1],
   "tool_calls": 1,

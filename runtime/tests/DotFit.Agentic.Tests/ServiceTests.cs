@@ -209,6 +209,7 @@ public class AskStreamTests
             {
                 N = 1, Id = "pdsrg-a-001", SourceType = "pdsrg", Authority = 2,
                 Title = "Dosing", Quotable = true, CitationUrl = "https://example.com/a",
+                PartNos = ["9001"],
             },
         ],
         ToolCalls = [],
@@ -334,6 +335,22 @@ public class AskStreamTests
         Assert.Contains("\"n\":1", frame, StringComparison.Ordinal);
         Assert.Contains("\"quotable\":true", frame, StringComparison.Ordinal);
         Assert.DoesNotContain("content", frame, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task A_source_frame_carries_its_part_nos()
+    {
+        // The website contract: SKUs ride on the source, straight from the
+        // index's `products` tags. Per-source by decision — no turn-level
+        // union field; the relay unions over `cited` if it wants one.
+        var assistant = new FakeAssistant(new TurnSourceEvent(Result().Sources[0]), new TurnResultEvent(Result()));
+
+        (RecordingWriter writer, _) = await RunAsync(assistant, new AskBody { Question = "q" });
+        string sourceFrame = writer.Frames.Single(f => f.Event == AskStream.EventSource).Json;
+        string resultFrame = writer.Frames.Single(f => f.Event == AskStream.EventResult).Json;
+
+        Assert.Contains("\"part_nos\":[\"9001\"]", sourceFrame, StringComparison.Ordinal);
+        Assert.Contains("\"part_nos\":[\"9001\"]", resultFrame, StringComparison.Ordinal);
     }
 
     [Fact]
