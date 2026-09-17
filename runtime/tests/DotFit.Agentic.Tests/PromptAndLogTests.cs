@@ -38,7 +38,7 @@ public class SystemPromptTests
 
     [Theory]
     [InlineData("pregnan")]
-    [InlineData("under 18")]
+    [InlineData("under 12")]
     [InlineData("self-harm")]
     [InlineData("disordered eating")]
     [InlineData("Prescription medication")]
@@ -120,6 +120,38 @@ public class SystemPromptTests
         string prompt = SystemPrompt.Build(Fixtures.Aliases());
         Assert.Contains("text inside a source", prompt, StringComparison.Ordinal);
         Assert.Contains("answering from half", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Program_requests_go_through_the_guide_uncited_and_unattributed()
+    {
+        // Owner-ruled 2026-09-17 (§7.4): the guide is the method, its doses
+        // are dotFIT's, and it is not a numbered source.
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("call get_program_guide", prompt, StringComparison.Ordinal);
+        Assert.Contains("Don't interrogate", prompt, StringComparison.Ordinal);
+        Assert.Contains("overlap check", prompt, StringComparison.Ordinal);
+        Assert.Contains("Do not cite the guide", prompt, StringComparison.Ordinal);
+        Assert.Contains("without attributing them", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Teenagers_are_answered_within_the_guides_under_18_limits()
+    {
+        // Owner-ruled 2026-09-17: the age trigger is the guide's lowest
+        // bracket, and the teen exclusions are what replaced the old line.
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.DoesNotContain("The customer is under 18", prompt, StringComparison.Ordinal);
+        Assert.Contains("Teenagers (12–17) are not on that list", prompt, StringComparison.Ordinal);
+        Assert.Contains("no creatine, glutamine, pre-workouts", prompt, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_guides_screening_is_an_allowed_answer_and_nothing_past_it_is()
+    {
+        string prompt = SystemPrompt.Build(Fixtures.Aliases());
+        Assert.Contains("a multivitamin and protein powder", prompt, StringComparison.Ordinal);
+        Assert.Contains("still their doctor's call", prompt, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -242,7 +274,21 @@ public class TurnLogTests
         Assert.Contains("\"cost\":{", line, StringComparison.Ordinal);
         Assert.Contains("\"price_sheet\":\"test-sheet\"", line, StringComparison.Ordinal);
         Assert.Contains("\"total_usd\":0.0040462", line, StringComparison.Ordinal);
-        Assert.Equal("1.1.0", TurnLog.SchemaVersion);
+        Assert.Equal("1.2.0", TurnLog.SchemaVersion);
+    }
+
+    [Fact]
+    public void The_guide_revision_is_logged_only_when_the_guide_was_read()
+    {
+        // The guide is uncited, so this field is the only record of which
+        // revision shaped a program answer (§7.4, §10).
+        TurnLog without = TurnLog.From(Result(Call(Stages.Search, "q")), TurnLog.OutcomeAnswered);
+        Assert.Null(without.ProgramGuideVersion);
+        Assert.DoesNotContain("program_guide", without.ToJsonLine(), StringComparison.Ordinal);
+
+        TurnLog with = TurnLog.From(Result(Call(Stages.Guide, "")), TurnLog.OutcomeAnswered);
+        Assert.Equal(ProgramGuide.Version, with.ProgramGuideVersion);
+        Assert.Equal(1, with.ToolsUsed[Stages.Guide]);
     }
 
     [Fact]

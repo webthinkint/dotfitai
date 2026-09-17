@@ -18,15 +18,15 @@ has not had is a person using it.
 |---|---|---|---|
 | Design + branch docs | — | **done** 2026-09-12 | `docs/agentic-assistant.md`, new `AGENTS.md`, this file; v1 docs moved to `docs/v1/` |
 | Project skeleton | §12.1 | **done** | `runtime/src/DotFit.Agentic`, project reference to `DotFit.Agents` for `Retrieval/`, `Aliases/`, `Config/` and the §3 source vocabulary. A **sibling** namespace, not `DotFit.Agents.Agentic` — as a child it inherited v1's `StageEvent`/`DeltaEvent`/`ResultEvent`, a different contract with the same names; this branch's are `Turn…`-prefixed |
-| Tools — `search` / `fetch` / `get_product` | §7 | **done** | Deterministic, no model call. Alias tiers mapped onto the two inputs: `products` is a judged mention (may resolve LLM-only aliases), `query` is a blind scan (deterministic tier only). Turn-scoped numbering, budget, OData filters. Live: `dotfit-agentic search` returns numbered, labelled sources off `kb-main-v2` |
+| Tools — `search` / `fetch` / `get_product` (+ `get_program_guide`, §7.4, 2026-09-17) | §7 | **done** | Deterministic, no model call. Alias tiers mapped onto the two inputs: `products` is a judged mention (may resolve LLM-only aliases), `query` is a blind scan (deterministic tier only). Turn-scoped numbering, budget, OData filters. Live: `dotfit-agentic search` returns numbered, labelled sources off `kb-main-v2` |
 | The loop + system prompt | §6 | **done** | One agent, one model, no stage before or after. Prompt assembled at boot from posture + authority + currency facts (generated from `alias_table.json`) + tool contract + safety. Budgets: 8 tool calls, 60 s research, 110 s hard ceiling |
 | CLI `dotfit-agentic` | §12.4 | **done** | `ask`, `chat`, `search`, `smoke`, `prompt`, `config`; `--trace` shows every tool call and its arguments, `--log` prints the turn-log line |
-| Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3). Schema 1.1.0 carries the `cost` block |
+| Turn log | §10 | **done** | One `dotfit.turn` JSON line per turn. No question or answer text — no field exists for either. `queries` is the one text field and is the model's own search text (open item 3). Schema 1.1.0 carries the `cost` block; 1.2.0 adds `program_guide`, the guide revision a program turn read |
 | Per-turn cost | §9, §10 | **done** 2026-09-15, both runtimes | `result.cost` on the wire and `cost` in both logs (turn log 1.1.0, verdict log 1.3.0): observed counts priced against one shared `DOTFIT_PRICE_*` sheet from `.env`. v1 additionally splits its small-model stages into `small_chat` (the agentic runtime reports that block at zeros). Search rate is a **placeholder** (open item 11); chat/embedding prices are the builtin sheet's defaults until the owner sets real ones |
 | SSE service | §9 | **done** | `POST /ask` + `GET /healthz`. `source` event added, `retraction` **gone**, deltas stream live. v1's hardening carried over verbatim: fail-closed shared-secret boot, 2,000-char cap, `top` 1–20, 256 KB body, 120 s timeout. `/healthz` reports `"gating": "none"` |
 | Preview deployment | §9 | **done** 2026-09-12 | `runtime/deploy-agentic/` — user unit `dotfit-agentic-service` on **5299**, beside v1's `dotfit-agent-service` on 5199; separate publish dir, same `DOTFIT_SERVICE_API_KEY`, same request body (D6), so a caller A/Bs the runtimes by base URL. `dotfit-turn-log` is the journal view. Both units verified live together |
-| Smoke set | §11.2 | **written, not yet run whole** | 30 items over 9 tiers in `runtime/smoke/conversations.jsonl`, each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
-| Tests | §11 | **128 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation, part numbers on sources), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
+| Smoke set | §11.2 | **written, not yet run whole** | 35 items over 10 tiers in `runtime/smoke/conversations.jsonl` (`program` tier added 2026-09-17), each with a `looking_for` a human reads. `dotfit-agentic smoke` runs them live and writes a markdown transcript. No score, by decision D7 |
+| Tests | §11 | **138 green** | Tool layer (numbering, filters, alias tiers, budgets, truncation, part numbers on sources, the program guide tool and its part numbers), loop shapes (no-tool turn, ordering, budget exhaustion, history, failure, empty completion, usage accounting), prompt presence checks, turn-log privacy, service contract, cost arithmetic, smoke-set integrity |
 
 **First live readings, 2026-09-12** — four turns through `dotfit-agentic ask`
 on `gpt-5.6-luna`. A handful of turns is not a measurement; these are recorded
@@ -72,12 +72,24 @@ clock — see open item 10.
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
 | 11 | **The search price in the cost sheet is a placeholder** (new 2026-09-15) | **open.** `result.cost.search.usd` prices index queries at a dummy `DOTFIT_PRICE_SEARCH_PER_1K` — a provisioned AI Search tier bills the month, not the query, so there is no per-query price to read. The counts (`search.queries`, `search.ranker_queries`) are exact. Replace the rate from the service's real billing data, set a new `DOTFIT_PRICE_SHEET` id in the same edit, and update `docs/website-integration.md`'s caveat. The chat/embedding prices in the builtin sheet are the current list prices, also worth confirming against the actual invoice |
+| 12 | **The program guide is unreviewed** (new 2026-09-17) — `processed/podcasts/neal-spruce-dotfit-decision-tree.md` was drafted from the podcast transcripts and `products.json`, and the assistant now recommends from it verbatim (D9, §7.4) | **open, owner-ruled: use it as is meanwhile.** Someone at dotFIT should check its doses, "up to" athlete amounts, age bands and overlap figures against the labels. Part numbers are already pinned by a test (all 35 resolve). Edit it where it lives; the service picks it up on rebuild, and the turn log's `program_guide` hash changes with it |
 
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-17 — supplement programs the founder's way (§7.4, D9)
+
+Owner-ruled today. New `get_program_guide` tool returns the short decision tree,
+embedded at build, **uncited** (no ledger entry, a `guide` stage frame only);
+a prompt section says when to read it, not to interrogate, to follow its order,
+exclusions and overlap check, and to give its picks unattributed ("dotFIT's
+founder" only if useful or asked). Relaxed: age trigger under 12, the guide's
+screening answer allowed for conditions/meds/pregnancy, no-arithmetic rule gone.
+Prompt ~3,200 tokens, up from ~2,600. Turn log 1.2.0. 10 new tests (138); smoke
+`program` tier S-090…S-094 written, **not yet run**. Open item 12 added.
 
 ### 2026-09-15 — the system prompt, tightened; scope stated (§6, §8)
 

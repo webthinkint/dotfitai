@@ -55,7 +55,7 @@ contain spaces, commas and `&` — always quote paths.
 Runtime (.NET 10), from `runtime/`:
 
 ```bash
-dotnet build && dotnet test              # 128 agentic + 271 v1, all must stay green
+dotnet build && dotnet test              # 138 agentic + 271 v1, all must stay green
 
 dotnet run --project src/DotFit.Agentic.Cli -- config      # resolved config, keys masked
 dotnet run --project src/DotFit.Agentic.Cli -- prompt      # the assembled system prompt
@@ -66,7 +66,7 @@ dotnet run --project src/DotFit.Agentic.Cli -- smoke --tier safety   # live, cos
 ```
 
 `search`, `prompt` and `config` need no chat deployment. `ask`, `chat` and
-`smoke` cost Azure calls — `smoke` runs 29 items and every turn of the
+`smoke` cost Azure calls — `smoke` runs 35 items and every turn of the
 multi-turn ones, so reach for `--tier` first.
 
 The v1 verbs (`dotfit-agent`, `dotfit-agent-service`) still exist and still
@@ -144,6 +144,12 @@ ambiguity cannot come back.
   layer gets unit tests; the loop gets a handful of shape tests. Do not port
   v1's 264. The 250-item golden set is **not** a validity signal — it was never
   labeled — and no number computed against it may be quoted as correctness.
+- **Supplement programs come from the program guide** (§7.4, D9):
+  `processed/podcasts/neal-spruce-dotfit-decision-tree.md`, embedded into
+  `DotFit.Agentic` at build. It is hand-authored, not pipeline output — the one
+  file under `processed/` that is edited in place — and it is **uncited** by
+  ruling: no ledger entry, no `source` frame. A part number it names must
+  resolve in the alias table (a test enforces it).
 - `processed/` is committed but derived: regenerate, don't hand-edit. Numbers
   quoted in `docs/progress.md` must match a regenerated run or a dated live run.
 - Commits: `area: description`, lowercase. New behavior gets a test where a test

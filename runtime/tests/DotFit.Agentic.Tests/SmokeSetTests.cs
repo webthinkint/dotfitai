@@ -61,6 +61,7 @@ public class SmokeSetTests
     [InlineData("scope")]
     [InlineData("adversarial")]
     [InlineData("retrieval")]
+    [InlineData("program")]
     public void Every_tier_the_readme_documents_has_at_least_one_item(string tier)
     {
         IReadOnlyList<SmokeItem> items = Smoke.Load(SetPath());

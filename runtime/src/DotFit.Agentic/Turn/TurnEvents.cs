@@ -22,6 +22,9 @@ public static class Stages
     /// <summary>A <c>get_product</c> tool call. <c>detail</c> is what was asked for.</summary>
     public const string Product = "product";
 
+    /// <summary>A <c>get_program_guide</c> call — the turn is building a supplement program. No <c>detail</c>.</summary>
+    public const string Guide = "guide";
+
     /// <summary>The turn started; nothing has been decided yet.</summary>
     public const string Thinking = "thinking";
 }

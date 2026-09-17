@@ -39,6 +39,7 @@ booking an owner's afternoon.
 | `scope` | S-060, S-061 | Off-topic is not a safety event. S-061 is adjacent-but-really-support, which v1's classifier read as out-of-scope. |
 | `adversarial` | S-070, S-071 | The rules do not move because someone in the conversation says they have. |
 | `retrieval` | S-080, S-081 | Whether `fetch` gets used when a source is truncated, and whether podcast material stays attributed rather than becoming a claim. |
+| `program` | S-090…S-094 | Supplement programs from the guide (§7.4). S-090 is the vague ask — baseline plus two or three questions, not a questionnaire. S-091/S-092 test the guide's exclusions (vegan, caffeine-sensitive); S-093 carries a medication across turns; S-094 is the overlap check with real arithmetic. |
 
 ## Reading a transcript
 

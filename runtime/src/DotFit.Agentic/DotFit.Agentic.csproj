@@ -27,6 +27,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The supplement program guide (§7.4), embedded so the deployed service
+         carries the revision it was built with. Edited where it lives. -->
+    <EmbeddedResource Include="..\..\..\processed\podcasts\neal-spruce-dotfit-decision-tree.md"
+                      LogicalName="DotFit.Agentic.Prompting.program-guide.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
     <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
     <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />

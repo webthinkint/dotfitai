@@ -139,7 +139,7 @@ Event names are the contract. Key on them; do not parse the prose.
 | Event | Payload | Notes |
 |---|---|---|
 | `disclosure` | `{text}` | AI-identity notice. Emitted **once**, only when the request had no `conversation_id`. Render it before any answer text. |
-| `stage` | `{stage, detail}` | What the assistant is doing. `stage` is one of `thinking`, `search`, `fetch`, `product`, `answer`. **Stages repeat** — three searches emit three `search` events. |
+| `stage` | `{stage, detail}` | What the assistant is doing. `stage` is one of `thinking`, `search`, `fetch`, `product`, `guide`, `answer`. `guide` (added 2026-09-17) means the assistant is building a supplement program; it has no `detail` and produces no `source`. **Stages repeat** — three searches emit three `search` events. |
 | `source` | `{n, source_type, authority, title, citation_url, locator, quotable}` | A numbered source, emitted when it is assigned its number and before any delta cites it. |
 | `delta` | `{text}` | A fragment of answer text, live. Concatenate in arrival order. |
 | `result` | see below | Final, assembled. **Always last**, including after an `error`. |
@@ -331,6 +331,16 @@ pair the practitioner reference guide publishes. It is configuration on our
 side — tell us if the preview audience should be sent somewhere else and we
 change it in one place rather than have you rewrite delivered copy.
 
+**Supplement programs (2026-09-17).** When a customer asks what to take, the
+assistant builds a program from dotFIT's own program guide (a `guide` stage,
+no source). Two escalation cases were narrowed with it, by owner decision:
+**teenagers (12–17) now get real answers** within the guide's limits — no
+creatine, pre-workouts or weight-loss products — and the age case now starts
+**under 12**; and a customer with a medical condition, on medication or pregnant
+can be recommended the guide's restricted baseline (a multivitamin and protein,
+and to tell their doctor). If your side treated "a minor" as anyone under 18,
+this is the change to know about.
+
 **Never edit the delivered text.** It is the record of what the customer was
 told.
 
@@ -429,6 +439,7 @@ storing per turn from `result`: `request_id`, `cited`, `sources`, `tool_calls`,
 
 **Our turn log.** We write one structured line per request recording what the
 assistant *did* — how many tool calls, which tools, the search queries it chose,
+which revision of the program guide it read (if any),
 how many sources it retrieved and cited, which authority tiers those were, which
 product families came up, the timings, and the outcome. Keyed by `request_id`.
 

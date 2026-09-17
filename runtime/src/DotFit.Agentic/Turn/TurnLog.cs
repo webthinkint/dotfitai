@@ -1,4 +1,5 @@
 using DotFit.Agents.Cost;
+using DotFit.Agentic.Prompting;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -35,7 +36,7 @@ public sealed record TurnLog
     /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
     public const string SchemaName = "dotfit.turn";
 
-    public const string SchemaVersion = "1.1.0";
+    public const string SchemaVersion = "1.2.0";
 
     /// <summary>The model answered, with or without having searched.</summary>
     public const string OutcomeAnswered = "answered";
@@ -90,6 +91,14 @@ public sealed record TurnLog
     /// slicing by product is the first thing a claims question needs.
     /// </summary>
     [JsonPropertyName("families")] public required IReadOnlyList<string> Families { get; init; }
+
+    /// <summary>
+    /// <see cref="ProgramGuide.Version"/>, set only when the turn read the
+    /// program guide (added in 1.2.0). The guide is uncited (§7.4), so this is
+    /// the only record of which revision shaped a program answer — and the
+    /// guide is due a review that will change it (open item 12).
+    /// </summary>
+    [JsonPropertyName("program_guide")] public string? ProgramGuideVersion { get; init; }
 
     // ---- how it went -------------------------------------------------------
 
@@ -152,6 +161,7 @@ public sealed record TurnLog
             CitedCount = result.CitedSources.Count,
             CitedAuthorities = [.. citedAuthorities],
             Families = result.Families,
+            ProgramGuideVersion = result.ToolCalls.Any(c => c.Tool == Stages.Guide) ? ProgramGuide.Version : null,
             FirstDeltaMs = result.FirstDeltaMs,
             TotalMs = result.TotalMs,
             HistoryTurns = historyTurns,

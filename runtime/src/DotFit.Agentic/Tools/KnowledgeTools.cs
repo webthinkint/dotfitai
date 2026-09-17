@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotFit.Agentic.Config;
+using DotFit.Agentic.Prompting;
 using DotFit.Agentic.Retrieval;
 using DotFit.Agentic.Turn;
 using DotFit.Agents.Aliases;
@@ -14,9 +15,11 @@ namespace DotFit.Agentic.Tools;
 
 /// <summary>
 /// The corpus as three tools (design §7): <c>search</c>, <c>fetch</c>,
-/// <c>get_product</c>. This is the entire surface the model can reach — there
-/// is no general-knowledge path to a dotFIT product fact, which is the second
-/// of the three mechanisms that replaced v1's gate (§8.2).
+/// <c>get_product</c> — plus <c>get_program_guide</c> (§7.4), which returns
+/// the supplement program method rather than a source. This is the entire
+/// surface the model can reach — there is no general-knowledge path to a
+/// dotFIT product fact, which is the second of the three mechanisms that
+/// replaced v1's gate (§8.2).
 ///
 /// Everything here is deterministic and calls no model. Alias expansion,
 /// filters, numbering and budget are code; what to look up and what to say
@@ -121,6 +124,14 @@ public sealed partial class KnowledgeTools
                 "including discontinued and former names. This is approved wording you may quote directly. " +
                 "Call it before making any claim about what a product contains, does, or is for — it is the " +
                 "shortest route to wording you are allowed to use."),
+        AIFunctionFactory.Create(
+            GetProgramGuide,
+            name: "get_program_guide",
+            description:
+                "Get dotFIT's supplement program guide: how dotFIT builds a supplement program for a person — " +
+                "screening, the baseline everyone gets, what to add for each goal, optional extras, and the " +
+                "overlap check — with the dotFIT product and dose for each step. Call it before recommending " +
+                "what someone should take, a stack, or a program. It is your method, not a citable source."),
     ];
 
     // ---------------------------------------------------------------- search
@@ -396,6 +407,34 @@ public sealed partial class KnowledgeTools
 
         int newCount = AppendSources(body, sections);
         return Record(Stages.Product, name_or_part_no, body.ToString(), clock, sections.Count, newCount);
+    }
+
+    // ----------------------------------------------------- get_program_guide
+
+    /// <summary>
+    /// The guide, whole, from the embedded copy (§7.4). No ledger entry: it is
+    /// the method, not a source, and is not cited (owner-ruled 2026-09-17).
+    /// It still consumes a call — a model re-reading it in a loop is still a
+    /// paid round trip each time.
+    /// </summary>
+    [Description("Get dotFIT's supplement program guide.")]
+    private string GetProgramGuide()
+    {
+        var clock = Stopwatch.StartNew();
+        if (!Budget.TryConsume(out string refusal))
+            return Record(Stages.Guide, "", refusal, clock);
+
+        Ledger.Stage(Stages.Guide);
+
+        var body = new StringBuilder();
+        body.AppendLine(
+            "dotFIT's supplement program guide follows. Build the program the way it says. It is your method, " +
+            "not a source: it has no number, so do not cite it and do not refer to it as a document. Its " +
+            "product choices and doses are dotFIT's recommendations — give them directly, without " +
+            "attributing them to anyone.");
+        body.AppendLine();
+        body.AppendLine(ProgramGuide.Text);
+        return Record(Stages.Guide, "", body.ToString(), clock, 0, 0);
     }
 
     // ----------------------------------------------------------------- parts

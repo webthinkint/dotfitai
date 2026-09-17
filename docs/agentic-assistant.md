@@ -55,6 +55,7 @@ Owner decisions of 2026-09-12, which the rest of this document implements.
 | D5 | Hard-escalation cases are handled **in-prompt and conversationally**, not by a blocking classifier | An answer that says "since you mentioned you're 14…" and routes to a human beats a templated refusal, and costs no latency |
 | D6 | **Same `POST /ask` SSE contract** as v1, history sent by the caller, no server-side session state | The website relay already speaks it; either runtime can sit behind it |
 | D7 | **Minimal tests.** A small written conversational smoke set plus owner chat sessions; the 179 retrieval probes stay because they are label-free | The 250-item golden set was never labeled by a nutritionist, so it is not a validity signal and will not be treated as one |
+| D9 | *(2026-09-17)* **Supplement programs follow dotFIT's founder's method** — a fourth tool, `get_program_guide` (§7.4), returns the guide; it is uncited and its picks and doses are given unattributed. Relaxed with it: the age trigger is **under 12** (the guide's lowest bracket), the guide's screening answer is allowed for a condition, medication or pregnancy, and the no-arithmetic rule is gone | The owners want program answers to work the way Neal Spruce builds them; the guide already encodes the teen and screening limits the escalation list used to cover bluntly |
 | D8 | Docs are a clean slate: new design doc, new `AGENTS.md`, new `progress.md`; everything prior moved to `docs/v1/` | Two sets of rules in one tree is worse than one set plus an archive |
 
 Decisions made *inside* this design, not by the owner, are marked **(design
@@ -169,7 +170,7 @@ delta, not to completion:
 | One search | < 4 s | ~6 s, gated |
 | Two or three searches | < 8 s | not expressible |
 
-**The system prompt** carries five things, and is assembled at boot, not
+**The system prompt** carries six things, and is assembled at boot, not
 hand-maintained as one blob:
 
 1. Identity and posture — dotFIT's assistant, nutrition guidance and not medical
@@ -187,7 +188,9 @@ hand-maintained as one blob:
    AminoFormula's old name.
 4. The tool contract of §7, including what the numbered sources mean and how to
    cite them.
-5. The safety and claims posture of §8.
+5. The supplement program method of §7.4 — when to read the guide and how to
+   run a program conversation (D9).
+6. The safety and claims posture of §8.
 
 **History.** The caller sends prior turns as user/assistant text (§9). Prior
 *tool calls and tool results are not replayed* — the model re-retrieves if it
@@ -198,7 +201,8 @@ session state is the fix and it is a contract change (D6 revisit).
 
 ## 7. Tools
 
-Three. Every tool is deterministic, hits no model, and returns numbered sources.
+Three corpus tools, and the program guide (§7.4). Every tool is deterministic
+and hits no model; the three corpus tools return numbered sources.
 
 **Source numbering is turn-scoped and assigned at tool-result time.** The first
 source returned in a turn is `[1]`, and it stays `[1]` for the rest of the turn
@@ -262,6 +266,43 @@ it cannot drift from what is searchable.
 Returns the family's part numbers and variant names alongside the copy, so a
 question about a specific flavor or size resolves without a second call.
 
+### 7.4 `get_program_guide`
+
+```
+get_program_guide()
+```
+
+**(D9, owner-ruled 2026-09-17.)** Returns dotFIT's supplement program guide,
+whole: how dotFIT's founder builds a program — screening, the baseline everyone
+gets, goal branches, optional add-ons after 60–90 days, the overlap check —
+with the dotFIT product and dose for each step. The source is
+`processed/podcasts/neal-spruce-dotfit-decision-tree.md`, embedded into the
+assembly at build time, so the deployed service carries the revision it was
+built with. It is used as written pending a dotFIT review (open item 12).
+
+- **Not a source.** It touches no ledger, emits no `source` frame, and is not
+  cited; the prompt says so. It emits a `guide` stage frame like any tool.
+- **Not in the system prompt.** At ~4,500 tokens it would triple the prompt on
+  every turn, greetings included (open item 10). Only a program turn pays for
+  it, and — since tool results are not replayed (§6) — each program turn that
+  needs it reads it again.
+- **Unattributed.** Its choices and doses are dotFIT's recommendations.
+  "dotFIT's founder" is said only when it helps or the customer asks; Neal
+  Spruce is named only if they ask who.
+- **Naming a product with its guide dose needs no `get_product` call**, or a
+  six-product program spends most of the turn's budget on copy it does not
+  quote. Anything more about what a product contains, does or is for is a
+  product claim and the §3 rule applies.
+- **Versioned in the log.** Being uncited, the guide's revision would otherwise
+  be unrecoverable from a turn; the turn log carries its hash (§10).
+- A test pins that every bracketed part number in it resolves in the alias
+  table, so a retired SKU cannot reach a customer as a recommendation.
+
+The prompt side is short: call the guide on any "what should I take" request,
+don't interrogate (give the baseline and ask the two or three things that
+change it most), follow the guide's order and exclusions, and run its overlap
+check.
+
 ## 8. Safety and claims, without a gate
 
 D3 removed the blocking checks. This section is what replaces them, and it is
@@ -270,10 +311,13 @@ is one mechanism and it is not enough on its own.
 
 ### 8.1 In the prompt
 
-The **hard-escalation list** is unchanged from v1 — pregnancy and
-breastfeeding, managed conditions, eating-disorder signals, under-18, medication
-interactions, extreme calorie targets, self-harm. What changed is the required
-response. v1 refused and handed off. Here the model is instructed to stay in the
+The **hard-escalation list** is v1's — pregnancy and breastfeeding, managed
+conditions, eating-disorder signals, under-12 (under-18 until D9), medication
+interactions, extreme calorie targets, self-harm — with two D9 relaxations:
+teenagers are answered normally within the program guide's under-18 exclusions,
+and for a program the guide's screening answer (a multivitamin and protein,
+tell the doctor) may be given to someone with a condition, on medication or
+pregnant. What changed from v1 is the required response. v1 refused and handed off. Here the model is instructed to stay in the
 conversation: acknowledge what the customer said, answer what can be safely
 answered, name the limit plainly, and route to a human with the real support
 route (`support@dotfit.com`, `(877) 436-8348` — the pair the PDSRG itself
@@ -292,8 +336,9 @@ no special plumbing.
 **The claims posture** (§3) is stated as an operating rule, not an aspiration:
 product claims are quoted from tier 1 via `get_product`, mechanism and dosing
 come from tier 2, QA and podcast material is attributed rather than asserted as
-dotFIT's position, and anything the sources do not support is not said. No
-arithmetic on macros or calories.
+dotFIT's position, and anything the sources do not support is not said. The no-arithmetic rule
+was removed by D9 — a program needs dose bands by body weight and totals across
+products.
 
 ### 8.2 In the tools
 
@@ -381,7 +426,8 @@ per-tool breakdown, the *queries issued* (the model's own search text — this i
 the single most useful field for tuning and it does not exist in v1), source
 count and cited authorities, families touched, escalation-topic flag if the
 prompt-side handling reports one, first-delta latency, total latency, token
-usage, the cost block (schema 1.1.0), and `request_id` as the caller's join
+usage, the cost block (schema 1.1.0), the program guide's revision hash when
+the turn read it (`program_guide`, schema 1.2.0), and `request_id` as the caller's join
 key.
 
 **No question or answer text**, enforced structurally rather than promised: no
