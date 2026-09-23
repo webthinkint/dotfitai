@@ -1,0 +1,651 @@
+Episode : 20210122 - MasterClassNutritionProgrammingforFitnessPro [OiNJDbA5KG0].mp3
+Duration: 62:20 (3740688 ms)
+Phrases : 646
+Speakers: [1, 2, 3]
+
+[00:00] Speaker 1: All right, so listen, I get the opportunity to sit back and listen to, our two big educators out here, Rob and Cat, take over this whole lecture here. This is really about the program. That's what we're setting it up for. But I'm just a little just quick background before I turn it over to Cat to talk about a little bit of scope of practice stuff here is that, you know, I was just fortunate enough to be the first person to put nutrition in gyms.
+[00:28] Speaker 1: And I did that because I evolved as an athlete. And I go, how do you sell exercise without the rest of the story? And gyms had opened up to the public and everybody wanted weight loss. And obviously, exercise doesn't work for weight loss. It actually increases weight. So it just wasn't working. We were having the biggest attrition rate of any business in the world were gyms. So I had to solve for that back in the early 80s. So we built the Boles Gym brand. We built it off the back of nutrition.
+[00:55] Speaker 1: And that morphed into 24 Fitness, built that empire with it, and we went on to UFC and Crunch and built those empires with it. Because that changed the world. It changed the gym business for all of us. But we actually used the program. Now you find too many trainers that just don't use it because they just get lazy or they just aren't thinking about it. But that's how important it is to be
+[01:17] Speaker 1: to get these people results and get them addicted to fitness in a very short time. I can't just let them buy a membership and then go somewhere else to get a nutrition program. Does that make sense? Imagine sending them out to get them by their own supplements somewhere. We know what that's like in the mass market. So we had to find a one-stop shop. But we had to make it simple because trainers don't go to school to be nutritionists and so forth. We had to make it simple. Get it in their scope of practice. So $10 million later and 10 years of work, starting in 1983,
+[01:46] Speaker 1: I've got it all legal in every state, and I still pay those fees annually to make sure it stays in your scope of practice. Because you need to deliver nutrition, or you're not going to have the fantastic success that you want in your careers, or be able to help as many people as you can. It's just part of what we do. And it should be all connected to the person that owns the goal for the client. That's what it needs to be. Non-clinical, right? And with that note, I will turn it over to Kath.
+[02:14] Speaker 2: Thank you, Neil. Hi, everyone. It is good to be here with you in the new year. Good afternoon or good morning wherever you are. And we have a special treat today as I will be co-hosting with Rob Retman. And let me go ahead and share my screen so we can get started. So per usual, we'll record this session and it'll be posted on the website later on. And then for those of you who want the download, we'll post the PDF of the slides as well. So let me go ahead and share my screen.
+[02:49] Speaker 2: Okay, give me thumbs up if you can see my screen. Got it? Okay, awesome. So let's talk about nutrition programming for fitness professionals. And particularly my part will be on talking about scope of practice. Okay, so
+[03:07] Speaker 2: Let's see if I can get my slides to move here. Okay, so content to be presented during our time together. I'll discuss briefly the role of nutrition and fitness. I'm sure you're familiar, but it's good to sort of, you know, have the background, if you will. And then I'll go specifically into nutrition scope of practice, right? What can trainers tell their clients? What can they do?
+[03:27] Speaker 2: What are the different features? How do the algorithms work behind the scenes with the dotFIT platform? And then Rob will take it over and do a live demo of the program that he's been working really hard with our web team. And we'll talk about nutrition education since we get a lot of questions on, you know, what should I
+[03:45] Speaker 2: what should I take next in terms of learning more about nutrition? And then we'll wrap it up with a special offer from the National Academy of Sports Medicine. They have a pretty fairly new course that just came out and they wanted to extend an offer to you guys. So stay till the end and we will be sure that you guys get that offer.
+[04:04] Speaker 2: Okay, so many of I recognize a lot of familiar faces and names here on the call with us. Many of that, we are at an unprecedented time in human history. And what I mean by that is that, overweightness and obesity is at an all time high and experts are predicting that it's going to continue to rise. We're now at 70% of the US population that's overweight.
+[04:26] Speaker 2: overweight, and then a subcategory of that is people who are obese, which is approximately four out of 10 individuals. And I read a stat as I was prepping for this call that experts are predicting that by 2030, that nearly the entire US population will be overweight, which is pretty astounding. The top fitness goal continues to be weight loss depending on which industry statistics you look at and in which country, but in general,
+[04:54] Speaker 2: Seven out of seven to nine out of 10 individuals who seek fitness services, whether that's through an independent trainer or through gyms, they want to they want to they want to loosen body fat.
+[05:05] Speaker 2: Okay, so that's what they're looking to do. And we also know that nutrition is the primary driver of weight loss and optimizing body composition. You know, in the scientific literature, you'll see scientists go back and forth, you know, is exercise the primary driver? Is it nutrition? That is the main thing that drives weight loss. And really, the consensus is quite clear. And that is that nutrition is the primary driver of weight loss. And you guys all know this through experience, right? How many of you know people that come into your facilities or been
+[05:35] Speaker 2: and working with you for a long, long time. They exercise really consistently, but they look exactly the same. And why is that? It's not that they don't exercise, it's their nutritional intake. So, and so that sort of sets the scene for what we do as fitness professionals, right? And included in that is the role of dietary supplements. And we know that the majority of Americans are using supplements as part of a healthy lifestyle and that COVID, the pandemic really has heightened interest
+[06:05] Speaker 2: nutrition, immunity, and healthy lifestyles. So as of this, you know, these statistics, which was a few months back, you know, nearly eight out of 10 Americans report using at least one dietary supplement, more gym members use dietary supplements than the non-gym members or non-fitness enthusiasts, if you will. And then finally, elite athletes, you know, this statistic says 90%, Neil can probably tell you my experience as well, every athlete that we work with on the elite level uses, you know,
+[06:35] Speaker 2: more than one dietary supplement. So the interest is high and people are seeking information. How can they get healthier? How can they get to their goals? And unfortunately for us, or maybe fortunately for us, there's a lot of misinformation out there, whether it's social media, whether it's the different books that are out there.
+[06:53] Speaker 2: whether it's, you know, supplements that are either under formulated and or contaminated that people are buying and unknowingly, you know, unknowingly wasting money on products that are ineffective or unsafe. And so what does that lead to? Well, that leads to this.
+[07:13] Speaker 2: basically people being confused. They don't know what to do. They don't know what diet to follow, which supplements to take. And that leads to what? That leads to frustration. And then we end up quitting and losing them because they're not following a nutrition plan. They're not getting the right information and they're not reaching their goals. So we need to make sure as professionals that we're providing good guidance because clients need it to reach their goal. Ultimately, they've got to modify their nutrition intake.
+[07:42] Speaker 2: And we've seen over the years, going on three decades for me, over four decades for Neil, that trainers who provide safe and effective nutrition programming, whether that's through the gym or through independent businesses, that they make a bigger impact on their clients and they're able to build a thriving clientele more easily and really experience greater fulfillment in the fitness industry. So it's more important than ever.
+[08:09] Speaker 2: So let's get into it. What can you do as a fitness professional if you're not an RD or an MD or other licensed medical health professional. So first and foremost, you know, we got to provide good we got to provide good information that's credible evidence based
+[08:28] Speaker 2: information related to general health, fitness, and improving body composition, whether that's losing fat, gaining muscle or a combination of the two. And so what is credible information? Neil and I did a masterclass on nutrition myths. We talked about the hierarchy of evidence and the quality of it. But a good place to start is peer-reviewed research, which can be found here on PubMed.
+[08:51] Speaker 2: right, which is the National Institute of Health. And that's where most scientific research that is peer reviewed is published. And some have a paywall, some don't, but that's where we go when we're digging into where do we find answers to nutrition question.
+[09:07] Speaker 2: And then you have credible organizations like the ones we have listed here. The top is the dietary guidelines. Many of you may or may not know that it's a committee of almost, I think, 20 or 30 scientists from different institutions that come together and put forth the dietary guidelines for Americans. That's fairly new.
+[09:27] Speaker 2: We also have the Academy of Nutrition and Dietetics, the ISSN, which is the International Society of Sports Nutrition, the National Academy of Sports Medicine, and of course we have the American Heart Association. So these are some of the credible organizations that you can get lots of different resources from that will answer nearly all of your questions. And of course, articles,
+[09:47] Speaker 2: position stands, textbooks by nutrition scientists and trained nutrition professionals. So these are all where you want to gather your information. And then think to yourself, where do people go to get their information? Are they on the PubMed website? Are they looking at textbooks? General consumers tend to seek it out from blogs or social media. So again, we've got to be that filter that puts out the credible good information.
+[10:13] Speaker 2: So in addition to good knowledge, we want to also be able to dispel myths and misinformation. And that's one of the reasons why we do masterclasses in order to help you do that, dispelling myths, misinformation, getting the right information so that clients can avoid quick fixes, too good to be true products, and different fads that ultimately waste money, waste time, and lead to frustration.
+[10:38] Speaker 2: Assisting in good habit formation, right? This whole area of behavior modification, that's really, I think, something that a lot of trainers should focus on. How do you help your Clients get rid of old habits and develop new healthy habits around cooking and dining out and shopping and meal prep? All those things are well within your scope of practice. And then as well, motivating, which of course we all know you do, inspiring and assisting your Clients and taking the right action based on their specific goals and their preferences
+[11:08] Speaker 2: and their lifestyles. Okay, so key takeaway here on this slide, and I'll turn it over to Rob, is what you want to make sure that you're doing is you want to avoid prescribing nutrition to diagnosed,
+[11:22] Speaker 2: treat or cure a medical condition or disease. That would be clearly out of scope of your practice unless you're a licensed registered RD, MD, or, you know, maybe registered nurse or something like that. But again, avoid prescribing nutrition to treat diagnosis, to treat or diagnose a medical condition or a disease.
+[11:44] Speaker 2: So we've done a lot of the legwork for you, as Neil alluded to, over the course of the last decade and millions of dollars pouring into our online platform to make sure that you're delivering nutrition within your scope of practice.
+[11:57] Speaker 2: Our online platform allows trainers to provide nutrition plans that are tailored to their goals. What we've done behind the scenes with the algorithms is we've incorporated safe weight control guidelines. And what that means is that we've made sure that the calorie target, that the recommendations don't provide things that are unsafe or considered medical nutrition therapy.
+[12:21] Speaker 2: So your clients will get nine different reference menus that are designed by culinary experts and dietitians, which your clients can modify based on their preferences and then save, which they can access from their phone or their computer. They also get a dietary support plan, which is customized to them. So a lot of your clients probably ask you, what supplements should I take? Is this gonna be beneficial for me to take? Well, our algorithms take into account, well, what medical conditions do they have?
+[12:48] Speaker 2: How old are they, their gender and their activity level, and then it will come up with a dietary support plan for them based on a screening process. When you enter in your measurements, such as weight and body fat into the program, the program prompts you to do that every week or two weeks. It will update their calorie targets, which you see on the right of the screen and provide options or guidance depending on their on or off track. And so you don't have to worry about recalculating calories or busting out an Excel spreadsheet.
+[13:18] Speaker 2: Our system does that for you. And so it will adjust not just their calorie targets, but also their menus as well if needed. And then we do have registered dietitians on staff, such as myself for clinical guidance in case you do have someone who needs clinical guidance. And that's part of the safe weight control guidance and allowing you guys to deliver nutrition within your scope of practice.
+[13:41] Speaker 2: And then finally, if you haven't taken our certification course, we hope that you do because you get it as complimentary as part of being part of our team. And that certification course is approved for CEUs, continuing education units, not just for trainers, but also for registered dietitians to make sure that they're getting the continuing education they need to keep up to date with nutrition science.
+[14:05] Speaker 2: OK, so that is my portion. That's a synopsis of what you get on the doctor program. And Rob's going to take over now. He's going to give you a tour of the program and then we'll wrap up with some nutrition education that we recommend and as well as the NASM offer. So I'm going to pass this over.
+[14:23] Speaker 3: All right. And Kat, thank you so much. I may need you to make me host again if you don't.
+[14:32] Speaker 2: OK, let me go ahead and do that.
+[14:39] Speaker 2: There you go.
+[14:40] Speaker 3: Awesome. Great to see everybody. Fantastic. Well, thank you for the setup, Kat. I'm going to go ahead and share my screen as well. And as I always like to say, I think one of the most often phrases used in 2020 going into 2021 is, can you see my screen?
+[14:56] Speaker 3: You guys see the program okay? We're good to go? Awesome. Thank you. All right. So much to do with this on so many different ways that you can help with coaching your clients. What we always found as well as Neil had developed originally, you know, the five components and it wound up evolving to the four pillars, but looking at this full encompassing program, because a lot of you on this call have probably had those clients in the past, or you've worked at different gyms where members would join and
+[15:26] Speaker 3: they would feel good about doing 10 minutes on the treadmill, looking at Instagram the entire time, doing one circuit of equipment for resistance training, burning an extra whopping 43 calories compared to if they didn't do that, but then justifying that they worked out today. So now they can go have chips and margaritas with the girls. And then all of a sudden, of course, leading to so much more weight gain.
+[15:49] Speaker 3: Neil was like, we have to do everything all in one. And that's what this program is meant to do, is put everything all in one. So first thing I'd like to share with you all though is this. I'm using my program up here. If you just notice here in the left-hand corner, these three horizontal lines. I don't know about you, I had to Google that and apparently they call that either a hamburger or hot dog icon. So I'm going to refer to it as a hamburger icon. When I click on it,
+[16:13] Speaker 3: And then I have my choices down here. What I want to draw your attention to is down here with.fit tools and you will see video tutorials. So everything that I'd like to share with you in this portion today, I want you to know there's a referral that you can go back to and all of these things are going to be loaded for you with videos, letting YouTube just go through with our site. But this very first section is short tutorials on how you as a trainer or fitness professional can do certain things with your
+[16:43] Speaker 3: your clients as far as with the program. And then as I scroll down further, you'll notice here, this section will review how to actually use the program from a member stance on using it and every one of the different aspects. So everything is covered in here. So if you miss anything that I'm saying or I might speak too fast and you've got access to this, the only problem if you click play though,
+[17:09] Speaker 3: is you do have to watch the tutorial with the short fat bald guy leading you through every one of these. So if that's okay with you, then that's great. Next thing I want to draw to your attention is this. When I click on the three horizontal lines, I want you all to see this invite new member link right here. If I click on that link, every one of you have your own individualized
+[17:30] Speaker 3: Bitly links, so I can go ahead and take this link and put it, let's say, on my Instagram or my Facebook or on the bottom of my email signature, and that way anybody that clicks on that link.
+[17:43] Speaker 3: they will actually have access to a splash page that will then prompt them to create their own member account under me as a trainer. And those of you in here that are viewing this, working in a club environment, it will be locked into your club as well. So all of you have access to your own customized Bitly link. Just remember this for me though, if any of you are managers that are viewing this or owners,
+[18:09] Speaker 3: your club and org admin won't have this. So you're just going to want to make yourself a trainer account within your club and org. That way you'll have your own custom Bitly link. So you can use our tool here to email to anybody, customize a little message as well, or again, just post your own Bitly link and you're going to be set and ready to go. So you can have anybody create their own member account under you using that or
+[18:38] Speaker 3: excuse me, you can manually create any type of member account by coming down to administration and members here on the left-hand side. And it's as simple as clicking the big blue rectangle, add new member.
+[18:52] Speaker 3: filling out some real quick basic information and then clicking save. Once you click save, that person will receive their automatic welcome email with their link to log in here, which they can then customize it further as far as their password and so forth. So you have all of that information. So very, very simple to get people started within the program. I'm going to go back though and I'm going to start over here at the summary overview.
+[19:19] Speaker 3: One quick thing I'd like to throw out as well is we did this probably about three years ago. Way back when, for those of you that have been with us for quite a long time, we had an older version of our dotFIT app, but the only problem was is the dotFIT app was great for you to see your own program, but if I was the fitness professional, I couldn't see
+[19:40] Speaker 3: Neil's program on my app because I can only see my personal program. So we actually made the website a fully responsive site. And that just means from the IT people that no matter what I viewed this on, as far as my browser, if I'm viewing it on a smartphone, a tablet, a PC wide view, that the website itself will auto format. So if I go ahead and let's just say that I shrink this down a little bit,
+[20:08] Speaker 3: and I grab this from the side and pull it all the way over, this is basically the app view that you will get right on your smartphone if you open this up as a browser.
+[20:18] Speaker 3: And a lot of we also have apps in both of the Android and the Apple Play stores, but you can also access the site with full functionality.
+[20:28] Speaker 3: So now as a trainer,
+[20:29] Speaker 3: I have everything right at my fingertips.
+[20:31] Speaker 3: I can access new clients, see what logging happens, everything else.
+[20:35] Speaker 3: All right.
+[20:36] Speaker 3: So with this program real fast, let's just take you through how we would be brought to a brand new person's program or we're doing our program for the very first time.
+[20:46] Speaker 3: Since mine is already created, what I can do is come down here to the lower right hand side and I'm going to click new program, which is right here.
+[20:54] Speaker 3: Now, I can use that tool anytime that I want to start another program or I want to get to this beginning.
+[21:00] Speaker 3: And as you all see, we just have to establish what our goal is.
+[21:03] Speaker 3: Now, you can do this so many different ways.
+[21:06] Speaker 3: What we found to be very successful when working with clients is this next section I'm going to show you on creating the program would normally be done maybe that first session we see somebody and then we're going to deliver all the information on what the program came out to be.
+[21:23] Speaker 3: on the second session to break that up a little bit.
+[21:25] Speaker 3: But obviously it can be done any which way.
+[21:28] Speaker 3: And if you're already doing it a way that's successful for you, please don't change anything.
+[21:33] Speaker 3: But we have various goals, losing weight, building muscle, Neil's play span or longevity program.
+[21:40] Speaker 3: And then these three have to do with enhancing athletic performance, but athletic performance with either weight loss, building muscle, or no change in weight.
+[21:48] Speaker 3: Since this is my personal program and I can look at food and gain weight, we're going to click
+[21:52] Speaker 3: lose weight.
+[21:54] Speaker 3: And as you guys will see here, we just have to fill out a few different questionnaires.
+[21:57] Speaker 3: I'm going to hit begin now.
+[21:59] Speaker 3: And again, we just fill in our basic information here.
+[22:03] Speaker 3: Just a couple quick things.
+[22:04] Speaker 3: Please, make sure you make sure that the time zone is appropriate to your location because that's going to alter how things are scheduled on your summary overview.
+[22:15] Speaker 3: And Kat alluded to this and Neil did as well, but here
+[22:20] Speaker 3: you actually have a choice of being able to gauge how the program's algorithms will work with your client based upon weight change or weight and body fat.
+[22:29] Speaker 3: And all that means is this.
+[22:31] Speaker 3: If I do a weight only program change, we're going to get a pop-up window every seven days that's going to ask us to enter in our weight for that week.
+[22:40] Speaker 3: Based on the response, you're going to get different choices.
+[22:43] Speaker 3: So to make things super simple, let's say I want to lose 10 pounds in 10 weeks.
+[22:47] Speaker 3: Let's lose a pound per week.
+[22:49] Speaker 3: After a week
+[22:50] Speaker 3: One goes by.
+[22:50] Speaker 3: I get my pop-up window.
+[22:52] Speaker 3: When I enter in my weight, it was my original weight.
+[22:54] Speaker 3: I didn't lose the first pound.
+[22:56] Speaker 3: So the program says, do you want to hit the targeted weight on the original date?
+[23:00] Speaker 3: And if I say yes, like Kat said, the program will auto adjust the remaining 9 weeks to make up for the pound I didn't lose in the first week.
+[23:08] Speaker 3: So everything's done for you.
+[23:11] Speaker 3: If I do weight and body fat, I will get that pop-up window every 14 days.
+[23:15] Speaker 3: All right?
+[23:16] Speaker 3: Now, one more quick thing.
+[23:17] Speaker 3: If I do weight only, because maybe I want that pop-up window coming up every seven days, don't forget for me up here, I have the ability to manually do measurements as often as I want.
+[23:27] Speaker 3: And that includes, of course, weight,
+[23:30] Speaker 3: body composition, circumference measurements.
+[23:32] Speaker 3: And I always think this was funny, but height is in there too, because I'm still looking for a program to make me 6 feet tall, but it is in there.
+[23:39] Speaker 3: So once I fill out my information, I click next.
+[23:42] Speaker 3: We have our medical history questionnaire, which again, Kat alluded to all these things that we had to make sure were done.
+[23:49] Speaker 3: That way we can go ahead and provide this type of service to you without possibly being a registered dietitian.
+[23:55] Speaker 3: So we would just have the client go ahead and check off anything that applies.
+[23:59] Speaker 3: Obviously it stays confidential right through the program, but just know for us if a client clicks any conditions and if any of those conditions or even a prescription they're taking dealing with that condition is a contraindication with any of the
+[24:12] Speaker 3: dot fit products as far as our supplementation, then that product will be red flagged and will not be recommended.
+[24:18] Speaker 3: So we go ahead and hit next.
+[24:21] Speaker 3: We have our part Q that comes up.
+[24:22] Speaker 3: Same thing applies as what I just mentioned with the medical history questionnaire.
+[24:26] Speaker 3: And then we're almost done.
+[24:28] Speaker 3: We just have to fill out a few more things.
+[24:30] Speaker 3: So we fill out what category that this member is going to be falling into or if it's my program, more beginner, intermediate, advanced.
+[24:38] Speaker 3: Neil has actually written
+[24:40] Speaker 3: personalized supplement programs for every one of these sports and activities.
+[24:44] Speaker 3: And if somebody doesn't participate in any of them, there's a no sport function right there.
+[24:49] Speaker 3: So we have all of these as choices.
+[24:51] Speaker 3: How long we've been doing resistance training.
+[24:54] Speaker 3: And then I do want to pause for a moment because super important question here, how would you describe your current activity level?
+[25:00] Speaker 3: And I don't know about you guys, but every single client member I've ever dealt with out there, they always
+[25:06] Speaker 3: underreport how much they actually eat in a day and they overthink how much activity they do in a day.
+[25:12] Speaker 3: So I always like to say, let's be wary of maybe having them just decide exactly what this is.
+[25:18] Speaker 3: And just to show you what I'm talking about is this.
+[25:21] Speaker 3: Up here, I spend most of the day sitting and I do not exercise.
+[25:25] Speaker 3: Down here, I'm an endurance athlete training competitively or perform heavy continuous activity and exercise at least three times a week.
+[25:32] Speaker 3: If I check off the most active,
+[25:36] Speaker 3: I'm going to come back to these and I click next.
+[25:39] Speaker 3: Based on me being 225, being a guy and that activity level, the program thinks I burn 44.56 per day.
+[25:48] Speaker 3: I wish.
+[25:49] Speaker 3: I'd like to consider myself a workout guy, but folks, especially as we were talking about in COVID times, I sit behind the desk all day long.
+[25:59] Speaker 3: So I personally put myself
+[26:02] Speaker 3: third from the top, which says I spend most of the day sitting and I exercise at least five times a week or perform continuous light activity, but do not exercise.
+[26:10] Speaker 3: When I click next, look at that 4456 comes down to under 3,000.
+[26:15] Speaker 3: So sometimes again, working with people just, how they're going to respond to you initially.
+[26:20] Speaker 3: They're usually going to be very worried about what you think of them.
+[26:24] Speaker 3: So try to get as accurate of an answer as possible.
+[26:26] Speaker 3: And then not to do it any disservice, but two really good dietary questions down here.
+[26:32] Speaker 3: And we click next.
+[26:33] Speaker 3: And this is our last screen to create a program.
+[26:36] Speaker 3: So if my program is saying that I burned just under 2,800 calories, my starting weight, I had typed this in previously.
+[26:42] Speaker 3: That's why it's there now with 210 being my goal.
+[26:45] Speaker 3: I have a dropdown box from 1 to 100 weeks that I can choose here.
+[26:49] Speaker 3: But notice this for me.
+[26:51] Speaker 3: If I'm that crazy trainer that says 15 pounds, one week, let's do it.
+[26:56] Speaker 3: And I hit next, the program says not on my watch.
+[26:59] Speaker 3: So the program bumped me up to the fastest time that I can lose that 15 pounds still considered within healthy ranges, which here is 6 weeks.
+[27:10] Speaker 3: And remember, that's relative to everybody.
+[27:12] Speaker 3: Kat obviously does not need to lose a pound, but if she wanted to lose 15 pounds, there's a lot less of her than me.
+[27:19] Speaker 3: So this number would go up exponentially.
+[27:21] Speaker 3: If I was 350 pounds, it may go down.
+[27:24] Speaker 3: So you have the ability though to go ahead and go any further than you want, but I can't go any
+[27:29] Speaker 3: than six weeks.
+[27:30] Speaker 3: So I could go for a pound per week or anything else.
+[27:34] Speaker 3: You guys get the idea.
+[27:35] Speaker 3: So I might put nine weeks.
+[27:36] Speaker 3: Now I do want to throw this out there.
+[27:38] Speaker 3: I've seen this work well with many, many clients and trainers out there, but I look at anything as a longer term goal and that might be 20 pounds to somebody.
+[27:47] Speaker 3: But if you have somebody with a 20 pound goal, 50 pound goal, 100 pound, everything in between,
+[27:54] Speaker 3: Psychologically, I found it to be more simple to do a series of programs and then keep going.
+[28:00] Speaker 3: So in other words, I may not set this for 50 pounds if that was the client's goal and then set it for the 50 weeks that maybe losing a pound per week.
+[28:08] Speaker 3: What we find is if we can set shorter term goals, the client wins more often and they stay more motivated.
+[28:16] Speaker 3: So hypothetically, just because Neil's sitting next to me, if Neil wanted to lose 50 pounds and pretending he had it to lose, I may say, Neil,
+[28:23] Speaker 3: you're going to lose the 50 pounds.
+[28:25] Speaker 3: But our first target's going to be 7 pounds.
+[28:27] Speaker 3: And here's the timeline we're going to do that.
+[28:29] Speaker 3: Once we lose that seven, we're going after our next seven.
+[28:32] Speaker 3: So remember, you can always take that longer term goal, bring it into multiple shorter term goals.
+[28:39] Speaker 3: And then I click next.
+[28:40] Speaker 3: All we have here is some information that we're going to share with you within this presentation, but we have it here in case you weren't watching the presentation.
+[28:48] Speaker 3: And then I click go to summary
+[28:51] Speaker 3: and here's the program itself.
+[28:52] Speaker 3: And in our club environments, we usually suggest at this point is when I would then tell my client that we're going to review the rest of this in the next session.
+[29:02] Speaker 3: So that still gives us time to get out on the workout floor, do some activity and so forth.
+[29:06] Speaker 3: But again, totally up to you.
+[29:08] Speaker 3: So now I have my program.
+[29:10] Speaker 3: So what does this tell us?
+[29:12] Speaker 3: Two big numbers I've got to look at.
+[29:14] Speaker 3: The big blue number right here, this is again giving me that estimated calorie burn per day based upon me being male versus female, my starting body weight, and my activity level.
+[29:26] Speaker 3: And then over here is telling me how many calories I need to consume based upon the goal and the timeframe of that goal to hit that target.
+[29:36] Speaker 3: So now we're gonna work from left to right, but I do wanna take a timeout real fast.
+[29:41] Speaker 3: Can you notice all of a sudden here, you see that I've got some Fitbit activity and I did do a workout this morning and just so I did chest on a Friday.
+[29:49] Speaker 3: I know it's unheard of, but it works out pretty well.
+[29:51] Speaker 3: And I've done a whopping 3,100 steps.
+[29:53] Speaker 3: So remember, our program syncs with other third-party devices.
+[29:58] Speaker 3: Now, the program works without doing that as well.
+[30:01] Speaker 3: So you don't need anything else.
+[30:03] Speaker 3: But if you are using something else, then it works with it.
+[30:06] Speaker 3: Here's how you access that.
+[30:07] Speaker 3: If I come up here to program
+[30:09] Speaker 3: and come down to apps and devices.
+[30:12] Speaker 3: This is currently what we sync with, which we just added this over the weekend, last weekend.
+[30:18] Speaker 3: So we now go ahead and connect with those Apple watches and even the whole health kit itself.
+[30:24] Speaker 3: We do connect
+[30:26] Speaker 3: through NetPulse to access MyFitnessPal, Fitbit, Garmin, Polar, Microsoft Band, InBody, MyZone.
+[30:33] Speaker 3: And just so you know, we're actually working on Accuro Next for any of you that have ever used any of their heart rate technology.
+[30:40] Speaker 3: And we're working on Google too.
+[30:42] Speaker 3: And we'll keep adding more and more all the time.
+[30:45] Speaker 3: Now I know again, I've got you all condensed so I can't even see anybody at this moment, but I am going to throw this out there and you might have seen a little preview of this a moment ago, but I have seen at times that still
+[30:55] Speaker 3: people love using MyFitnessPal, and let's just say that Kat loves using MyFitnessPal, and here I have the.fit program, but she's already logging with MyFitnessPal.
+[31:05] Speaker 3: I don't, let me go after something else that needs more attention because she's already logging.
+[31:10] Speaker 3: Well, if you link right here through
+[31:12] Speaker 3: Pulse to use MyFitnessPal.
+[31:14] Speaker 3: It ports over the information, but we're only able to grab the total calories of what somebody's logging.
+[31:21] Speaker 3: So I've got a little workaround for you.
+[31:23] Speaker 3: So guys and girls, do me a favor, grab your cameras, because I want to show you 3 steps on this slide and have you take a picture, which is super easy if you're already using MyFitnessPal on how to port over the information.
+[31:36] Speaker 3: So step number one, okay, let me actually stay on my slide, is we're going to ask you to
+[31:42] Speaker 3: download the Fitbit app.
+[31:44] Speaker 3: You say, Fitbit?
+[31:45] Speaker 3: I thought we were talking about MyFitnessPal.
+[31:47] Speaker 3: We are.
+[31:47] Speaker 3: But Fitbit is going to be the bridge between MyFitnessPal and dotFIT.
+[31:53] Speaker 3: All right?
+[31:54] Speaker 3: Fitbit app is free, and you don't need to own a Fitbit to actually go ahead and use the program.
+[32:01] Speaker 3: So download the Fitbit app.
+[32:02] Speaker 3: Second step, go into your Fitbit settings, and they have a third-party options and devices section.
+[32:08] Speaker 3: You're going to find MyFitnessPal and sync with them.
+[32:12] Speaker 3: Step #3 is then you sync dotFIT with Fitbit.
+[32:16] Speaker 3: It's always kind of a joke of mine.
+[32:18] Speaker 3: Can I say that as fast as possible without slurring?
+[32:20] Speaker 3: So real quick again, #1, download the Fitbit app.
+[32:23] Speaker 3: Number 2, sync Fitbit with MyFitnessPal.
+[32:26] Speaker 3: Number 3, within your dotFIT program, link with Fitbit.
+[32:30] Speaker 3: And now what's cool is you will actually get all the macronutrients and the calories that you're logging with MyFitnessPal right onto your dotFIT program.
+[32:40] Speaker 3: using Fitbit as the bridge.
+[32:43] Speaker 3: And Carol know this so well, one challenge we've had over the years, because our website, it's a website, it's not an APK app, is we don't have a barcode scanner.
+[32:55] Speaker 3: But that is actually solved now because you can just whip out your Fitbit app
+[33:00] Speaker 3: scan anything you want, and it ports right over to dotFIT with all the information.
+[33:06] Speaker 3: And what's really cool is within Fitbit, their own internal library, they actually have a bunch of dotFIT food that's loaded in there.
+[33:14] Speaker 3: So do me a favor, take a picture of this screen, please.
+[33:18] Speaker 3: Obviously, I can send it to you as well.
+[33:19] Speaker 3: Cat's got all of our information to wrap up our webinar today as well.
+[33:24] Speaker 3: But just take a picture, and that way I can send that to you.
+[33:26] Speaker 3: I'm going to go ahead and go back over to our other screen here in three
+[33:30] Speaker 3: Two, one.
+[33:32] Speaker 3: Cool.
+[33:33] Speaker 3: So syncing with your apps and devices.
+[33:35] Speaker 3: And just remember again, you don't need to, but if you want to, you have that capability.
+[33:39] Speaker 3: So now let's look at from left to right.
+[33:42] Speaker 3: We made the left-hand side everything going into the body.
+[33:46] Speaker 3: And we kind of don't even separate sometimes food and supplementation because we just look at it as nutrition as one.
+[33:53] Speaker 3: Now, I don't know about you guys, but been doing this a long time.
+[33:57] Speaker 3: I think
+[33:57] Speaker 3: Gosh, I'm going on close to 30 years myself as well.
+[34:01] Speaker 3: And I still think I can count on one hand how many clients I've ever had that actually liked to log food.
+[34:07] Speaker 3: I don't know if you've dealt with the same amount of clients that I have that like to log food, but what I found for them to be successful is it has to be simple and it has to be easy.
+[34:17] Speaker 3: If it's not those two things, they will not do it.
+[34:20] Speaker 3: And I am thoroughly convinced, as long as you spend a few minutes explaining these three tools that I want to share with you
+[34:28] Speaker 3: anybody can log.
+[34:29] Speaker 3: And they can do it in less than two minutes a day if you just properly prepare.
+[34:34] Speaker 3: So 3 functions to be able to log food with the dotFIT program.
+[34:38] Speaker 3: I'm going to show you in the order that I would least want you to do it if you were my client to most want to do it.
+[34:44] Speaker 3: happens to be the order of the buttons.
+[34:46] Speaker 3: So let's start at the far left.
+[34:48] Speaker 3: Food log.
+[34:49] Speaker 3: This is a quick log feature.
+[34:51] Speaker 3: We use Calorie King as a database.
+[34:53] Speaker 3: I can type any food in here, it'll auto populate, and I can find that food or something super close to it.
+[34:59] Speaker 3: So I might say, let's go with the sirloin steak here, and I can change the serving type, and then I just change quantity if need be, tag which meal, hit OK, and I log food.
+[35:12] Speaker 3: That easy.
+[35:13] Speaker 3: I think that's pretty simple, but if you were my client, I would only want you to use that tool.
+[35:18] Speaker 3: less than 10% of your day.
+[35:20] Speaker 3: Okay, let's make it easier.
+[35:22] Speaker 3: Second button, favorite options.
+[35:24] Speaker 3: We have 3 subcategories here.
+[35:26] Speaker 3: The first of the three is favorite foods.
+[35:29] Speaker 3: You can tag favorite foods and they'll all be found here for you in alphabetical order.
+[35:34] Speaker 3: So now it's not like looking for a needle in a haystack.
+[35:37] Speaker 3: The second subcategory, custom.
+[35:40] Speaker 3: If something's not in the database, use this blue plus sign in the bottom right hand corner.
+[35:46] Speaker 3: You can add anything you want.
+[35:48] Speaker 3: Hit the dropdown box.
+[35:49] Speaker 3: I can get as detailed or as macro as I want.
+[35:53] Speaker 3: So anything, put it in your system.
+[35:56] Speaker 3: But just important note, you guys, if I added a food and let's just say I made a mistake and I added an extra 0 to the calorie amount, which obviously makes a big mistake, nobody else has access to that custom food but me.
+[36:10] Speaker 3: And again, if we did that and it was more of a
+[36:13] Speaker 3: public type database that anybody can enter in that would debunk all those things as far as what we've gone through to accomplish providing nutrition to the population that we work with.
+[36:26] Speaker 3: So it stays right within your database.
+[36:27] Speaker 3: So I'm going to hit cancel.
+[36:30] Speaker 3: The third subcategory, favorite meals.
+[36:32] Speaker 3: So you can save entire meals and then log it with a click of a button.
+[36:37] Speaker 3: Super simple.
+[36:38] Speaker 3: Now I'm going to go ahead and come back up here to summary overview because this is the homepage of the program and I'm going to access my favorite way to log.
+[36:46] Speaker 3: And again, anybody can do this as long as they take a few minutes to prepare and they will be successful.
+[36:52] Speaker 3: But menus and Kat talked about this.
+[36:54] Speaker 3: I'm going to click on menus and you're going to notice here 9 reference menus.
+[36:59] Speaker 3: Kat actually just added the vegan versions
+[37:02] Speaker 3: probably in the last three weeks, I think.
+[37:04] Speaker 3: So we had eight for so long, and now we've got an addition right here.
+[37:07] Speaker 3: So Kat, you're still on, I'm sure, right?
+[37:10] Speaker 3: Hey, do me a favor.
+[37:11] Speaker 3: At least take yourself off mute for a second.
+[37:14] Speaker 3: Kat, I'm going to ask you a question here, and no matter what your real answer is, I need you to answer me with no, okay?
+[37:21] Speaker 3: So with that being said, I'm going to click on standard as a menu.
+[37:25] Speaker 3: And you'll see this is just a standard menu, right?
+[37:27] Speaker 3: There's a whole bunch of options down here.
+[37:30] Speaker 3: But Kat,
+[37:31] Speaker 3: What is the likelihood that you're going to want to eat this exact breakfast every day of the rest of your life?
+[37:39] Speaker 3: Say it.
+[37:40] Speaker 2: Zero.
+[37:41] Speaker 3: Thank you.
+[37:42] Speaker 3: All right.
+[37:43] Speaker 3: So remember, everybody, we have this gray customize button right up here.
+[37:47] Speaker 3: We can click customize.
+[37:49] Speaker 3: I can rename this anything I want.
+[37:51] Speaker 3: This might be Cat's Friday menu, Cat's weekend menu, Cat's football week, you get the idea, right?
+[37:58] Speaker 3: I can name it anything.
+[37:59] Speaker 3: Once I hit OK, it opens
+[38:01] Speaker 3: opens up the menu and you're going to see a bunch of red trash can icons that you can delete any foods that maybe you didn't like and you'll get the blue plus sign to add anything that you want.
+[38:11] Speaker 3: So if, for instance, Kat didn't want this carbohydrate as oatmeal, maybe she wanted to exchange that, bring back the old exchange terminology, then I can add a carbohydrate.
+[38:22] Speaker 3: So give you a really fast example.
+[38:24] Speaker 3: I go back to menus
+[38:26] Speaker 3: Since this is my program down here, I hope you guys can see this, but this is Rob Office Day.
+[38:31] Speaker 3: I haven't logged anything yet.
+[38:32] Speaker 3: This is how easy it is to log.
+[38:34] Speaker 3: Let's catch up for what I've done so far today.
+[38:36] Speaker 3: I like to work out first thing in the morning.
+[38:38] Speaker 3: So I have my Amino Boost and my creatine, and I eat a bar in my kitchen before I wind up leaving the house.
+[38:45] Speaker 3: If you could see the red log this meal, I click it, I tag breakfast, I hit OK, I just log that.
+[38:53] Speaker 3: Post-workout, I listen to Neil so much.
+[38:56] Speaker 3: I got to get my creatine.
+[38:57] Speaker 3: I get more amino boost.
+[38:59] Speaker 3: I probably do a little overkill.
+[39:01] Speaker 3: And I have a box of bars that are sitting at my desk right here.
+[39:04] Speaker 3: And I hit that.
+[39:06] Speaker 3: That's my morning snack.
+[39:07] Speaker 3: And lunchtime, you guys will laugh at me.
+[39:09] Speaker 3: But again, I got to do something that I know I can stick with.
+[39:12] Speaker 3: Every day, I bring 2 sandwiches.
+[39:14] Speaker 3: Do I not?
+[39:15] Speaker 3: I bring a peanut butter and jelly sandwich and a roast beef sandwich every day.
+[39:19] Speaker 3: So I'm just one of those creatures of habit.
+[39:22] Speaker 3: And you know what, Neil, what is your evening menu have at the end?
+[39:26] Speaker 3: end of it there with dinner?
+[39:28] Speaker 3: Scotch.
+[39:29] Speaker 3: But you got to be realistic, right?
+[39:31] Speaker 3: So making a menu that's going to be working for that person.
+[39:35] Speaker 3: So now again, that's my menu.
+[39:36] Speaker 3: Watch how easy this is.
+[39:38] Speaker 3: I go back to my summary overview.
+[39:40] Speaker 3: The program now will auto tally everything that I logged.
+[39:45] Speaker 3: And remember, if you're my trainer, you can see all of this.
+[39:49] Speaker 3: So you see exactly for my breakfast,
+[39:51] Speaker 3: Post-workout, I haven't eaten lunch yet.
+[39:53] Speaker 3: We're going to have that after we do our webinar.
+[39:55] Speaker 3: And I have all this information right here.
+[39:57] Speaker 3: Now real fast, can you all see them?
+[40:00] Speaker 3: Basically asking a question.
+[40:01] Speaker 3: I know you guys are on mute, but hopefully you can all see the red stars to the left of the different foods.
+[40:07] Speaker 3: They're red because I've already made them a favorite food.
+[40:10] Speaker 3: So let me just show you this for a moment.
+[40:12] Speaker 3: Let's say Amino Boost was not one of my favorite foods.
+[40:15] Speaker 3: If I added that through that quick log feature, then you're going to see it unshaded.
+[40:21] Speaker 3: But if I go, I like Amido Boost.
+[40:22] Speaker 3: I have that fairly often.
+[40:24] Speaker 3: I just need to click on the star.
+[40:26] Speaker 3: It's now going to be found in my favorite foods because you'll see that it's all shaded in red.
+[40:32] Speaker 3: Now let's say for instance that I always love this and I want to save it as a meal.
+[40:36] Speaker 3: Hopefully you can see the star to the left of the meal title like breakfast.
+[40:40] Speaker 3: If I click that star,
+[40:43] Speaker 3: All I have to do is name this meal something that I'm going to remember it by, click OK, everything will now be saved in my favorite meals.
+[40:51] Speaker 3: So super simple.
+[40:52] Speaker 3: I've got two more things to show you how easy this is.
+[40:55] Speaker 3: When we scroll down, not only do I get my handy dandy pie chart to show my breakdown of macronutrients,
+[41:02] Speaker 3: But we have a few different things here for detailed view and so forth.
+[41:05] Speaker 3: But I want to draw your attention to the 4th button.
+[41:08] Speaker 3: We just added this about two months ago.
+[41:10] Speaker 3: When we click on this, I ate the same *** we get a calendar feature.
+[41:16] Speaker 3: I can either go ahead and go back day by day or I can even open up the calendar like so.
+[41:21] Speaker 3: But maybe now I want to go ahead and I want to either log the whole day or maybe a meal specifically.
+[41:28] Speaker 3: So everything is there for you.
+[41:30] Speaker 3: There really are no excuses.
+[41:32] Speaker 3: But you know how this does not work?
+[41:34] Speaker 3: This is just from experience.
+[41:35] Speaker 3: If Kat was my client and she knew nothing of what she knows and I say, hey Kat, we have this really cool nutrition program.
+[41:41] Speaker 3: Check it out.
+[41:42] Speaker 3: You'll love it.
+[41:42] Speaker 3: Let me know if you ever have any questions.
+[41:44] Speaker 3: If I just spend a little bit of time to show her some of this stuff, that's where we found that the music happens.
+[41:51] Speaker 3: So those three ways to be able to log food.
+[41:54] Speaker 3: Now, we talked about everything going into your body.
+[41:56] Speaker 3: And obviously, with every masterclass, I know all of you are diehards and you never miss one.
+[42:00] Speaker 3: We don't have to go into the importance of where dietary support is for filling in gaps.
+[42:05] Speaker 3: But if we click here, this 4th button,
+[42:08] Speaker 3: This here is going to give us our supplement recommendation.
+[42:12] Speaker 3: Now, quick note, especially for those of you that have been around for quite a while, every one of the supplement recommendations is going to start with one of four bundles.
+[42:21] Speaker 3: We wanted to bundle things to make it really simple.
+[42:24] Speaker 3: So we have your play span,
+[42:26] Speaker 3: weight loss, muscle gain, and performance bundles that are no more than three to four products total.
+[42:33] Speaker 3: Okay, so that's the first thing they'll see.
+[42:35] Speaker 3: And also, please learn from my mistakes.
+[42:38] Speaker 3: This is my dotFIT employee program.
+[42:41] Speaker 3: So you're seeing my dotFIT employee price on supplements.
+[42:44] Speaker 3: Never show your clients what you want them to get using your program, right?
+[42:49] Speaker 3: Because then they see your prices.
+[42:52] Speaker 3: Now if I scroll down further, I can open up the advanced recommendations
+[42:56] Speaker 3: And I can start really digging down into anything and everything that's going to be able to help me, like so.
+[43:04] Speaker 3: And a lot of you on this call, you already have certain things I know that you really like and they're your go-tos.
+[43:09] Speaker 3: You have all of that you can always go back and refer to as well.
+[43:13] Speaker 3: One more quick note before I leave this page.
+[43:16] Speaker 3: I did put in that I was advanced, just like all of you on this call.
+[43:20] Speaker 3: That's why I'm even getting a pretty extensive recommendation.
+[43:23] Speaker 3: If I put in there that I was a beginner, you wouldn't have seen all of these at the very bottom because we don't want to overwhelm somebody.
+[43:30] Speaker 3: So how they fill out that questionnaire, that again is going to customize and individualize their program.
+[43:36] Speaker 3: So that's everything going into the body.
+[43:38] Speaker 3: Now let's wrap this up before I go ahead and pass this back to Kat.
+[43:42] Speaker 3: With on this side, everything we do for activity
+[43:45] Speaker 3: and really the workout plan.
+[43:47] Speaker 3: And nowadays out there, we know there's tons of virtual training that has to go on.
+[43:53] Speaker 3: There's a lot of other apps out there that do things.
+[43:56] Speaker 3: We wanted to again have everything for you at one place with your nutrition, your exercise, everything.
+[44:01] Speaker 3: So what you'll see here is this, first button, log activity.
+[44:04] Speaker 3: This is just a basic
+[44:06] Speaker 3: activity button, not necessarily meant for I did push-ups or bench press or crunches.
+[44:12] Speaker 3: I happen to use this one A lot.
+[44:14] Speaker 3: I do like to do jiu-jitsu, not that I'm any good, but I can't wear my Fitbit when I do it.
+[44:19] Speaker 3: This is just going off of my body weight.
+[44:22] Speaker 3: So you can manipulate the minutes to manipulate the calories.
+[44:26] Speaker 3: Sometimes I might do a class where I really only did technique even for an hour and I feel comfortable I probably burned 250 calories.
+[44:34] Speaker 3: Even though it said 15 minutes, I'm just looking for the calorie burn outcome.
+[44:38] Speaker 3: So you can always use that.
+[44:41] Speaker 3: Obviously your steps, that's coming off my Fitbit, but I can manually click on that and change that as well.
+[44:47] Speaker 3: But here's the part I want to show you.
+[44:48] Speaker 3: If I click on workouts, you have a very, very extensive workout portal at your fingertips.
+[44:56] Speaker 3: Now we have two different methods that I want to share with you on creating a workout.
+[45:01] Speaker 3: The first method is going to be for those of you out there that let me just say you might be a little bit more in the beginning of your journey as a personal trainer and you want to use the program's algorithms to help you create a program.
+[45:15] Speaker 3: What you're going to do is this.
+[45:16] Speaker 3: We're going to come down here to the plus sign
+[45:18] Speaker 3: and hit new workout.
+[45:21] Speaker 3: And you're going to see we have a few options here between cardio, walking, strength and conditioning, exercises.
+[45:26] Speaker 3: We're going to go strength and conditioning individualized.
+[45:29] Speaker 3: Now don't forget for me, I have a full video that shows you all of this.
+[45:33] Speaker 3: And I know I'm speaking quickly because I just want to make sure we have enough time for everything we're doing.
+[45:37] Speaker 3: And just to give you a snapshot of what this looks like.
+[45:40] Speaker 3: What I do is I fill out these few questions here.
+[45:43] Speaker 3: What's the client's goal?
+[45:45] Speaker 3: How often do they want to train?
+[45:46] Speaker 3: How long is the session itself?
+[45:49] Speaker 3: How often do I want it to change?
+[45:50] Speaker 3: What equipment do I have available?
+[45:52] Speaker 3: And for those of you out there that are NASM certified, you can even click do assessment and you're going to have access to the
+[45:59] Speaker 3: head squat assessment and single leg squat assessment to be able to check off any deviations that you saw.
+[46:04] Speaker 3: And it's going to give you a full program, including corrective exercise with self myofascial release, static stretching, a little bit of isolation work before you get into the integrated work.
+[46:15] Speaker 3: So I don't know, you guys have probably heard this before, but you know, Neil,
+[46:20] Speaker 3: Spruce was actually the former owner of NASM.
+[46:24] Speaker 3: So we had NASM put this entire thing together based upon the OPT model.
+[46:29] Speaker 3: And again, it's such a small community that they're great partners of us as well.
+[46:35] Speaker 3: So we work hand in hand together.
+[46:37] Speaker 3: So if I did all of that, I'm going to get a pre-made program that's already there for me, covering everything within my goals.
+[46:46] Speaker 3: And then I can change things if I want to, but it gives you the blueprint.
+[46:50] Speaker 3: All right.
+[46:50] Speaker 3: Now I'm going to say that.
+[46:51] Speaker 3: I'm going to come back over here.
+[46:53] Speaker 3: Let's go back to activity to workouts.
+[46:57] Speaker 3: This is the way that I see with most, let's say, veteran trainers.
+[47:03] Speaker 3: Veteran trainers are like, I know what I want to give my client because I want to do this, and I want to make this as quickly as possible.
+[47:10] Speaker 3: Here's the perfect solution for you.
+[47:12] Speaker 3: I'm going to come over here to whiteboard workouts.
+[47:15] Speaker 3: When I click on whiteboard workouts, I can create a new one.
+[47:20] Speaker 3: So this might be Neil's get huge program.
+[47:26] Speaker 3: Just go with me for the joke.
+[47:28] Speaker 3: I can make any notes that I want to.
+[47:29] Speaker 3: I click save.
+[47:31] Speaker 3: I have this blank canvas that I can start adding exercises to.
+[47:37] Speaker 3: You'll see our exercise tree here on the left hand side.
+[47:40] Speaker 3: We have all your basic free weight, selectorized equipment, kettlebell, suspension training,
+[47:49] Speaker 3: There's tons of thousands of exercises in there.
+[47:52] Speaker 3: Let me show you one example.
+[47:54] Speaker 3: I'm a guy, so that means we always do chest.
+[47:56] Speaker 3: We come down here to strength.
+[47:58] Speaker 3: Let's say we'll do a dumbbell chest press.
+[48:00] Speaker 3: I hit the green plus sign and I added it right here like so.
+[48:05] Speaker 3: All right.
+[48:06] Speaker 3: But now what about exercises that aren't in the database?
+[48:11] Speaker 3: Here's the solution.
+[48:12] Speaker 3: Come down to the very bottom and you're going to see custom as the last choice.
+[48:16] Speaker 3: When I go ahead and hit the plus sign,
+[48:18] Speaker 3: scroll down and I'm going to hit the green plus sign again, that's going to give me this very generic exercise framework that I can do anything I want.
+[48:32] Speaker 3: So because it's custom, we can do, this might be treadmill sprints, this might be boxing drill with a jab jab hook cross, this might be speed ladder, this might be one of my favorites of all time,
+[48:47] Speaker 3: because I can just type it in, but the flying squirrel.
+[48:51] Speaker 3: I do not know what a flying squirrel is.
+[48:53] Speaker 3: I just made it up.
+[48:54] Speaker 3: But I've known enough trainers over the years that had their specific names so they can document their exercises.
+[49:00] Speaker 3: So I can put anything I want.
+[49:02] Speaker 3: I can change the sets to whatever I want as well.
+[49:06] Speaker 3: I can change the reps, the duration,
+[49:10] Speaker 3: the suggested weight.
+[49:12] Speaker 3: Obviously, if it's a first session, I may not know that, but if I've been working with Neil for quite a bit, let's say I know he's used to doing 100 pounds for his flying squirrels.
+[49:21] Speaker 3: I can keep the tempo, I can change the tempo, the rest, you guys get the idea.
+[49:24] Speaker 3: I hit save.
+[49:27] Speaker 3: That will now be shown here.
+[49:29] Speaker 3: So I have all the ability to just go right over and list all my exercises.
+[49:34] Speaker 3: Because if I'm training Neil one-on-one, virtually or live,
+[49:38] Speaker 3: I know I just need documentation with the exercises and how it goes.
+[49:42] Speaker 3: So I can continue to do that.
+[49:43] Speaker 3: Now, a couple quick things with this.
+[49:45] Speaker 3: I can come up here to the pencil icon.
+[49:48] Speaker 3: And let's say for instance, I wanted him to do one set of every exercise, do 5 minutes of cardio, then do another round.
+[49:57] Speaker 3: I can type that in there and it comes out so it's in the notes.
+[50:01] Speaker 3: So maybe I needed to assign a workout to Neil to do on Saturday when we weren't going to be together, he can follow those notes.
+[50:08] Speaker 3: So that's all right with the pencil icon.
+[50:12] Speaker 3: And then it's really simple.
+[50:14] Speaker 3: When I go through with the whiteboard workout, I can use this share button right here.
+[50:19] Speaker 3: And I'm going to get a list of all of my clients.
+[50:22] Speaker 3: And let's say, for instance, I wanted Rob R, to fake program of mine, to have that program.
+[50:29] Speaker 3: Maybe that was Neil in this particular example.
+[50:31] Speaker 3: And I click next.
+[50:33] Speaker 3: and I wanted to set him up, I'm just clicking to make it super simple for our tutorial at the moment and I click next, it goes right over to his program.
+[50:42] Speaker 3: So I can build all my clients' programs from my own trainer program using the whiteboard workout.
+[50:50] Speaker 3: I didn't say this last time and I apologize, but when I come back to workouts, if I wanted to use the one that was down here where I'm doing the overhead squat and everything else,
+[50:59] Speaker 3: I just need to proxy into my client's program to show it there and have it available on theirs.
+[51:04] Speaker 3: But if I do the whiteboard, I could do everything from mine.
+[51:07] Speaker 3: I hope that made a little bit of sense.
+[51:09] Speaker 3: If it doesn't, again, we're going to give you all our contact information.
+[51:12] Speaker 3: If we need to do a one-on-one Zoom, then I'll always be more than happy to do so.
+[51:17] Speaker 3: with your workouts, you've got a lot of things on here.
+[51:20] Speaker 3: One quick thing before we leave this section.
+[51:22] Speaker 3: Let's just say for instance, I'm just going to pull up this one.
+[51:25] Speaker 3: This is a friend of mine named Kelly.
+[51:26] Speaker 3: I just made this up.
+[51:29] Speaker 3: Let me see here.
+[51:30] Speaker 3: Of course, I didn't even add anything.
+[51:32] Speaker 3: Let me let's just make meals program.
+[51:37] Speaker 3: We'll just say here, let's go to let me go back to workouts.
+[51:41] Speaker 3: I want to show you an example of how you can actually use the workouts themselves.
+[51:46] Speaker 3: So if I click this here and one last time, Kelly's is not working for me.
+[51:53] Speaker 3: Let me come down to inactive and let's just do sample two.
+[51:59] Speaker 3: And I want that right there.
+[52:01] Speaker 3: I'm going to add that.
+[52:04] Speaker 3: And sample two.
+[52:06] Speaker 3: Just pretend this was a workout that we'd already made.
+[52:09] Speaker 3: And where's all my sample ones?
+[52:13] Speaker 3: Hold on.
+[52:14] Speaker 3: What I'm trying to share with you though is, let me come over here.
+[52:19] Speaker 3: We'll go to administration, members.
+[52:21] Speaker 3: Let me show you what Neil's 2 exercises look like.
+[52:24] Speaker 3: I'm going to go down to that fake client Rob R.
+[52:29] Speaker 3: I'm going to do something really quick just so you guys can see what I was trying to show you here.
+[52:34] Speaker 3: We're going to proxy into that program.
+[52:37] Speaker 3: So I'm proxying right into my client's program, which I'm going to show you this really quickly as we come back to it.
+[52:42] Speaker 3: The pop-up window, by the way.
+[52:45] Speaker 3: Let's go to workouts.
+[52:48] Speaker 3: And I'm staying away from Kelly's.
+[52:51] Speaker 3: This is what I want to share with you.
+[52:53] Speaker 3: When I assign the program,
+[52:55] Speaker 3: I hope you all can see the green check, the green clipboard icon.
+[53:00] Speaker 3: When I click on that, I as the trainer can click on this or my client can click on it if I wasn't with them.
+[53:07] Speaker 3: And here I keep track of exactly what they did.
+[53:10] Speaker 3: So the goal was 12 reps, but Neil did 13 because he's an overachiever.
+[53:15] Speaker 3: Suggested weight, let's say that was 75 pounds.
+[53:20] Speaker 3: I can type in that he did the 90s and I hit log.
+[53:24] Speaker 3: When I go ahead and log anything and I hit workouts, still staying in Neil's program, and I hit the second link, which is workout link,
+[53:34] Speaker 3: Everything we did is documented.
+[53:36] Speaker 3: So I came from a health club environment where every trainer had big three ring binders with papers.
+[53:42] Speaker 3: It got really cumbersome and messy.
+[53:44] Speaker 3: Everything is here in one place for you.
+[53:47] Speaker 3: So with that being said, hopefully I didn't confuse you too bad with all of that.
+[53:51] Speaker 3: But going back to our summary overview, let me go ahead.
+[53:54] Speaker 3: I'm going to proxy back in.
+[53:55] Speaker 3: I'm going to get into my trainer account one last time here and a couple last things so I can throw it back to Kat here.
+[54:03] Speaker 3: but back into my trainer program.
+[54:05] Speaker 3: So here's everything from making workouts, sending workouts to clients, everything else.
+[54:10] Speaker 3: I do want to go back to really fast where I showed you, which was administration and members.
+[54:18] Speaker 3: And again, we talked about adding members, but I'm going to come down to my fake program right down here.
+[54:22] Speaker 3: I'm going to click on the rectangle.
+[54:26] Speaker 3: And within the rectangle, I have a lot of options that I can do here on the back end.
+[54:30] Speaker 3: So if I made a mistake on an e-mail or anything in here, just click the pencil icon to unlock those fields and that way I can make any changes and then click save.
+[54:41] Speaker 3: But since we already did this person's program, I've got this iframe that I can look right into their program here and I can see exactly what they've been logging.
+[54:55] Speaker 3: Again, it's a fake program of mine, which is why you're not seeing anything.
+[54:58] Speaker 3: But those of you out there that work with people, please never, ever forget the value of how much your client wants you to be proud of them and they don't want to disappoint you.
+[55:09] Speaker 3: So one of my favorite features on our program is the coaching messages.
+[55:13] Speaker 3: I can open that up.
+[55:14] Speaker 3: We have a bunch of pre-canned messages, but I can also type anything I want.
+[55:19] Speaker 3: And I can say, thank you for watching this webinar today.
+[55:28] Speaker 3: and hit post.
+[55:30] Speaker 3: Just doing that for the sake of our webinar.
+[55:32] Speaker 3: But when your client logs in next time, they are going to see this message from their favorite trainer.
+[55:39] Speaker 3: So how many times that they're going to be like, I can't wait till Kat sees what I log for food today or activity.
+[55:45] Speaker 3: I have all those capabilities right there.
+[55:47] Speaker 3: And then last thing down here, if you look at this second button here, chart, let's say for instance that we're pretending this is Neil again.
+[55:56] Speaker 3: And Neil just purchased
+[55:58] Speaker 3: the extreme creatine.
+[56:00] Speaker 3: I can start typing in and it'll auto populate.
+[56:03] Speaker 3: I click extreme creatine.
+[56:05] Speaker 3: It shows the initial date that he purchased that product.
+[56:09] Speaker 3: We had to keep this as a manual process because some of you work in club environments where you have a front desk POS system, others it might be online.
+[56:18] Speaker 3: I can hit and manually make when the next reminder date is.
+[56:22] Speaker 3: When I go ahead and let's say, for instance, it's a one-month product, just using it as an example for right now, we'll say February 22nd.
+[56:29] Speaker 3: So as soon as I made that refill date,
+[56:32] Speaker 3: No matter what, both the trainer and the client are going to get a friendly e-mail reminder three days before that date that it's time to be able to refill.
+[56:41] Speaker 3: And then I, as the trainer, can check that off next month once Neil got his product.
+[56:47] Speaker 3: But what I can do is come up here to reports, and you'll see this new report, supplement tracker report, and it can be defined by date range.
+[56:59] Speaker 3: So I might run this for the month of January to see with all of my clients who is going to be eligible for refills and just know it's a fake program of mine.
+[57:12] Speaker 3: But you're going to get obviously your name, the client's name, the product, their price, not my.fit employee price, and then when they're going to be able to refill.
+[57:21] Speaker 3: And you can export those as well using that gray downward button.
+[57:26] Speaker 3: So lots and lots of information.
+[57:29] Speaker 3: One last thing, Kat, and then I'm throwing it back to you, okay?
+[57:33] Speaker 3: If you come up here, 3 horizontal lines, you come down to dotFIT tools, and you're going to see dotFIT tools overview.
+[57:42] Speaker 3: We're really excited about this, but there's a ton of information on here.
+[57:45] Speaker 3: I'm not going to take you through all this.
+[57:46] Speaker 3: We have other times that we can do that, but I want to draw your attention to the product library right here.
+[57:52] Speaker 3: We wanted to put everything in one place for you for all the resources that Neil and Kat do.
+[57:59] Speaker 3: So let's say it's the active multivitamin and you're looking for something about it.
+[58:02] Speaker 3: If I click here on the active multivitamin, you're going to get any of the videos that we've ever done that have to do with the active multivitamin.
+[58:10] Speaker 3: So Neil discussing the importance, then the actual active multivitamin webinar that he did with healthy aging, the full version.
+[58:19] Speaker 3: Here's a little promotional video.
+[58:21] Speaker 3: If you scroll down further,
+[58:22] Speaker 3: direct links to the PDSRG, our quick reference guide, the PDFs of the PowerPoints going along with the webinars.
+[58:31] Speaker 3: Down here, if you wanted the image itself, if you want these one-page handouts, we made one that has a little bit of an active background, one with just a white background.
+[58:40] Speaker 3: Infographics that Frankie from our team has done, shelf talkers, everything is in one place for you based upon all of those products and everything right in there.
+[58:52] Speaker 3: So hopefully we've kept a few of you still on board here.
+[58:56] Speaker 3: Let me stop sharing my screen.
+[58:59] Speaker 3: Kat, let's go ahead.
+[59:00] Speaker 3: I'm going to make you host again.
+[59:03] Speaker 3: And let me get out of the way.
+[59:06] Speaker 3: Let's get Neil back and let Kat take this home.
+[59:11] Speaker 2: Okay, thank you so much, Rob.
+[59:15] Speaker 2: So as you guys can see, you know, we don't mess around.
+[59:21] Speaker 2: right?
+[59:21] Speaker 2: You've got everything you need to deliver safe and effective nutrition solutions to help yourself, your clients and your family grow strong, play longer and live better.
+[59:31] Speaker 2: And as you guys know, our tagline is grow strong because everybody wants to grow strong regardless of their age.
+[59:38] Speaker 2: So you may be wondering, what nutrition education do we recommend if you wanted to gain more knowledge or certification?
+[59:46] Speaker 2: So obviously if you haven't taken our doctorate certification, please do that.
+[59:50] Speaker 2: It's about three and a half, maybe four hours, depending on how much time you spend, and you get tons of CEUs from NASM, PTA Global, AFA, NFTT, and of course, if you're a dietitian, you can get CEUs that way as well.
+[60:03] Speaker 2: NASM has just come up, like I mentioned earlier, with a new course, their nutrition certification, certified nutrition coach to be exact.
+[60:11] Speaker 2: So that is available.
+[60:13] Speaker 2: Over 20 nutrition professionals contributed to that course, it was thoroughly peer reviewed.
+[60:19] Speaker 2: They also came up with a weight loss specialization course, fairly new.
+[60:23] Speaker 2: I think that's their latest course that they've come out with if you want to do a deep dive into weight loss specialization.
+[60:30] Speaker 2: And then the ISSN has a sports nutrition specialist course.
+[60:35] Speaker 2: If you want to dig deeper into sports nutrition, of course, we do a ton for you guys in our master classes, but you'll get a lot of the background in terms of nutritional biochem, et cetera, in that course.
+[60:45] Speaker 2: And then if you have a degree in a related field, you can go ahead and apply to take the certified sports nutritionist through.
+[60:53] Speaker 2: I said it's a bit more rigorous, requires a bit more studying, but it is excellent.
+[60:59] Speaker 2: Okay, so that's our nutrition education that we recommend.
+[61:02] Speaker 2: And for those of you who want to take that next step and go for the certified nutrition coach course, here is the course outline.
+[61:09] Speaker 2: Here's what you're going to learn in that course.
+[61:12] Speaker 2: And you can see there's a section that's devoted to the nutrition science.
+[61:16] Speaker 2: right?
+[61:17] Speaker 2: Having a good, establish a good scientific background about nutrition.
+[61:20] Speaker 2: And then section two is all about behavior change and habit formation.
+[61:24] Speaker 2: And then the semantics or the steps around nutrition coaching is in the final section of this course.
+[61:31] Speaker 2: And so as promised, NASM has extended an offer for you guys specifically, and that is 40% off of this certification course using the code dotFIT
+[61:43] Speaker 2: And if you want to jot down really quickly this URL, then you can do that as well.
+[61:47] Speaker 2: You can either use the code dot it or jot down this URL and you'll be able to get that special offer through and they have somebody become a certified nutrition coach.
+[61:58] Speaker 2: Okay, and that's all we've got for you guys.
+[62:00] Speaker 2: For those of you who stayed, thank you very much for staying with us throughout the entire time.
+[62:06] Speaker 2: There's Rob's e-mail address as well as my e-mail address.
+[62:10] Speaker 2: And if you want to ask any questions, feel free to unmute yourself, show your smiling face, and we'll be happy to take your questions.

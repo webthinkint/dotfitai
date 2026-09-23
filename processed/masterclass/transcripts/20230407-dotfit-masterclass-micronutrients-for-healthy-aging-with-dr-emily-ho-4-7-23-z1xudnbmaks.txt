@@ -1,0 +1,634 @@
+Episode : 20230407 - dotFIT Masterclass Micronutrients for Healthy Aging with Dr  Emily Ho 4 7 23 [z1xUDNBmAKs].mp3
+Duration: 72:32 (4352520 ms)
+Phrases : 629
+Speakers: [1, 2, 3]
+
+[00:02] Speaker 1: Welcome to this month's dotFIT masterclass, and you guys are in for a treat.
+[00:08] Speaker 1: I'm Kat Barefield, VP of Nutrition Services and Head Registered Dietitian, and we have our founder and CEO Neil Spruce on the call, as well as our guest speaker today, Dr.
+[00:19] Speaker 1: Emily Ho.
+[00:20] Speaker 1: So if it's your first time, welcome.
+[00:24] Speaker 1: The way this works is we're recording.
+[00:26] Speaker 1: We will post this to the website within 24 hours along with the Dr.
+[00:30] Speaker 1: Ho's slides, which she's generously sharing with us.
+[00:34] Speaker 1: And then afterwards, we'll open it up for Q&A or discussion.
+[00:37] Speaker 1: You can drop your questions in the chat or Q&A box.
+[00:41] Speaker 1: And if you want to even come on screen afterwards, after the preso, we'll let you do that as well.
+[00:46] Speaker 1: So I'm going to read Dr.
+[00:47] Speaker 1: Ho's bio so that you guys can be equally impressed as I am.
+[00:51] Speaker 1: So Dohemily Ho, PhD, is the endowed chair and director of the Linus Pauling Institute in Corvallis, Oregon.
+[00:59] Speaker 1: She's a former director of the Moore Family Center for Whole Grain Foods, Nutrition and Preventative Health.
+[01:05] Speaker 1: She's also a professor in the College of Public Health and Human Sciences at Oregon State University.
+[01:11] Speaker 1: Dr.
+[01:12] Speaker 1: Ho obtained her Bachelor's of Science in Nutritional Sciences at the University of, how do you say that, Dr.
+[01:18] Speaker 1: Ho?
+[01:18] Speaker 1: Gulf.
+[01:19] Speaker 1: Gulf, Ontario, Canada.
+[01:21] Speaker 1: Obtained her doctorate in nutrition sciences at Ohio State University.
+[01:25] Speaker 1: Okay, the Ohio State University.
+[01:28] Speaker 1: After a postdoc fellowship with Dr.
+[01:31] Speaker 1: Bruce Ames, which is Neil's a big fan of, right?
+[01:35] Speaker 1: At the University of California, Berkeley, she joined the nutrition faculty at Oregon State University in 2003.
+[01:44] Speaker 1: Her research focuses on understanding the mechanisms by which nutrient status and healthy foods affect the initiation and or progression of chronic diseases.
+[01:56] Speaker 1: An important strength to her approach in her research is maintaining a mechanistic focus on diet slash environmental interactions and encouraging to work in multidisciplinary teams to facilitate the translation of cellular mechanistic studies to impact human populations.
+[02:14] Speaker 1: So very practical, right?
+[02:17] Speaker 1: Her work has helped drive dietary requirements and recommendations for micronutrients such as zinc for communities with susceptibility to poor
+[02:26] Speaker 1: She also has strong interest in phytochemicals derived from cruciferous vegetables in cancer prevention.
+[02:34] Speaker 1: She has strong commitment to engaging in facilitating nutrition and diet-focused translational research projects with basic scientists, clinicians, and more.
+[02:43] Speaker 1: policymakers, communities, and fitness professionals, right, Dr.
+[02:47] Speaker 1: Ho?
+[02:47] Speaker 1: Absolutely.
+[02:48] Speaker 1: And involving experiential learning with students and postdoc researchers.
+[02:53] Speaker 1: So we are honored to have you teaching our master class this month, Dr.
+[02:57] Speaker 1: Ho.
+[02:59] Speaker 2: I'm happy to be here.
+[03:04] Speaker 2: Something I don't usually, that's my standard bio that I send for most of the talks that I give, but for this audience, what I didn't share in the bio, that is I am also a fitness professional myself.
+[03:16] Speaker 2: I've been a group exercise instructor for actually way longer than I've been a nutrition professor.
+[03:23] Speaker 2: So and I've kept it up all these years as well here at Oregon State.
+[03:27] Speaker 2: I'm part of the faculty staff fitness program.
+[03:30] Speaker 2: So I teach right now cardio kickboxing classes and barre classes on a weekly basis here on campus as well.
+[03:39] Speaker 2: So between the nutrition students I teach and the group exercise, I pretty well know everybody on campus here with the Corvallis community.
+[03:49] Speaker 2: So
+[03:50] Speaker 2: just depending on what walk of life they hear from me.
+[03:53] Speaker 2: So I'm really excited to be here.
+[03:55] Speaker 2: And I'm going to talk to you a little bit about my research, a little bit more about research that goes on at the Lyons Pauling Institute.
+[04:02] Speaker 2: And at the Institute, if you are not aware of us, we are an institute that's focused on nutrition and healthy aging.
+[04:12] Speaker 2: And we really embrace the concept of
+[04:16] Speaker 2: enabling optimal health and enabling healthy aging with this concept of health span, where we really want to look at the power of nutrition, not just to help you live longer, but how to
+[04:31] Speaker 2: have you live better longer.
+[04:34] Speaker 2: Exercise is also a big piece of that as well.
+[04:37] Speaker 2: And we certainly have collaborators, especially in the kinesiology department here at Oregon State that we work with.
+[04:42] Speaker 2: But today I'll be focusing mostly on the nutrition, diet, and specifically the role of micronutrients in terms of healthy aging and health span.
+[04:53] Speaker 2: So with that, let's see if my slides will advance.
+[04:56] Speaker 2: Sometimes when I share, it does weird things, but no, it seems to be going.
+[05:00] Speaker 2: So really now more than ever in our history, our nation's health has really become one of our highest, highest priorities.
+[05:09] Speaker 2: And in the healthcare system,
+[05:12] Speaker 2: We really are starting to better appreciate that we need to be proactive in this approach, not take a sick care approach and really think about how do we really support health and how can we do that again proactively through things like nutrition and exercise rather than reactively with drugs and treatments and medications.
+[05:32] Speaker 2: And that's really going to be my strong feeling, the key in terms of improving health of the nation and the world.
+[05:40] Speaker 2: Some just quick facts here.
+[05:43] Speaker 2: Chronic disease is highly prominent in America.
+[05:49] Speaker 2: One in six adults have a chronic disease.
+[05:53] Speaker 2: Four in 10 have two or more.
+[05:56] Speaker 2: We also know that in less than 10 years, the number of older adults is projected to increase by almost 18 million people.
+[06:05] Speaker 2: This means by
+[06:10] Speaker 2: one in five Americans is projected to be over the age of 65.
+[06:15] Speaker 2: So we call this the aging tsunami.
+[06:18] Speaker 2: And with this aging tsunami, the rates of all of these diseases potentially are going to skyrocket.
+[06:25] Speaker 2: That has the potential to really overwhelm our healthcare system.
+[06:29] Speaker 2: So again, we really need to be proactive.
+[06:34] Speaker 2: And there's a critical need to find solutions
+[06:37] Speaker 2: to get ahead of this, to really think about how do we optimize our health across the lifespan.
+[06:43] Speaker 2: And I strongly believe that nutrition is a big part of the solution.
+[06:48] Speaker 2: But at the same time, it's a little bit complicated.
+[06:51] Speaker 2: So I'm going to kind of go through some of that complication, what we know and what are some of the things that we don't know that we need to know.
+[07:01] Speaker 2: So when we think about
+[07:04] Speaker 2: age.
+[07:05] Speaker 2: We know that with age comes the increased risk for several chronic diseases.
+[07:15] Speaker 2: This kind of force of biological aging, slow degradation of systems is really what drives this risk for disease and in turn determines our lifespan or how long that we live.
+[07:34] Speaker 2: So this graph kind of shows some of the major chronic diseases that are evident, especially in the US.
+[07:41] Speaker 2: And you can see most of them have this large slope in terms of increasing.
+[07:47] Speaker 2: What I do want to show you though, one thing I want to highlight about this graph is if you look closely, you'll notice that the rate of disease incidence rises quicker than our average lifespan.
+[08:00] Speaker 2: which suggests that the quality of our life really declines faster than our actual lifespan.
+[08:08] Speaker 2: So what our goal is, how do we improve that quality of life as we age?
+[08:15] Speaker 2: So again, this concept of health span, it's not just living longer.
+[08:19] Speaker 2: It's while we're living, how do we have the best, highest quality of life during that time?
+[08:25] Speaker 2: Chronic disease prevention is just one piece of that though.
+[08:31] Speaker 2: So when we think about this concept of optimal health and optimal aging, healthy aging, there certainly are, how do we prevent or slow down progression of disease processes?
+[08:45] Speaker 2: And so I do a lot of work in cancer prevention, but also at the Institute, we do a lot of work in terms of metabolic disease, cardiovascular disease.
+[08:55] Speaker 2: We also do a lot of work in neurodegenerative diseases as well.
+[09:00] Speaker 2: concepts of frailty as well.
+[09:03] Speaker 2: So how do we prevent progression of these things?
+[09:07] Speaker 2: But at the same time, when we think about optimal health, it's not just about stopping disease.
+[09:12] Speaker 2: It's also about improving quality of life.
+[09:14] Speaker 2: And this concept of resilience is another big concept that we are looking at.
+[09:20] Speaker 2: So how do we retain
+[09:23] Speaker 2: retain function, but also make our bodies less susceptible to stresses that also impact our quality of life.
+[09:31] Speaker 2: So with cognition, it's not necessarily just neurodegeneration.
+[09:35] Speaker 2: It's age-related memory loss.
+[09:38] Speaker 2: How do you increase focus that, I don't know, you, I can definitely benefit from at any age.
+[09:48] Speaker 2: something that especially over the last years, how do we have robust immunity to help fight off infection and its susceptibility to acute disease, not just chronic disease as well.
+[10:02] Speaker 2: So again, this concept of how do we build a system that's resilient to
+[10:08] Speaker 2: both biological and environmental stresses as well.
+[10:12] Speaker 2: I know here in the Pacific Northwest, every summer, we're very worried about wildfires, extreme heat.
+[10:17] Speaker 2: How do we equip our bodies to be able to be resilient to some of these stresses that we see?
+[10:27] Speaker 2: So at Oregon State, this is one of our, and at the Lines Pauling Institute, this is one of our strengths.
+[10:32] Speaker 2: Sorry, for some reason my slide text didn't change here.
+[10:36] Speaker 2: When we look at the dietary guidelines, and it has evolved, but in general, when you look at historically how we've looked at dietary guidelines, we're trying to prevent deficiencies.
+[10:47] Speaker 2: And certainly we know that especially these micronutrients and macronutrients have critical roles
+[10:55] Speaker 2: in terms of our health.
+[10:58] Speaker 2: But at the same time, thinking back to the first slide that I showed you in terms of susceptibility to chronic diseases and the major chronic diseases, how many people have seen scurvy, pellagra, beriberi, which are kind of classic nutrient deficient diseases?
+[11:15] Speaker 2: Those are the diseases that are affecting the US right now.
+[11:18] Speaker 2: So where we really need to go and where we need to provide the science is, how we, I think we know how to support our essential health.
+[11:26] Speaker 2: We know how to, we know the nutrients, what they do, and the deficiency syndrome.
+[11:32] Speaker 2: So we really need to move more to how do we prevent more.
+[11:36] Speaker 2: And one analogy I often get, I talk about if you hear this more with macronutrients, but it applies to micronutrients as well.
+[11:44] Speaker 2: You know, you don't want to just barely be above empty.
+[11:48] Speaker 2: you really want to make sure your body is well equipped, one, to be able to deal with things you can't anticipate, and two, to be able to go further as well.
+[11:57] Speaker 2: If you are constantly operating just at that barely above empty level, you know, your capacity to do more is really going to be impaired.
+[12:10] Speaker 2: Some of that is, again,
+[12:12] Speaker 2: How do we set yourself up for prevention in terms of chronic disease susceptibility?
+[12:18] Speaker 2: Unfortunately, a lot of our biomarkers for these micronutrients are not sensitive.
+[12:25] Speaker 2: So
+[12:27] Speaker 2: It detects when it shows up in your blood test, it may tell you that you're deficient, but we want to know, we want to get ahead of that as well.
+[12:35] Speaker 2: And I'll talk a little bit about that as more, because some of the things may be starting to go wrong that are going to increase your risk for disease that is not detectable from some of the early assessment methods.
+[12:49] Speaker 2: We also want to think about, again, how do we not only prevent disease, but how do we optimize our biological systems as well?
+[12:57] Speaker 2: Again, thinking about resilience in particular.
+[13:02] Speaker 2: And the last phase is
+[13:05] Speaker 2: also thinking about how to enhance.
+[13:07] Speaker 2: So one of the issues though, it's one of the big challenges right now in terms of the nutrition community, is that this optimal state is potentially going to differ depending on your environment, who you are, where you live, and what you do.
+[13:24] Speaker 2: So getting in my classes, I do try to do a lot of analogies that people can think about.
+[13:32] Speaker 2: Going back to the car analogy, what's optimal for you may be different than others.
+[13:39] Speaker 2: So thinking about me, so this is my car.
+[13:42] Speaker 2: I live in the Pacific Northwest, so the car of choice is usually a Subaru of some sort.
+[13:48] Speaker 2: So I have a Subaru.
+[13:51] Speaker 2: I love it.
+[13:53] Speaker 2: does have a little bit of power.
+[13:56] Speaker 2: I've got young boys.
+[13:57] Speaker 2: We do a lot of sports, so I need to be able to cart lots of things.
+[14:01] Speaker 2: We love to go up to the mountains here in the Cascades as well.
+[14:04] Speaker 2: So it's four-wheel Dr.
+[14:06] Speaker 2: so I feel safe.
+[14:07] Speaker 2: It's got a great safety rating.
+[14:09] Speaker 2: So this is my optimal car.
+[14:11] Speaker 2: When you ask my husband what his optimal car is, I'll show you what his car is.
+[14:16] Speaker 2: He has an Oldsmobile 442.
+[14:19] Speaker 2: He is a muscle car.
+[14:21] Speaker 2: his optimal car, he loves fuel efficiency is not on his list whatsoever in terms of his optimal car, unlike me.
+[14:31] Speaker 2: So again, just kind of as perspective, what a lot of our nutrition guidelines are more of A1 size fits all.
+[14:40] Speaker 2: And it's increasingly clear that this concept of personalized medicine and personalized nutrition is where we need to go in terms of
+[14:50] Speaker 2: understanding what is optimal for you, and it may change over your lifespan as well.
+[14:57] Speaker 2: And what we try to do at the Institute is try to provide the science that backs up some of these things.
+[15:04] Speaker 2: And unfortunately, the science and the promise have not quite caught up yet.
+[15:09] Speaker 2: And I'll talk a little bit about that.
+[15:11] Speaker 2: And then the last thing that's something that maybe is of special interest to this group is how do we also enhance
+[15:19] Speaker 2: our health as well, thinking about performance and other things as well.
+[15:26] Speaker 2: So what we try to do is, there a way to bridge, better bridge this lifespan and health span?
+[15:33] Speaker 2: How do we improve the quality of life?
+[15:36] Speaker 2: And I just, again, want to highlight our inspiration.
+[15:39] Speaker 2: Dr.
+[15:40] Speaker 2: Pauling was always someone that was well ahead of his time.
+[15:43] Speaker 2: This was a book that he published several decades ago.
+[15:46] Speaker 2: And this is really kind of our mantra.
+[15:48] Speaker 2: How do we as a population, and what we do at the Institute is how do we really find the solutions to help populations live better longer?
+[16:00] Speaker 2: And again, this concept is, how do we increase quality of life?
+[16:04] Speaker 2: How do we increase vitality?
+[16:06] Speaker 2: So not just chronological age.
+[16:09] Speaker 2: And I'll talk a little bit about this later.
+[16:11] Speaker 2: How do we, this concept of our biological age and health span, how do we better push the balance so we can again have the highest quality of life for the longest period of time?
+[16:24] Speaker 2: And again, nutrition is
+[16:26] Speaker 2: in my opinion, a big factor in terms of helping push that balance.
+[16:32] Speaker 2: So a little bit of data and science, I guess, around this concept.
+[16:37] Speaker 2: So we've known that nutrition plays a role both in longevity and health span for many decades.
+[16:46] Speaker 2: Some of the kind of seminal work was done more in the macronutrient side of things.
+[16:52] Speaker 2: in terms of these studies that you may have heard of in terms of looking at dietary restriction, where if you calorically restricted, in this case, model organisms, that you could increase lifespan of these animals pretty significantly by 20 or 30%.
+[17:12] Speaker 2: The dietary restriction here, though, is pretty severe, 25, 55, 65% of a normal diet.
+[17:18] Speaker 2: So it's pretty
+[17:22] Speaker 2: difficult, I guess, for a person to obtain this.
+[17:25] Speaker 2: But at the same time, it's been demonstrated many, many times that again, this concept of changing your nutrition not only has benefits in longevity in terms of increasing your chronological age, but also aspects of health span as well.
+[17:43] Speaker 2: So decreasing obesity, metabolic
+[17:47] Speaker 2: parameters and that type of thing as well.
+[17:49] Speaker 2: And this has been established in a lot of different models from yeast, invertebrates, mammals.
+[17:57] Speaker 2: But in people, again, the logistics of the execution has been a little bit more difficult in terms of quality of life, thinking about calorie restriction.
+[18:07] Speaker 2: But at the same time, I also want to talk about, it's not only calories.
+[18:13] Speaker 2: And this is where I mostly want to focus on.
+[18:15] Speaker 2: It's the quality
+[18:17] Speaker 2: that also makes an impact.
+[18:20] Speaker 2: So it's very clear that the power of staying lean is important, but also diet quality is also a major contributor in terms of higher diet quality is also well associated with healthy aging endpoints as well.
+[18:40] Speaker 2: And one of the biggest things about
+[18:43] Speaker 2: healthy diet is that it supplies the micronutrients.
+[18:49] Speaker 2: It supplies vitamins and minerals.
+[18:52] Speaker 2: But one thing I do want to note, especially when we think about an older adult population, that even consuming what you think may be a healthy diet or high quality diet, that there are some nutrients that are going to be more susceptible in terms of shortfalls.
+[19:11] Speaker 2: And there are, especially as we age, specific vitamins and minerals that tend to be low, even despite what most people think is a healthy diet.
+[19:24] Speaker 2: And the shortfalls have significant consequences in terms of that quality of life.
+[19:33] Speaker 2: It's going to affect things like your metabolism, your resilience in terms of especially antioxidant functions,
+[19:40] Speaker 2: an immune response and mitochondrial function, which is some of the things that I'm going to highlight.
+[19:46] Speaker 2: So at the Institute, some of the nutrients that we have kind of highlighted as, for lack of a better word, kind of watch list nutrients, especially as you get older, are listed here.
+[20:02] Speaker 2: And I'll show you some additional resources in a moment.
+[20:06] Speaker 2: And the consequences of these shortfalls are
+[20:11] Speaker 2: multi-varied.
+[20:12] Speaker 2: It depends on the nutrient and it also, in some cases, one nutrient has multiple impacts.
+[20:21] Speaker 2: So for example, vitamin D and calcium are well known in terms of consequences on bone health.
+[20:29] Speaker 2: Vitamin Di in particular is one that we continually see in terms of a potential deficiency
+[20:39] Speaker 2: of nutrient and it also has a big impact on our immune health.
+[20:43] Speaker 2: Many of these nutrients also have an important function on mitochondria function and have an impact in terms of metabolism, bioenergetics.
+[20:53] Speaker 2: Several also have a function in terms of our red cells, so hematopoiesis, susceptibility to anemia.
+[21:01] Speaker 2: Cognition is another important area.
+[21:04] Speaker 2: And again,
+[21:06] Speaker 2: immunity is another major area.
+[21:09] Speaker 2: So each of these shortfall nutrients, again, are going to increase susceptibility to chronic disease states.
+[21:18] Speaker 2: Some are listed at the bottom, but also some of that quality of life resilience measures as well.
+[21:25] Speaker 2: So concepts of our metabolism,
+[21:30] Speaker 2: our immune resilience in particular.
+[21:33] Speaker 2: And I'll talk a little bit about immunity in particular as we age.
+[21:39] Speaker 2: As we age, there are kind of a double whammy that happens.
+[21:42] Speaker 2: You have some aspects of your immune system that are going to be depleted and not working as well, increasing your susceptibility to infection, for example.
+[21:51] Speaker 2: But there's also components of your immunity that are going to be overactive that lead to chronic inflammation,
+[21:58] Speaker 2: that is age-related.
+[22:01] Speaker 2: So again, you have kind of a bit of a double whammy where parts that you want the immune system to be highly functioning are not, and parts of the immunity that you don't want hyperactive become hyperactive.
+[22:13] Speaker 2: And our micronutrients play a big role in terms of exasperating that cycle.
+[22:19] Speaker 2: And I'll talk about that.
+[22:21] Speaker 2: So here is a list of, again, some of our watch nutrients.
+[22:25] Speaker 2: I don't have a web link for this currently.
+[22:28] Speaker 2: My team at the Institute is actually, as we speak, developing a whole portfolio of education materials around micronutrients and healthy aging that we hope to have out by this summer.
+[22:43] Speaker 2: But this is kind of one of our base infographics that we'll be using that will highlight
+[22:50] Speaker 2: the nutrients that we think are ones in particular that we need to focus on in terms of setting a person up for healthy aging.
+[22:59] Speaker 2: Most of these things are found in a multivitamin, multi-mineral, and that's one of the recommendations that we have is
+[23:09] Speaker 2: There aren't necessarily very, very specific supplements.
+[23:12] Speaker 2: There are lots of supplements that you could take, but as just baseline insurance for healthy aging, taking a multivitamin, multi-mineral is a great, great suggestion.
+[23:22] Speaker 2: Again, even if you think you're eating well, there are likely some shortfalls.
+[23:27] Speaker 2: And I'm going to show you some studies that we've done that show this.
+[23:32] Speaker 2: We do have on our website, this is an infographic that we developed around kind of the base around a healthy immune system.
+[23:42] Speaker 2: And if you go back and forth when I share these slides with you, you'll notice that there's quite a bit of overlap.
+[23:48] Speaker 2: in terms of the nutrients.
+[23:49] Speaker 2: So this is one that is available currently.
+[23:52] Speaker 2: We've also published in this area as well.
+[23:55] Speaker 2: And I just want to highlight a few things in particular here.
+[23:58] Speaker 2: So as I mentioned, as we age, it's well known that there is
+[24:07] Speaker 2: slow dysfunction or a compromised action in terms of immunity.
+[24:12] Speaker 2: And again, it's a little bit of a double whammy, where as we get older, you have both over activity of some aspects of your immunity that leads to inflammation.
+[24:22] Speaker 2: And that inflammation, that chronic inflammation is a really strong indicator or a predictor of future chronic disease.
+[24:32] Speaker 2: because inflammatory processes increase things like oxygen free radicals that can cause physical damage to our systems.
+[24:42] Speaker 2: But many of those chronic diseases that I listed before, chronic inflammation is one of the precursors to many of them.
+[24:48] Speaker 2: So controlling chronic inflammation is really quite critical in terms of, again, increasing that quality of life.
+[24:55] Speaker 2: At the same time, there are also aspects of our immunity as we age that start to dampen.
+[25:01] Speaker 2: And in particular, there are certain processes that lead to improper development of certain systems of our immunity, decreased diversity of our immune system, which bottom line makes it difficult to respond.
+[25:21] Speaker 2: So there is increased susceptibility to infections.
+[25:25] Speaker 2: decreased immune responses.
+[25:29] Speaker 2: So for example, if you are vaccinated, the robustness of your vaccination may be less when you're older as well.
+[25:38] Speaker 2: So again, there's kind of this duality of overactive and inactive immunity.
+[25:44] Speaker 2: And this has several consequences.
+[25:49] Speaker 2: My next slide is quite complicated.
+[25:51] Speaker 2: So I'm not going to go through all of it, but the bottom line is our immune system is really complex.
+[25:58] Speaker 2: There are many different systems within the system, but in general, there are kind of two big arms of our immunity.
+[26:07] Speaker 2: One is our innate immunity, which is more of our short-term response.
+[26:12] Speaker 2: So things like our quick response white cells that help literally spit out
+[26:21] Speaker 2: toxins to help kill off bacteria and viruses.
+[26:25] Speaker 2: There are the cells that are called phagocytic cells that engulf viruses and bacteria to help our bodies get rid of them.
+[26:35] Speaker 2: And then there's a second arm, which is our adaptive immunity.
+[26:39] Speaker 2: That's more of our long-term response.
+[26:42] Speaker 2: So
+[26:42] Speaker 2: response in hours versus response in days or weeks.
+[26:45] Speaker 2: So our adaptive immunity include things like our body's ability to create antibodies in response to viruses and bacteria stresses and our T cells, which are another adaptive response.
+[27:02] Speaker 2: The bottom line is our micronutrients, especially things like zinc,
+[27:09] Speaker 2: Vitamin D?
+[27:10] Speaker 2: VitaminA, vitamin C play a key role in many aspects of our immunity.
+[27:18] Speaker 2: So shortfalls in these nutrients that we know are more susceptible as we age.
+[27:24] Speaker 2: are going to have a significant impact in terms of our ability to mount a proper immune response.
+[27:32] Speaker 2: And also shortfalls will also contribute potentially to, again, this chronic inflammation as well.
+[27:40] Speaker 2: If you're interested in this, I have a reference here.
+[27:43] Speaker 2: This is a paper that we published just last year in Advancing Nutrition that goes into a lot of detail of
+[27:49] Speaker 2: of both the mechanisms and the nutrients of interest that I'll highlight again.
+[27:54] Speaker 2: For my own research, I do a lot of work with zinc in particular.
+[27:59] Speaker 2: And zinc is definitely one of the nutrients that is a potential shortfall nutrient as we get older.
+[28:06] Speaker 2: And there's a little bit of a double whammy in that we don't have a great
+[28:13] Speaker 2: clinical test for zinc deficiency as well.
+[28:16] Speaker 2: So it is one that may go under the radar in terms of if you're low, we don't have a great test to tell you that you're low.
+[28:25] Speaker 2: So again, taking a multivitamin, multimineral with zinc, and sometimes zinc isn't in your multivitamin if you don't look at the table, if you don't look at the bottle.
+[28:34] Speaker 2: So that's another thing to watch for.
+[28:36] Speaker 2: But in general, so we estimate in terms of
+[28:41] Speaker 2: total US population, about 12 to 15% of the population based on dietary intake, if not consuming enough zinc, that number skyrockets, well, not totally, but goes up to 40 to 45% if you're over the age of 55.
+[28:56] Speaker 2: Coupled with that, even if you are getting enough zinc as an older adult, you're not absorbing or distributing it as well.
+[29:08] Speaker 2: as well.
+[29:09] Speaker 2: So again, there's a bit of a double whammy.
+[29:12] Speaker 2: One of my bane of my existences is, right now the current DRI, the dietary requirement for zinc, is the same if you're 18 or if you're 100.
+[29:23] Speaker 2: And I definitely believe that similar to calcium and vitamin D, there should be an age-specific increase for dietary zinc.
+[29:33] Speaker 2: But so this is just, we've done some data that shows that as you get older, you don't respond to zinc supplementation the same way as when you're younger.
+[29:44] Speaker 2: And in our models, that also has some significant impacts in terms of your immune function, oxygen stress, and that type of thing as well.
+[29:53] Speaker 2: One reason why I highlight zinc in particular with our immunity is again, all of those systems that I showed you in graphical form,
+[30:02] Speaker 2: Zinc is a big part of each of those systems.
+[30:05] Speaker 2: So that short-term, that long-term.
+[30:08] Speaker 2: What I also didn't mention in that big graph is our barrier function.
+[30:12] Speaker 2: So our epithelial cells, the cells that line our lungs, our GI tract, are also significant immune defenses.
+[30:20] Speaker 2: They act as physical barriers.
+[30:23] Speaker 2: And zinc plays a role in terms of helping maintain those barriers as well.
+[30:28] Speaker 2: So some of the work that I've done with zinc, this is in a preclinical, these are young and old animals.
+[30:36] Speaker 2: And the first thing that I want to show is when I look at zinc levels, so these are animals in the green that are eating what we think is a zinc, a totally complete diet.
+[30:50] Speaker 2: It's a diet that's developed by the American Institute of Nutrition.
+[30:53] Speaker 2: specifically for these animals that supposedly has all the micronutrients that these animals would need.
+[31:01] Speaker 2: The first thing that we noticed, so these are two-month animals versus almost two year animals.
+[31:07] Speaker 2: So equivalent to a young adult versus probably a 65, 70 year old.
+[31:13] Speaker 2: And the first thing we noticed that despite giving them what we thought is a complete essential diet, they look like they're zinc deficient.
+[31:23] Speaker 2: So they're presenting with low zinc levels in their bodies, even though we're giving them what we think that they need.
+[31:32] Speaker 2: We also can show that these older animals, so this is interleukin 6, which is what's called a pro-inflammatory cytokine.
+[31:42] Speaker 2: So when you have chronic inflammation, this particular molecule will show up
+[31:48] Speaker 2: in your bloodstream.
+[31:50] Speaker 2: Increases in IL-6 are also, again, kind of predictive of worse disease as well.
+[31:57] Speaker 2: And we show in these old animals, again, what we think is giving them a zinc adequate diet, a big increase in their chronic inflammation.
+[32:06] Speaker 2: What we did in this case is we supplemented these animals with 10 times more zinc, and we can restore the zinc levels back to that of a young animal.
+[32:17] Speaker 2: And importantly, restoring those zinc status had a big impact in terms of taking away their inflammation.
+[32:30] Speaker 2: So again, a big thing of my research is trying to establish that maybe the DRI or the current recommendation for young adults isn't adequate for an older adult.
+[32:42] Speaker 2: And some of this data, I'm hoping in the future, will help drive that.
+[32:47] Speaker 2: The other big thing in terms of zinc, maintaining zinc adequate status has a lot of benefit.
+[32:57] Speaker 2: And I have many, many, many studies that show when you are low in zinc,
+[33:02] Speaker 2: your immune system is compromised, your antioxidant status is compromised, your susceptibility to cell damage is also higher.
+[33:12] Speaker 2: We are not getting enough zinc.
+[33:13] Speaker 2: So you'd think we need to know that your body has enough zinc.
+[33:16] Speaker 2: So currently, if you ask your doctor, I think I'm worried about my zinc intake.
+[33:23] Speaker 2: Can you test for it?
+[33:24] Speaker 2: The test that they are going to order is a fasting plasma zinc level.
+[33:28] Speaker 2: So measuring the zinc in your plasma.
+[33:31] Speaker 2: And I'm going to show you some data in a minute that shows it's really not sensitive in terms of being able to detect zinc deficiency.
+[33:42] Speaker 2: So this is a study that I did in people where we basically, they ate everything only that we gave them.
+[33:53] Speaker 2: And then we also over several months,
+[33:57] Speaker 2: took their blood plasma and measured a lot of different things.
+[34:00] Speaker 2: So in this case, these are healthy adult men.
+[34:04] Speaker 2: We brought them into the study site for two weeks.
+[34:07] Speaker 2: We just gave them a regular zinc adequate diet.
+[34:12] Speaker 2: So it had all the things we thought that they needed.
+[34:15] Speaker 2: They had that for two weeks.
+[34:16] Speaker 2: And this was just to make sure, as you know, people eat a lot of different things that we wanted to get everyone to the same place.
+[34:23] Speaker 2: Then we gave them a low zinc diet for about 6 weeks.
+[34:28] Speaker 2: And then after six weeks, we gave them back the zinc adequate diet as well.
+[34:35] Speaker 2: And the first thing that I want to show you, so we did measure the clinical test plasma zinc levels.
+[34:40] Speaker 2: And what are the first thing that you notice here in terms of, so this is throughout the study, this is when they became zinc depleted.
+[34:49] Speaker 2: And you can see there's
+[34:51] Speaker 2: virtually no change in their plasma zinc level.
+[34:54] Speaker 2: So these were individuals for, so the difference, so they got the RDA for zinc to start off with, 11 milligrams, and then their low zinc diet, they actually for one week ate a liquid diet that only consumed, that was less than one milligram of zinc.
+[35:11] Speaker 2: And then for the remaining 5 weeks, they consumed, sorry, my phone's ringing.
+[35:18] Speaker 2: For six weeks, they consumed A4 milligram zinc diet, which is too low.
+[35:24] Speaker 2: Yet, the clinical marker didn't.
+[35:26] Speaker 2: So we know that these people are not getting in on zinc and they are not presenting in terms of the clinical test.
+[35:36] Speaker 2: What we do know, so we did measure some of the functional things that we've seen happen that go wrong with zinc deficiency.
+[35:44] Speaker 2: And starting at the day 13, what we saw was even though according to the clinical tests, they're not zinc deficient, they are zinc deficient.
+[35:54] Speaker 2: And the consequence is increased, in this case, cellular damage.
+[36:00] Speaker 2: So this is an assay looking at DNA damage in their blood cells.
+[36:03] Speaker 2: And we could see over time
+[36:06] Speaker 2: that because we know that they were consuming because we were giving them the food, a low zinc diet, more damage to their cells and in particular damage to their
+[36:17] Speaker 2: immune cells.
+[36:18] Speaker 2: Luckily, once we give them back the zinc, so when we gave back the zinc, we gave a zinc supplement, 20 milligrams, and then they went back and they also consumed 11 milligram diet that we could reverse that damage.
+[36:32] Speaker 2: So good news, the damage isn't permanent.
+[36:34] Speaker 2: You just simply need to replenish your zinc status.
+[36:38] Speaker 2: The other thing that I want to point out is the other big change we saw was at the beginning of our study.
+[36:44] Speaker 2: And what we did for this study is we tried to recruit people that we thought were not zinc deficient.
+[36:49] Speaker 2: But what is the marker that we use to do that criteria?
+[36:54] Speaker 2: We use the fasting plasma zinc levels as our clinical criteria for inclusion.
+[36:59] Speaker 2: So what we think was happening is basically during that two-week acclimation period where we put everyone on a regular diet for two weeks, that we probably had some people that were zinc deficient, but we just didn't know it because the test is crappy.
+[37:14] Speaker 2: And we basically mimicked what we were doing at the end of the study by giving them back zinc and having them consume our zinc adequate diet for the time.
+[37:24] Speaker 2: So again, zinc is definitely one of those nutrients that we know with age you're going to be susceptible to deficiency.
+[37:31] Speaker 2: And again, because we don't have great markers for people to identify with it,
+[37:36] Speaker 2: taking multivitamin, multimineral is just great insurance to ensure that you are maintaining your status.
+[37:43] Speaker 2: Because again, consequences of zinc deficiency is, especially on your immune system, can be pretty significant.
+[37:52] Speaker 2: With zinc, though, you can get too much of a good thing.
+[37:55] Speaker 2: Zinc does compete with some other minerals, especially copper and iron.
+[38:00] Speaker 2: So we often, the current upper limit, according to the dietary guidelines, is 40 milligrams per day.
+[38:08] Speaker 2: So you want to make sure you stay below that level if you are taking a multivitamin multimineral.
+[38:15] Speaker 2: The other piece, so that was kind of my research.
+[38:17] Speaker 2: I like to talk about zinc.
+[38:19] Speaker 2: I'm a little bit of a zinc zealot.
+[38:21] Speaker 2: But all the vitamins and minerals also have a role.
+[38:24] Speaker 2: So I'm going to share a little bit of data just showing the power of just a multivitamin, multimineral, especially in older adults.
+[38:33] Speaker 2: So this is a study that was done by one of my faculty, Dr.
+[38:38] Speaker 2: Gombard.
+[38:38] Speaker 2: He's actually one of our vitamin D experts in the Institute.
+[38:42] Speaker 2: And we did a simple multivitamin, multimineral supplement trial in healthy older adults and looked at various aspects of immunity.
+[38:51] Speaker 2: So for this study, it was an older adult population over the age of 55.
+[38:57] Speaker 2: The range was between 55 and 75.
+[39:02] Speaker 2: We previously tried to again recruit people that didn't have overt deficiency.
+[39:08] Speaker 2: So for vitamin D, the measures are a little bit more
+[39:13] Speaker 2: a little bit better.
+[39:14] Speaker 2: So we screened out anyone that was severely deficient in vitamin D.
+[39:18] Speaker 2: And then we also looked at some cold symptom indices.
+[39:25] Speaker 2: For this particular supplement, we used a supplement called Rodoxan.
+[39:29] Speaker 2: Again, if you're interested in it, this is the formulation.
+[39:33] Speaker 2: It's not a full spectrum of multivitamin, multimineral, but it contains some of those shortfall nutrients.
+[39:42] Speaker 2: that I had mentioned before.
+[39:45] Speaker 2: In terms of what the supplementation did, the bottom line is, unsurprisingly, when people were given the multivitamin versus the placebo, we were able to increase status.
+[39:57] Speaker 2: Interesting, vitamin D was a little bit questionable in terms of raising
+[40:03] Speaker 2: I can talk about that in a bit later. But the bottom line was that when we did look at disease incidence, there was in the multivitamin group a drop in terms of self-reported cold and respiratory illnesses as well. The other study that we did
+[40:27] Speaker 2: we used a more broader spectrum multivitamin, multimineral. So in this case, this study was only in older adults. We had a slightly higher age limit over the age of 67 in this case. One thing I want to highlight, we recruited a fairly healthy population. They also tended to be fairly active and it was a six month intervention.
+[40:55] Speaker 2: One thing that we did notice though, even in this apparently healthy population, that they were low by their blood biomarkers of many of these micronutrients, and I'll highlight this as well. So this micronutrient intervention was a little bit broader. It was a full spectrum of vitamins and minerals. This was actually the Centrum Silver that we used in this case for this study.
+[41:23] Speaker 2: But one thing that we were actually quite surprised from, we recruited again from a fairly healthy population and they were not doing that great in terms of these shortfall nutrients. So 100% of our participants were low in vitamin D, vitamin E, which is a good antioxidant function.
+[41:48] Speaker 2: But you can see in a lot of the candidate shortfall nutrients that we've identified that this population, even though they were a healthy population, experienced these shortfalls, which again highlights the power of taking this multivitamin multi-mineral as kind of backup insurance as well. In terms of, so I know this is a little bit busy, but the bottom line is if you
+[42:15] Speaker 2: look at this is a kind of heat map that arrays the change in the status measurements pre and post taking the supplement. So on the left are the people that took the multivitamin, multimineral, and on the right are people that were assigned the placebo. And the bottom line is the multivitamin in green was able to change status. You'll notice that it doesn't change all of the status measurements.
+[42:45] Speaker 2: which could be indicated of a couple things. One, the status measurement again may not be that accurate, or it may take more time for the change. But again, when we look at functional alterations, this is where we see some of the biggest changes. So
+[43:04] Speaker 2: The other piece in terms of healthy aging that we tend to focus on in the institute is mitochondria. And mitochondrial decay is one of the hallmarks of the Achilles heel of healthy aging. So we know that the mitochondria are
+[43:20] Speaker 2: They're an organelle in the cell. They're the powerhouse of the cell. They coordinate all the dietary fuels that the body uses for metabolic energy. And many of the vitamins and minerals act as coenzymes to help the mitochondria do this job.
+[43:41] Speaker 2: So without adequate micronutrients, mitochondrial function can change. We also know simply with age that a lot of these enzymes and proteins within the mitochondria also appear to start to dysfunction. This dysfunction or deficits that can either be age-related
+[44:06] Speaker 2: or micronutrient deficiency or low level related, and it's likely probably a synergism between the two, have a whole host of consequences in terms of this process called cellular senescence, which is basically kind of the accumulation of age-related cellular dysfunction. You'll have energy decline, increased oxidative stress, which also increases
+[44:34] Speaker 2: chronic inflammation that I had mentioned, and this process called apoptosis, which is a controlled cell death that helps our body make sure that the cells are doing the right thing. But basically that clearance doesn't happen properly as well. And again, our micronutrients play a big role in this. So this is data that we actually haven't published yet, so it's kind of hot off the presses.
+[45:02] Speaker 2: is that what we found in these groups is that mitochondrial function was definitely a key role. So what we found was with age, so this is an assay that looks at mitochondrial function, either whole cell or specifically the mitochondria. In both cases, when you look at the placebo group, there was a loss in mitochondrial oxygen consumption or cellular, which meant
+[45:31] Speaker 2: the mitochondria are not functioning. So over time, there is an age-related decline in mitochondrial function. So even within six months, we started to see some decline in mitochondrial function. The good news was people that took the multivitamin though,
+[45:51] Speaker 2: didn't see this loss. So you were able to maintain your mitochondrial function more efficiently when you were adequate in your multivitamins and multi minerals. The other piece, getting back to kind of my car analogy and kind of what is optimal, where the future needs to go is, again,
+[46:16] Speaker 2: The promise of personalizing nutrition is really great. And the problem is right now, the science hasn't quite caught up in terms of being able to make what are the real determinants of that movement and precision that you need.
+[46:33] Speaker 2: And one of the big things that are the kind of things that are holding us back and where our science needs to go is I've already mentioned, one, we need to know where the players are. So we need to know what are, we need to find better biomarkers of our nutrient status. We also need to find better biomarkers of health span itself. Is it mitochondria function? Is it immunity?
+[46:56] Speaker 2: There are several other assays that have been proposed in terms of this concept of biological age versus chronological age that need to be tested a little bit more. But the biggest thing is that it's just really complicated.
+[47:08] Speaker 2: When you think about everything that makes you there is your family history, there is your genetics, so endogenous factors, but also everything else. Do you exercise? Do you not exercise? What is your environment? What do you eat? So it's really, this is a slide that I like to show in terms of
+[47:30] Speaker 2: All the things that make you, there are a lot of different things. And what's great in terms of our science is we started to really believe that we need to move past this one size fits all and towards this precision nutrition and precision health. We've gotten really good at measuring a lot of these different things. What we haven't been great about is how we put all that data together
+[47:57] Speaker 2: to interpret. So there's really a big new push in terms of how to use, for example, data sciences to better interpret these huge.
+[48:07] Speaker 2: bits of data and be able to get solutions. But again, we're not quite there yet. One area that we have made significant progress around is around the interaction of the gut microbiome and our health as well. And for nutrition, this is a huge new area. So the microbiome is all the organisms that live in
+[48:34] Speaker 2: There are trillions of microorganisms in our GI tract, but other places as well in terms of tissues, your gut, your mouth, and your skin. And it's becoming increasingly clear that these other organisms also play a big role in terms of how we see foods, how we metabolize foods, and how they act as well. So when you think about gut health,
+[49:01] Speaker 2: things that help our gut health are not just helping our gut. They have wide impacts elsewhere as well. But what also is increasingly clear is that your gut health may affect how you, for example, metabolize nutrients as well. And just as a very brief example, so I do work, as Kat mentioned at the beginning, with cruciferous vegetables. We've done a ton of clinical trials with cruciferous vegetables and cancer prevention. And
+[49:31] Speaker 2: it's really variable in terms of people that respond and don't respond. And one new thing that we've discovered is that your microbiome may determine the metabolism of the active components from cruciferous vegetables. So here's an example. There are two compounds that can be produced. One is sulforaphane from when you eat broccoli, and others is sulforaphane nitrile. The nitrile is totally inactive though.
+[50:01] Speaker 2: And we have found that there's a high variability of people being dependent on their microbiome to produce the nitrile. So which means that if you are a nitrile producer, you may need to eat much more broccoli to see the same benefits. So there are a lot of nutrients that have the same impact. So again, trying to understand the interaction between the two is an important thing, both with these phytochemicals and with also micronutrients as well.
+[50:32] Speaker 2: Bottom line is we are really about how do we use nutrition to optimize our health and our health span. Before I stop for a few questions, I want to share a few resources that we have and I can share them again.
+[50:47] Speaker 2: as well. So the Institute does have some new courses that were recently accredited by the AFAA and NASM. One is around just generally meeting micronutrient needs. So it talks about these shortfall nutrients, what they are, what they do, why you need to worry about them. And then for older adults, we have a course specifically around bone health as well and the nutrients that support bone health. Both are fairly inexpensive.
+[51:16] Speaker 2: $20 or less to take the courses. You get your credits as well. So I encourage you to check it out. Another resource that's absolutely free is our Micronutrient Information Center. So if you go to our website and go to the Micronutrient Information Center, I know both Neil and Kat are big fans of this as a resource. It's basically, I like to call it the Wikipedia, but evidence-based Wikipedia for everything nutrients. So if you're going to Google something,
+[51:48] Speaker 2: We know the information is correct. This is actually one of the highest visited websites at Oregon State University. We get millions of hits each year. It's in three different languages as well. And here's some examples. We have some articles, some infographics, we reference the dietary reference intakes. We've got some nice graphics if you were doing any continuing education yourself as well.
+[52:16] Speaker 2: So definitely check it out if you haven't heard of it or want to learn more. Let's see. We also have, if you're unfamiliar with the Institute, we also have a regular quarterly newsletter. We have a webinar series that we do. So check out our website. We've got a webinar that's coming up that actually isn't more science-based. It's more about Linus Pauling that's coming up in a week or so as well. But we've got
+[52:45] Speaker 2: on our YouTube channel, all our archived webinars as well that are great free resources. Here's the information where you can find it all. We also have a conference that's coming up this coming fall as well in Corvallis that's centered around healthy aging and precision nutrition as well. So we've got an amazing group of scientists
+[53:12] Speaker 2: practitioners that are coming, that are all the leading scientists in this space. So another thing to check out as well. I can open up for questions. I will also just give a shameless plug of, we have an upcoming, so the Marketing Information Center is a totally free resource.
+[53:33] Speaker 2: We do have, OSU has a day of giving later this month. The Micronutrient Information Center is one of our priorities that we're putting out in terms of potentially giving to you as well. So if you are so inclined, like I said, a shameless plug, I know, but I wouldn't be doing my job if I didn't do that. And there's again the classes. Yeah.
+[53:57] Speaker 1: So let me just say thank you so much for sharing your work and all that you're doing, especially with in the fitness community. Dr. Ho, this is so good. I want you to keep going.
+[54:07] Speaker 3: I know, really.
+[54:08] Speaker 2: I took longer than I anticipated.
+[54:10] Speaker 3: I got excited. Yeah.
+[54:12] Speaker 1: It was great.
+[54:14] Speaker 3: Yeah.
+[54:15] Speaker 1: Thumbs up and love, you know, emojis coming up. Did you want to say something?
+[54:20] Speaker 3: No, I just, you know, I just, I took so many notes just on different things here than
+[54:25] Speaker 3: I couldn't tell you how, I mean, we're so closely aligned with everything. And I know you single, this is for everybody else on there. I want to see what you say to this. I know you singled out zinc because you can't just take all 30 vitamins and minerals that are essential to life and do a little, you know, do all that stuff that you did with zinc. So would you say, like I use that for a proxy.
+[54:46] Speaker 3: I did the same example with magnesium in a giant dissertation that I wrote. I went through everything, like it's 400 different enzyme systems, right? And I talked about triage because I'm a big fan of that theory. Because it just makes sense, obviously. You just think of calcium and bone and well, it's obviously triaging to keep you alive when you don't get enough calcium. It's just taking your bone apart.
+[55:10] Speaker 3: Why wouldn't that be the same thing in every system like vitamin K and cardiovascular systems and so everything else? But so would you say the same thing then? Because that, when you're like being able to, when you test blood for any of these things, you're really, it's really not what's going on inside the tissues. It's pretty much what's going on inside the blood. I mean, could you kind of use that zinc example you had pretty much across the board for anything that's essential to life that you have to get exogenously?
+[55:39] Speaker 2: The majority. I think there are a few exceptions in some of the micronutrients, like for example, vitamin D because of the metabolism and then because in the blood, the vitamin D binding protein is a significant place that vitamin D sits. But I do think blood markers for vitamin D are fairly good. And there's a few other exceptions. Some of the water soluble nutrients that do reside, especially the ones that
+[56:08] Speaker 2: for blood cell formation. They actually live in the blood. But for the most part, your analogy, I think it's correct.
+[56:17] Speaker 3: That's the testing part. That's one thing. And I get that. would be different for different things. You could find the right numbers. I'm talking about what's happening in the body. The sort of cascading events, because I mean, vitamin minerals don't live in a vacuum. You know, they work synergistically from the first day of life, you know, in the womb.
+[56:35] Speaker 3: so I was just, that's what I meant when he was showing the show, what happens, that's happening in every system when you're, I'm guessing anyway, it just seems to make sense. That's what I was kind of.
+[56:44] Speaker 2: Yeah, no, absolutely agree. I'm also big. I mean, I trained with Bruce, so.
+[56:53] Speaker 3: Yeah, so, and by the way, is he still, he's still around, right? Yeah, Okay. Yeah, good.
+[56:59] Speaker 1: I mean, I haven't seen any.
+[57:02] Speaker 3: I know, we do. I watch those too. Yeah, he's great. I would encourage all of you here that have been on here listening to that Bruce Ames is quite something. Not that Dr. Ho's not either, don't get me wrong, but I'm just saying it's like someone's got to carry on all that. Yeah, he's amazing. His triage theory, you guys have heard me talk about this. He published that first paper in 2007, you know, and I use it in pretty much all my lectures all the way around and just, you know, just
+[57:26] Speaker 3: It's the most logical explanation for early aging is micronutrient insufficiencies. We never call them deficiencies anymore because they really don't exist that, you know, nothing significant anyway. But insufficiencies, they're across the board in every single human being, in my opinion.
+[57:45] Speaker 1: So we had some people send in their questions prior to the webinar, Dr. Ho. You know, this is in the fitness space, as you know, there's a lot of misinformation around nutrition. One of them has to do with whole food vitamins and minerals. What are those? If anything, is there a difference between that and, you know, vitamin mineral formulas that are quote unquote synthetic? Could you just, could you clarify that for our fit pros?
+[58:14] Speaker 2: so it's dependent on the nutrients. So for example, vitamin E, the food-based vitamin E exists in a form that our body recognizes, whereas the synthetic vitamin E is a mixture of many forms. So that form does not get absorbed as well. So even though it says
+[58:40] Speaker 2: 10 milligrams of vitamin E in the synthetic form, you're only going to absorb a small portion of it because in the synthetic form, it's not just the form that our body recognizes. There are some exceptions, though, like folate, for example. The synthetic form is actually better absorbed than the food source. So there isn't, I guess, a global answer. In general,
+[59:10] Speaker 2: A lot of studies I've done that, again, there are exceptions. The food source tends to be better absorbed, largely because there's other things in the food that also help with getting it into your body as well. So there isn't a specific answer, I guess.
+[59:28] Speaker 3: Yeah, no, but I get what you're saying. I think what they were asking, I'm guessing, when you go to a drugstore and it says food form vitamins and minerals and they're in a tablet. Well, that's not really food form.
+[59:40] Speaker 3: And so it's more of a marketing ploy. that's what we see. So if food form is eating an orange or a pepper that's got vitamins, that's food form vitamin C.
+[59:50] Speaker 3: They're kind of hijacking just that thought process when they're selling it like that, because the vitamins and minerals, in fact, that we have in our vitamins, they're all from natural sources. We just extract them out. So you can say it came from something, you know, obviously, like we don't have any synthetic vitamin E in ours. You know, it's from a soy fat, you know, and so forth. So anyway, I just, I think the question I think is, because I get that often, is related more to the claim someone makes, it's a food form vitamin, you know.
+[60:20] Speaker 3: rather than synthetic.
+[60:21] Speaker 3: Because synthetic, you're making it, which is a little bit different than an extraction.
+[60:28] Speaker 1: Now, in your opinion, Dr.
+[60:29] Speaker 1: Ho, would you say that everyone would benefit from a multivitamin and mineral across the lifespan?
+[60:36] Speaker 2: I would.
+[60:37] Speaker 2: I mean, like I said, it can't hurt.
+[60:39] Speaker 2: It's inexpensive and it could potentially really help.
+[60:44] Speaker 1: Right.
+[60:45] Speaker 1: We're done.
+[60:45] Speaker 1: Yeah, exactly.
+[60:46] Speaker 3: That's it right there.
+[60:50] Speaker 1: Yeah.
+[60:51] Speaker 1: And sometimes we get pushback from people talking about, I can get everything I need from food.
+[60:54] Speaker 1: And I just say, I've never seen it.
+[60:56] Speaker 1: I've never seen anyone get everything they need from food alone.
+[61:02] Speaker 2: Yeah, it's so surprising to me, you know, when I get someone to do kind of a detailed diet record, and then we do the nutrient detailed analysis, it's like, look at all these bars that are not.
+[61:17] Speaker 1: And we're just talking about, so again, dietary reference intakes, right?
+[61:22] Speaker 1: You mentioned in the beginning, those were formulated based on preventing deficiencies, correct?
+[61:28] Speaker 1: They're not optimal.
+[61:31] Speaker 2: I mean, there's a whole new dietary guidelines committee that has recently been formed.
+[61:36] Speaker 2: There is talk, there's been talk for decades about moving the dial in terms of the
+[61:44] Speaker 2: what the reference intakes represent.
+[61:47] Speaker 2: And there's been glacial movement.
+[61:54] Speaker 3: Well, with global warming, it might go faster now then.
+[61:59] Speaker 3: That's good.
+[62:01] Speaker 3: I know it is stubborn.
+[62:01] Speaker 3: I mean, you look at the protein RDA.
+[62:04] Speaker 3: I mean, it's just, it's quite comical.
+[62:06] Speaker 3: There's no scientist I know in the world that believes it, you know, and especially as the older you get the more protein you need.
+[62:12] Speaker 3: And that was the one other question I had for you as well.
+[62:15] Speaker 3: I loved your example with zinc and needing more of the older, and I loved looking at those studies you showed.
+[62:20] Speaker 3: Because I always wondered why, you know, when you look at the older population, like we make an over 50 vitamin, but when I looked it up and I looked at all the recommendations and everything else, it's really
+[62:30] Speaker 3: very little is any more other than, like you said, calcium and vitamin D.
+[62:34] Speaker 3: But anything very, almost nothing is any more.
+[62:37] Speaker 3: In fact, some things are actually less, and so we even take iron out of it.
+[62:42] Speaker 3: But there's a reason that I get that and, for some of that.
+[62:45] Speaker 3: But we could wear like only multi before 50, we keep our iron, we put iron in it because everybody's missing something there, from food.
+[62:53] Speaker 3: Anyway, so I was, because I think, I've always for approaching, I've said, hey, if you're over, I go, I'm a 70-year-old man, and I'm half the size of my two professional athlete sons, right?
+[63:04] Speaker 3: All right, half the size, and I need more protein than they do to be able to stave off the inevitable, you know, because younger bodies just do things better with what they get, you know, because they've kind of, I was just, you know, kind of checking in on that part.
+[63:18] Speaker 2: Yeah, absolutely.
+[63:18] Speaker 2: Like I said, I'm definitely on the soapbox that we need to have more age-specific dietary guidelines.
+[63:25] Speaker 2: I don't think what we, I don't, calcium and vitamin D are the only ones.
+[63:31] Speaker 2: And way more that I think qualify.
+[63:35] Speaker 3: Yeah, right.
+[63:37] Speaker 1: So speaking of testing and biomarkers, so I know that omega-3, you're right, you have to test an actual amount in red blood cells.
+[63:44] Speaker 1: Like there's one test for that, is that correct?
+[63:48] Speaker 2: Yeah, that's the only accurate way.
+[63:51] Speaker 2: I mean, we have Dr.
+[63:54] Speaker 2: Donald Jump at the Institute, and he also kind of recommends trying to take an Omega-3, but at the same time, it's kind of, again, you got to look at your labels carefully, that a lot of the supplements
+[64:09] Speaker 2: a fish oil supplement, for example, may not have a ton of omega-3s.
+[64:13] Speaker 2: And it's really the long chain omega-3s that you need to support your health.
+[64:21] Speaker 2: And in some cases, some of the supplements may not have very many of those.
+[64:26] Speaker 2: They have some of the shorter chain linoleic acids, but it's the EPA and the DHA that you really need, especially the DHA.
+[64:36] Speaker 3: Right.
+[64:37] Speaker 1: So that's a specialty test.
+[64:38] Speaker 1: So that along with zinc is a specialty test, along with, how do you measure calcium status?
+[64:46] Speaker 1: Unless you get a bone density test, right.
+[64:48] Speaker 3: Yeah, that's a bone density.
+[64:51] Speaker 3: Yeah.
+[64:52] Speaker 3: Because a blood test for calcium is going to, it better be telling you the right thing.
+[64:57] Speaker 3: That's right.
+[65:00] Speaker 1: What are some of the other ones that, you know, that don't have good biomarkers for?
+[65:07] Speaker 2: Copper is another one in terms of not being great.
+[65:13] Speaker 2: K is also difficult, especially in the populations that are trying to manage heart disease.
+[65:25] Speaker 2: They're taking blood thinning drugs as well.
+[65:31] Speaker 1: Yeah.
+[65:32] Speaker 1: those are some, those are some key ones.
+[65:34] Speaker 1: just taking a go to your doctor and getting a blood test.
+[65:37] Speaker 1: That's not going to keep you adequate.
+[65:43] Speaker 2: You have to ask for.
+[65:45] Speaker 1: Right, exactly.
+[65:45] Speaker 1: Okay.
+[65:46] Speaker 1: So another question we had to do with, you know, the genetic testing.
+[65:51] Speaker 1: How much does genetic testing tell us about our nutrition?
+[65:56] Speaker 2: Yeah, that's a great question.
+[65:59] Speaker 2: And again, I think one of the examples of the science has not quite caught up.
+[66:05] Speaker 2: I mean, I know there are a lot of companies out there that claim that they can take your blood and be able to customize.
+[66:12] Speaker 1: Or saliva.
+[66:14] Speaker 2: Yes, yeah.
+[66:16] Speaker 2: And there are definitely very specific examples that we know of.
+[66:20] Speaker 2: Folate metabolism genes and genetic differences that will change your folate needs.
+[66:27] Speaker 2: Same for choline.
+[66:30] Speaker 2: But for a lot of nutrients, we don't know what specific tests you need to do that are really predictive in terms of changing your status.
+[66:42] Speaker 2: Like I said, there's a few examples like folate that we have a pretty good idea with MTFR, for example, but for a lot of, for globally, your whole nutrition, there isn't a profile that we
+[66:58] Speaker 2: I think it's accurate.
+[67:00] Speaker 3: Right.
+[67:00] Speaker 3: Yeah, I think you said it best.
+[67:02] Speaker 3: You said the marketing's way ahead of the science.
+[67:04] Speaker 3: Yeah.
+[67:05] Speaker 3: You said it best there.
+[67:05] Speaker 3: Because I mean, I keep looking, you know, just see where everybody is and I don't see anything yet.
+[67:11] Speaker 3: Barely that's significant or certainly worth, you know, the money and, you know, getting your cheeks swabbed and then send you another specialized formula and then another one after that just to keep you hooked up, you know, hooked on, you know, so I haven't seen anything yet.
+[67:25] Speaker 2: I mean, the National Institute of Health does have this new initiative to try to see if they can get there.
+[67:31] Speaker 2: But I get another thing I kind of alluded to in my last part of my talk is that historically we focused a lot on the genetics.
+[67:40] Speaker 2: And I'm starting to be more convinced that it's actually the microbiome that may have a bigger determinant, which is a whole other host of things.
+[67:49] Speaker 2: So getting back to my broccoli examples, there's a lot of evidence that these
+[67:54] Speaker 2: genetic polymorphism and these class of enzymes called glutathione S transferases that will change the metabolism and activity of cruciferous vegetables.
+[68:02] Speaker 2: In all my studies, that genotype has no impact, either on the metabolism or the bioactivity, but the microbiome did.
+[68:15] Speaker 2: So in some cases, the genetics may be
+[68:20] Speaker 2: only a part of the story in terms of what you need to personalize.
+[68:24] Speaker 3: Yeah, and that's that epigenetic thing too, I guess, at that point, you got that going on.
+[68:29] Speaker 3: We got the environment, our microbiome is our connection to the environment.
+[68:34] Speaker 2: The bottom line, it's super complicated.
+[68:38] Speaker 3: Very, that's for sure.
+[68:39] Speaker 3: And the more you go down the rabbit hole, the more complicated it is.
+[68:45] Speaker 1: So Michelle has a question for you, Dr.
+[68:47] Speaker 1: Ho.
+[68:47] Speaker 1: How would you advise someone who wants to do the keto diet?
+[68:55] Speaker 2: A pretty broad question.
+[68:57] Speaker 2: I guess any specialized diet, keto, vegan, you need to balance the macronutrient content as well with the micronutrient needs.
+[69:12] Speaker 2: Especially in these specialized diets, meeting your micronutrient needs tends to be even more difficult because you're relying on different food types and in some cases,
+[69:24] Speaker 2: processed food additives, I mean, in terms of you're not eating necessarily the whole, the same food, green leafy fruits and vegetables, for example.
+[69:39] Speaker 2: And so just to be mindful of that, again, insurance policy, make sure you take a multivitamin, multi-mineral.
+[69:46] Speaker 3: Yeah.
+[69:48] Speaker 3: And even more so on those ones that eliminate full food groups.
+[69:50] Speaker 3: Yeah.
+[69:53] Speaker 1: It's a little scary too with the, keto diet or a carnivore diet.
+[69:57] Speaker 1: They're getting nothing for their microbiome.
+[69:59] Speaker 1: Like nothing.
+[70:01] Speaker 2: Yeah.
+[70:01] Speaker 2: I mean, the concept, the thought, I mean, I definitely have, I'm always surprised that educated, like my pharmacy students, my nutrition students, don't ask them, what would you think a healthy diet is?
+[70:15] Speaker 2: And someone will just say a vegan diet.
+[70:17] Speaker 2: And I'm like,
+[70:19] Speaker 2: There are acids that are healthy, but there are a lot of acids that you can have and absolutely have a very unhealthy vegan diet.
+[70:27] Speaker 1: Oh, yeah.
+[70:27] Speaker 3: That's for sure.
+[70:28] Speaker 2: In a lot of different ways.
+[70:30] Speaker 3: That's for sure.
+[70:31] Speaker 3: Yeah.
+[70:32] Speaker 1: Well, in my experience, vegans tend to be at higher risk for micronutrient deficiency.
+[70:36] Speaker 2: Yes, absolutely.
+[70:37] Speaker 3: Especially bone density, things like that.
+[70:39] Speaker 3: You know, this is.
+[70:41] Speaker 3: Yeah.
+[70:42] Speaker 1: Wow.
+[70:44] Speaker 1: Anyone else have any other questions?
+[70:45] Speaker 1: You guys have some really intelligent questions.
+[70:47] Speaker 1: Thank you for those.
+[70:49] Speaker 1: Dr.
+[70:49] Speaker 1: Ho, we're so grateful that you did the time to share with us.
+[70:53] Speaker 1: I mean, yeah, let's do it again sometime.
+[70:56] Speaker 1: That would be great.
+[70:57] Speaker 1: And Berlinda said the same thing.
+[70:59] Speaker 1: She really enjoyed the presentation.
+[71:00] Speaker 1: Casey saying thank you as well.
+[71:02] Speaker 3: For sure.
+[71:03] Speaker 3: And I really encourage all of you to go to the Linus Pauling site.
+[71:06] Speaker 3: to there and everything else.
+[71:08] Speaker 3: And also, I do, I contribute regularly just because it just comes out with the real information.
+[71:14] Speaker 3: It's the real, it's evidence-based, progressive science that is just really, and I know that sounds like an oxymoron, but it's not.
+[71:22] Speaker 3: It is, I mean, we're just so far behind in the public sector, so far behind.
+[71:27] Speaker 3: everything, when it comes to making recommendations on whether it be the RDA changes or any of the DRIs or any of this stuff.
+[71:34] Speaker 3: And so they're just, they're on the cutting edge.
+[71:36] Speaker 3: And it's really where you want to be, especially if you're young and you want to help and you want to age healthily and really plug into it.
+[71:45] Speaker 2: Yeah, we have a big commitment to outreach.
+[71:47] Speaker 2: We want to make sure our science doesn't just stay at the benches of our labs that we want to make sure it's available.
+[71:53] Speaker 1: Yeah, that's what I love about what you're doing and everything that you're doing at the Linus Pauling Institute.
+[71:58] Speaker 1: So thank you once again, Dr.
+[72:01] Speaker 1: Ho.
+[72:01] Speaker 3: Yeah, thank you so much.
+[72:03] Speaker 3: Very, thank you so much.
+[72:05] Speaker 2: I'll send you the slides, Kat.
+[72:07] Speaker 3: Yeah, for sure, for sure.
+[72:08] Speaker 3: Good.
+[72:08] Speaker 1: Thank you.
+[72:09] Speaker 1: So everyone on the call, look out for the recording.
+[72:11] Speaker 1: We'll post that onto the website along with the slides.
+[72:13] Speaker 1: And again, if you want any information on the courses that are approved for CEUs, reach out to me, cat.com.
+[72:20] Speaker 1: I'll get you the information.
+[72:22] Speaker 1: So a lot of thank yous from everybody.
+[72:24] Speaker 3: Yeah, a lot of thank you from everyone.
+[72:25] Speaker 3: Thank you, everyone.
+[72:26] Speaker 3: Good.
+[72:26] Speaker 3: All right.
+[72:28] Speaker 1: Take care.
+[72:28] Speaker 1: Have a great day.
+[72:30] Speaker 3: Bye.
+[72:31] Speaker 2: Bye.

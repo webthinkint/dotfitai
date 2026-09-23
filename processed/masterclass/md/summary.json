@@ -1,0 +1,567 @@
+{
+  "n_docs": 33,
+  "errors": [],
+  "docs": [
+    {
+      "file": "2026-dotfit masterclass_road to health performancestaying young_part 1.pdf",
+      "slug": "2026-dotfit-masterclass-road-to-health-performancestaying-young-part-1",
+      "title": "2026-dotfit masterclass_road to health performancestaying young_part 1",
+      "n_pages": 90,
+      "slide_deck": true,
+      "n_sections": 86,
+      "n_blocks": 135,
+      "n_links": 150,
+      "tables": {
+        "raw": 10,
+        "trivial": 1,
+        "prose_dropped": 5,
+        "text_fallback": 0,
+        "kept": 4
+      }
+    },
+    {
+      "file": "2026-dotfit masterclass_road to health performancestaying young_part 2.pdf",
+      "slug": "2026-dotfit-masterclass-road-to-health-performancestaying-young-part-2",
+      "title": "2026-dotfit masterclass_road to health performancestaying young_part 2",
+      "n_pages": 63,
+      "slide_deck": true,
+      "n_sections": 62,
+      "n_blocks": 69,
+      "n_links": 123,
+      "tables": {
+        "raw": 21,
+        "trivial": 17,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 3
+      }
+    },
+    {
+      "file": "28-dotfit masterclass_new member goals and how weight loss drugs are shaping fitness_8.2026.pdf",
+      "slug": "28-dotfit-masterclass-new-member-goals-and-how-weight-loss-drugs-are-shaping-fitness-8-2026",
+      "title": "28-dotfit masterclass_new member goals and how weight loss drugs are shaping fitness_8.2026",
+      "n_pages": 53,
+      "slide_deck": true,
+      "n_sections": 51,
+      "n_blocks": 90,
+      "n_links": 81,
+      "tables": {
+        "raw": 27,
+        "trivial": 17,
+        "prose_dropped": 2,
+        "text_fallback": 0,
+        "kept": 8
+      }
+    },
+    {
+      "file": "dotfit best practices for nutrition programming and marketing tools_4.2023.pdf",
+      "slug": "dotfit-best-practices-for-nutrition-programming-and-marketing-tools-4-2023",
+      "title": "dotfit best practices for nutrition programming and marketing tools_4.2023",
+      "n_pages": 31,
+      "slide_deck": true,
+      "n_sections": 27,
+      "n_blocks": 71,
+      "n_links": 8,
+      "tables": {
+        "raw": 8,
+        "trivial": 2,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 6
+      }
+    },
+    {
+      "file": "dotfit masterclass_a guide to popular diets_1.2023.pdf",
+      "slug": "dotfit-masterclass-a-guide-to-popular-diets-1-2023",
+      "title": "dotfit masterclass_a guide to popular diets_1.2023",
+      "n_pages": 20,
+      "slide_deck": true,
+      "n_sections": 19,
+      "n_blocks": 19,
+      "n_links": 0,
+      "tables": {
+        "raw": 1,
+        "trivial": 1,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_career mentorship by neal spruce_oct 2019.pdf",
+      "slug": "dotfit-masterclass-career-mentorship-by-neal-spruce-oct-2019",
+      "title": "dotfit masterclass_career mentorship by neal spruce_oct 2019",
+      "n_pages": 21,
+      "slide_deck": true,
+      "n_sections": 21,
+      "n_blocks": 24,
+      "n_links": 6,
+      "tables": {
+        "raw": 4,
+        "trivial": 1,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 3
+      }
+    },
+    {
+      "file": "dotfit masterclass_creatine monohydrate_beyond muscle_9.2024.pdf",
+      "slug": "dotfit-masterclass-creatine-monohydrate-beyond-muscle-9-2024",
+      "title": "dotfit masterclass_creatine monohydrate_beyond muscle_9.2024",
+      "n_pages": 51,
+      "slide_deck": true,
+      "n_sections": 47,
+      "n_blocks": 53,
+      "n_links": 74,
+      "tables": {
+        "raw": 10,
+        "trivial": 6,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 3
+      }
+    },
+    {
+      "file": "dotfit masterclass_eating for your micros_why micronutrients are important_handout.pdf",
+      "slug": "dotfit-masterclass-eating-for-your-micros-why-micronutrients-are-important-handout",
+      "title": "dotfit masterclass_eating for your micros_why micronutrients are important_handout",
+      "n_pages": 39,
+      "slide_deck": true,
+      "n_sections": 38,
+      "n_blocks": 40,
+      "n_links": 1,
+      "tables": {
+        "raw": 36,
+        "trivial": 30,
+        "prose_dropped": 2,
+        "text_fallback": 1,
+        "kept": 4
+      }
+    },
+    {
+      "file": "dotfit masterclass_extremecreatinexxxl_2.21.25.pdf",
+      "slug": "dotfit-masterclass-extremecreatinexxxl-2-21-25",
+      "title": "dotfit masterclass_extremecreatinexxxl_2.21.25",
+      "n_pages": 55,
+      "slide_deck": true,
+      "n_sections": 53,
+      "n_blocks": 57,
+      "n_links": 148,
+      "tables": {
+        "raw": 6,
+        "trivial": 4,
+        "prose_dropped": 2,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_gainz_sept 2019_handout.pdf",
+      "slug": "dotfit-masterclass-gainz-sept-2019-handout",
+      "title": "dotfit masterclass_gainz_sept 2019_handout",
+      "n_pages": 36,
+      "slide_deck": true,
+      "n_sections": 34,
+      "n_blocks": 35,
+      "n_links": 6,
+      "tables": {
+        "raw": 3,
+        "trivial": 2,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 1
+      }
+    },
+    {
+      "file": "dotfit masterclass_healthy aging_aug 2019.pdf",
+      "slug": "dotfit-masterclass-healthy-aging-aug-2019",
+      "title": "dotfit masterclass_healthy aging_aug 2019",
+      "n_pages": 43,
+      "slide_deck": true,
+      "n_sections": 40,
+      "n_blocks": 55,
+      "n_links": 16,
+      "tables": {
+        "raw": 15,
+        "trivial": 4,
+        "prose_dropped": 4,
+        "text_fallback": 0,
+        "kept": 7
+      }
+    },
+    {
+      "file": "dotfit masterclass - hot topics in fitness_december 2020_handout.pdf",
+      "slug": "dotfit-masterclass-hot-topics-in-fitness-december-2020-handout",
+      "title": "dotfit masterclass - hot topics in fitness_december 2020_handout",
+      "n_pages": 47,
+      "slide_deck": true,
+      "n_sections": 46,
+      "n_blocks": 46,
+      "n_links": 32,
+      "tables": {
+        "raw": 2,
+        "trivial": 2,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_micronutreints and the immune system_finalv2_july 2020_handout.pdf",
+      "slug": "dotfit-masterclass-micronutreints-and-the-immune-system-finalv2-july-2020-handout",
+      "title": "dotfit masterclass_micronutreints and the immune system_finalv2_july 2020_handout",
+      "n_pages": 40,
+      "slide_deck": true,
+      "n_sections": 40,
+      "n_blocks": 43,
+      "n_links": 3,
+      "tables": {
+        "raw": 45,
+        "trivial": 42,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 3
+      }
+    },
+    {
+      "file": "dotfit masterclass_micronutrients and healthy aging with dr emily ho_4.7.23.pdf",
+      "slug": "dotfit-masterclass-micronutrients-and-healthy-aging-with-dr-emily-ho-4-7-23",
+      "title": "dotfit masterclass_micronutrients and healthy aging with dr emily ho_4.7.23",
+      "n_pages": 43,
+      "slide_deck": true,
+      "n_sections": 31,
+      "n_blocks": 33,
+      "n_links": 4,
+      "tables": {
+        "raw": 4,
+        "trivial": 4,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_nutrition and fitness myths_april 2020_handout.pdf",
+      "slug": "dotfit-masterclass-nutrition-and-fitness-myths-april-2020-handout",
+      "title": "dotfit masterclass_nutrition and fitness myths_april 2020_handout",
+      "n_pages": 37,
+      "slide_deck": true,
+      "n_sections": 35,
+      "n_blocks": 35,
+      "n_links": 6,
+      "tables": {
+        "raw": 21,
+        "trivial": 21,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_nutrition hacks for the holidays and beyond_11.2023.pdf",
+      "slug": "dotfit-masterclass-nutrition-hacks-for-the-holidays-and-beyond-11-2023",
+      "title": "dotfit masterclass_nutrition hacks for the holidays and beyond_11.2023",
+      "n_pages": 40,
+      "slide_deck": true,
+      "n_sections": 39,
+      "n_blocks": 43,
+      "n_links": 63,
+      "tables": {
+        "raw": 3,
+        "trivial": 2,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_nutrition programming for fitness professionals_jan 2021_handout.pdf",
+      "slug": "dotfit-masterclass-nutrition-programming-for-fitness-professionals-jan-2021-handout",
+      "title": "dotfit masterclass_nutrition programming for fitness professionals_jan 2021_handout",
+      "n_pages": 17,
+      "slide_deck": true,
+      "n_sections": 12,
+      "n_blocks": 12,
+      "n_links": 1,
+      "tables": {
+        "raw": 4,
+        "trivial": 4,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_part 1 of optimizing body composition_weight loss vs fat loss_beyond calories_12.8.23.pdf",
+      "slug": "dotfit-masterclass-part-1-of-optimizing-body-composition-weight-loss-vs-fat-loss-beyond-calories-12-8-23",
+      "title": "dotfit masterclass_part 1 of optimizing body composition_weight loss vs fat loss_beyond calories_12.8.23",
+      "n_pages": 40,
+      "slide_deck": true,
+      "n_sections": 39,
+      "n_blocks": 39,
+      "n_links": 8,
+      "tables": {
+        "raw": 40,
+        "trivial": 39,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass_part 1_weight loss vs fat loss_beyond calories_aug 2020._handoutpdf.pdf",
+      "slug": "dotfit-masterclass-part-1-weight-loss-vs-fat-loss-beyond-calories-aug-2020-handoutpdf",
+      "title": "dotfit masterclass_part 1_weight loss vs fat loss_beyond calories_aug 2020._handoutpdf",
+      "n_pages": 32,
+      "slide_deck": true,
+      "n_sections": 32,
+      "n_blocks": 32,
+      "n_links": 9,
+      "tables": {
+        "raw": 39,
+        "trivial": 38,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "dotfit masterclass - part 2 maximizing gainz while minimizing fat_sept 2020.pdf",
+      "slug": "dotfit-masterclass-part-2-maximizing-gainz-while-minimizing-fat-sept-2020",
+      "title": "dotfit masterclass - part 2 maximizing gainz while minimizing fat_sept 2020",
+      "n_pages": 34,
+      "slide_deck": true,
+      "n_sections": 32,
+      "n_blocks": 34,
+      "n_links": 6,
+      "tables": {
+        "raw": 29,
+        "trivial": 26,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 2
+      }
+    },
+    {
+      "file": "dotfit masterclass_part 2_maximizing muscle growth while minimizing fat gain_1.2024.pdf",
+      "slug": "dotfit-masterclass-part-2-maximizing-muscle-growth-while-minimizing-fat-gain-1-2024",
+      "title": "dotfit masterclass_part 2_maximizing muscle growth while minimizing fat gain_1.2024",
+      "n_pages": 81,
+      "slide_deck": true,
+      "n_sections": 77,
+      "n_blocks": 92,
+      "n_links": 111,
+      "tables": {
+        "raw": 10,
+        "trivial": 5,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 4
+      }
+    },
+    {
+      "file": "dotfit masterclass - part 3 of optimizing body compositon and nutrition myths_2.2.24.pdf",
+      "slug": "dotfit-masterclass-part-3-of-optimizing-body-compositon-and-nutrition-myths-2-2-24",
+      "title": "dotfit masterclass - part 3 of optimizing body compositon and nutrition myths_2.2.24",
+      "n_pages": 53,
+      "slide_deck": true,
+      "n_sections": 50,
+      "n_blocks": 58,
+      "n_links": 39,
+      "tables": {
+        "raw": 14,
+        "trivial": 9,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 4
+      }
+    },
+    {
+      "file": "dotfit masterclass_sleep aid_3.2025.pdf",
+      "slug": "dotfit-masterclass-sleep-aid-3-2025",
+      "title": "dotfit masterclass_sleep aid_3.2025",
+      "n_pages": 36,
+      "slide_deck": true,
+      "n_sections": 34,
+      "n_blocks": 80,
+      "n_links": 55,
+      "tables": {
+        "raw": 1,
+        "trivial": 0,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 1
+      }
+    },
+    {
+      "file": "dotfit masterclass_the science behind fat loss formula thermaccel_2019.pdf",
+      "slug": "dotfit-masterclass-the-science-behind-fat-loss-formula-thermaccel-2019",
+      "title": "dotfit masterclass_the science behind fat loss formula thermaccel_2019",
+      "n_pages": 18,
+      "slide_deck": true,
+      "n_sections": 18,
+      "n_blocks": 19,
+      "n_links": 4,
+      "tables": {
+        "raw": 7,
+        "trivial": 5,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 1
+      }
+    },
+    {
+      "file": "dotfit masterclass_the ultimate guide to optimizing body composition_part 3_contest prep_oct 2020.pdf",
+      "slug": "dotfit-masterclass-the-ultimate-guide-to-optimizing-body-composition-part-3-contest-prep-oct-2020",
+      "title": "dotfit masterclass_the ultimate guide to optimizing body composition_part 3_contest prep_oct 2020",
+      "n_pages": 28,
+      "slide_deck": true,
+      "n_sections": 27,
+      "n_blocks": 29,
+      "n_links": 1,
+      "tables": {
+        "raw": 9,
+        "trivial": 7,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 2
+      }
+    },
+    {
+      "file": "dotfit masterclass_weight loss drugs glp-1_5.24.24.pdf",
+      "slug": "dotfit-masterclass-weight-loss-drugs-glp-1-5-24-24",
+      "title": "dotfit masterclass_weight loss drugs glp-1_5.24.24",
+      "n_pages": 50,
+      "slide_deck": true,
+      "n_sections": 47,
+      "n_blocks": 56,
+      "n_links": 38,
+      "tables": {
+        "raw": 10,
+        "trivial": 3,
+        "prose_dropped": 2,
+        "text_fallback": 0,
+        "kept": 5
+      }
+    },
+    {
+      "file": "dotfit masterclass_weight loss supplement bundles_jan 2020.pdf",
+      "slug": "dotfit-masterclass-weight-loss-supplement-bundles-jan-2020",
+      "title": "dotfit masterclass_weight loss supplement bundles_jan 2020",
+      "n_pages": 32,
+      "slide_deck": true,
+      "n_sections": 26,
+      "n_blocks": 30,
+      "n_links": 31,
+      "tables": {
+        "raw": 11,
+        "trivial": 5,
+        "prose_dropped": 2,
+        "text_fallback": 0,
+        "kept": 4
+      }
+    },
+    {
+      "file": "dotfit masterclass_weight loss supplement webcast_june 2019.pdf",
+      "slug": "dotfit-masterclass-weight-loss-supplement-webcast-june-2019",
+      "title": "dotfit masterclass_weight loss supplement webcast_june 2019",
+      "n_pages": 53,
+      "slide_deck": true,
+      "n_sections": 53,
+      "n_blocks": 54,
+      "n_links": 15,
+      "tables": {
+        "raw": 11,
+        "trivial": 9,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 1
+      }
+    },
+    {
+      "file": "dotfit masterclass_youth performance nutrition_handout_5.22.20.pdf",
+      "slug": "dotfit-masterclass-youth-performance-nutrition-handout-5-22-20",
+      "title": "dotfit masterclass_youth performance nutrition_handout_5.22.20",
+      "n_pages": 65,
+      "slide_deck": true,
+      "n_sections": 64,
+      "n_blocks": 69,
+      "n_links": 4,
+      "tables": {
+        "raw": 20,
+        "trivial": 15,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 5
+      }
+    },
+    {
+      "file": "dotfit_nasm masterclass_strategies to break plateaus and keep holiday weight gain in check_11.19.21.pdf",
+      "slug": "dotfit-nasm-masterclass-strategies-to-break-plateaus-and-keep-holiday-weight-gain-in-check-11-19-21",
+      "title": "dotfit_nasm masterclass_strategies to break plateaus and keep holiday weight gain in check_11.19.21",
+      "n_pages": 26,
+      "slide_deck": true,
+      "n_sections": 23,
+      "n_blocks": 43,
+      "n_links": 0,
+      "tables": {
+        "raw": 0,
+        "trivial": 0,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    },
+    {
+      "file": "introduction to dotfit with neal spruce_8.23.24.pdf",
+      "slug": "introduction-to-dotfit-with-neal-spruce-8-23-24",
+      "title": "introduction to dotfit with neal spruce_8.23.24",
+      "n_pages": 70,
+      "slide_deck": true,
+      "n_sections": 64,
+      "n_blocks": 77,
+      "n_links": 113,
+      "tables": {
+        "raw": 20,
+        "trivial": 7,
+        "prose_dropped": 4,
+        "text_fallback": 0,
+        "kept": 9
+      }
+    },
+    {
+      "file": "protein dotfit master class_webinar may 2019_final.pdf",
+      "slug": "protein-dotfit-master-class-webinar-may-2019-final",
+      "title": "protein dotfit master class_webinar may 2019_final",
+      "n_pages": 68,
+      "slide_deck": true,
+      "n_sections": 64,
+      "n_blocks": 65,
+      "n_links": 12,
+      "tables": {
+        "raw": 11,
+        "trivial": 9,
+        "prose_dropped": 1,
+        "text_fallback": 0,
+        "kept": 1
+      }
+    },
+    {
+      "file": "weight loss and fasting bundles_1.2023.pdf",
+      "slug": "weight-loss-and-fasting-bundles-1-2023",
+      "title": "weight loss and fasting bundles_1.2023",
+      "n_pages": 40,
+      "slide_deck": true,
+      "n_sections": 39,
+      "n_blocks": 43,
+      "n_links": 55,
+      "tables": {
+        "raw": 2,
+        "trivial": 2,
+        "prose_dropped": 0,
+        "text_fallback": 0,
+        "kept": 0
+      }
+    }
+  ]
+}

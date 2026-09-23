@@ -80,6 +80,22 @@ clock — see open item 10.
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
 
+### 2026-09-22 — Masterclass corpus acquired: probe, full ASR sweep, PDFs to markdown
+
+New datasource `data/Masterclass/` (48 webinar mp3s, 53.9 h + 33 PDF decks). The
+Sleep Aid probe found the PDF claim-precise, reference-linked, but **86% an
+8-gram duplicate of the indexed PDSRG deck** — the audio alone carries the Q&A
+and dosing guidance, so both sides were produced, analysis deferred.
+`scripts/masterclass_transcribe.py` (the podcast §7 call, diarization, raw-
+verbatim) transcribed all 48 — 0 failures, ~60 s API per audio-hour — to
+`processed/masterclass/transcripts/` (595,796 words).
+`scripts/masterclass_pdf_md.py` converts the 33 PDFs to markdown on the §6
+machinery plus one script-local rule: median line ≥14 pt decks (pre-Aptos,
+invisible to `is_slide_deck`) collapse under the flowing classifier and route
+to `slide_sections`. Rerun byte-identical; no package code or tests touched.
+Not damage: two-column bullets interleave, one shadow-text bio slide garbles.
+Nothing chunked, tagged or indexed yet — that waits on the analysis.
+
 ### 2026-09-17 — supplement programs the founder's way (§7.4, D9)
 
 Owner-ruled today. New `get_program_guide` tool returns the short decision tree,

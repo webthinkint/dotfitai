@@ -5,6 +5,7 @@ runtime/**/bin/
 runtime/**/obj/
 runtime/**/*.user
 /data/QAs
+/data/Masterclass
 /data/Suppbeast Podcast
 /processed/qa/runs
 /processed/qa/stage0/reports
@@ -20,3 +21,4 @@ runtime/**/*.user
 # python bytecode (deploy tooling is python: verdict-log, turn-log)
 __pycache__/
 *.pyc
+/processed/masterclass/runs
