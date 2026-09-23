@@ -8,8 +8,8 @@ progress entries. Keep citing them.
 
 The previous runtime (`docs/v1/phase1-knowledge-assistant.md`, §11 there) is not
 deleted and not deprecated — it stays buildable and runnable as the comparison
-baseline. Its docs live under `docs/v1/` and govern nothing on this branch. When
-this document and that one disagree, this one wins here.
+baseline. Its docs live under `docs/v1/` and govern nothing about this runtime.
+When this document and that one disagree, this one wins here.
 
 ---
 

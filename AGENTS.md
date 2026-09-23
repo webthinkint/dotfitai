@@ -3,10 +3,11 @@
 dotFIT Agentic Assistant — a frontier model given the nutrition/supplement
 corpus as tools, deciding for itself what to look up and what to say.
 
-This is the `agentic-rag` branch. The previous runtime — a fixed chain of
-guardrail → rewrite → search → synthesis → post-check — still builds and still
-runs, as the comparison baseline. Its docs are archived under `docs/v1/` and
-govern nothing here.
+This is the runtime on `master` (the `agentic-rag` branch, merged 2026-09-23).
+The previous runtime — a fixed chain of guardrail → rewrite → search →
+synthesis → post-check — still builds and still runs, as the comparison
+baseline; tag `v1-final` marks the last v1-only commit. Its docs are archived
+under `docs/v1/` and govern nothing here.
 
 ## Read first
 
@@ -19,14 +20,14 @@ govern nothing here.
   changes here in the same commit; they build against this document, not against
   the code.
 - `docs/v1/decisions.md` — **still binding upstream.** The corpus, PII, alias,
-  PDSRG and index rulings constrain the pipeline this branch reuses unchanged.
+  PDSRG and index rulings constrain the pipeline this runtime reuses unchanged.
   Read the group for the area before changing pipeline behavior. Its Runtime
   §11 group describes the old runtime and does not apply.
 - **Module docstrings are the detail.** Every module opens with its §ref and the
   contract baked into it. Read the file you are about to touch — this document
   is a map, not a substitute.
 
-## What this branch is trying to fix
+## What this runtime is trying to fix
 
 The owners found the v1 runtime slow, refusal-prone and unconversational. All
 three are architectural: a fixed pipeline pays for every stage on every turn,
@@ -43,7 +44,7 @@ Pipeline, from `pipeline/` (uv-managed, Python 3.12 pinned in `.python-version`)
 
 ```bash
 uv sync                                  # only prerequisite is uv itself
-uv run pytest                            # must stay green; this branch changes no pipeline code
+uv run pytest                            # must stay green; the runtime changes no pipeline code
 uv run qa-pipeline --help                # subcommands; <sub> --help for all flags
 ```
 
@@ -74,7 +75,7 @@ work — do not break them, they are the baseline.
 
 ## Architecture
 
-The pipeline and the index are **unchanged and not this branch's work**. Two
+The pipeline and the index are **unchanged and not the runtime's work**. Two
 corpora feed a shared alias vocabulary, then a shared index; the runtime queries
 it.
 
@@ -96,7 +97,7 @@ PDSRG: PDF → `pdsrg` → `index`; products.json + infopages + menus + podcasts
 `DotFit.Agentic` is a **sibling** namespace of `DotFit.Agents`, not a child.
 That is deliberate: as a child, every file needing a conversation type also
 inherited v1's `StageEvent` / `DeltaEvent` / `ResultEvent` — a different
-contract with the same names. This branch's events are `Turn…`-prefixed so the
+contract with the same names. The agentic events are `Turn…`-prefixed so the
 ambiguity cannot come back.
 
 ## Working rules that bite
@@ -108,7 +109,7 @@ ambiguity cannot come back.
   gate back in the path.
 - **No model call outside the loop.** No pre-check, no rewrite, no post-check.
   Alias expansion, filters and source numbering are deterministic code. A second
-  model in the request path is the thing this branch removed.
+  model in the request path is the thing this runtime removed.
 - **Source numbers are turn-scoped and assigned at tool-result time**, emitted
   to the caller *before* any text cites them (§7). A number never changes
   meaning inside a turn. This is what makes `[n]` resolvable while streaming —

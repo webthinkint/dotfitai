@@ -7,12 +7,12 @@ reads this file end to end, so it is kept short on purpose — the rest lives in
   hard rules it produced.
 - `docs/v1/` — the previous runtime's plan, progress, rulings and owner tasks.
   Archived. The corpus/PII/alias/index rulings in `docs/v1/decisions.md` still
-  bind the pipeline this branch reuses; nothing there governs the runtime.
+  bind the pipeline this runtime reuses; nothing there governs the runtime.
 
 ## Status (§12 build order)
 
-Branch opened 2026-09-12. The runtime is **built and live end to end**; what it
-has not had is a person using it.
+Branch opened 2026-09-12, merged to `master` 2026-09-23. The runtime is **built
+and live end to end**; what it has not had is a person using it.
 
 | Component | § | State | Verified |
 |---|---|---|---|
@@ -79,6 +79,15 @@ clock — see open item 10.
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-23 — `agentic-rag` merged to `master`
+
+Owner call: the agentic runtime is kept. `master` fast-forwarded to the branch,
+then absorbed its own cherry-pick of 81cd611 (`26aab33`, the SuppBeast/Neal
+ASR fix) with `-s ours` — code and artifacts byte-identical, so no tree
+change. Tag `v1-final` → `26aab33`, the last v1-only commit. v1 stays the
+buildable comparison baseline; AGENTS.md and the doc headers now say `master`.
+Docs only, no test.
 
 ### 2026-09-22 — Masterclass corpus acquired: probe, full ASR sweep, PDFs to markdown
 
