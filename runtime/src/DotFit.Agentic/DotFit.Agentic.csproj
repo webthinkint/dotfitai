@@ -28,8 +28,9 @@
 
   <ItemGroup>
     <!-- The supplement program guide (§7.4), embedded so the deployed service
-         carries the revision it was built with. Edited where it lives. -->
-    <EmbeddedResource Include="..\..\..\processed\podcasts\neal-spruce-dotfit-decision-tree.md"
+         carries the revision it was built with. Edited where it lives. Since
+         2026-09-28 it is the one built from the product summaries deck (D10). -->
+    <EmbeddedResource Include="..\..\..\processed\summaries\dotfit-program-guide.md"
                       LogicalName="DotFit.Agentic.Prompting.program-guide.md" />
   </ItemGroup>
 

@@ -145,12 +145,20 @@ ambiguity cannot come back.
   layer gets unit tests; the loop gets a handful of shape tests. Do not port
   v1's 264. The 250-item golden set is **not** a validity signal — it was never
   labeled — and no number computed against it may be quoted as correctness.
-- **Supplement programs come from the program guide** (§7.4, D9):
-  `processed/podcasts/neal-spruce-dotfit-decision-tree.md`, embedded into
-  `DotFit.Agentic` at build. It is hand-authored, not pipeline output — the one
-  file under `processed/` that is edited in place — and it is **uncited** by
+- **Supplement programs come from the program guide** (§7.4, D9, D10):
+  `processed/summaries/dotfit-program-guide.md`, written from the product
+  summaries deck and embedded into `DotFit.Agentic` at build. It is
+  hand-authored, not pipeline output — the one file under `processed/` that is
+  edited in place (the podcast-derived guide it replaced stays in
+  `processed/podcasts/` as history, embedded nowhere) — and it is **uncited** by
   ruling: no ledger entry, no `source` frame. A part number it names must
   resolve in the alias table (a test enforces it).
+- **The product summaries deck outranks everything** (D10): legal-approved; on
+  a disagreement it wins, then the PDSRG. `pipeline/scripts/summaries_pptx_md.py`
+  extracts it text-exact through a hand-curated slide→section map; **no price
+  may reach the output** (masked to `[price]` — prices are per-customer on the
+  website), and `kind: script` sections (trainer scripts, taglines, flyers) are
+  held back by ruling until a use is decided.
 - `processed/` is committed but derived: regenerate, don't hand-edit. Numbers
   quoted in `docs/progress.md` must match a regenerated run or a dated live run.
 - Commits: `area: description`, lowercase. New behavior gets a test where a test

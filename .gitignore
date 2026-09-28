@@ -22,3 +22,5 @@ runtime/**/*.user
 __pycache__/
 *.pyc
 /processed/masterclass/runs
+/data/Product Summaries/*.pptx
+/processed/summaries/runs

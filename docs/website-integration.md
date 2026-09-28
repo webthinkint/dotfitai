@@ -335,7 +335,9 @@ change it in one place rather than have you rewrite delivered copy.
 assistant builds a program from dotFIT's own program guide (a `guide` stage,
 no source). Two escalation cases were narrowed with it, by owner decision:
 **teenagers (12–17) now get real answers** within the guide's limits — no
-creatine, pre-workouts or weight-loss products — and the age case now starts
+pre-workouts, glutamine or weight-loss products, and (since 2026-09-28, when the
+guide was rebuilt from dotFIT's product summaries) creatine only for
+post-pubescent athletes around 16+ with a parent's approval — and the age case now starts
 **under 12**; and a customer with a medical condition, on medication or pregnant
 can be recommended the guide's restricted baseline (a multivitamin and protein,
 and to tell their doctor). If your side treated "a minor" as anyone under 18,

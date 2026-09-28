@@ -138,12 +138,15 @@ public class SystemPromptTests
     [Fact]
     public void Teenagers_are_answered_within_the_guides_under_18_limits()
     {
-        // Owner-ruled 2026-09-17: the age trigger is the guide's lowest
-        // bracket, and the teen exclusions are what replaced the old line.
+        // Owner-ruled 2026-09-17: the age trigger is under 12, and the teen
+        // limits are what replaced the old line. Since D10 (2026-09-28) the
+        // limits are the deck's youth program: creatine only 16+ with a
+        // parent's approval, nothing else outside it.
         string prompt = SystemPrompt.Build(Fixtures.Aliases());
         Assert.DoesNotContain("The customer is under 18", prompt, StringComparison.Ordinal);
         Assert.Contains("Teenagers (12–17) are not on that list", prompt, StringComparison.Ordinal);
-        Assert.Contains("no creatine, glutamine, pre-workouts", prompt, StringComparison.Ordinal);
+        Assert.Contains("creatine only for post-pubescent athletes", prompt, StringComparison.Ordinal);
+        Assert.Contains("no pre-workouts, glutamine or weight-loss products", prompt, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -72,13 +72,26 @@ clock — see open item 10.
 | 9 | **A/B against v1** | open. Both runtimes build and both answer; nothing has been run through the two side by side |
 | 10 | **First-token latency misses the §6 targets** (new 2026-09-12) | **open, unattributed.** 1.8–2.1 s on a no-tool turn against a 1.5 s target, 5.8 s on a one-search turn against 4 s. The cause is not yet split between the deployment's own time-to-first-token, the ~2,400-token system prompt, and the embed+search round trip inside the tool (measured at 1,439 ms of the 5,809). Measure before tuning: a shorter prompt is the obvious lever and may be the wrong one |
 | 11 | **The search price in the cost sheet is a placeholder** (new 2026-09-15) | **open.** `result.cost.search.usd` prices index queries at a dummy `DOTFIT_PRICE_SEARCH_PER_1K` — a provisioned AI Search tier bills the month, not the query, so there is no per-query price to read. The counts (`search.queries`, `search.ranker_queries`) are exact. Replace the rate from the service's real billing data, set a new `DOTFIT_PRICE_SHEET` id in the same edit, and update `docs/website-integration.md`'s caveat. The chat/embedding prices in the builtin sheet are the current list prices, also worth confirming against the actual invoice |
-| 12 | **The program guide is unreviewed** (new 2026-09-17) — `processed/podcasts/neal-spruce-dotfit-decision-tree.md` was drafted from the podcast transcripts and `products.json`, and the assistant now recommends from it verbatim (D9, §7.4) | **open, owner-ruled: use it as is meanwhile.** Someone at dotFIT should check its doses, "up to" athlete amounts, age bands and overlap figures against the labels. Part numbers are already pinned by a test (all 35 resolve). Edit it where it lives; the service picks it up on rebuild, and the turn log's `program_guide` hash changes with it |
+| 12 | **The program guide is unreviewed** (new 2026-09-17; source replaced 2026-09-28, D10) — `processed/summaries/dotfit-program-guide.md` is now written from the product summaries deck, which is legal-approved; the podcast-derived guide is retired | **open, narrower.** Still for dotFIT to check: the two parts **carried over** because the deck is silent (medical screening §2, overlap arithmetic §9), and where the deck contradicts itself the guide follows the text summary over the pictured collateral — fat-loss level 2/3 order (slides 199 vs 200–202), muscle-gain level 2 (229 table adds AminoFormula, 230 picture does not), senior bundle 3 (AminoFormula pictured, joints/brain in the text), CarbRepel dose (184: 2 twice daily; 234: 3 a day), vitamin D targets (>30 to 40–70 ng/mL across slides), youth multi under 12 (ChildLife, a non-dotFIT product; 248/252 still say KidsMV, which `products.json` does not carry). Part numbers pinned by the existing test |
+| 13 | **The product summaries corpus is extracted, not indexed** (new 2026-09-28, D10) | **open.** 68 sections in `processed/summaries/md/` (31 product, 12 bundle, 2 brand, 5 education, 18 script), each tagged with alias-resolved part numbers. To index: a new `source_type`, its authority above `product`, the `search` enum and prompt source list, and `docs/website-integration.md` if the type reaches the caller — a rebuild of the shared `kb-main-v2`, so owner go-ahead first. `script` sections stay out until their use is ruled |
+| 14 | **Tool surface for the deck** (new 2026-09-28) | **open, proposal.** Three decisions: (a) have `get_product` also return the family's deck summary section beside the `products.json` copy — the deck is the top authority, so the quoting path should carry it (proposed over a new tool); (b) whether the held-back `script` sections become a separate trainer-facing tool; (c) whether the program guide, now legal-approved, becomes a cited source rather than uncited method (a `source` frame per program turn — contract change) |
+| 15 | **The rebuilt guide has not been run live** (new 2026-09-28) | **open.** Run `smoke --tier program` and `--tier safety` (S-041 and S-090…S-094 were re-expected for the new guide) and read the transcripts before the preview is shown to anyone |
 
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-28 — product summaries deck: extracted, and the program guide rebuilt from it (D10)
+
+Owner-ruled: the 269-slide `summaries_teaching.pptx` is legal-approved and the top
+authority (then the PDSRG); prices never reach text; scripts held back. New
+`scripts/summaries_pptx_md.py`: text-exact python-pptx, position-ordered, curated
+slide→section map (21 duplicate/divider slides dropped), 48 prices masked,
+hand-read notes of what the bundle photos show; rerun byte-identical. The guide
+is rewritten from it (open item 12) and the prompt's teen/attribution lines follow;
+smoke S-041/091–094 re-expected. 138 + 271 + 467 green; nothing indexed (item 13).
 
 ### 2026-09-23 — `agentic-rag` merged to `master`
 

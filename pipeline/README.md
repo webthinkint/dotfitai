@@ -152,6 +152,21 @@ uv run qa-pipeline podcast \
     --out ../processed/podcasts
 ```
 
+Product summaries deck (D10 — legal-approved, the top authority; not yet
+indexed). Standalone script, no model call; the `.pptx` is gitignored (65 MB):
+
+```bash
+uv run scripts/summaries_pptx_md.py
+```
+
+Reads `data/Product Summaries/summaries_teaching.pptx` text-exact and writes
+`processed/summaries/md/NN-<slug>.md` (one per section of the hand-curated
+slide→section map in the script) + `summary.json`; the full per-slide dump goes
+to `processed/summaries/runs/`. Every price is masked to `[price]`. The run fails
+if a slide is in no section and not listed as dropped, or a product tag is not an
+alias-table family. `processed/summaries/dotfit-program-guide.md` sits beside the
+output but is hand-written, not generated (§7.4).
+
 §12 golden-set sampling (labeling worksheet + adversarial scaffold):
 
 ```bash

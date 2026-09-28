@@ -57,6 +57,7 @@ Owner decisions of 2026-09-12, which the rest of this document implements.
 | D7 | **Minimal tests.** A small written conversational smoke set plus owner chat sessions; the 179 retrieval probes stay because they are label-free | The 250-item golden set was never labeled by a nutritionist, so it is not a validity signal and will not be treated as one |
 | D9 | *(2026-09-17)* **Supplement programs follow dotFIT's founder's method** — a fourth tool, `get_program_guide` (§7.4), returns the guide; it is uncited and its picks and doses are given unattributed. Relaxed with it: the age trigger is **under 12** (the guide's lowest bracket), the guide's screening answer is allowed for a condition, medication or pregnancy, and the no-arithmetic rule is gone | The owners want program answers to work the way Neal Spruce builds them; the guide already encodes the teen and screening limits the escalation list used to cover bluntly |
 | D8 | Docs are a clean slate: new design doc, new `AGENTS.md`, new `progress.md`; everything prior moved to `docs/v1/` | Two sets of rules in one tree is worse than one set plus an archive |
+| D10 | *(2026-09-28)* **The product summaries deck is the highest authority** (`data/Product Summaries/summaries_teaching.pptx`, legal-approved). On a disagreement it wins, then the PDSRG. Its bundle and program instructions **replace the podcast-derived program guide** (§7.4). Prices never reach the text — they are individualized per customer on the website — so extraction masks every one. Trainer scripts, taglines and flyer/email copy are held back for now, possibly for a separate tool later | It is dotFIT's current compilation of product, bundling and program guidance; the previous guide was drafted from podcast transcripts and never reviewed (open item 12) |
 
 Decisions made *inside* this design, not by the owner, are marked **(design
 call)** where they appear, so they are visible as things to revisit.
@@ -74,6 +75,11 @@ retrieved source (§7).
 | 3 | Customer QA corpus | `qa` | ~935 canonicalized answers written by dotFIT experts to real customers | Guidance and phrasing. Historical — a source of how dotFIT answers, not of current claims |
 | 4 | Podcast transcripts | `podcast` | 47 episodes, 1,800 timed segments | Context and opinion, attributed to the speaker. Never a product claim |
 | 5 | Menus | `menu_desc` | Meal-plan descriptions | Presence only |
+
+**(D10, 2026-09-28.)** Above tier 1 sits the product summaries deck — legal-approved,
+quotable, and the winner of any disagreement (then the PDSRG). It reaches the
+model today only through the program guide (§7.4); its product sections are
+extracted to `processed/summaries/md/` but **not yet indexed** (open item 13).
 
 **The claims rule that outranks everything else**: a product claim is dotFIT's
 legal exposure. It is quoted from tier 1, or it is attributed to the tier it
@@ -272,13 +278,16 @@ question about a specific flavor or size resolves without a second call.
 get_program_guide()
 ```
 
-**(D9, owner-ruled 2026-09-17.)** Returns dotFIT's supplement program guide,
-whole: how dotFIT's founder builds a program — screening, the baseline everyone
-gets, goal branches, optional add-ons after 60–90 days, the overlap check —
-with the dotFIT product and dose for each step. The source is
-`processed/podcasts/neal-spruce-dotfit-decision-tree.md`, embedded into the
-assembly at build time, so the deployed service carries the revision it was
-built with. It is used as written pending a dotFIT review (open item 12).
+**(D9, owner-ruled 2026-09-17; source replaced by D10, 2026-09-28.)** Returns
+dotFIT's supplement program guide, whole: how dotFIT builds a program —
+screening, the foundation everyone gets, goal levels (muscle, fat loss,
+longevity, brain, seniors, youth, family), extras, the overlap check — with the
+dotFIT product and dose for each step. The source is
+`processed/summaries/dotfit-program-guide.md`, hand-written from the product
+summaries deck with slide references, embedded into the assembly at build time,
+so the deployed service carries the revision it was built with. Two parts the
+deck is silent on — medical screening and the overlap arithmetic — are carried
+over from the podcast-derived guide it replaced and marked so (open item 12).
 
 - **Not a source.** It touches no ledger, emits no `source` frame, and is not
   cited; the prompt says so. It emits a `guide` stage frame like any tool.
@@ -286,9 +295,8 @@ built with. It is used as written pending a dotFIT review (open item 12).
   every turn, greetings included (open item 10). Only a program turn pays for
   it, and — since tool results are not replayed (§6) — each program turn that
   needs it reads it again.
-- **Unattributed.** Its choices and doses are dotFIT's recommendations.
-  "dotFIT's founder" is said only when it helps or the customer asks; Neal
-  Spruce is named only if they ask who.
+- **Unattributed.** Its choices and doses are dotFIT's recommendations; asked
+  where the approach comes from, the answer is dotFIT's own program guidance.
 - **Naming a product with its guide dose needs no `get_product` call**, or a
   six-product program spends most of the turn's budget on copy it does not
   quote. Anything more about what a product contains, does or is for is a

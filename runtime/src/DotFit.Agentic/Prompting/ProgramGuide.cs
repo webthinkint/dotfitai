@@ -5,15 +5,16 @@ using System.Text;
 namespace DotFit.Agentic.Prompting;
 
 /// <summary>
-/// dotFIT's supplement program guide (design §7.4): how dotFIT's founder
-/// builds a program — screening, baseline, goal branches, add-ons, overlap
-/// check — as a pick list of current dotFIT products with doses.
+/// dotFIT's supplement program guide (design §7.4): how dotFIT builds a
+/// program — screening, the foundation, goal levels, extras, overlap check —
+/// as a pick list of current dotFIT products with doses.
 ///
 /// Embedded at build time from
-/// <c>processed/podcasts/neal-spruce-dotfit-decision-tree.md</c>, so the
-/// deployed service carries the revision it was built with and there is no
-/// file to go missing at boot. Owner-ruled 2026-09-17: used as written, pending
-/// a dotFIT review of its doses (open item 12).
+/// <c>processed/summaries/dotfit-program-guide.md</c>, so the deployed service
+/// carries the revision it was built with and there is no file to go missing
+/// at boot. Owner-ruled 2026-09-28 (D10): built from the product summaries
+/// deck, dotFIT's legal-approved and highest-authority guidance, replacing the
+/// podcast-derived guide of 2026-09-17.
 ///
 /// It is the assistant's working method for program questions, **not a
 /// numbered source**: <c>get_program_guide</c> returns it without touching the

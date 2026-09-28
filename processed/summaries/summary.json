@@ -1,0 +1,1808 @@
+{
+  "deck": "summaries_teaching.pptx",
+  "n_slides": 269,
+  "n_sections": 68,
+  "by_kind": {
+    "product": 31,
+    "bundle": 12,
+    "brand": 2,
+    "education": 5,
+    "script": 18
+  },
+  "prices_masked": 48,
+  "dropped": {
+    "20": "older revision of 23",
+    "21": "subset of 23",
+    "22": "subset of 23",
+    "25": "duplicate of 24",
+    "29": "near-duplicate of 28",
+    "30": "older revision of 31",
+    "33": "duplicate of 30",
+    "34": "duplicate of 32",
+    "35": "duplicate of 1",
+    "38": "section divider (Health Products)",
+    "41": "near-duplicate of 40",
+    "57": "image of the text on 55-56",
+    "64": "near-duplicate of 61",
+    "65": "near-duplicate of 66 (per-day prices only)",
+    "71": "subset of 74",
+    "152": "competitor price comparison — prices only",
+    "159": "image of the text on 157",
+    "226": "title-only slide",
+    "231": "duplicate of 230",
+    "237": "older revision of 238",
+    "251": "duplicate of 248"
+  },
+  "sections": [
+    {
+      "file": "01-practitioner-difference.md",
+      "slug": "practitioner-difference",
+      "title": "The practitioner difference",
+      "kind": "brand",
+      "slides": [
+        2,
+        3
+      ],
+      "products": [
+        "AminoFormula"
+      ],
+      "part_nos": [
+        1213,
+        1216,
+        1220
+      ],
+      "chars": 1633,
+      "pictured": []
+    },
+    {
+      "file": "02-performance-products.md",
+      "slug": "performance-products",
+      "title": "Performance products and how to bundle them",
+      "kind": "bundle",
+      "slides": [
+        4,
+        5,
+        6
+      ],
+      "products": [
+        "First String",
+        "Creatine Monohydrate",
+        "NO7 PreWorkout",
+        "Active MV",
+        "Alln1 SuperBlend",
+        "Omega-3 Fish Oil",
+        "Creatine Complex"
+      ],
+      "part_nos": [
+        1005,
+        1020,
+        1200,
+        1207,
+        1214,
+        1215,
+        1217,
+        1227,
+        1371,
+        1372,
+        8001,
+        8016
+      ],
+      "chars": 2382,
+      "pictured": [
+        4,
+        5
+      ]
+    },
+    {
+      "file": "03-senior-playspan-bundles.md",
+      "slug": "senior-playspan-bundles",
+      "title": "Senior health, performance & longevity bundles (Playspan)",
+      "kind": "bundle",
+      "slides": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "products": [
+        "Over 50 MV",
+        "Alln1 SuperBlend",
+        "WheySmooth",
+        "Omega-3 Fish Oil",
+        "Calcium Complex",
+        "Vitamin D-3",
+        "Creatine Monohydrate",
+        "AminoFormula"
+      ],
+      "part_nos": [
+        1004,
+        1009,
+        1018,
+        1020,
+        1200,
+        1213,
+        1216,
+        1220,
+        1227,
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 7076,
+      "pictured": [
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "file": "04-dotbar-new-bars.md",
+      "slug": "dotbar-new-bars",
+      "title": "New high-fiber protein bars",
+      "kind": "product",
+      "slides": [
+        14
+      ],
+      "products": [
+        "dotBAR"
+      ],
+      "part_nos": [
+        1456,
+        1457,
+        1462,
+        1470,
+        1471,
+        1480,
+        1482
+      ],
+      "chars": 206,
+      "pictured": []
+    },
+    {
+      "file": "05-extras-and-taglines.md",
+      "slug": "extras-and-taglines",
+      "title": "Performance, recovery and health extras, with taglines",
+      "kind": "script",
+      "slides": [
+        16,
+        17,
+        18
+      ],
+      "products": [
+        "Creatine Complex",
+        "NO7 PreWorkout",
+        "GlutamineComplex",
+        "Digestive Enzymes",
+        "SleepAid",
+        "Electrolytes",
+        "Alln1 SuperBlend",
+        "Antioxidant",
+        "Active MV",
+        "Probiotics",
+        "CollagenComplex",
+        "Omega-3 Fish Oil",
+        "Calcium Complex",
+        "Vitamin D-3"
+      ],
+      "part_nos": [
+        1000,
+        1003,
+        1004,
+        1005,
+        1017,
+        1018,
+        1019,
+        1020,
+        1048,
+        1205,
+        1207,
+        1214,
+        1215,
+        1217,
+        1225,
+        8001,
+        8016
+      ],
+      "chars": 7395,
+      "pictured": [
+        16
+      ]
+    },
+    {
+      "file": "06-dotfit-difference.md",
+      "slug": "dotfit-difference",
+      "title": "Dietary supplements — the dotFIT difference",
+      "kind": "brand",
+      "slides": [
+        19,
+        23,
+        24,
+        26,
+        27,
+        28,
+        31,
+        32
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 9150,
+      "pictured": []
+    },
+    {
+      "file": "07-trainer-client-handout.md",
+      "slug": "trainer-client-handout",
+      "title": "Nutrition & supplementation — trainer and client handout",
+      "kind": "education",
+      "slides": [
+        1,
+        36,
+        37
+      ],
+      "products": [
+        "Active MV",
+        "Omega-3 Fish Oil",
+        "Calcium Complex"
+      ],
+      "part_nos": [
+        1004,
+        1005,
+        1020
+      ],
+      "chars": 2721,
+      "pictured": []
+    },
+    {
+      "file": "08-multivitamins.md",
+      "slug": "multivitamins",
+      "title": "The dotFIT multivitamin & mineral formulas",
+      "kind": "product",
+      "slides": [
+        39
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Over 50 MV",
+        "Alln1 SuperBlend"
+      ],
+      "part_nos": [
+        1005,
+        1007,
+        1009,
+        8001,
+        8016
+      ],
+      "chars": 1367,
+      "pictured": []
+    },
+    {
+      "file": "09-activemv.md",
+      "slug": "activemv",
+      "title": "ActiveMV",
+      "kind": "product",
+      "slides": [
+        40,
+        42,
+        43,
+        44,
+        45,
+        46,
+        49,
+        50
+      ],
+      "products": [
+        "Active MV"
+      ],
+      "part_nos": [
+        1005
+      ],
+      "chars": 7739,
+      "pictured": [
+        49,
+        50
+      ]
+    },
+    {
+      "file": "10-activemv-scripts.md",
+      "slug": "activemv-scripts",
+      "title": "ActiveMV — trainer script and taglines",
+      "kind": "script",
+      "slides": [
+        47,
+        48
+      ],
+      "products": [
+        "Active MV"
+      ],
+      "part_nos": [
+        1005
+      ],
+      "chars": 3449,
+      "pictured": []
+    },
+    {
+      "file": "11-superblend.md",
+      "slug": "superblend",
+      "title": "Alln1 SuperBlend",
+      "kind": "product",
+      "slides": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "products": [
+        "Alln1 SuperBlend",
+        "WheySmooth",
+        "Plant Protein",
+        "Omega-3 Fish Oil",
+        "Calcium Complex"
+      ],
+      "part_nos": [
+        1004,
+        1020,
+        1300,
+        1301,
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 8533,
+      "pictured": []
+    },
+    {
+      "file": "12-over50mv.md",
+      "slug": "over50mv",
+      "title": "Over50MV",
+      "kind": "product",
+      "slides": [
+        58,
+        59,
+        60
+      ],
+      "products": [
+        "Over 50 MV",
+        "Active MV"
+      ],
+      "part_nos": [
+        1005,
+        1009
+      ],
+      "chars": 5369,
+      "pictured": []
+    },
+    {
+      "file": "13-womensmv.md",
+      "slug": "womensmv",
+      "title": "Women's MV",
+      "kind": "product",
+      "slides": [
+        61,
+        62,
+        63
+      ],
+      "products": [
+        "Women's MV",
+        "Active MV"
+      ],
+      "part_nos": [
+        1005,
+        1007
+      ],
+      "chars": 5089,
+      "pictured": []
+    },
+    {
+      "file": "14-multivitamin-guide.md",
+      "slug": "multivitamin-guide",
+      "title": "Multivitamin guide — which formula for whom",
+      "kind": "product",
+      "slides": [
+        66
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Over 50 MV",
+        "Alln1 SuperBlend"
+      ],
+      "part_nos": [
+        1005,
+        1007,
+        1009,
+        8001,
+        8016
+      ],
+      "chars": 973,
+      "pictured": []
+    },
+    {
+      "file": "15-vitamin-d3.md",
+      "slug": "vitamin-d3",
+      "title": "Vitamin D3",
+      "kind": "product",
+      "slides": [
+        67,
+        68,
+        69,
+        70,
+        72,
+        74
+      ],
+      "products": [
+        "Vitamin D-3"
+      ],
+      "part_nos": [
+        1018
+      ],
+      "chars": 6918,
+      "pictured": []
+    },
+    {
+      "file": "16-vitamin-d3-scripts.md",
+      "slug": "vitamin-d3-scripts",
+      "title": "Vitamin D3 — trainer scripts",
+      "kind": "script",
+      "slides": [
+        73
+      ],
+      "products": [
+        "Vitamin D-3"
+      ],
+      "part_nos": [
+        1018
+      ],
+      "chars": 1761,
+      "pictured": []
+    },
+    {
+      "file": "17-calcium-complex.md",
+      "slug": "calcium-complex",
+      "title": "Calcium Complex",
+      "kind": "product",
+      "slides": [
+        75,
+        76,
+        77
+      ],
+      "products": [
+        "Calcium Complex"
+      ],
+      "part_nos": [
+        1004
+      ],
+      "chars": 3853,
+      "pictured": []
+    },
+    {
+      "file": "18-omega-3.md",
+      "slug": "omega-3",
+      "title": "SuperOmega-3 fish oil",
+      "kind": "product",
+      "slides": [
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84
+      ],
+      "products": [
+        "Omega-3 Fish Oil"
+      ],
+      "part_nos": [
+        1020
+      ],
+      "chars": 8856,
+      "pictured": []
+    },
+    {
+      "file": "19-playspan-essentials-bundle.md",
+      "slug": "playspan-essentials-bundle",
+      "title": "Playspan essentials bundle",
+      "kind": "bundle",
+      "slides": [
+        85,
+        86,
+        87
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Over 50 MV",
+        "Alln1 SuperBlend",
+        "Omega-3 Fish Oil",
+        "Calcium Complex",
+        "WheySmooth",
+        "First String",
+        "Pre & Post Workout Formula",
+        "LeanMeal Nutrition Shake",
+        "Plant Protein"
+      ],
+      "part_nos": [
+        1004,
+        1005,
+        1007,
+        1009,
+        1020,
+        1300,
+        1301,
+        1333,
+        1334,
+        1367,
+        1368,
+        1369,
+        1370,
+        1371,
+        1372,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 3321,
+      "pictured": [
+        85,
+        86
+      ]
+    },
+    {
+      "file": "20-road-to-health-part-1-2.md",
+      "slug": "road-to-health-part-1-2",
+      "title": "The Road to Health — Parts 1 & 2 summary",
+      "kind": "education",
+      "slides": [
+        88,
+        89,
+        90,
+        91
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 4925,
+      "pictured": []
+    },
+    {
+      "file": "21-road-to-health-email.md",
+      "slug": "road-to-health-email",
+      "title": "The Road to Health — email campaign version",
+      "kind": "script",
+      "slides": [
+        92,
+        93,
+        94
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 3689,
+      "pictured": []
+    },
+    {
+      "file": "22-collagen-complex.md",
+      "slug": "collagen-complex",
+      "title": "Collagen Complex",
+      "kind": "product",
+      "slides": [
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "products": [
+        "CollagenComplex"
+      ],
+      "part_nos": [
+        1003
+      ],
+      "chars": 5322,
+      "pictured": []
+    },
+    {
+      "file": "23-antioxidant.md",
+      "slug": "antioxidant",
+      "title": "Antioxidants (SuperiorAntioxidant)",
+      "kind": "product",
+      "slides": [
+        100,
+        101,
+        102,
+        103
+      ],
+      "products": [
+        "Antioxidant"
+      ],
+      "part_nos": [
+        1000
+      ],
+      "chars": 6123,
+      "pictured": []
+    },
+    {
+      "file": "24-antioxidant-scripts.md",
+      "slug": "antioxidant-scripts",
+      "title": "Antioxidants — trainer script",
+      "kind": "script",
+      "slides": [
+        104
+      ],
+      "products": [
+        "Antioxidant"
+      ],
+      "part_nos": [
+        1000
+      ],
+      "chars": 1587,
+      "pictured": []
+    },
+    {
+      "file": "25-probiotics.md",
+      "slug": "probiotics",
+      "title": "Probiotics",
+      "kind": "product",
+      "slides": [
+        105,
+        106,
+        107,
+        108,
+        109
+      ],
+      "products": [
+        "Probiotics"
+      ],
+      "part_nos": [
+        1017
+      ],
+      "chars": 6389,
+      "pictured": []
+    },
+    {
+      "file": "26-digestive-enzymes.md",
+      "slug": "digestive-enzymes",
+      "title": "Digestive Enzymes",
+      "kind": "product",
+      "slides": [
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "products": [
+        "Digestive Enzymes"
+      ],
+      "part_nos": [
+        1019
+      ],
+      "chars": 6051,
+      "pictured": [
+        110
+      ]
+    },
+    {
+      "file": "27-sleep-aid.md",
+      "slug": "sleep-aid",
+      "title": "Sleep Aid",
+      "kind": "product",
+      "slides": [
+        116,
+        117,
+        118
+      ],
+      "products": [
+        "SleepAid"
+      ],
+      "part_nos": [
+        1048
+      ],
+      "chars": 4964,
+      "pictured": []
+    },
+    {
+      "file": "28-brain-health.md",
+      "slug": "brain-health",
+      "title": "Brain Health",
+      "kind": "product",
+      "slides": [
+        119,
+        121,
+        122
+      ],
+      "products": [
+        "Brain Health"
+      ],
+      "part_nos": [
+        1001
+      ],
+      "chars": 4123,
+      "pictured": []
+    },
+    {
+      "file": "29-brain-mental-health-levels.md",
+      "slug": "brain-mental-health-levels",
+      "title": "Brain & mental health dietary support — levels 1 and 2",
+      "kind": "bundle",
+      "slides": [
+        123,
+        124,
+        125
+      ],
+      "products": [
+        "Active MV",
+        "Alln1 SuperBlend",
+        "Vitamin D-3",
+        "Omega-3 Fish Oil",
+        "Creatine Monohydrate",
+        "Brain Health"
+      ],
+      "part_nos": [
+        1001,
+        1005,
+        1018,
+        1020,
+        1200,
+        1227,
+        8001,
+        8016
+      ],
+      "chars": 3668,
+      "pictured": [
+        125
+      ]
+    },
+    {
+      "file": "30-youth-preserving-bundles.md",
+      "slug": "youth-preserving-bundles",
+      "title": "Youth-preserving nutrition bundles, levels 1–5",
+      "kind": "bundle",
+      "slides": [
+        120,
+        126,
+        127,
+        128,
+        129
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Over 50 MV",
+        "Alln1 SuperBlend",
+        "Calcium Complex",
+        "Omega-3 Fish Oil",
+        "Vitamin D-3",
+        "Antioxidant",
+        "Probiotics",
+        "CollagenComplex",
+        "Brain Health",
+        "Digestive Enzymes",
+        "SleepAid",
+        "LeanMeal Nutrition Shake",
+        "WheySmooth"
+      ],
+      "part_nos": [
+        1000,
+        1001,
+        1003,
+        1004,
+        1005,
+        1007,
+        1009,
+        1017,
+        1018,
+        1019,
+        1020,
+        1048,
+        1333,
+        1334,
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 5691,
+      "pictured": [
+        127,
+        128,
+        129
+      ]
+    },
+    {
+      "file": "31-proteins.md",
+      "slug": "proteins",
+      "title": "dotFIT proteins — overview and lineup",
+      "kind": "product",
+      "slides": [
+        130,
+        131,
+        132,
+        134,
+        161
+      ],
+      "products": [
+        "WheySmooth",
+        "Plant Protein",
+        "First String",
+        "LeanMeal Nutrition Shake",
+        "Pre & Post Workout Formula"
+      ],
+      "part_nos": [
+        1300,
+        1301,
+        1333,
+        1334,
+        1367,
+        1368,
+        1369,
+        1370,
+        1371,
+        1372,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399
+      ],
+      "chars": 7243,
+      "pictured": []
+    },
+    {
+      "file": "32-proteins-scripts.md",
+      "slug": "proteins-scripts",
+      "title": "dotFIT proteins — video/trainer script",
+      "kind": "script",
+      "slides": [
+        133
+      ],
+      "products": [
+        "WheySmooth",
+        "First String"
+      ],
+      "part_nos": [
+        1369,
+        1370,
+        1371,
+        1372,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399
+      ],
+      "chars": 1322,
+      "pictured": []
+    },
+    {
+      "file": "33-plant-protein.md",
+      "slug": "plant-protein",
+      "title": "Plant Protein (BestPlantProtein)",
+      "kind": "product",
+      "slides": [
+        135,
+        136,
+        137
+      ],
+      "products": [
+        "Plant Protein"
+      ],
+      "part_nos": [
+        1300,
+        1301
+      ],
+      "chars": 4022,
+      "pictured": []
+    },
+    {
+      "file": "34-pre-post-workout.md",
+      "slug": "pre-post-workout",
+      "title": "Pre & Post Workout Formula",
+      "kind": "product",
+      "slides": [
+        138,
+        139,
+        140
+      ],
+      "products": [
+        "Pre & Post Workout Formula"
+      ],
+      "part_nos": [
+        1367,
+        1368
+      ],
+      "chars": 4681,
+      "pictured": []
+    },
+    {
+      "file": "35-firststring.md",
+      "slug": "firststring",
+      "title": "FirstString",
+      "kind": "product",
+      "slides": [
+        141,
+        142,
+        143,
+        144
+      ],
+      "products": [
+        "First String"
+      ],
+      "part_nos": [
+        1371,
+        1372
+      ],
+      "chars": 5355,
+      "pictured": []
+    },
+    {
+      "file": "36-wheysmooth.md",
+      "slug": "wheysmooth",
+      "title": "WheySmooth",
+      "kind": "product",
+      "slides": [
+        145,
+        146,
+        147,
+        148
+      ],
+      "products": [
+        "WheySmooth"
+      ],
+      "part_nos": [
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399
+      ],
+      "chars": 6286,
+      "pictured": []
+    },
+    {
+      "file": "37-all-natural-wheysmooth.md",
+      "slug": "all-natural-wheysmooth",
+      "title": "All-Natural WheySmooth",
+      "kind": "product",
+      "slides": [
+        149,
+        150,
+        151
+      ],
+      "products": [
+        "WheySmooth"
+      ],
+      "part_nos": [
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399
+      ],
+      "chars": 4773,
+      "pictured": []
+    },
+    {
+      "file": "38-leanmeal.md",
+      "slug": "leanmeal",
+      "title": "LeanMeal",
+      "kind": "product",
+      "slides": [
+        153,
+        154,
+        155,
+        156,
+        157,
+        160
+      ],
+      "products": [
+        "LeanMeal Nutrition Shake"
+      ],
+      "part_nos": [
+        1333,
+        1334
+      ],
+      "chars": 8892,
+      "pictured": []
+    },
+    {
+      "file": "39-leanmeal-scripts.md",
+      "slug": "leanmeal-scripts",
+      "title": "LeanMeal — presentation and trainer script",
+      "kind": "script",
+      "slides": [
+        158
+      ],
+      "products": [
+        "LeanMeal Nutrition Shake"
+      ],
+      "part_nos": [
+        1333,
+        1334
+      ],
+      "chars": 1457,
+      "pictured": []
+    },
+    {
+      "file": "40-part-1-2-to-part-3.md",
+      "slug": "part-1-2-to-part-3",
+      "title": "Parts 1 & 2 leading to Part 3",
+      "kind": "education",
+      "slides": [
+        162
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 1304,
+      "pictured": []
+    },
+    {
+      "file": "41-wlls.md",
+      "slug": "wlls",
+      "title": "Weight Loss & Liver Support (WLLS)",
+      "kind": "product",
+      "slides": [
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+      ],
+      "products": [
+        "WeightLoss & LiverSupport"
+      ],
+      "part_nos": [
+        1100
+      ],
+      "chars": 6802,
+      "pictured": []
+    },
+    {
+      "file": "42-wlls-scripts.md",
+      "slug": "wlls-scripts",
+      "title": "WLLS — presentations and trainer/video script",
+      "kind": "script",
+      "slides": [
+        169,
+        170
+      ],
+      "products": [
+        "WeightLoss & LiverSupport"
+      ],
+      "part_nos": [
+        1100
+      ],
+      "chars": 3625,
+      "pictured": []
+    },
+    {
+      "file": "43-thermaccel.md",
+      "slug": "thermaccel",
+      "title": "ThermAccel",
+      "kind": "product",
+      "slides": [
+        171,
+        172,
+        175,
+        176
+      ],
+      "products": [
+        "ThermAccel"
+      ],
+      "part_nos": [
+        1102
+      ],
+      "chars": 7438,
+      "pictured": []
+    },
+    {
+      "file": "44-thermaccel-scripts.md",
+      "slug": "thermaccel-scripts",
+      "title": "ThermAccel — trainer scripts, pitch and flyer",
+      "kind": "script",
+      "slides": [
+        173,
+        174,
+        177,
+        178,
+        179,
+        180
+      ],
+      "products": [
+        "ThermAccel"
+      ],
+      "part_nos": [
+        1102
+      ],
+      "chars": 8832,
+      "pictured": []
+    },
+    {
+      "file": "45-carbrepel.md",
+      "slug": "carbrepel",
+      "title": "CarbRepel",
+      "kind": "product",
+      "slides": [
+        181,
+        183,
+        184,
+        185
+      ],
+      "products": [
+        "CarbRepel"
+      ],
+      "part_nos": [
+        1101
+      ],
+      "chars": 5516,
+      "pictured": []
+    },
+    {
+      "file": "46-carbrepel-scripts.md",
+      "slug": "carbrepel-scripts",
+      "title": "CarbRepel — presentations",
+      "kind": "script",
+      "slides": [
+        182
+      ],
+      "products": [
+        "CarbRepel"
+      ],
+      "part_nos": [
+        1101
+      ],
+      "chars": 1221,
+      "pictured": []
+    },
+    {
+      "file": "47-leanpak90.md",
+      "slug": "leanpak90",
+      "title": "Lean Pak 90 — the 90-day weight loss pack",
+      "kind": "bundle",
+      "slides": [
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        196,
+        197
+      ],
+      "products": [
+        "LeanPak90",
+        "WeightLoss & LiverSupport",
+        "CarbRepel",
+        "ThermAccel",
+        "Alln1 SuperBlend",
+        "Active MV",
+        "LeanMeal Nutrition Shake"
+      ],
+      "part_nos": [
+        1005,
+        1100,
+        1101,
+        1102,
+        1333,
+        1334,
+        1600,
+        8001,
+        8016
+      ],
+      "chars": 13662,
+      "pictured": [
+        186,
+        187,
+        196
+      ]
+    },
+    {
+      "file": "48-leanpak90-scripts.md",
+      "slug": "leanpak90-scripts",
+      "title": "Lean Pak 90 — presentation",
+      "kind": "script",
+      "slides": [
+        195
+      ],
+      "products": [
+        "LeanPak90"
+      ],
+      "part_nos": [
+        1600
+      ],
+      "chars": 982,
+      "pictured": []
+    },
+    {
+      "file": "49-bodyfat-bundles.md",
+      "slug": "bodyfat-bundles",
+      "title": "Bodyfat / weight loss bundles, levels 1–3",
+      "kind": "bundle",
+      "slides": [
+        198,
+        199,
+        200,
+        201,
+        202
+      ],
+      "products": [
+        "LeanMeal Nutrition Shake",
+        "Active MV",
+        "Alln1 SuperBlend",
+        "WeightLoss & LiverSupport",
+        "ThermAccel",
+        "CarbRepel",
+        "AminoFormula",
+        "Omega-3 Fish Oil"
+      ],
+      "part_nos": [
+        1005,
+        1020,
+        1100,
+        1101,
+        1102,
+        1213,
+        1216,
+        1220,
+        1333,
+        1334,
+        8001,
+        8016
+      ],
+      "chars": 5019,
+      "pictured": [
+        198,
+        199,
+        202
+      ]
+    },
+    {
+      "file": "50-creatine-monohydrate.md",
+      "slug": "creatine-monohydrate",
+      "title": "Creatine Monohydrate",
+      "kind": "product",
+      "slides": [
+        203,
+        204,
+        205,
+        206
+      ],
+      "products": [
+        "Creatine Monohydrate"
+      ],
+      "part_nos": [
+        1200,
+        1227
+      ],
+      "chars": 4857,
+      "pictured": []
+    },
+    {
+      "file": "51-creatine-monohydrate-scripts.md",
+      "slug": "creatine-monohydrate-scripts",
+      "title": "Creatine Monohydrate — target-audience taglines",
+      "kind": "script",
+      "slides": [
+        207,
+        208
+      ],
+      "products": [
+        "Creatine Monohydrate"
+      ],
+      "part_nos": [
+        1200,
+        1227
+      ],
+      "chars": 1469,
+      "pictured": []
+    },
+    {
+      "file": "52-creatine-complex.md",
+      "slug": "creatine-complex",
+      "title": "Creatine Complex (Extreme Creatine) with Careflow",
+      "kind": "product",
+      "slides": [
+        209,
+        210,
+        211
+      ],
+      "products": [
+        "Creatine Complex"
+      ],
+      "part_nos": [
+        1207
+      ],
+      "chars": 4643,
+      "pictured": []
+    },
+    {
+      "file": "53-creatine-complex-scripts.md",
+      "slug": "creatine-complex-scripts",
+      "title": "Creatine Complex — taglines and flyer",
+      "kind": "script",
+      "slides": [
+        212,
+        213
+      ],
+      "products": [
+        "Creatine Complex"
+      ],
+      "part_nos": [
+        1207
+      ],
+      "chars": 2731,
+      "pictured": []
+    },
+    {
+      "file": "54-no7-preworkout.md",
+      "slug": "no7-preworkout",
+      "title": "NO7 PreWorkout",
+      "kind": "product",
+      "slides": [
+        214,
+        215,
+        216,
+        218
+      ],
+      "products": [
+        "NO7 PreWorkout"
+      ],
+      "part_nos": [
+        1214,
+        1215,
+        1217
+      ],
+      "chars": 5733,
+      "pictured": []
+    },
+    {
+      "file": "55-no7-preworkout-scripts.md",
+      "slug": "no7-preworkout-scripts",
+      "title": "NO7 PreWorkout — quick conversation",
+      "kind": "script",
+      "slides": [
+        217
+      ],
+      "products": [
+        "NO7 PreWorkout"
+      ],
+      "part_nos": [
+        1214,
+        1215,
+        1217
+      ],
+      "chars": 310,
+      "pictured": []
+    },
+    {
+      "file": "56-aminoformula.md",
+      "slug": "aminoformula",
+      "title": "AminoFormula",
+      "kind": "product",
+      "slides": [
+        219,
+        220,
+        221,
+        222,
+        223
+      ],
+      "products": [
+        "AminoFormula"
+      ],
+      "part_nos": [
+        1213,
+        1216,
+        1220
+      ],
+      "chars": 8260,
+      "pictured": []
+    },
+    {
+      "file": "57-aminoformula-scripts.md",
+      "slug": "aminoformula-scripts",
+      "title": "AminoFormula — description, taglines and value proposition",
+      "kind": "script",
+      "slides": [
+        224,
+        225
+      ],
+      "products": [
+        "AminoFormula"
+      ],
+      "part_nos": [
+        1213,
+        1216,
+        1220
+      ],
+      "chars": 3069,
+      "pictured": []
+    },
+    {
+      "file": "58-glutamine-complex.md",
+      "slug": "glutamine-complex",
+      "title": "Glutamine Complex",
+      "kind": "product",
+      "slides": [
+        227,
+        228
+      ],
+      "products": [
+        "GlutamineComplex"
+      ],
+      "part_nos": [
+        1205
+      ],
+      "chars": 3817,
+      "pictured": []
+    },
+    {
+      "file": "59-muscle-gain-bundles.md",
+      "slug": "muscle-gain-bundles",
+      "title": "Muscle / performance gain bundles, levels 1–3",
+      "kind": "bundle",
+      "slides": [
+        229,
+        230,
+        232
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Alln1 SuperBlend",
+        "Omega-3 Fish Oil",
+        "Calcium Complex",
+        "WheySmooth",
+        "First String",
+        "Creatine Monohydrate",
+        "AminoFormula",
+        "NO7 PreWorkout",
+        "Creatine Complex"
+      ],
+      "part_nos": [
+        1004,
+        1005,
+        1007,
+        1020,
+        1200,
+        1207,
+        1213,
+        1214,
+        1215,
+        1216,
+        1217,
+        1220,
+        1227,
+        1369,
+        1370,
+        1371,
+        1372,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 4767,
+      "pictured": [
+        230,
+        232
+      ]
+    },
+    {
+      "file": "60-shred-bundles.md",
+      "slug": "shred-bundles",
+      "title": "Shred bundles — Competitor and Champion",
+      "kind": "bundle",
+      "slides": [
+        233,
+        234
+      ],
+      "products": [
+        "Active MV",
+        "Alln1 SuperBlend",
+        "WeightLoss & LiverSupport",
+        "LeanMeal Nutrition Shake",
+        "AminoFormula",
+        "ThermAccel",
+        "CarbRepel"
+      ],
+      "part_nos": [
+        1005,
+        1100,
+        1101,
+        1102,
+        1213,
+        1216,
+        1220,
+        1333,
+        1334,
+        8001,
+        8016
+      ],
+      "chars": 4504,
+      "pictured": [
+        233
+      ]
+    },
+    {
+      "file": "61-ufc-challenge-bundles.md",
+      "slug": "ufc-challenge-bundles",
+      "title": "UFC Ultimate Challenge power bundle products",
+      "kind": "bundle",
+      "slides": [
+        235
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "Alln1 SuperBlend",
+        "Creatine Monohydrate",
+        "Creatine Complex",
+        "Pre & Post Workout Formula",
+        "WheySmooth",
+        "AminoFormula",
+        "NO7 PreWorkout"
+      ],
+      "part_nos": [
+        1005,
+        1007,
+        1200,
+        1207,
+        1213,
+        1214,
+        1215,
+        1216,
+        1217,
+        1220,
+        1227,
+        1367,
+        1368,
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 2942,
+      "pictured": [
+        235
+      ]
+    },
+    {
+      "file": "62-youth-nutrition.md",
+      "slug": "youth-nutrition",
+      "title": "Youth health and performance nutrition, levels 1 and 2",
+      "kind": "bundle",
+      "slides": [
+        236,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        248,
+        249,
+        250,
+        252,
+        253,
+        254
+      ],
+      "products": [
+        "Active MV",
+        "Alln1 SuperBlend",
+        "First String",
+        "Plant Protein",
+        "Calcium Complex",
+        "Omega-3 Fish Oil",
+        "Creatine Monohydrate"
+      ],
+      "part_nos": [
+        1004,
+        1005,
+        1020,
+        1200,
+        1227,
+        1300,
+        1301,
+        1371,
+        1372,
+        8001,
+        8016
+      ],
+      "chars": 18294,
+      "pictured": [
+        239,
+        240
+      ]
+    },
+    {
+      "file": "63-youth-nutrition-scripts.md",
+      "slug": "youth-nutrition-scripts",
+      "title": "Youth nutrition — promotion, trainer script sheet, website/email copy",
+      "kind": "script",
+      "slides": [
+        245,
+        246,
+        247,
+        255
+      ],
+      "products": [
+        "Active MV",
+        "First String",
+        "Creatine Monohydrate"
+      ],
+      "part_nos": [
+        1005,
+        1200,
+        1227,
+        1371,
+        1372
+      ],
+      "chars": 4190,
+      "pictured": []
+    },
+    {
+      "file": "64-family-wellness-bundle.md",
+      "slug": "family-wellness-bundle",
+      "title": "Family wellness bundle",
+      "kind": "bundle",
+      "slides": [
+        15,
+        256,
+        257,
+        258,
+        259
+      ],
+      "products": [
+        "Active MV",
+        "Women's MV",
+        "First String",
+        "Omega-3 Fish Oil",
+        "dotBAR",
+        "Vanilla dotWAFER",
+        "Electrolytes"
+      ],
+      "part_nos": [
+        1005,
+        1007,
+        1020,
+        1225,
+        1371,
+        1372,
+        1456,
+        1457,
+        1462,
+        1466,
+        1470,
+        1471,
+        1480,
+        1482
+      ],
+      "chars": 4998,
+      "pictured": [
+        15
+      ]
+    },
+    {
+      "file": "65-road-to-health-part-3.md",
+      "slug": "road-to-health-part-3",
+      "title": "The Road to Health — Part III: advanced therapies and GLP-1",
+      "kind": "education",
+      "slides": [
+        260,
+        261,
+        262,
+        263,
+        264
+      ],
+      "products": [
+        "LeanMeal Nutrition Shake",
+        "Alln1 SuperBlend",
+        "Active MV",
+        "WheySmooth",
+        "Plant Protein"
+      ],
+      "part_nos": [
+        1005,
+        1300,
+        1301,
+        1333,
+        1334,
+        1369,
+        1370,
+        1374,
+        1375,
+        1391,
+        1392,
+        1399,
+        8001,
+        8016
+      ],
+      "chars": 5034,
+      "pictured": [
+        260
+      ]
+    },
+    {
+      "file": "66-road-to-health-part-3-career.md",
+      "slug": "road-to-health-part-3-career",
+      "title": "Part III — career enhancement summary",
+      "kind": "script",
+      "slides": [
+        265
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 577,
+      "pictured": []
+    },
+    {
+      "file": "67-playspan-equals-lifespan.md",
+      "slug": "playspan-equals-lifespan",
+      "title": "Establishing a Playspan equal to a lifespan",
+      "kind": "education",
+      "slides": [
+        266,
+        267,
+        268
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 3054,
+      "pictured": []
+    },
+    {
+      "file": "68-playspan-equals-lifespan-script.md",
+      "slug": "playspan-equals-lifespan-script",
+      "title": "Playspan — trainer script",
+      "kind": "script",
+      "slides": [
+        269
+      ],
+      "products": [],
+      "part_nos": [],
+      "chars": 1193,
+      "pictured": []
+    }
+  ]
+}
