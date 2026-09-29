@@ -9,7 +9,8 @@ using DotFit.Agents.Aliases;
 using DotFit.Agents.Config;
 using DotFit.Agents.Retrieval;
 using Microsoft.Agents.AI;
-using OpenAI.Chat;
+using Microsoft.Extensions.AI;
+using OpenAI.Responses;
 
 namespace DotFit.Agentic;
 
@@ -35,12 +36,31 @@ public static class AgenticFactory
     /// The agent: the frontier deployment, carrying the assembled system
     /// prompt as its instructions. Tools are *not* bound here — they are
     /// turn-scoped (their ledger and budget are) and arrive as per-run options.
+    ///
+    /// Over the Responses API, not Chat Completions: reasoning deployments
+    /// (gpt-6-astra) reject function tools on /chat/completions at every
+    /// reasoning effort they accept, and a loop without tools is not this
+    /// runtime. Storage is off — the caller sends the whole history each turn,
+    /// so nothing needs a server-side conversation, and a stored response would
+    /// keep the customer's question on Azure that the turn log refuses to hold
+    /// (§10).
     /// </summary>
+    // OPENAI001: the SDK still marks the Responses surface experimental.
+#pragma warning disable OPENAI001
     public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AliasTable aliases) =>
-        client.GetChatClient(options.RequireChatDeployment())
+        client.GetResponsesClient()
             .AsAIAgent(
-                name: "dotfit-agentic",
-                instructions: SystemPrompt.Build(aliases, options.SupportContact));
+                new ChatClientAgentOptions
+                {
+                    Name = "dotfit-agentic",
+                    ChatOptions = new ChatOptions
+                    {
+                        Instructions = SystemPrompt.Build(aliases, options.SupportContact),
+                        RawRepresentationFactory = _ => new CreateResponseOptions { StoredOutputEnabled = false },
+                    },
+                },
+                model: options.RequireChatDeployment());
+#pragma warning restore OPENAI001
 
     /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
     public static AgenticAssistant Create(

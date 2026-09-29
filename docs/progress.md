@@ -85,6 +85,15 @@ clock — see open item 10.
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
 
+### 2026-09-29 — the loop moves to the Responses API (gpt-6-astra)
+
+`gpt-6-astra` rejects function tools on `/chat/completions` at every reasoning
+effort it accepts (no `none`), so every turn 400'd before a lookup. The agent is
+now built over `GetResponsesClient()`, `store: false` — history is sent each
+turn, and a stored response would keep the question on Azure (§10). No wire or
+log change. Live: LeanMeal ask 1 tool call, cited; `multiturn` + `safety` tiers,
+12 turns, no errors, up to 6 tool calls a turn. No new test: the loop is scripted.
+
 ### 2026-09-29 — the guide stays off-stage (S-094)
 
 S-094 said "the program guide normally leaves Antioxidant out" and "the program's
