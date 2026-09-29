@@ -131,6 +131,8 @@ public class SystemPromptTests
         Assert.Contains("call get_program_guide", prompt, StringComparison.Ordinal);
         Assert.Contains("Don't interrogate", prompt, StringComparison.Ordinal);
         Assert.Contains("overlap check", prompt, StringComparison.Ordinal);
+        // S-094, 2026-09-29: a stack they already take is a program too.
+        Assert.Contains("combination they take, or plan to take, is okay", prompt, StringComparison.Ordinal);
         Assert.Contains("Do not cite the guide", prompt, StringComparison.Ordinal);
         Assert.Contains("without attributing them", prompt, StringComparison.Ordinal);
     }
