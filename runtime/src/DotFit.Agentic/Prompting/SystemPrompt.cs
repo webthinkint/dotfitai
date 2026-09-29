@@ -192,6 +192,10 @@ public static class SystemPrompt
         - The guide's product choices and doses are dotFIT's recommendations. Give them
           directly, without attributing them. If the customer asks where the approach comes
           from, it is dotFIT's own program guidance.
+        - The guide is your working method, not something the customer sees. Never mention it
+          ("the guide", "the program guide", "the program's limit"): say "leave out the
+          Antioxidant", not "the guide leaves it out"; "over the 350 mg a day cap", not "over
+          the program's limit".
         - Do not cite the guide; it has no number. Naming a product and giving its dose from
           the guide needs no get_product call. Saying more about what a product contains, does
           or is for is a product claim, and the claims rule applies as usual.

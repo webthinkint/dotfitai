@@ -133,6 +133,8 @@ public class SystemPromptTests
         Assert.Contains("overlap check", prompt, StringComparison.Ordinal);
         // S-094, 2026-09-29: a stack they already take is a program too.
         Assert.Contains("combination they take, or plan to take, is okay", prompt, StringComparison.Ordinal);
+        // S-094, 2026-09-29: it said "the program guide" aloud.
+        Assert.Contains("not something the customer sees. Never mention it", prompt, StringComparison.Ordinal);
         Assert.Contains("Do not cite the guide", prompt, StringComparison.Ordinal);
         Assert.Contains("without attributing them", prompt, StringComparison.Ordinal);
     }

@@ -85,6 +85,15 @@ clock — see open item 10.
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
 
+### 2026-09-29 — the guide stays off-stage (S-094)
+
+S-094 said "the program guide normally leaves Antioxidant out" and "the program's
+350 mg limit" — the guide's no-attribution rule lived only in the tool result's
+preamble. `SystemPrompt.Programs` now says it outright, with the two phrasings
+turned around as examples; prompt test extended. Two live S-094 reruns: neither
+mentions the guide, both get 410 mg and now also name the one-tablet fix. The
+examples are this item's own case, so read other program turns before trusting it.
+
 ### 2026-09-29 — a product page is one source (§7, item 17)
 
 Sections sharing a `citation_url` now share a number and render together, each
