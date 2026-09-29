@@ -34,6 +34,9 @@ namespace DotFit.Agentic.Tools;
 /// </summary>
 public sealed partial class KnowledgeTools
 {
+    /// <summary>Headroom over the largest product family's section count (52 today).</summary>
+    internal const int ProductSectionCap = 200;
+
     private readonly IKnowledgeSearch _search;
     private readonly IDocumentStore _store;
     private readonly AliasTable _aliases;
@@ -240,8 +243,8 @@ public sealed partial class KnowledgeTools
             return Record(Stages.Search, query, body.ToString(), clock, 0, 0);
         }
 
-        int newCount = AppendSources(body, hits);
-        return Record(Stages.Search, query, body.ToString(), clock, hits.Count, newCount);
+        (int sourceCount, int newCount) = AppendSources(body, hits);
+        return Record(Stages.Search, query, body.ToString(), clock, sourceCount, newCount);
     }
 
     // ----------------------------------------------------------------- fetch
@@ -298,8 +301,8 @@ public sealed partial class KnowledgeTools
             body.AppendLine(
                 "This document has no numbered neighbours — it is a whole record, not one chunk of a longer " +
                 "one. What follows is all of it.");
-        int newCount = AppendSources(body, found);
-        return Record(Stages.Fetch, id, body.ToString(), clock, found.Count, newCount);
+        (int sourceCount, int newCount) = AppendSources(body, found);
+        return Record(Stages.Fetch, id, body.ToString(), clock, sourceCount, newCount);
     }
 
     /// <summary>
@@ -376,10 +379,12 @@ public sealed partial class KnowledgeTools
         IReadOnlyList<RetrievedDocument> sections;
         try
         {
-            // A family's sections are a handful of documents; 50 is headroom,
-            // not a page size — this tool returns the whole record or it has
-            // not done its job.
-            sections = await _store.FilterAsync(filter, top: 50, ct).ConfigureAwait(false);
+            // This tool returns the whole record or it has not done its job.
+            // A family is not "a handful": SuperBlend is 52 sections across two
+            // pages, and the old cap of 50 dropped two without a word (open
+            // item 17). The cap is headroom over the largest family; reaching
+            // it is said out loud below.
+            sections = await _store.FilterAsync(filter, top: ProductSectionCap, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -405,8 +410,12 @@ public sealed partial class KnowledgeTools
         body.AppendLine("You may quote this wording directly.");
         body.AppendLine();
 
-        int newCount = AppendSources(body, sections);
-        return Record(Stages.Product, name_or_part_no, body.ToString(), clock, sections.Count, newCount);
+        (int sourceCount, int newCount) = AppendSources(body, sections);
+        if (sections.Count >= ProductSectionCap)
+            body.AppendLine(
+                $"This family has more than {ProductSectionCap} sections and only the first {ProductSectionCap} " +
+                "are above. Use search, restricted to these part numbers, for anything not shown.");
+        return Record(Stages.Product, name_or_part_no, body.ToString(), clock, sourceCount, newCount);
     }
 
     // ----------------------------------------------------- get_program_guide
@@ -597,19 +606,27 @@ public sealed partial class KnowledgeTools
                 _families.Add(family);
     }
 
-    /// <summary>Number, render and append every hit. Returns how many were new this turn.</summary>
-    private int AppendSources(StringBuilder body, IReadOnlyList<RetrievedDocument> documents)
+    /// <summary>
+    /// Number, render and append every hit, a product page's sections together
+    /// under its one number (<see cref="SourceLedger"/> rule 4), in first-seen
+    /// order. Returns the numbered sources given and how many were new this turn.
+    /// </summary>
+    private (int Sources, int New) AppendSources(StringBuilder body, IReadOnlyList<RetrievedDocument> documents)
     {
-        int newCount = 0;
-        foreach (RetrievedDocument document in documents)
+        int sources = 0, newCount = 0;
+        foreach (IGrouping<string, RetrievedDocument> page in documents.GroupBy(SourceLedger.KeyOf, StringComparer.Ordinal))
         {
-            (SourceRef source, bool isNew) = Ledger.Add(document);
+            List<RetrievedDocument> sections = [.. page];
+            (SourceRef source, bool isNew) = Ledger.Add(sections[0]);
+            foreach (RetrievedDocument section in sections.Skip(1))
+                Ledger.Add(section);
+            sources++;
             if (isNew)
                 newCount++;
-            body.AppendLine(Ledger.Render(source, document, isNew));
+            body.AppendLine(Ledger.RenderPage(source, sections, isNew));
             body.AppendLine();
         }
-        return newCount;
+        return (sources, newCount);
     }
 
     private string Record(

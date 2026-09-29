@@ -158,6 +158,57 @@ public class SourceLedgerTests
         ledger.Add(Fixtures.Document(id: "pdsrg-example-009"));
         Assert.True(ledger.Queued.IsCompleted);
     }
+
+    [Fact]
+    public void Sections_of_one_product_page_share_a_number_and_one_source_event()
+    {
+        // Open item 17: product copy numbered per section put 50 "[n]"s for one
+        // page in a turn and the model cited the wrong ones. A page is one source.
+        var ledger = new SourceLedger(1000);
+        (SourceRef a, bool aIsNew) = ledger.Add(Section("product-9001-a", "https://example.com/p/9001"));
+        (SourceRef b, bool bIsNew) = ledger.Add(Section("product-9001-b", "https://example.com/p/9001"));
+        (SourceRef c, _) = ledger.Add(Section("product-9002-a", "https://example.com/p/9002"));
+
+        Assert.True(aIsNew);
+        Assert.False(bIsNew);
+        Assert.Equal(a.N, b.N);
+        Assert.Equal(2, c.N);
+        Assert.Equal(2, ledger.Drain().OfType<TurnSourceEvent>().Count());
+        Assert.NotNull(ledger.DocumentFor("product-9001-b"));
+    }
+
+    [Fact]
+    public void Only_product_copy_is_grouped_by_page()
+    {
+        // Every other type keeps one number per document, shared URL or not —
+        // two Q&A answers are two sources even when they link the same page.
+        var ledger = new SourceLedger(1000);
+        ledger.Add(Fixtures.Document(id: "qa-aaaaaaaaaaaaaaaa", sourceType: "qa", authority: 3));
+        ledger.Add(Fixtures.Document(id: "qa-bbbbbbbbbbbbbbbb", sourceType: "qa", authority: 3));
+        Assert.Equal(2, ledger.Sources.Count);
+    }
+
+    [Fact]
+    public void A_page_renders_its_header_once_and_every_section_under_its_own_id()
+    {
+        var ledger = new SourceLedger(10);
+        RetrievedDocument[] sections =
+        [
+            Section("product-9001-a", "https://example.com/p/9001", "Short."),
+            Section("product-9001-b", "https://example.com/p/9001", "A section longer than ten characters."),
+        ];
+        (SourceRef source, bool isNew) = ledger.Add(sections[0]);
+        string text = ledger.RenderPage(source, sections, isNew);
+
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(text, @"^\[1\] ", System.Text.RegularExpressions.RegexOptions.Multiline));
+        Assert.Contains("section id: product-9001-a", text, StringComparison.Ordinal);
+        Assert.Contains("section id: product-9001-b", text, StringComparison.Ordinal);
+        Assert.Contains("fetch(\"product-9001-b\")", text, StringComparison.Ordinal);
+    }
+
+    internal static RetrievedDocument Section(string id, string url, string content = "Example copy.") =>
+        Fixtures.Document(id: id, sourceType: "product", authority: 1, title: "ExampleFormula",
+            content: content, products: [id.Split('-')[1]], citationUrl: url);
 }
 
 public class FilterTests
@@ -537,5 +588,49 @@ public class AliasTierTests
         object? result = await function.InvokeAsync(new AIFunctionArguments { ["id"] = "made-up-999" });
 
         Assert.Contains("No document has id", result?.ToString() ?? "", StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Get_product_gives_one_number_per_page_not_per_section()
+    {
+        var store = new FakeDocumentStore(
+            SourceLedgerTests.Section("product-9001-a", "https://example.com/p/9001"),
+            SourceLedgerTests.Section("product-9001-b", "https://example.com/p/9001"),
+            SourceLedgerTests.Section("product-9001-c", "https://example.com/p/9001"),
+            SourceLedgerTests.Section("product-9002-a", "https://example.com/p/9002"),
+            SourceLedgerTests.Section("product-9002-b", "https://example.com/p/9002"));
+        var tools = new KnowledgeTools(
+            new FakeSearch(), store, Fixtures.Aliases(), new AgenticOptions(),
+            new SourceLedger(6000), new ToolBudget(8, TimeSpan.FromMinutes(5)));
+
+        await ((AIFunction)tools.AsTools()[2]).InvokeAsync(
+            new AIFunctionArguments { ["name_or_part_no"] = "ExampleFormula" });
+
+        Assert.Equal(2, tools.Ledger.Sources.Count);
+        ToolCallRecord call = Assert.Single(tools.Calls);
+        Assert.Equal(2, call.ResultCount);
+        Assert.Equal(2, call.NewSourceCount);
+    }
+
+    [Fact]
+    public async Task A_searched_section_and_its_page_from_get_product_are_the_same_source()
+    {
+        var search = new FakeSearch(SourceLedgerTests.Section("product-9001-b", "https://example.com/p/9001"));
+        var store = new FakeDocumentStore(
+            SourceLedgerTests.Section("product-9001-a", "https://example.com/p/9001"),
+            SourceLedgerTests.Section("product-9001-b", "https://example.com/p/9001"));
+        var tools = new KnowledgeTools(
+            search, store, Fixtures.Aliases(), new AgenticOptions(),
+            new SourceLedger(6000), new ToolBudget(8, TimeSpan.FromMinutes(5)));
+
+        await ((AIFunction)tools.AsTools()[0]).InvokeAsync(new AIFunctionArguments { ["query"] = "example" });
+        object? result = await ((AIFunction)tools.AsTools()[2]).InvokeAsync(
+            new AIFunctionArguments { ["name_or_part_no"] = "ExampleFormula" });
+
+        Assert.Single(tools.Ledger.Sources);
+        string text = result?.ToString() ?? "";
+        Assert.Contains("already given to you earlier this turn", text, StringComparison.Ordinal);
+        // The number was given; the rest of the page was not, so it is still shown.
+        Assert.Contains("section id: product-9001-a", text, StringComparison.Ordinal);
     }
 }

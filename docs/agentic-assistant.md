@@ -218,6 +218,13 @@ This is what makes `[n]` resolvable in a live-streamed answer — the client
 already holds source 3 when `[3]` arrives in a delta. Duplicate hits across
 searches resolve to the number already assigned.
 
+**A product page is one source** (2026-09-29, open item 17). Product copy is
+indexed as sections of a page; numbered per section, one `get_product` for
+SuperBlend handed the model 50 near-identical numbers and it cited the wrong
+ones. Sections sharing a `citation_url` share a number, from whichever tool
+returned them first, and render together under it with each section's id kept
+for `fetch`. Every other source type stays one number per document.
+
 ### 7.1 `search`
 
 ```
@@ -264,7 +271,9 @@ get_product(name_or_part_no: string)
 
 Resolves through the alias table to a family, then returns **all** indexed
 `product` sections for that family — the legal-approved copy, whole, in one
-call. This is the tool the model uses before making any product claim, and the
+call, one numbered source per product page (§7). The query cap is headroom
+(200; the largest family is 52 sections) and hitting it is said in the result,
+never a silent cut. This is the tool the model uses before making any product claim, and the
 system prompt says so. It is a filter query against the index
 (`source_type eq 'product'` + `products/any(...)`), not a second data path, so
 it cannot drift from what is searchable.

@@ -176,6 +176,13 @@ retrieves them. **A number never changes meaning inside a turn**, and the
 numbering keeps counting across searches — a second search does not restart at
 1. A source retrieved twice keeps its first number and is sent once.
 
+**A product page is one source** (changed 2026-09-29). dotFIT's approved product
+copy is stored as many sections of one page. It used to arrive as one `source`
+per section — up to 50 frames with the same `title` and `citation_url` for one
+product. Now every section of a page shares one number and one `source` frame,
+so a product is one entry in your list. No field changed; you simply get fewer,
+distinct frames. Every other kind of source is unchanged.
+
 The ordering guarantee is the useful part: a `source` frame for `[3]` always
 precedes any `delta` containing the text `[3]`. So you can build the source list
 incrementally and resolve citation markers as they stream, rather than

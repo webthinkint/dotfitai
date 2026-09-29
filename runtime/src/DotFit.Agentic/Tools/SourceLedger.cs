@@ -9,7 +9,7 @@ namespace DotFit.Agentic.Tools;
 /// The turn's source numbering (design §7), and the one place a source is
 /// rendered for the model.
 ///
-/// Three rules, all load-bearing:
+/// Four rules, all load-bearing:
 ///
 /// 1. **Numbers are assigned at tool-result time**, first-seen order, starting
 ///    at 1. Three searches in a turn keep counting — they do not each restart.
@@ -20,6 +20,12 @@ namespace DotFit.Agentic.Tools;
 ///    queues a <see cref="TurnSourceEvent"/>, and the loop drains the queue before
 ///    yielding any delta. Without this, a client streaming live would see
 ///    "[3]" before it knew what 3 was.
+/// 4. **A product page is one source** (open item 17). Product copy is one
+///    web page cut into sections; numbered per section, SuperBlend alone was 50
+///    near-identical "[n]"s and the model cited the wrong ones. Sections that
+///    share a <c>citation_url</c> share a number, whichever tool returned them
+///    — so a search hit on one section and a later <c>get_product</c> for the
+///    page are the same source. Every other type stays one number per document.
 ///
 /// Thread-safe: the model may issue parallel tool calls and the Agent
 /// Framework invokes them concurrently, so numbering is under a lock rather
@@ -28,7 +34,7 @@ namespace DotFit.Agentic.Tools;
 public sealed class SourceLedger(int maxSourceChars)
 {
     private readonly Lock _gate = new();
-    private readonly Dictionary<string, SourceRef> _byId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SourceRef> _byKey = new(StringComparer.Ordinal);
     private readonly List<SourceRef> _ordered = [];
     private readonly Queue<TurnEvent> _pending = new();
     private readonly Dictionary<string, RetrievedDocument> _documents = new(StringComparer.Ordinal);
@@ -47,7 +53,20 @@ public sealed class SourceLedger(int maxSourceChars)
     }
 
     /// <summary>
-    /// Number a document, or return the number it already has.
+    /// What a number stands for: the page for product copy (rule 4), the
+    /// document for everything else. <c>citation_url</c> is one-to-one with a
+    /// product page in the index, and every section of a page carries the same
+    /// title, locator, part numbers and status, so the first section seen can
+    /// speak for the page.
+    /// </summary>
+    public static string KeyOf(RetrievedDocument document) =>
+        document.SourceType == "product" && !string.IsNullOrWhiteSpace(document.CitationUrl)
+            ? "page " + document.CitationUrl
+            : document.Id;
+
+    /// <summary>
+    /// Number a document, or return the number it already has — its own, or
+    /// its page's (rule 4).
     /// <c>IsNew</c> distinguishes the two — the tool result tells the model when
     /// a hit is one it has already been given, which is how it learns that a
     /// rephrased search brought back nothing it did not have.
@@ -56,7 +75,10 @@ public sealed class SourceLedger(int maxSourceChars)
     {
         lock (_gate)
         {
-            if (_byId.TryGetValue(document.Id, out SourceRef? existing))
+            // Every section stays reachable by its own id, numbered or not.
+            _documents.TryAdd(document.Id, document);
+            string key = KeyOf(document);
+            if (_byKey.TryGetValue(key, out SourceRef? existing))
                 return (existing, false);
 
             var source = new SourceRef
@@ -71,8 +93,7 @@ public sealed class SourceLedger(int maxSourceChars)
                 Quotable = Prompts.ClaimsQuotable(document.Authority),
                 PartNos = [.. document.Products],
             };
-            _byId[document.Id] = source;
-            _documents[document.Id] = document;
+            _byKey[key] = source;
             _ordered.Add(source);
             Enqueue(new TurnSourceEvent(source));
             return (source, true);
@@ -141,13 +162,49 @@ public sealed class SourceLedger(int maxSourceChars)
     public string Render(SourceRef source, RetrievedDocument document, bool isNew)
     {
         var sb = new StringBuilder();
+        AppendHeader(sb, source, document, isNew);
+        sb.Append("id: ").Append(document.Id).AppendLine();
+        AppendMetadata(sb, document);
+        AppendContent(sb, document);
+        return sb.ToString().TrimEnd();
+    }
+
+    /// <summary>
+    /// A product page given as one source (rule 4): the header once, then each
+    /// section under its own id, in the order given. The ids stay visible
+    /// because <c>fetch</c> takes a section id, and truncation stays
+    /// per-section so the cut still names the fetch that fixes it.
+    /// </summary>
+    public string RenderPage(SourceRef source, IReadOnlyList<RetrievedDocument> sections, bool isNew)
+    {
+        if (sections.Count == 1)
+            return Render(source, sections[0], isNew);
+
+        var sb = new StringBuilder();
+        AppendHeader(sb, source, sections[0], isNew);
+        AppendMetadata(sb, sections[0]);
+        sb.Append(sections.Count).AppendLine(" sections of one product page, all cited as [" + source.N + "]:");
+        foreach (RetrievedDocument section in sections)
+        {
+            sb.AppendLine();
+            sb.Append("section id: ").Append(section.Id).AppendLine();
+            AppendContent(sb, section);
+        }
+        return sb.ToString().TrimEnd();
+    }
+
+    private static void AppendHeader(StringBuilder sb, SourceRef source, RetrievedDocument document, bool isNew)
+    {
         sb.Append("[").Append(source.N).Append("] ")
           .Append(Prompts.SourceLabel(document.SourceType, document.Authority))
           .Append(" — ").Append(Prompts.ClaimsMarker(document.Authority));
         if (!isNew)
             sb.Append(" — already given to you earlier this turn");
         sb.AppendLine();
-        sb.Append("id: ").Append(document.Id).AppendLine();
+    }
+
+    private static void AppendMetadata(StringBuilder sb, RetrievedDocument document)
+    {
         sb.Append("title: ").Append(document.Title).AppendLine();
         if (!string.IsNullOrWhiteSpace(document.Locator))
             sb.Append("locator: ").Append(document.Locator).AppendLine();
@@ -157,7 +214,10 @@ public sealed class SourceLedger(int maxSourceChars)
             sb.Append("dated: ").Append(date.ToString("yyyy-MM-dd")).AppendLine();
         if (!string.IsNullOrWhiteSpace(document.ProductStatus))
             sb.Append("product status: ").Append(document.ProductStatus).AppendLine();
+    }
 
+    private void AppendContent(StringBuilder sb, RetrievedDocument document)
+    {
         string content = document.Content ?? "";
         if (content.Length > maxSourceChars)
         {
@@ -174,7 +234,6 @@ public sealed class SourceLedger(int maxSourceChars)
         {
             sb.AppendLine(content);
         }
-        return sb.ToString().TrimEnd();
     }
 
     /// <summary>

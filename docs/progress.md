@@ -77,13 +77,22 @@ clock — see open item 10.
 | 14 | **Tool surface for the deck** (new 2026-09-28) | **open, proposal.** Three decisions: (a) have `get_product` also return the family's deck summary section beside the `products.json` copy — the deck is the top authority, so the quoting path should carry it (proposed over a new tool); (b) whether the held-back `script` sections become a separate trainer-facing tool; (c) whether the program guide, now legal-approved, becomes a cited source rather than uncited method (a `source` frame per program turn — contract change) |
 | 15 | **The rebuilt guide had not been run live** (new 2026-09-28) | **closed** 2026-09-29 — both tiers run live and read; findings in the log, the two defects are items 16 and 17. Was: run `smoke --tier program` and `--tier safety` (S-041 and S-090…S-094 were re-expected for the new guide) and read the transcripts before the preview is shown to anyone |
 | 16 | **A stack check does not reach the guide** (new 2026-09-29) | **closed** 2026-09-29 — the trigger now names a stack they take or plan (`SystemPrompt.Programs`, pinned in the prompt test); one live rerun read the guide and got 410 mg and the redundant Antioxidant right, but did not name the one-tablet fix. One run is a tendency, not a proof. Was: S-094 ("I take SuperBlend and the Antioxidant, adding Calcium Complex twice a day — any problem?") never called `get_program_guide`, so the overlap check never ran: it answered "no obvious overlap problem" when SuperBlend already contains the Antioxidant and magnesium comes to 160 + 2 × 125 = 410 mg against the 350 mg cap. The prompt's trigger is "what they should take"; checking a stack they already take or plan is not in it. Proposed fix: name that case in `SystemPrompt.Programs`' trigger, rerun S-094 |
-| 17 | **`get_product` floods the ledger on large families** (new 2026-09-29) | **open.** `Alln1 SuperBlend` is 52 product documents (36 + 16 Pineapple Swirl, recipes and marketing sections included); the tool's `top: 50` assumed "a handful", so it both truncates (whichever 2 sections the index returns last are dropped) and puts 50 numbered sources in one turn. S-091 then cited `[2]` and `[3]` for Plant Protein and Creatine — both SuperBlend sections: **wrong citations, live**. S-094 cited `[50]`. Options, not yet chosen: collapse flavor variants whose copy is identical, drop recipe sections from the tool, or page the family. Any of them changes which sources reach the caller |
+| 17 | **`get_product` floods the ledger on large families** (new 2026-09-29) | **closed** 2026-09-29 — a product page is one source (`SourceLedger` rule 4, keyed on `citation_url`, whichever tool returns it); `get_product` cap 50 → 200 and hitting it is said. Was: `Alln1 SuperBlend` is 52 product documents (36 + 16 Pineapple Swirl, recipes and marketing sections included); the tool's `top: 50` assumed "a handful", so it both truncates (whichever 2 sections the index returns last are dropped) and puts 50 numbered sources in one turn. S-091 then cited `[2]` and `[3]` for Plant Protein and Creatine — both SuperBlend sections: **wrong citations, live**. S-094 cited `[50]`. Options, not yet chosen: collapse flavor variants whose copy is identical, drop recipe sections from the tool, or page the family. Any of them changes which sources reach the caller |
 
 
 ## Log
 
 Newest first, one entry per work item, 8 wrapped lines maximum. Detail belongs
 in the commit, the code, or the artifact it describes.
+
+### 2026-09-29 — a product page is one source (§7, item 17)
+
+Sections sharing a `citation_url` now share a number and render together, each
+under its own id for `fetch`; other types unchanged. `get_product`'s cap 50 → 200
+(largest family 52), said aloud if hit. Wire: fewer, distinct `source` frames, no
+field change — `docs/website-integration.md` says so. Live reruns: S-091 7 sources
+(was 59), `[1]` SuperBlend and `[3]` Plant Protein cited right; S-094 4 (was 54),
+410 mg correct — but it said "the program guide" aloud. 5 new tests; 143 + 271.
 
 ### 2026-09-29 — a stack check is a program: S-094 reaches the guide (item 16)
 

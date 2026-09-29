@@ -154,7 +154,8 @@ internal static class Fixtures
         string content = "Example body text.",
         string[]? products = null,
         string? locator = null,
-        string? productStatus = null) => new()
+        string? productStatus = null,
+        string citationUrl = "https://example.com/doc") => new()
         {
             Id = id,
             SourceType = sourceType,
@@ -165,7 +166,7 @@ internal static class Fixtures
             Locator = locator,
             ProductStatus = productStatus,
             IsCurrent = true,
-            CitationUrl = "https://example.com/doc",
+            CitationUrl = citationUrl,
         };
 
     /// <summary>
