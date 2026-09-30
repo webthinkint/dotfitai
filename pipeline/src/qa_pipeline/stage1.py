@@ -1,11 +1,11 @@
-"""Stage 1 — parse & classify (plan §4, Stage 1). Deterministic, no LLM.
+"""Stage 1 — parse & classify. Deterministic, no LLM.
 
 Consumes Stage 0 scrubbed text (placeholders are part of the contract) plus the
 Stage 0 reports (for flags) and produces one record per document:
 
 - section split: expert answer vs. quoted customer message (header markers)
 - classification: qa_email | expert_note | other (+ needs_review flag for the
-  LLM-confirm edge cases of the plan)
+  edge cases that need LLM confirmation or a human)
 - metadata: year (folder), topic subfolder, filename, answer date from the
   ``Sent:`` header, extracted question text
 
@@ -154,7 +154,7 @@ def classify_and_parse(
         expert_lines = [l for l in lines if l.strip()]
         customer_lines = []
         doc_type = "other"          # markers present but no quotable structure
-        needs_review = True         # -> LLM-confirm / human review per plan
+        needs_review = True         # -> LLM confirmation / human review
     else:
         expert_lines = [l for l in lines if l.strip()]
         customer_lines = []
@@ -184,7 +184,7 @@ def classify_and_parse(
     if residual_pii:
         needs_review = True
     # a document with no answer/body text is not indexable — the CLI excludes
-    # it from documents.jsonl (owner disposition 2026-09-02); the flag stays
+    # it from documents.jsonl; the flag stays
     # true in the record so the exclusion is auditable per document
     if not expert_lines:
         needs_review = True
@@ -208,12 +208,11 @@ def classify_and_parse(
 
 
 def review_reasons(rec: dict) -> list[str]:
-    """Why *rec* is in the Stage 3 queue (plan §4 Stage 3), most specific first.
+    """Why *rec* is in the Stage 3 queue, most specific first.
 
     Documents with no expert-answer text never get here: the CLI excludes
     them from documents.jsonl and tallies them in summary.json instead
-    (owner disposition 2026-09-02 — only answerable docs are indexed, and
-    there is nothing left to decide about a stub)."""
+   ."""
     reasons: list[str] = []
     if rec["residual_pii_flag"]:
         reasons.append("residual_pii_flag")

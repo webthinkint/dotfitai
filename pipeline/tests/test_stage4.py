@@ -1,4 +1,4 @@
-"""Stage 4 dedup & currency tests (plan §4 Stage 4) — synthetic fixtures, no network."""
+"""Stage 4 dedup & currency tests — synthetic fixtures, no network."""
 
 from __future__ import annotations
 
@@ -527,7 +527,7 @@ class TestRunStage4:
             run_stage4([rec], alias_table, _embed_map({}), None, "rule-based")
 
 
-# --- curated cluster dispositions (§4 step 3, owner ruling) ----------------------
+# --- curated cluster dispositions ----------------------
 
 class TestClusterDispositions:
     """A ruled cluster stops being queued and never dedups its members."""
@@ -625,9 +625,9 @@ class TestClusterDispositions:
     def test_shipped_rulings_are_the_owner_splits(self):
         """Pins the owner rulings themselves, not just the mechanism."""
         assert list(CURATED_CLUSTER_DISPOSITIONS) == [
-            "79c663016afc2345",   # FirstString, 2026-09-08
-            "3d361242df468533",   # LeanMR + creatine thread, 2026-09-10
-            "8e5f29ded9aad54a",   # Lean Pack 90, 2026-09-10
+            "79c663016afc2345",   # FirstString
+            "3d361242df468533",   # LeanMR + creatine thread
+            "8e5f29ded9aad54a",   # Lean Pack 90
         ]
         for cluster_id, members, ruling_date in [
             ("79c663016afc2345",

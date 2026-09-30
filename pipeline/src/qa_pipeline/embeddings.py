@@ -1,4 +1,4 @@
-"""Cached embedding client for the plan §9 ``content_vector`` field.
+"""Cached embedding client for the ``content_vector`` field.
 
 Vectors are API results — not byte-deterministic across reruns — so they are
 cached locally (gitignored ``runs/embeddings.jsonl``) keyed by
@@ -6,10 +6,7 @@ cached locally (gitignored ``runs/embeddings.jsonl``) keyed by
 The cache lives outside the committed outputs on purpose; regenerating it
 costs API calls, so it is *not* pruned with them.
 
-The embedding input is ``title + "\\n\\n" + content`` (decided 2026-09-05:
-product sections don't always name their product in body text, so the title
-rides along for context; PDSRG chunk content already carries its heading
-path, which merely duplicates harmlessly).
+The embedding input is ``title + "\\n\\n" + content``.
 
 The Azure OpenAI resource is Foundry v2 shape: the classic SDK route works
 but only on current api-versions (see scripts/embedding_smoke.py notes).
@@ -23,7 +20,7 @@ import time
 from pathlib import Path
 from typing import Any, Protocol
 
-EMBEDDING_API_VERSION = "2025-04-01-preview"  # verified live (2026-09-05)
+EMBEDDING_API_VERSION = "2025-04-01-preview"  # verified live
 _RETRYABLE = {"RateLimitError", "APIConnectionError", "APITimeoutError",
               "InternalServerError"}
 

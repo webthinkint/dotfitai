@@ -1,4 +1,4 @@
-"""PDSRG extraction gate test (plan §6.1). Hybrid table extraction.
+"""PDSRG extraction gate test. Hybrid table extraction.
 
 Gate: "proceed only when dosage tables extract correctly."
 

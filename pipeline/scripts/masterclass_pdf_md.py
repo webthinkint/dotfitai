@@ -1,6 +1,6 @@
 """dotFIT Masterclass PDFs -> markdown (original-data/Masterclass/pdfs).
 
-"Like we do the PDSRG": extraction is the validated §6 machinery from
+"Like we do the PDSRG": extraction is the validated machinery from
 ``qa_pipeline.pdsrg``, reused piece-for-piece — the hybrid lines/text table
 strategy with trivial and prose-false-positive filters, font-based heading
 classification with running-header suppression, slide-deck sectioning (pages
@@ -66,7 +66,7 @@ def clean_title(stem: str) -> str:
 
 
 def looks_like_presentation(lines: list) -> bool:
-    """Masterclass extension of the §6 slide-deck gate.
+    """Masterclass extension of the slide-deck gate.
 
     ``is_slide_deck`` fires only on the Aptos template (Sleep Aid-era
     decks). The older Masterclass decks are Calibri/ArialMT with ALL text

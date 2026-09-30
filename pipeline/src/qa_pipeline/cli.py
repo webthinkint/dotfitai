@@ -256,7 +256,7 @@ def cmd_stage1(args: argparse.Namespace) -> int:
         rep = load_scrub_report(reports_dir, rel)
         rec = classify_and_parse(lines, rel, scrub_report=rep)
 
-        # owner disposition 2026-09-02: documents with no expert-answer text
+        # documents with no expert-answer text
         # (stubs, image-only exports, question-only forwards) are not
         # indexed — excluded from documents.jsonl, tallied in summary.json,
         # and NOT queued (there is nothing left to decide about them)
@@ -504,8 +504,8 @@ def cmd_stage4(args: argparse.Namespace) -> int:
     records, worksheet, review, stats = run_stage4(
         docs, alias_table, embed_call, judge_call, deployment,
         threshold=SIMILARITY_THRESHOLD, min_judge_confidence=min_judge,
-        # a partial run legitimately lacks the ruled clusters; only a
-        # whole-corpus run can prove an owner disposition has gone stale
+        # a partial run legitimately lacks the curated clusters; only a
+        # whole-corpus run can prove a curated disposition has gone stale
         strict_dispositions=not (args.include or args.limit is not None),
         cache=cache, cache_write=(write_fn if use_cache else None),
         cache_key_fn=key_fn)
@@ -948,7 +948,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="qa-pipeline",
-        description="QA corpus pipeline (plan §4): Stage 0 (PII scrub), Stage 1 "
+        description="QA corpus pipeline: Stage 0 (PII scrub), Stage 1 "
         "(parse & classify), Stage 2 (LLM structuring)",
     )
     p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -983,7 +983,7 @@ def build_parser() -> argparse.ArgumentParser:
     s2 = sub.add_parser(
         "stage2",
         help="LLM-assisted structuring: stage1 docs -> canonical Q&A "
-             "(plan §4 Stage 2)")
+             "(Stage 2)")
     s2.add_argument("--qa-docs", default="pipeline-output/qa/stage1/documents.jsonl",
                     help="Stage 1 documents.jsonl (scrubbed input)")
     s2.add_argument("--products", default="original-data/Product Data/products.json",
@@ -1018,7 +1018,7 @@ def build_parser() -> argparse.ArgumentParser:
     s4 = sub.add_parser(
         "stage4",
         help="deduplication + currency filter: stage2 canonicals -> "
-             "is_current stamps (plan §4 Stage 4)")
+             "is_current stamps (Stage 4)")
     s4.add_argument("--qa-docs", default="pipeline-output/qa/stage2/documents.jsonl",
                     help="Stage 2 documents.jsonl (canonical input)")
     s4.add_argument("--products", default="original-data/Product Data/products.json",
@@ -1058,7 +1058,7 @@ def build_parser() -> argparse.ArgumentParser:
                          "(empty string / missing file skips the worksheet)")
     al.set_defaults(func=cmd_aliases)
 
-    pd = sub.add_parser("pdsrg", help="chunk the PDSRG PDF corpus (plan §6)")
+    pd = sub.add_parser("pdsrg", help="chunk the PDSRG PDF corpus")
     pd.add_argument("--input", default="original-data/Practitioner Dietary Supplement Reference Guide",
                     help="root of the PDSRG PDF corpus")
     pd.add_argument("--out", default="pipeline-output/pdsrg",
@@ -1083,22 +1083,22 @@ def build_parser() -> argparse.ArgumentParser:
 
     ix = sub.add_parser(
         "index",
-        help="shape + embed + upload the §9 kb-main index "
+        help="shape + embed + upload the kb-main index "
              "(pdsrg chunks + products.json + infopages.json + menu "
              "descriptions)")
     ix.add_argument("--chunks", default="pipeline-output/pdsrg/chunks/chunks.jsonl",
-                    help="§6 chunks.jsonl")
+                    help="PDSRG chunks.jsonl")
     ix.add_argument("--products", default="original-data/Product Data/products.json",
-                    help="products.json (§5 section-split source)")
+                    help="products.json (section-split source)")
     ix.add_argument("--menus",
                     default="original-data/Reference Menus/All Reference Menus Export.csv",
-                    help="menu CSV (§8 description docs)")
+                    help="menu CSV (description docs)")
     ix.add_argument("--infopages",
                     default="original-data/Product Data/infopages.json",
                     help="infopages.json (dotFIT.com info pages, authority 1)")
     ix.add_argument("--podcast-segments",
                     default="pipeline-output/podcasts/segments/segments.jsonl",
-                    help="§7 segments.jsonl (missing file shapes without "
+                    help="podcast segments.jsonl (missing file shapes without "
                          "the podcast source)")
     ix.add_argument("--qa-docs",
                     default="pipeline-output/qa/stage4/documents.jsonl",
@@ -1127,7 +1127,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     pc = sub.add_parser(
         "podcast",
-        help="segment podcast transcripts into topic chunks (plan §7 step 3)")
+        help="segment podcast transcripts into topic chunks")
     pc.add_argument("--transcripts",
                     default="pipeline-output/podcasts/transcripts",
                     help="dir of fast-transcription .json files")

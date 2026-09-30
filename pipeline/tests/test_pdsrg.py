@@ -1,4 +1,4 @@
-"""Unit tests for the PDSRG chunker (plan §6) — synthetic fixtures only.
+"""Unit tests for the PDSRG chunker — synthetic fixtures only.
 
 The pdfplumber-dependent extraction is exercised on the real corpus by the
 CLI run; these tests lock the pure logic: table classification (gate
@@ -325,7 +325,7 @@ def test_chunk_records_shape():
 
 
 def test_chunk_records_stamp_the_index_contract_fields():
-    """§9: the default query filter is ``is_current eq true`` and Azure AI
+    """The default query filter is ``is_current eq true`` and Azure AI
     Search does not match null, so an unstamped chunk is invisible to every
     query — including the authority-1/2 claims sources."""
     from qa_pipeline.pdsrg import Section
@@ -416,7 +416,7 @@ def test_resolve_stem_norm_fallback(alias_families):
 
 
 def test_resolve_stem_renamed_resolves_current_part_nos(alias_families):
-    # PDSRG dispositions 2026-09-01 (5): UltraProbiotic renamed to Probiotics
+    # support-lead disposition: UltraProbiotic renamed to Probiotics
     fams = dict(alias_families)
     fams[norm("Probiotics")] = {"family": "Probiotics", "part_nos": [1017]}
     fams[norm("Antioxidant")] = {"family": "Antioxidant", "part_nos": [1000]}

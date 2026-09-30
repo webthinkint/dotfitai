@@ -132,7 +132,7 @@ class TestResidualHonorificAllowlist:
         assert rep.residual_pii_flag is False
 
     def test_street_address_is_redacted_not_flagged(self):
-        """Addresses are redacted (plan §4 step 3), so the trailing "Dr."
+        """Addresses are redacted, so the trailing "Dr."
         can no longer masquerade as an honorific residue."""
         text, rep = scrub_extracted([
             "8600 Sample Park Dr. Springfield, IL 62704"])
@@ -183,7 +183,7 @@ class TestAddressRedaction:
 
 
 class TestGreetingRedaction:
-    """Greetings occur below quoted headers and in many shapes (plan §4)."""
+    """Greetings occur below quoted headers and in many shapes."""
 
     def test_inline_and_dash_and_paren_terminators(self):
         for line in ("Hi Jen, see below for dosing",
@@ -236,7 +236,7 @@ class TestGreetingRedaction:
         assert rep.residual_pii_flag is True
 
     def test_my_friend_is_not_pii_and_does_not_flag(self):
-        """Corpus-attested false positive (owner disposition 2026-09-02):
+        """Corpus-attested false positive:
         'Hello my friend!' carries no name."""
         text, rep = scrub_extracted(["Hello my friend! Hope all is great."])
         assert text == "Hello my friend! Hope all is great."
@@ -244,8 +244,8 @@ class TestGreetingRedaction:
 
     def test_bare_greeting_does_not_reach_across_the_newline(self):
         """'Hello' alone on a line must not flag the next line's first word
-        (the old residual check's \\s+ crossed newlines — corpus false
-        positive, owner disposition 2026-09-02)."""
+        (the old residual check's \\s+ crossed newlines — a corpus false
+        positive)."""
         _, rep = scrub_extracted(["Hello", "how are you doing today?"])
         assert "greeting_name_residual" not in rep.flags
         assert rep.residual_pii_flag is False
@@ -253,8 +253,7 @@ class TestGreetingRedaction:
 
 class TestLooseGreetingNames:
     """Names in GREETING_NAME_TOKENS are redacted without a terminator
-    (owner disposition 2026-09-02: every corpus greeting residual was a real
-    name — no terminator, honorific prefix, lowercase, or slash-joined).
+   .
     Lines are built from the vocabulary constant itself so no real name is
     pasted into the test source."""
 
@@ -311,8 +310,7 @@ class TestLooseGreetingNames:
 
 
 class TestSignoffRedaction:
-    """Customer sign-offs in quoted replies (owner disposition 2026-09-05,
-    review round 2 — two quoted replies leaked full sign-off names). Names
+    """Customer sign-offs in quoted replies. Names
     below are fabricated (example.com / 555 convention for people too)."""
 
     HEADER = [
@@ -375,9 +373,7 @@ class TestSignoffRedaction:
 
 
 class TestInlineSignoffRedaction:
-    """One-line customer sign-offs (owner disposition 2026-09-06, Stage 2
-    triage round 1 — "Respectfully, Kendra Ferguson" and "Thanks, Matt"
-    sit on one line, which the bare-name-next-line rule cannot see)."""
+    """One-line customer sign-offs."""
 
     HEADER = [
         "From: someone@example.org",
@@ -388,9 +384,9 @@ class TestInlineSignoffRedaction:
 
     def test_respectfully_plus_full_name(self):
         text, rep = scrub_extracted(self.HEADER + [
-            "Thank you in advance! Respectfully, Kendra Ferguson",
+            "Thank you in advance! Respectfully, Jane Doe",
         ])
-        assert "Kendra Ferguson" not in text
+        assert "Jane Doe" not in text
         assert text.rstrip().endswith("Respectfully, [NAME]")
         assert rep.redactions["signoff_name_inline"] == 1
         assert rep.residual_pii_flag is False
@@ -428,9 +424,8 @@ class TestInlineSignoffRedaction:
         assert "Thank you, Neal, for the prompt reply" in text
 
     def test_comma_less_best_is_prose_not_a_closer(self):
-        # regression: bare "Best" is also an adjective — comma-less it ate
-        # a product mention and a heading in the first regen (review
-        # 2026-09-07). A sign-off writes the comma.
+        # bare "Best" is also an adjective — comma-less it would eat a product
+        # mention and a heading. A sign-off writes the comma.
         text, rep = scrub_extracted(self.HEADER + [
             "I pointed her to our All Natural Why and Best Plant Protein.",
             "Best Scientific Combination",
@@ -461,8 +456,7 @@ class TestInlineSignoffRedaction:
 
 
 class TestWroteHeaderRedaction:
-    """Quoted attribution headers (owner disposition 2026-09-06, Stage 2
-    triage round 1 — "Neal Spruce <[EMAIL]> wrote:" inside replies)."""
+    """Quoted attribution headers."""
 
     def test_name_plus_bracketed_address(self):
         text, rep = scrub_extracted([
@@ -485,8 +479,8 @@ class TestWroteHeaderRedaction:
         assert "as she wrote: the dose matters" in text
 
     def test_lowercase_display_name_is_still_a_name(self):
-        # regression (triage round 2, 2026-09-08): a mail client rendered the
-        # display name lowercase and the whole name escaped the rule. The
+        # a mail client can render the display name lowercase; the whole name
+        # must not escape the rule. The
         # "<addr> wrote:" anchor carries it; the capital is not load-bearing.
         text, rep = scrub_extracted([
             "On Monday, April 27, 2026, 6:25 PM, "
@@ -499,9 +493,8 @@ class TestWroteHeaderRedaction:
 
 
 class TestFormFieldSignoffRedaction:
-    """Closer-less sign-offs in web-form body fields (triage round 2,
-    2026-09-08: a full name after a closing quote reached the index because
-    there was no closer for the inline rule to key on)."""
+    """Closer-less sign-offs in web-form body fields (a full name after a
+    closing quote, with no closer for the inline rule to key on)."""
 
     def test_name_after_closing_quote(self):
         text, rep = scrub_extracted([
@@ -566,8 +559,7 @@ class TestFormFieldSignoffRedaction:
 
 
 class TestSelfIntroductionRedaction:
-    """Self-introductions (was open item 16, folded into triage round 2,
-    2026-09-08): the opening mirror of the sign-off rules — neither a
+    """Self-introductions: the opening mirror of the sign-off rules — neither a
     salutation nor a closer, so nothing else saw it."""
 
     def test_full_name_mid_sentence(self):

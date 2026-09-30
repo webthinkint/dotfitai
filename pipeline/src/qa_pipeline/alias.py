@@ -1,4 +1,4 @@
-"""Alias table builder (plan §5): products.json -> versioned alias table.
+"""Alias table builder: products.json -> versioned alias table.
 
 Two layers, both versioned in code (the emitted JSON is a derived artifact):
 
@@ -7,7 +7,7 @@ Two layers, both versioned in code (the emitted JSON is a derived artifact):
      (``AminoFormula - Blue Raspberry`` -> ``AminoFormula``)
    - legacy names from ``(formerly X)`` markers (``LeanMR``, ``Muscle
      Defender L-Glutamine``) — these drive the Stage 4 currency rules
-2. **Curated overlay** (decisions confirmed 2026-09-01, see docs/v1/decisions.md):
+2. **Curated overlay** (confirmed by the support lead and the product owner):
    - WheySmooth universe (incl. All Natural + BULK lines) = ONE family
    - dotBARs = one family (flavor variations); dotWAFER separate
    - Creatine Monohydrate drink mix + unflavored = one family;
@@ -19,15 +19,15 @@ Two layers, both versioned in code (the emitted JSON is a derived artifact):
      ``legacy_renames``: a rename is an identity mapping, a replacement is a
      different formula, and only the first may expand to the successor's
      part_nos
-   - the planned "Reformulated with Careflow (2025)" currency cue was DROPPED
-     (absent from LeanMeal product copy; confirmed 2026-09-01)
+   - there is no "Reformulated with Careflow" currency cue: it is absent from
+     LeanMeal product copy
 
 Name matching downstream is normalization-based (``norm``), so spacing/casing
 variants — ``First String`` vs ``FirstString``, ``Active MV`` vs ``ActiveMV``,
 ``Whey Smooth`` vs ``WheySmooth`` — need no explicit alias entries. Only true
 abbreviations (AF, SB, FS, WLLS, MVM, …) require curation; those are harvested
-as *candidates* into a worksheet (open item #3) and enter the curated overlay
-only after the support-lead session confirms them.
+as *candidates* into a worksheet and enter the curated overlay only after the
+support lead confirms them.
 
 **Application policy** (binding for every consumer of this table): aliases
 drive (a) index metadata tags (``products`` field), (b) query-side expansion,
@@ -51,7 +51,7 @@ from pathlib import Path
 
 from .io_utils import write_json, write_text
 
-ALIAS_TABLE_VERSION = "1.3.0"  # 2026-09-07: family-spelling + LLM-only aliases
+ALIAS_TABLE_VERSION = "1.3.0"  # bump whenever the emitted table's shape or curation changes
 
 # --- curated overlay ---------------------------------------------------------
 
@@ -61,8 +61,7 @@ CURATED_FAMILIES: dict[int, str] = {
     1369: "WheySmooth", 1370: "WheySmooth", 1399: "WheySmooth",
     1374: "WheySmooth", 1375: "WheySmooth",
     1391: "WheySmooth", 1392: "WheySmooth",
-    # dotBARs: one family of flavor variations (2026-09-10: +1470
-    # Chocolate Raspberry Crisp, +1471 Mint Fudge — new flavors, same bar)
+    # dotBARs: one family of flavor variations; a new flavor joins here
     1456: "dotBAR", 1457: "dotBAR", 1462: "dotBAR",
     1480: "dotBAR", 1482: "dotBAR",
     1470: "dotBAR", 1471: "dotBAR",
@@ -76,10 +75,8 @@ EXPECTED_FAMILIES: dict[str, list[int]] = {
     "Over 50 MV": [1009],
 }
 
-# legacy renames not derivable from products.json (deprecated -> family).
-# 2026-09-01 (4): six PDSRG-product dispositions from the support lead
-# (SuperiorAntioxidant -> Antioxidant resolved once sku 1000 was added to
-# products.json the same day).
+# legacy renames not derivable from products.json (deprecated -> family),
+# including the PDSRG-product renames confirmed by the support lead.
 CURATED_LEGACY: list[dict] = [
     {"deprecated": "NO7 Rage", "family": "NO7 PreWorkout",
      "source": "curated (confirmed 2026-09-01)"},
@@ -131,9 +128,8 @@ DISCONTINUED_PRODUCTS: list[dict] = [
 
 # The "(formerly X)" marker text is not always the form the corpus uses.
 # Map derived marker text -> corpus-attested core used for matching/display.
-# (Verified 2026-09-01: 19 docs write MuscleDefender / muscle defender /
-# Muscle Defender — never the full marker form — so the unmodified alias
-# would have matched nothing.)
+# (The corpus writes MuscleDefender / muscle defender / Muscle Defender —
+# never the full marker form — so the unmodified alias would match nothing.)
 LEGACY_NAME_OVERRIDES: dict[str, str] = {
     "Muscle Defender L-Glutamine": "MuscleDefender",
 }
@@ -141,7 +137,7 @@ LEGACY_NAME_OVERRIDES: dict[str, str] = {
 # gear part_nos: excluded from the alias table entirely
 GEAR_PART_NOS: list[int] = [1611, 1612, 1630, 1631, 1646]
 
-# candidate abbreviations for the curation worksheet (open item #3).
+# candidate abbreviations for the curation worksheet.
 # norm() covers spelling variants; these are true abbreviations that need
 # human confirmation before they join CURATED_ALIASES.
 # recommendation: "tag" (deterministic auto-tag safe — every hit maps here),
@@ -160,12 +156,12 @@ SEED_ABBREVIATIONS: dict[str, dict] = {
             "recommendation": "context-only"},
 }
 
-# Confirmed deterministic aliases (curation session 2026-09-01; open item #3).
+# Confirmed deterministic aliases.
 # "tag" outcomes: deterministic metadata tagging approved. Matching rule is
 # the same uppercase word-boundary regex the harvest used (corpus attests
 # capitalized usage). Targets resolve to family part_nos at build time.
 #
-# Curation pass 2026-09-07 added a second class: not abbreviations but
+# A second class: not abbreviations but
 # *corpus spellings of a family the derivation cannot reach*, because
 # normalize_products matches norm-exact or family-PREFIX only. Every one is
 # attested (counts are corpus occurrences) and unambiguous — none is ordinary
@@ -177,7 +173,7 @@ CURATED_ALIASES: dict[str, dict] = {
     "SB": {"family": "Alln1 SuperBlend"},
     "FS": {"family": "First String"},
     "WLLS": {"family": "WeightLoss & LiverSupport"},
-    # family reachable by neither exact nor prefix match (2026-09-07)
+    # family reachable by neither exact nor prefix match
     "SuperOmega-3": {"family": "Omega-3 Fish Oil"},      # 282 occurrences
     "Super Omega 3": {"family": "Omega-3 Fish Oil"},
     "SuperCalcium": {"family": "Calcium Complex"},       # 254 occurrences
@@ -195,7 +191,8 @@ CURATED_ALIASES: dict[str, dict] = {
                 "spaced 'over 50' (an age) is a different string and never "
                 "matches this case-sensitive token",
     },
-    # dose tiers, collapsed to the product by owner ruling 2026-09-07
+    # dose tiers, collapsed to the product: tablet count is dosage guidance,
+    # not a separate product
     "1-Active": {
         "family": "Active MV",
         "note": "dose tier, not a product: 'children 12-17yr use 1-Active' "
@@ -210,7 +207,7 @@ CURATED_ALIASES: dict[str, dict] = {
     },
 }
 
-# LLM-only aliases (curation pass 2026-09-07). Same target shape as
+# LLM-only aliases. Same target shape as
 # CURATED_ALIASES, but these tokens are ALSO ordinary English, so only the
 # context-aware consumer may resolve them: Stage 2's normalize_products maps
 # them because the model already judged the mention to be a product in that
@@ -405,7 +402,7 @@ def build_alias_table(products: list[dict]) -> dict:
     llm_only_aliases = _alias_records(CURATED_LLM_ONLY_ALIASES,
                                       "CURATED_LLM_ONLY_ALIASES")
     # a token cannot be both blind-safe and context-gated, nor gated and
-    # context-only: the narrower ruling must be the only one in force
+    # context-only: the narrower tier must be the only one in force
     overlap = ({a["token"] for a in deterministic_aliases}
                & {a["token"] for a in llm_only_aliases})
     if overlap:

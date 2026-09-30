@@ -1,15 +1,15 @@
-"""Small-chat smoke test (plan §10) — first live call to the deployed
+"""Small-chat smoke test — first live call to the deployed
 ``gpt-5-mini`` (or equivalent) small-model deployment.
 
 One-off verification tool in the spirit of ``scripts/embedding_smoke.py``:
 proves endpoint + key + deployment name end-to-end *and* exercises the
-exact contract Stage 2 (§4) will rely on — strict JSON-schema structured
+exact contract Stage 2 will rely on — strict JSON-schema structured
 output for an extraction task.
 
 Deliberately passes no ``temperature``: GPT-5-family deployments only accept
 the default; determinism comes from the strict schema (plus the Stage 2
 source-containment diff pass), not from temperature 0. If this probe ever
-needs a temperature knob, the plan §4 note must be revisited, not worked
+needs a temperature knob, the note must be revisited, not worked
 around here.
 
 Prints endpoint, deployment, returned model id, parsed JSON and token usage

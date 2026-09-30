@@ -1,4 +1,4 @@
-"""Azure service credentials loader (plan §4 Stage 2, §7 ASR, §9–11 index).
+"""Azure service credentials loader.
 
 Secrets live in the gitignored ``.env`` at the repo root and nowhere else:
 not in code, not in tests, not in artifacts, not in chat. This module reads
@@ -34,8 +34,8 @@ _REGION_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 
 # The variables the .env contract knows about. `require=` subsets let
 # feature-scoped callers load less than the full runtime contract — the two
-# chat deployments are pending a quota increase (open item 1), so data-plane
-# work (§9 index build, §7 ASR) must not demand them.
+# chat deployments are pending a quota increase, so data-plane
+# work must not demand them.
 KNOWN_VARS = (
     "AZURE_SEARCH_ENDPOINT",
     "AZURE_SEARCH_ADMIN_KEY",

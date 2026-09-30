@@ -69,7 +69,7 @@ class TestPruneOrphans:
 
 
 class TestStage1ExcludesUnanswerableDocs:
-    """Owner disposition 2026-09-02: docs without expert replies and blank
+    """Docs without expert replies and blank
     docs are excluded from documents.jsonl (tallied in summary.json), not
     sent to the review queue — there is nothing left to decide about them."""
 

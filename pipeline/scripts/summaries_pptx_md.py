@@ -1,7 +1,7 @@
 """dotFIT Product Summaries deck -> markdown sections (original-data/Product Summaries).
 
-Owner-ruled 2026-09-28: the deck is legal-approved and the highest authority
-for now; on a disagreement it wins, then the PDSRG. Prices are individualized
+The deck is legal-approved and the highest authority: on a disagreement it
+wins, then the PDSRG. Prices are individualized
 per customer on the website, so no price leaves this script — every currency
 amount is masked to ``[price]`` before anything is written.
 
@@ -23,14 +23,13 @@ unresolvable tag must never produce untagged sections silently.
 On the bundle slides the membership of each level is carried by bottle
 photos, not text (there is no alt text anywhere in the deck). ``PICTURED``
 holds a hand-written note of what each such slide shows, read off the
-rendered slides on 2026-09-28; it is rendered under the slide's text,
+rendered slides; it is rendered under the slide's text,
 labelled as an annotation so it is never mistaken for deck wording.
 
 ``kind`` per section: ``product`` (a product's summary), ``bundle`` (how
 products are combined), ``brand`` (the dotFIT difference, credibility),
 ``education`` (nutrition teaching), ``script`` (trainer scripts, taglines,
-flyer and email copy — owner-ruled 2026-09-28 to hold back for now, possibly
-for a separate tool later).
+flyer and email copy — held back until a use for them is decided).
 
 Output: pipeline-output/summaries/md/NN-<slug>.md + summary.json (sorted, no
 timestamps — reruns are byte-identical, the pipeline determinism rule), and
@@ -255,8 +254,8 @@ DROPPED: dict[int, str] = {
     251: "duplicate of 248",
 }
 
-# What the bundle and image-only slides show, read off the rendered slides
-# 2026-09-28. Product names as on the bottles; no prices.
+# What the bundle and image-only slides show, read off the rendered slides.
+# Product names as on the bottles; no prices.
 PICTURED: dict[int, str] = {
     4: "First String; Creatine Monohydrate; NO7 PreWorkout; Omega-3 (as needed — add if <3 servings/wk "
        "fatty fish); Active MV OR Alln1 SuperBlend as the foundational dietary support.",

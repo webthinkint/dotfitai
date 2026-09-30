@@ -1,6 +1,6 @@
 """Shared structural markers for QA corpus documents.
 
-Two email shapes exist (see docs/v1/phase1-knowledge-assistant.md §4):
+Three document shapes exist:
 
 (a) saved email threads — expert answer on top, quoted customer message below,
     delimited by a thread header (``From:/Sent:/To:/Subject:``) and a contact
@@ -21,7 +21,7 @@ from __future__ import annotations
 import re
 
 # Labeled lines: thread headers + contact block fields (label set kept generous,
-# corpus-observed: From/Email/Category/Question, plan-documented: Name/Phone/Message)
+# corpus-observed: From/Email/Category/Question, and Name/Phone/Message)
 LABEL_RE = re.compile(
     r"^\s*(From|To|Cc|Bcc|Sent|Date|Subject|Name|Email|E-mail|Phone|Mobile|Cell|"
     r"Category|Question|Message|Comments)\s*:\s*(.*)$",

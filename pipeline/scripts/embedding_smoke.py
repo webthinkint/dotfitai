@@ -1,13 +1,13 @@
-"""Embedding smoke test (plan §10) — first live call to the deployed
+"""Embedding smoke test — first live call to the deployed
 `text-embedding-3-large` deployment.
 
 One-off verification tool in the spirit of ``scripts/pdsrg_gate.py``: proves
-endpoint + key + deployment name end-to-end before the index builder (§9)
+endpoint + key + deployment name end-to-end before the index builder
 relies on them.
 
 Deliberately uses ``load_azure_config(require=REQUIRE_OPENAI_EMBEDDING)`` —
 the full contract isn't needed and the two chat deployments are still
-pending a quota increase (open item 1).
+pending a quota increase.
 
 Prints endpoint, deployment, returned model id, dims and token usage — never
 any key material. Exits non-zero on any failure.
@@ -31,7 +31,7 @@ from qa_pipeline.azure_config import (
 # /openai/deployments route works, but only on current api-versions — the
 # older 2024-10-21 returns 404 "Resource not found" on v2 resources.
 DEFAULT_API_VERSION = "2025-04-01-preview"
-EXPECTED_DIMS = 3072  # text-embedding-3-large — the §9 index contract
+EXPECTED_DIMS = 3072  # text-embedding-3-large — the index contract
 
 
 def main() -> int:

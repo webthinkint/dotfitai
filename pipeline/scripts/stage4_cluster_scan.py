@@ -1,11 +1,11 @@
-"""Stage 4 cluster calibration scan (plan §4 Stage 4 step 1).
+"""Stage 4 cluster calibration scan.
 
 One-off analysis (the pdsrg_density_scan.py precedent), NOT part of the CLI.
 Answers two questions before the clustering threshold becomes a module
 constant:
 
 1. How many near-duplicate clusters form at each cosine threshold, within
-   §4 buckets (pairs compared only when they share a part_no or a topic)?
+   buckets (pairs compared only when they share a part_no or a topic)?
 2. Which pairs sit on the border — the lowest-similarity pairs that merge
    and the highest-similarity pairs that stay apart — so the locked
    threshold is a judged number, not a guess.
@@ -41,7 +41,7 @@ def normalize(vec: list[float]) -> list[float]:
 
 
 def buckets_share(a: dict, b: dict) -> bool:
-    """§4 bucket rule: same product or same topic (case-insensitive)."""
+    """bucket rule: same product or same topic (case-insensitive)."""
     if set(a["products"]) & set(b["products"]):
         return True
     return bool({t.casefold() for t in a["topics"]}

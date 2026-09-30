@@ -1,30 +1,29 @@
-"""Azure AI Search index builder (plan §9).
+"""Azure AI Search index builder.
 
-Shapes the currently-indexable sources into §9 documents, embeds
+Shapes the currently-indexable sources into index documents, embeds
 ``title + content`` with the deployed ``text-embedding-3-large``, and uploads
-to AI Search (manual indexing — chunking is source-specific, per §9):
+to AI Search (manual indexing — chunking is source-specific, per the index design):
 
-- **PDSRG chunks** (§6 output) — already §9-stamped (id/authority/products/
+- **PDSRG chunks** — already index-stamped (id/authority/products/
   locator/citation_url/is_current/product_status); pass-through plus
   string-normalized ``part_no``s.
-- **products.json** (§5) — section-split per family: the canonical SKU's
+- **products.json** — section-split per family: the canonical SKU's
   sections are the family documents; variants contribute only genuinely
   distinct sections (whitespace-normalized text diff against the canonical's
-  same-named section). §5's ``faq_item`` split is data-driven: no FAQ-shaped
+  same-named section). ``faq_item`` split is data-driven: no FAQ-shaped
   sections exist in the corpus yet, so none are produced.
 - **infopages.json** — the dotFIT.com info pages (about/FAQ/policies/learn
-  hubs): the same export channel as products.json, so the same §3 weight —
-  authority 1 site copy (owner ruling 2026-09-11). Section-split reuses
+  hubs): the same export channel as products.json, so the same authority —
+  authority 1 site copy. Section-split reuses
   ``split_sections``; curated per-page metadata lives in ``PAGE_META``.
-- **menu descriptions** (§8) — one small doc per menu type (10), with the
+- **menu descriptions** — one small doc per menu type (10), with the
   calorie range computed from the CSV.
 
-Podcast segments (§7 step 3 output) join here as fourth source; QA
-(Stage 2, blocked on the small-chat quota) joins later under the same
-§9 field contract.
+- **podcast segments** and **QA records** (Stage 4 canonicals) under the same
+  index field contract.
 
 AI Search document keys may only contain letters, digits, ``_``, ``-`` and
-``=`` (``InvalidDocumentKey`` otherwise), so §9's colon-separated id style
+``=`` (``InvalidDocumentKey`` otherwise), so colon-separated id style
 (``pdsrg:stem:001``) is mapped to dashes at index time: ``pdsrg-stem-001``.
 The committed source records keep their ids; the substitution is purely
 mechanical and reversible. A test pins the key rule on every built id.
@@ -48,15 +47,12 @@ from azure.search.documents.indexes import models as m
 from .alias import strip_variant_suffix
 from .podcast import citation_url
 
-# The §9 index. `kb-main` was the original name — its delete wedged mid-flight
-# (open item 10, closed 2026-09-08: the orphan is gone, the name is free again)
-# and the corpus was rebuilt under `-v2`. The default stays `-v2`; a rename is
-# cosmetic and is pinned by tests on both sides of the runtime mirror.
+# The index name, pinned by tests on both sides of the runtime mirror.
 INDEX_NAME = "kb-main-v2"
-EMBEDDING_DIMS = 3072          # text-embedding-3-large — the §9 index contract
+EMBEDDING_DIMS = 3072          # text-embedding-3-large — the index contract
 UPLOAD_BATCH = 200
 
-# §5 section taxonomy; headers not in this map keep a slugified header name
+# section taxonomy; headers not in this map keep a slugified header name
 # (deterministic) — real content is never dropped, only empty sections are
 SECTION_SLUGS = {
     "description": "description",
@@ -86,7 +82,7 @@ def embed_text(doc: dict[str, Any]) -> str:
 
 
 # --------------------------------------------------------------------------
-# products.json (§5)
+# products.json
 
 
 def split_sections(searchcontent: str) -> list[tuple[str, str]]:
@@ -114,7 +110,7 @@ def split_sections(searchcontent: str) -> list[tuple[str, str]]:
 
 
 def product_documents(products: list[dict], families: list[dict]) -> list[dict]:
-    """Family-grouped §5 product documents from products.json."""
+    """Family-grouped product documents from products.json."""
     by_pn = {str(p["part_no"]): p for p in products}
     docs: list[dict] = []
 
@@ -123,7 +119,7 @@ def product_documents(products: list[dict], families: list[dict]) -> list[dict]:
         return {
             "id": f"product-{pn}-{section}",
             "source_type": "product",
-            "authority": 1,                     # §3: legal-approved copy
+            "authority": 1,                     # legal-approved copy
             "title": title,
             "content": "",                      # filled by caller
             "citation_url": p.get("URL"),
@@ -166,7 +162,7 @@ def product_documents(products: list[dict], families: list[dict]) -> list[dict]:
 
 
 # --------------------------------------------------------------------------
-# PDSRG (§6 output — pass-through) and menus (§8)
+# PDSRG and menus
 
 
 def pdsrg_documents(chunks: list[dict]) -> list[dict]:
@@ -197,8 +193,7 @@ def pdsrg_documents(chunks: list[dict]) -> list[dict]:
 # longname is truncated mid-sentence in the export (and carries literal
 # ``<br>`` tags), the rest are dash/case cleanups; ``topic`` is the page-class
 # facet. An unknown coid raises rather than emit untagged docs — the STEM_META
-# rule: an unattested mapping must never silently pass (alias lesson,
-# 2026-09-01).
+# rule: an unattested mapping must never silently pass.
 PAGE_META: dict[int, dict] = {
     # about / brand
     41819: {"title": "Nutrition Solutions For Exercisers and Athletes",
@@ -244,10 +239,10 @@ def _strip_page_h1(searchcontent: str) -> str:
 
 
 def infopage_documents(pages: list[dict]) -> list[dict]:
-    """dotFIT.com info pages (infopages.json) -> §9 docs (``authority=1``).
+    """dotFIT.com info pages (infopages.json) -> index docs (``authority=1``).
 
-    The §9 stamp mirrors the product source the pages share an export channel
-    with: authority 1 legal-approved site copy (owner ruling 2026-09-11), no
+    The stamp mirrors the product source the pages share an export channel
+    with: authority 1 legal-approved site copy, no
     date (the export carries none), ``is_current=True``, no product_status,
     no ``products`` tags (the pages carry no part_nos; the FAQ page names
     SKUs in prose, but deterministic tagging of site copy is future work on
@@ -276,7 +271,7 @@ def infopage_documents(pages: list[dict]) -> list[dict]:
             docs.append({
                 "id": f"infopage-{coid}-{slug}",
                 "source_type": "infopage",
-                "authority": 1,                     # §3: legal-approved site copy
+                "authority": 1,                     # legal-approved site copy
                 "title": meta["title"],
                 "content": text,
                 "citation_url": page.get("URL"),
@@ -291,13 +286,13 @@ def infopage_documents(pages: list[dict]) -> list[dict]:
 
 
 def menu_documents(rows: list[dict]) -> list[dict]:
-    """One §8 description doc per menu type: name + description + calorie range.
+    """One description doc per menu type: name + description + calorie range.
 
     The export carries case-variant duplicate names (``Gluten Free`` /
     ``Gluten free``, ``Night Out`` / ``Night out`` — identical descriptions),
     which would otherwise produce duplicate document ids (the slug is already
     casefolded). Case-insensitive grouping with the dominant spelling as the
-    display name (most rows; tie → lexicographic) keeps the §8 count at 10.
+    display name (most rows; tie → lexicographic) keeps the count at 10.
     """
     groups: dict[str, dict[str, Any]] = {}
     for r in rows:
@@ -324,7 +319,7 @@ def menu_documents(rows: list[dict]) -> list[dict]:
         docs.append({
             "id": f"menu_desc-{_slug(name)}-description",
             "source_type": "menu_desc",
-            "authority": 5,                       # §3: menus rank last
+            "authority": 5,                       # menus rank last
             "title": name,
             "content": content,
             "citation_url": None,
@@ -353,21 +348,21 @@ def read_menu_rows(path: Path) -> list[dict]:
 
 def podcast_documents(segments: list[dict],
                       video_ids: dict[str, str] | None = None) -> list[dict]:
-    """§7 segments → §9 docs (``authority=4``).
+    """segments → index docs (``authority=4``).
 
     - ``id`` gets a ``podcast-`` namespace prefix: segment ids are
       slug-based and can start with a digit (``1-expert-reacts…``).
     - ``title`` carries the mm:ss range so result lists disambiguate
       segments of one episode; ``locator`` is the citable time range.
     - ``citation_url`` is the episode's YouTube link, deep-linked to the
-      segment's start second so §7.4's "as covered at 14:32 in *Creatine
-      FAQs*" lands where it says. The ``archive.txt`` → video mapping was
-      verified 2026-09-08 and frozen as ``podcast.PODCAST_VIDEO_IDS``; an
-      episode absent from it raises rather than silently citing linkless.
+      segment's start second so "as covered at 14:32 in *Creatine
+      FAQs*" lands where it says. The ``archive.txt`` → video mapping is
+      frozen as ``podcast.PODCAST_VIDEO_IDS``; an episode absent from it
+      raises rather than silently citing linkless.
     - ``products``/``topics`` stay empty: spoken text gets no
       deterministic alias tagging (future work, same policy as the
       corpus-never-rewritten rule).
-    - ``is_current`` is True: v1 has no supersession logic for episodes,
+    - ``is_current`` is True: there is no supersession logic for episodes,
       and an unstamped (null) doc is invisible to filtered queries.
     """
     docs = []
@@ -375,7 +370,7 @@ def podcast_documents(segments: list[dict],
         docs.append({
             "id": f"podcast-{s['id']}",
             "source_type": "podcast",
-            "authority": 4,                      # §3: podcast transcripts
+            "authority": 4,                      # podcast transcripts
             "title": f"{s['episode_title']} ({s['start']}–{s['end']})",
             "content": s["text"],
             "citation_url": citation_url(s["source_file"], s["start_ms"],
@@ -383,7 +378,7 @@ def podcast_documents(segments: list[dict],
             "locator": f"{s['start']}–{s['end']}",
             "products": [],
             "topics": [],
-            "date": None,                       # §9: nullable for podcast
+            "date": None,                       # nullable for podcast
             "is_current": True,
             "product_status": None,
         })
@@ -395,8 +390,7 @@ def qa_date(value: str | None) -> str | None:
 
     QA carries the first real dates in the index (every other source stamps
     null); AI Search needs the full offset shape, midnight UTC — the thread
-    date is day-precision by construction (plan §4: the enquiry's ``Sent:``
-    header, a currency lower bound, never a timestamp). Garbage stays null
+    date is day-precision by construction. Garbage stays null
     rather than failing the build.
     """
     if not value or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
@@ -428,7 +422,7 @@ def split_answer_parts(answer: str, max_chars: int = QA_PART_CHARS) -> list[str]
 
 
 def qa_documents(records: list[dict]) -> list[dict]:
-    """Stage 2 canonical records (§4 Stage 5) -> §9 docs, one per Q&A pair.
+    """Stage 2 canonical records -> index docs, one per Q&A pair.
 
     No chunking (pairs are already the right size); ``question_canonical``
     and ``answer`` are both searchable via title+content. Expert notes with
@@ -436,7 +430,7 @@ def qa_documents(records: list[dict]) -> list[dict]:
     summary, not a rewrite). Records with no answer text are skipped — there
     is nothing to retrieve (Stage 1 already excludes answer-less docs, so
     this is belt-and-braces). Stage 4-superseded records
-    (``is_current=false``) are skipped: §4 keeps them in the committed store
+    (``is_current=false``) are skipped: Stage 4 keeps them in the committed store
     (the "what happened to X" audit trail) but only ``is_current=true``
     canonicals proceed to the index. Currency cues never reach the index —
     they are Stage 4 input, not query text. ``citation_url`` stays null (no
@@ -453,7 +447,7 @@ def qa_documents(records: list[dict]) -> list[dict]:
         title = question or r.get("filename") or r["source_file"]
         base = {
             "source_type": "qa",
-            "authority": 3,                       # §3: QA corpus
+            "authority": 3,                       # QA corpus
             "citation_url": None,
             "locator": r.get("filename"),
             "products": [str(p) for p in (r.get("products") or [])],
@@ -480,7 +474,7 @@ def build_documents(chunks: list[dict], products: list[dict],
                     qa_records: list[dict] | None = None,
                     podcast_video_ids: dict[str, str] | None = None,
                     infopages: list[dict] | None = None) -> list[dict]:
-    """All §9 documents, sorted by id (documents.jsonl is byte-stable)."""
+    """All index documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
             + product_documents(products, families)
             + menu_documents(menu_rows)
@@ -491,13 +485,13 @@ def build_documents(chunks: list[dict], products: list[dict],
 
 
 # --------------------------------------------------------------------------
-# AI Search schema + upload (§9)
+# AI Search schema + upload
 
 
 def index_schema(name: str = INDEX_NAME) -> m.SearchIndex:
-    """`kb-main` per §9: hybrid BM25 + vector, int8 scalar quantization with
+    """`kb-main` per the index design: hybrid BM25 + vector, int8 scalar quantization with
     rescoring and no stored vector copies, semantic ranker config available
-    (query-side toggle is decided on the golden set, open item 5)."""
+    (the query-side toggle is off: it measured worse recall)."""
     vector_search = m.VectorSearch(
         profiles=[m.VectorSearchProfile(
             name="profile-sq", algorithm_configuration_name="hnsw",
@@ -554,8 +548,8 @@ def _deletion_pending(exc: Exception) -> bool:
     in-flight delete, and the SDK raises the same `ResourceNotFoundError` for
     each — only the body separates them ("The index ... is being deleted."
     vs "No index with the name ... was found."). Reading the pending 404 as
-    "gone" is what let the 2026-09-08 rebuild create into a half-deleted
-    index; the delete then never completed and kb-main was lost.
+    "gone" lets a rebuild create into a half-deleted index, whose delete then
+    never completes.
     """
     return "being deleted" in str(exc).lower()
 
@@ -569,7 +563,7 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
     index enumeration outright ("cannot enumerate resources without paging").
     Deletion is asynchronous server-side — a reset must poll the old index
     away before creating the new one, or create fails with a bare "could not
-    be created" (the 2026-09-07 rebuild race) and the service is left with
+    be created" and the service is left with
     NO index at all. The poll distinguishes the two 404 bodies via
     `_deletion_pending`; a delete that never finishes raises rather than
     creating into it.
@@ -626,7 +620,7 @@ def ensure_index(search_endpoint: str, admin_key: str, name: str,
 def upload_documents(search_endpoint: str, admin_key: str, index_name: str,
                      docs: list[dict], vectors: list[list[float]],
                      batch: int = UPLOAD_BATCH) -> tuple[int, list[dict]]:
-    """merge_or_upload §9 documents (+vectors) in batches; returns
+    """merge_or_upload index documents (+vectors) in batches; returns
     (n_succeeded, errors)."""
     from azure.core.credentials import AzureKeyCredential
     from azure.search.documents import SearchClient

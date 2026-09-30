@@ -1,4 +1,4 @@
-"""PDSRG chunking pipeline (plan §6): PDF -> indexed chunk documents.
+"""PDSRG chunking pipeline: PDF -> indexed chunk documents.
 
 Input: the Practitioner Dietary Supplement Reference Guide PDF corpus
 (39 files, four layout templates). Output: one JSONL record per chunk,
@@ -6,14 +6,14 @@ section-level chunked by heading with heading-path prefixes, tables kept
 intact, plus a per-doc review outline and a run summary.
 
 Extraction strategy is inherited from the validated gate test
-(``scripts/pdsrg_gate.py``, human-verified PASS 2026-09-01):
+(``scripts/pdsrg_gate.py``, human-verified):
 
 - pdfplumber ``lines`` strategy; trivial (<=2 cell) and *prose false
   positive* detections dropped; collapse signature re-extracted with the
   ``text`` strategy (restores ultra-wide dosage grids).
 
-The chunker adds the **prose false-positive filter** the gate demanded
-(progress 2026-09-01: "the chunker must not index these as tables"):
+The chunker adds the **prose false-positive filter** the gate demands (the
+chunker must not index these as tables):
 ruled prose blocks extract as tables whose rows NEVER have >=2 non-empty
 cells (each "row" is a wrapped text line) and whose cells are sentence
 fragments. Real dosage grids always have multi-cell rows. Corpus-wide:
@@ -34,10 +34,10 @@ Heading detection is font-based; the corpus uses four layout templates:
 
 Levels are assigned by the doc's own heading-size ranking (title
 fonts vary 13.5-18pt across docs), italic headings always deepest,
-clamped to 3. Section paths drive the chunk content prefix (plan:
-"SuperOmega-3 Fish Oils > Dosing & Evidence").
+clamped to 3. Section paths drive the chunk content prefix
+("SuperOmega-3 Fish Oils > Dosing & Evidence").
 
-Chunk records align with the §9 index fields (``id``, ``source_type``,
+Chunk records align with the index fields (``id``, ``source_type``,
 ``authority``, ``title``, ``content``, ``products``, ``locator``...).
 References/bibliography sections are excluded from chunks by default
 (retrieval noise; ``--keep-references`` includes them) and reported in
@@ -92,7 +92,7 @@ FORMERLY_RE = re.compile(r"\((formerly [^)]+)\)", re.IGNORECASE)
 # --- curated stem metadata ----------------------------------------------------
 # Stem (filename minus .pdf) -> product family / topic metadata. Resolution
 # order: this table first, then norm() match against alias-table families.
-# Dispositions (support lead, 2026-09-01 (5)):
+# Dispositions confirmed by the support lead:
 # - renamed products point at their current family -> chunks tag the
 #   current part_nos; deprecated names live in alias.py CURATED_LEGACY
 # - "no_part_nos": doc stays indexable but tags no products facet values
@@ -124,7 +124,7 @@ STEM_META: dict[str, dict] = {
     "WheySmooth": {"family": "WheySmooth", "category": "Performance"},
     "Women'sMV": {"family": "Women's MV", "category": "MVM"},
     "WorkoutExtreme": {"family": "Workout Extreme", "category": "Performance"},
-    # -- product docs with dispositions (support lead, 2026-09-01 (5)) ----
+    # -- product docs with support-lead dispositions --------------------------
     # renamed -> current family (chunks tag current part_nos); the
     # deprecated names live in alias.py CURATED_LEGACY for currency flags.
     "AdvancedBrainHealth": {"family": "Brain Health", "category": "Health"},
@@ -147,7 +147,7 @@ STEM_META: dict[str, dict] = {
                               "(legacy rename in the alias table)"},
     "VeganMV": {"family": "VeganMV", "category": "MVM", "no_part_nos": True,
                 "status": "discontinued", "note": "discontinued"},
-    # -- topic docs (no product): plan §6.4 --------------------------------
+    # -- topic docs (no product) ----------------------------------------------
     "Introduction": {"family": None, "category": "General", "topics": ["company", "supplement-policy"]},
     "Introduction to Health Products": {"family": None, "category": "General", "topics": ["health", "multivitamin"]},
     "Introduction to Lifelong Complete Multivitamin & Mineral Supplementation": {"family": None, "category": "General", "topics": ["multivitamin"]},
@@ -175,7 +175,7 @@ def is_trivial(data: list[list[str | None]]) -> bool:
 
 
 def is_prose_false_positive(data: list[list[str | None]]) -> bool:
-    """Ruled prose block detected as a table (gate finding, 2026-09-01).
+    """Ruled prose block detected as a table (a gate finding).
 
     Signature (verified on SuperiorAntioxidant p8 11x3, p11 4x2 / 8x1,
     Alln1 p9 40x6): almost NO row has >=2 non-empty cells (each "row" is
@@ -593,8 +593,7 @@ def resolve_stem(stem: str, alias_families: dict[str, dict]) -> dict:
 
     Curated STEM_META first, then norm() match against alias families
     (spelling variants are free). Unknown stems raise — an unattested
-    mapping must never silently produce untagged chunks (alias lesson,
-    2026-09-01: 0-doc rows are the tell).
+    mapping must never silently produce untagged chunks.
     """
     meta = STEM_META.get(stem)
     if meta is None:
@@ -766,7 +765,7 @@ def chunk_records(doc: dict, chunks: list[dict],
                   citation_base: str = "pdsrg/") -> list[dict]:
     """Final JSONL records with shared per-doc metadata attached.
 
-    Every §9 index field is stamped here, including ``is_current``: the
+    Every index field is stamped here, including ``is_current``: the
     default query filter is ``is_current eq true`` and Azure AI Search does
     not match null against it, so an unstamped chunk would be invisible to
     every query. PDSRG chunks are current by definition — a *discontinued
@@ -798,7 +797,7 @@ def chunk_records(doc: dict, chunks: list[dict],
             # the URL works wherever the deployment serves the PDFs from.
             "citation_url": f"{citation_base}{quote(doc['source_file'])}"
                             f"#page={pages[0]}",
-            "date": None,               # §9: nullable for non-QA sources
+            "date": None,               # nullable for non-QA sources
             "is_current": True,
             "n_tokens": c["n_tokens"],
         }

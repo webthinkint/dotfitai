@@ -1,9 +1,8 @@
-"""PDSRG density scan (plan §6.1): rank all PDSRG PDFs by extraction difficulty.
+"""PDSRG density scan: rank all PDSRG PDFs by extraction difficulty.
 
 Metrics per PDF: pages, chars/page, words/page, tables, table cells, and the
 share of pages containing tables. Identifies the worst-case files the gate
-test must deep-verify (plan names CreatineMonohydrate + Introduction docs;
-we verify that assumption with data).
+test must deep-verify, from data rather than from a guess.
 """
 
 from __future__ import annotations

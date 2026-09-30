@@ -170,8 +170,7 @@ class TestForwardedThread:
 
 
 class TestEmptyAnswerGuard:
-    """No-answer docs are excluded by the CLI (owner disposition
-    2026-09-02), not queued — the record still marks itself needs_review so
+    """No-answer docs are excluded by the CLI, not queued — the record still marks itself needs_review so
     the exclusion is auditable per document."""
 
     def test_qa_email_without_an_answer_marks_needs_review(self):

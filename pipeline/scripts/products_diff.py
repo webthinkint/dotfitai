@@ -1,6 +1,6 @@
-"""Diff two ``products.json`` exports (open item 2, the freshness cadence).
+"""Diff two ``products.json`` exports.
 
-`products.json` is the **legal-approved claims corpus** (§3): the assistant
+`products.json` is the **legal-approved claims corpus**: the assistant
 quotes it verbatim and never paraphrases it, so a re-export that silently
 rewords a claim changes what the assistant is allowed to say. The monthly diff
 this supports is not a data-hygiene chore — it is the review that catches that.
@@ -8,12 +8,11 @@ this supports is not a data-hygiene chore — it is the review that catches that
 What it reports, in the order that matters:
 
 1. **Claim-bearing section changes** — a section whose text moved, per SKU. The
-   §5 section split (`index_build.split_sections`) is reused so the unit is the
+   section split (`index_build.split_sections`) is reused so the unit is the
    same one the index builds documents from: a changed ``description`` is a
    changed claim document, and its old embedding is now stale.
 2. **Added / removed SKUs** — a removed SKU with corpus mentions becomes an
-   alias-table currency question (§5, `docs/v1/decisions.md`: discontinued with no
-   successor stays indexable and tags nothing).
+   alias-table currency question.
 3. **Renames** — ``longname`` changed on the same ``part_no``. A rename is an
    identity mapping and never supersedes (AGENTS.md), so it belongs in the
    alias table's rename section, not its replacement section. This tool cannot
@@ -109,7 +108,7 @@ def main() -> int:
     if report["section_changes"]:
         print(f"## claim-bearing section changes "
               f"({len(report['section_changes'])} SKUs)")
-        print("   Approved copy moved. Every changed section is a changed §9 "
+        print("   Approved copy moved. Every changed section is a changed index "
               "document whose embedding is now stale.")
         for change in report["section_changes"]:
             parts = []
@@ -127,10 +126,10 @@ def main() -> int:
 
     for key, title, note in (
         ("added_skus", "added SKUs",
-         "New claim documents; check the alias table covers the new names (§5)."),
+         "New claim documents; check the alias table covers the new names."),
         ("removed_skus", "removed SKUs",
          "A removed SKU still mentioned in the corpus is a currency question, "
-         "not a deletion — see docs/v1/decisions.md."),
+         "not a deletion: it stays indexable, marked discontinued in the alias table."),
     ):
         if report[key]:
             print(f"## {title} ({len(report[key])})")

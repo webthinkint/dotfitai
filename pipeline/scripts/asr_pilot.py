@@ -1,4 +1,4 @@
-"""Podcast ASR pilot (plan §7) — transcribe ONE episode for manual inspection.
+"""Podcast ASR pilot — transcribe ONE episode for manual inspection.
 
 One-off tool in the spirit of ``scripts/embedding_smoke.py``: proves the
 Speech endpoint + key + fast-transcription shape end-to-end (inline audio
@@ -8,7 +8,7 @@ Uses the fast-transcription REST API
 (``POST {speech_endpoint}/speechtotext/transcriptions:transcribe``) with
 ``locales=["en-US"]``, diarization on, word-level timestamps (always
 returned), and a dotFIT phrase list (product names + supplement jargon —
-the plan's predictable failure mode).
+the predictable failure mode).
 
 Outputs (no timestamps inside — deterministic for a fixed API version):
     pipeline-output/podcasts/pilot/<slug>.json   raw API response
@@ -47,7 +47,7 @@ API_VERSION = "2025-10-15"
 # phrase list (creatine/HCL/monohydrate) and diarization (host + guest).
 DEFAULT_EPISODE_SUBSTR = "creatine faqs"
 
-# Plan §7 phrase list: dotFIT product vocabulary + the supplement jargon the
+# Phrase list: dotFIT product vocabulary + the supplement jargon the
 # base model is expected to miss. Curation lives here (versioned in code).
 PHRASE_LIST: list[str] = [
     # brand / hosts
@@ -236,7 +236,7 @@ def main() -> int:
                         " or transcripts/ with --all)")
     parser.add_argument("--all", action="store_true",
                         help="transcribe all 47 episodes (skips slugs with"
-                        " existing .json; full §7 ASR sweep)")
+                        " existing .json; the full ASR sweep)")
     parser.add_argument("--workers", type=int, default=2,
                         help="parallel uploads with --all (keep low: the API"
                         " rate-limits under concurrency)")

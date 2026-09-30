@@ -1,4 +1,4 @@
-"""Stage 0 — deterministic PII scrub (plan §4, Stage 0).
+"""Stage 0 — deterministic PII scrub.
 
 Runs on raw .docx files, locally. No LLM, no network. Produces:
 
@@ -47,7 +47,7 @@ SSN_RE = re.compile(r"(?<![\w.-])\d{3}-\d{2}-\d{4}(?![\w.-])")
 # keep it away from supplement dosages and phone-shaped numbers.
 CARD_RE = re.compile(r"(?<![\w.-])\d{4}([ -]?\d{4}){2,3}(?![\w.-])")
 
-# US/CA postal addresses (plan §4 Stage 0 step 3): house number + 1-4
+# US/CA postal addresses: house number + 1-4
 # capitalized tokens + a street-type suffix, with an optional
 # ", City, ST ZIP" tail. Conservative by construction — the leading house
 # number and the suffix vocabulary keep it away from prose and dosages.
@@ -86,18 +86,15 @@ GREETING_LEAD_RE = re.compile(
     r"(?=\s*(?:[,!:;()–—…-]|$))"
 )
 
-# Owner disposition 2026-09-02: every corpus greeting residual was a real
+# Greeting residuals: every one in the corpus was a real
 # name in a shape the terminator rule cannot redact (no terminator after the
 # name, honorific prefix, lowercase, slash-joined pairs). Instead of guessing
 # on arbitrary tokens (which would eat prose — "Hello my friend"), names in
 # this curated, corpus-attested vocabulary are redacted without a terminator
 # ("Hey <name> and happy Sunday" -> "Hey [NAME] and happy Sunday"). An
 # unknown name in the same position is still flagged, never guessed at.
-# "zane" added with the Stage 2 staff ruling (2026-09-08): the SuppBeast
-# co-host gets the same greeting-position treatment as Neal. Zero-diff on this
-# corpus — his 7 attestations are all mid-prose or bare-lead ("Zane, I got the
-# answer"), never after a Hi/Hey/Dear lead — so it is future-proofing, not a
-# regen catch, and it is here so the two staff vocabularies do not drift.
+# "zane", the SuppBeast co-host, gets the same greeting-position treatment as
+# Neal, so this vocabulary and the Stage 2 staff list do not drift.
 GREETING_NAME_TOKENS = frozenset({"neal", "kat", "spruce", "eve", "zane"})
 _NAME_ALT = r"(?:" + "|".join(sorted(GREETING_NAME_TOKENS)) + r")\b"
 GREETING_LOOSE_RE = re.compile(
@@ -119,13 +116,12 @@ GREETING_STOPWORDS = frozenset({
     "there", "team", "everyone", "everybody", "all", "folks", "guys", "gals",
     "buddy", "gentlemen", "ladies", "again", "both", "sir", "madam",
     "doctor", "coach", "thank", "thanks", "from", "and",
-    # corpus-attested non-names (owner disposition 2026-09-02: "Hello my
-    # friend" is not PII and must not flag)
+    # corpus-attested non-names ("Hello my friend" is not PII and must not flag)
     "my", "friend",
 })
 
-# Customer sign-off de-naming (owner disposition 2026-09-05, review round 2:
-# two quoted replies leaked full names as sign-offs — "Thanks,\\n\\nJane
+# Customer sign-off de-naming (quoted replies can carry full names as
+# sign-offs — "Thanks,\\n\\nJane
 # Smith" and "-- \\nRegards,\\n\\nDr Jane Smith (PhD Org Chem)"). A bare
 # closer line followed (past blanks) by ONE bare-name line is a sign-off, not
 # prose; the name span is replaced with [NAME]. Only below the quoted header
@@ -143,24 +139,22 @@ _SIGNOFF_NAME_RE = re.compile(
     r"(?:\s+[A-Z][\w'’.-]+){0,2})(\s*\(.*\))?\s*$",
 )
 
-# Inline customer sign-offs (owner disposition 2026-09-06, Stage 2 triage
-# round 1: "Respectfully, Kendra Ferguson" and "Thanks, Matt" sit on ONE
-# line at end-of-line, which the bare-name-next-line rule cannot see). The
+# Inline customer sign-offs ("Respectfully, Jane Doe" and "Thanks, Sam" sit
+# on ONE line at end-of-line, which the bare-name-next-line rule cannot see). The
 # closer alternation mirrors CLOSER_RE plus "respectfully" (attested in the
 # triage sample); the name span is at most TWO capitalized tokens — a third
 # token is usually an organization ("Thanks, Diabetic Support Group"), and
 # missing it fails safe toward the LLM flag, never toward prose damage.
 # Same region gate as _redact_signoffs: customer region only.
 # Bare "best" is the one closer that REQUIRES its comma: unlike the others it
-# is also an ordinary adjective, and comma-less it ate prose in the first
-# regen ("...and Best Plant Protein." plus the heading "Best Scientific
-# Combination" both became "Best [NAME]" — review 2026-09-07). A sign-off
-# writes "Best, Matt"; a sentence writes "Best Plant Protein". Every other
+# is also an ordinary adjective, and comma-less it eats prose
+# ("...and Best Plant Protein." and the heading "Best Scientific
+# Combination" would become "Best [NAME]"). A sign-off
+# writes "Best, Sam"; a sentence writes "Best Plant Protein". Every other
 # closer keeps the optional comma ("Thanks Neal" is attested).
-# The misspelled closers are deliberate, not sloppiness (Stage 2 triage round
-# 2, 2026-09-08): "Thnak you, <full name>" reached the index because the
-# alternation only knew the correct spellings, and a customer typing their own
-# sign-off is exactly the moment they mistype. Only forms attested in the
+# The misspelled closers are deliberate, not sloppiness: "Thnak you, <full
+# name>" escapes an alternation that only knows the correct spellings, and a
+# customer typing their own sign-off is exactly the moment they mistype. Only forms attested in the
 # corpus are listed — an invented variant is a false-positive surface with no
 # recall to show for it.
 _INLINE_CLOSER_AT = re.compile(
@@ -175,12 +169,12 @@ _INLINE_NAME_RE = re.compile(
     r"(\s*\(.*\))?\s*$",
 )
 
-# Quoted attribution headers (owner disposition 2026-09-06, Stage 2 triage
-# round 1: "Neal Spruce <[EMAIL]> wrote:" survives inside quoted replies).
+# Quoted attribution headers ("Neal Spruce <[EMAIL]> wrote:" inside quoted
+# replies).
 # Role-neutral [NAME] is safe for staff and customers alike, so this runs
 # document-wide, unlike the region-gated sign-off rules.
-# The display name is matched case-INSENSITIVELY (triage round 2, 2026-09-08:
-# a mail client rendered it lowercase and the whole name escaped). Whatever
+# The display name is matched case-INSENSITIVELY (a mail client can render it
+# lowercase, and the whole name would escape). Whatever
 # sits in the display-name slot of "<addr> wrote:" is a person by
 # construction, so the structural anchor carries the rule and the capital is
 # not load-bearing; the anchor is also what keeps prose out, since a name
@@ -195,13 +189,13 @@ _WROTE_RE = re.compile(
 # Web-form body fields ("Question:", "Message:") carry the customer's own
 # words, so a name dangling after the last sentence is their sign-off — the
 # form has no separate signature block for it to live in. This is the shape
-# with NO closer to key on at all (triage round 2, 2026-09-08: a full name
-# after a closing quote, "... Have a good week!" <name>), which is why
+# with NO closer to key on at all (a full name after a closing quote,
+# "... Have a good week!" <name>), which is why
 # _INLINE_CLOSER_AT cannot see it and why the anchor here is the field label
 # plus end-of-line instead.
 #
-# Three guards keep it off prose, and together they take the corpus-wide fire
-# count to 20 lines with no false positive (regen scan 2026-09-08):
+# Three guards keep it off prose; together they fire on 20 lines corpus-wide
+# with no false positive:
 #   - it must follow sentence-terminal punctuation (optionally a closing quote
 #     and an em-dash lead-in), so a trailing product name inside a sentence
 #     never qualifies;
@@ -228,11 +222,9 @@ CLOSER_TOKENS = frozenset({
     "warmly", "you", "u", "again", "advance", "much", "so", "in",
 })
 
-# Self-introductions (was open item 16, folded into the round-2 triage
-# 2026-09-08): the *opening* mirror of the sign-off rules — "My name is Jane
-# Doe and I run a studio". Sign-off rules read the end of the field, greeting
-# rules read the salutation, and this shape is neither, which is why 10
-# `is_current` records carried a self-introduced customer name.
+# Self-introductions: the *opening* mirror of the sign-off rules — "My name is
+# Jane Doe and I run a studio". Sign-off rules read the end of the field,
+# greeting rules read the salutation, and this shape is neither.
 # "my name is" is about as unambiguous an anchor as the corpus offers, so the
 # rule runs document-wide and role-neutral like _WROTE_RE; the capitalization
 # requirement is what ends the span ("my name is Bart in your superblend"
@@ -259,25 +251,22 @@ BARE_NAME_RE = re.compile(r"^\s*[A-Z][\w'’.-]+(?:\s+[A-Z][\w'’.-]+){0,2}\s*$
 LAST_FIRST_RE = re.compile(r"^\s*[A-Z][\w'’.-]+\s*,\s*[A-Z][\w'’.-]+\s*$")
 
 # Residual honorific+name check (see scrub_extracted step 6): names the corpus
-# owner reviewed and approved (2026-09-02 dispositions) — public figures quoted
+# owner reviewed and approved — public figures quoted
 # in pasted articles/studies and dotFIT staff who answer questions (Neal
 # Spruce). Matched against the SURNAME position (the last token of the
 # captured name), so the corpus's "Dr. Hirsch" and "Dr. Jules Hirsch" both
 # clear while an unrelated person who merely shares a first name does not.
-# "Charlotte" used to live here to absorb a street address ("... McAlpine Park
-# Dr., Charlotte, NC"); ADDRESS_RE now redacts that outright.
+# Street addresses are ADDRESS_RE's job, never this list's.
 ACCEPTED_HONORIFIC_NAMES = frozenset({
     "Hazen", "Freeman", "Gardner", "Hirsch", "Nabel", "Sacks", "Katz",
     "Djalilian", "Paauw", "LeWine", "Davidson", "Gonzalez", "Axe",
     "Streichhan", "Spruce",
-    # owner disposition 2026-09-05 (review queue round 2): pasted
-    # articles/transcripts — study authors and podcast guests, not customers.
+    # pasted articles/transcripts — study authors and podcast guests, not customers.
     # NOTE: "Williams" is a common surname — a future customer "Dr Williams"
     # would clear silently; veto here if that trade is ever wrong.
     "Crichton", "Jastreboff", "Watto", "Williams", "Kargi",
     "Ornish", "LaFaver", "Leibel",
-    # owner disposition 2026-09-06 (Stage 2 triage round 1): quoted study
-    # author "Joachim Feldkamp, MD, PhD" carries no honorific prefix, so
+    # quoted study author "Joachim Feldkamp, MD, PhD" carries no honorific prefix, so
     # this entry never fires the Stage 0 rule above — it acts through the
     # Stage 2 prompt's do-not-flag list, which shares this vocabulary.
     "Feldkamp",
@@ -286,7 +275,7 @@ ACCEPTED_HONORIFIC_NAMES = frozenset({
 # most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
 # is required — bare "Dr" must not glue onto a word ("DrPH" the degree) and
 # two newlines never belong to one reference ("lean Mr\n\nThanks," is the
-# LeanMR product plus a closer, not "Mr Thanks" — regen catch 2026-09-05).
+# LeanMR product plus a closer, not "Mr Thanks").
 _HON_WS_DOT = r"\.(?:[^\S\n]*\n)?[^\S\n]*"
 _HON_WS_NL = r"[^\S\n]*\n[^\S\n]*"
 _HON_WS_SP = r"[^\S\n]+"
@@ -526,7 +515,7 @@ def _redact_signoffs(lines: list[str], header_idx: int | None,
 
 def _redact_inline_signoffs(lines: list[str], header_idx: int | None,
                               rep: ScrubReport) -> list[str]:
-    """``Thanks, Matt`` / ``Respectfully, Kendra Ferguson`` -> ``[NAME]``.
+    """``Thanks, Sam`` / ``Respectfully, Jane Doe`` -> ``[NAME]``.
 
     Same-region inline form of the sign-off rule: closer + name on ONE line
     at end-of-line, below the quoted header only. At most two name tokens —

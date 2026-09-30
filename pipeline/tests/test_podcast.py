@@ -1,4 +1,4 @@
-"""Podcast segmentation tests (plan §7 step 3) — synthetic fixtures only."""
+"""Podcast segmentation tests — synthetic fixtures only."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def test_build_chunk_turn_lines_are_speaker_map_rewritable() -> None:
 
 
 def test_corrections_fix_every_attested_asr_spelling() -> None:
-    # every hearing found in the 47 transcripts (2026-09-14 audit): the
+    # every hearing found in the 47 transcripts: the
     # show's name, however ASR heard it, becomes the official spelling
     raw = ("welcome back to another episode of Sup Beast. SUP Beast, "
            "SupBeast, SUPBeast, SubBeast, Sub Beast, Sutbeast, "
@@ -175,7 +175,7 @@ def test_determinism_byte_identical() -> None:
     assert first == second
 
 
-# --- §7 step 4 citation URLs (progress open item 14) --------------------------
+# --- podcast step 4 citation URLs --------------------------
 
 def test_citation_url_deep_links_to_the_segment_start() -> None:
     # "as covered at 14:32 in ..." is only useful if the link lands there.
@@ -193,7 +193,7 @@ def test_citation_url_clamps_a_negative_offset() -> None:
 
 
 def test_unknown_episode_raises_rather_than_citing_linkless() -> None:
-    # The failure open item 14 described was a silently absent link.
+    # A podcast document must never cite with a silently absent link.
     with pytest.raises(ValueError, match="no verified YouTube id"):
         citation_url("Not An Episode.mp3", 0, {"E": "v"})
 

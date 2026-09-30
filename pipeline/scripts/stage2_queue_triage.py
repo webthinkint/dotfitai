@@ -1,23 +1,21 @@
-"""Triage the Stage 2 review queue into bulk-dispositionable groups (item 13).
+"""Triage the Stage 2 review queue into bulk-dispositionable groups.
 
 `pipeline-output/qa/stage2/review_queue.jsonl` is rows of ``source_file`` +
 ``reasons`` and nothing else, so working it means opening every record. The
 dispositions are the owner's; what this does is make the pass a sign-off
-instead of a 219-item read, the same way the alias worksheet did for §5.
+instead of a record-by-record read, the same way the alias worksheet does for
+aliases.
 
-Reading it right depends on one thing (`docs/v1/decisions.md`, Stage 2 triage
-shape): **this queue does not gate.** A flagged record is already redacted and
+Reading it right depends on one thing: **this queue does not gate.** A flagged record is already redacted and
 already indexed — the queue is an audit trail to work, not a hold. That is why
 the report leads with how many flagged records are live in the index: that
 number is the actual exposure, and it is not zero.
 
-**Grouping is by evidence-span survival, not by placeholder census** (triage
-round 2, 2026-09-08). The first cut of this script asked "does the record
-contain a ``[NAME]``/``[EMAIL]`` anywhere?" and called that "the redaction
-landed". It does not follow: a record can carry ``[EMAIL]`` in its header
-block and a full customer name in the body, and five such records sat in the
-bulk-sign-off pile while one sat in the read pile. What is actually being
-asked is whether *this* flag's span survived, so that is what is now tested —
+**Grouping is by evidence-span survival, not by placeholder census.** "Does
+the record contain a ``[NAME]``/``[EMAIL]`` anywhere?" does not answer whether
+the redaction landed: a record can carry ``[EMAIL]`` in its header block and a
+full customer name in the body. What is actually being asked is whether *this*
+flag's span survived, so that is what is tested —
 the LLM's own ``residual_pii_evidence`` string, looked up in the committed
 record and in the committed Stage 0 text.
 
@@ -43,8 +41,8 @@ Groups, in the order an owner should work them:
    these by construction; they are the spot-check.
 
 Deliberately absent, still: the **evidence spans themselves**. They live only
-in the gitignored Stage 2 cache and never in a committed artifact
-(`docs/v1/decisions.md`). This report reads them to decide a group and then
+in the gitignored Stage 2 cache and never in a committed artifact. This
+report reads them to decide a group and then
 reports the group — never the string. It writes nothing and prints no answer
 text for the same reason.
 
@@ -241,7 +239,7 @@ def main() -> int:
     print(f"Stage 2 review queue: {len(queue)} rows "
           f"({n_current} are is_current and therefore live in the index)")
     print("This queue does not gate — flagged records are redacted, not "
-          "withheld (docs/v1/decisions.md).")
+          "withheld.")
     if not evidence:
         print("!! Stage 2 cache not found — no evidence spans, so residual-PII "
               "rows land in 'unverifiable'. Run on the machine that has "

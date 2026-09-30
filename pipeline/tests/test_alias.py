@@ -44,7 +44,7 @@ PRODUCTS = [
     _product(1227, "Creatine Monohydrate - Unflavored"),
     _product(1207, "Creatine Complex - Raspberry Lemonade"),
     _product(1100, "WeightLoss & LiverSupport"),
-    # families reached only through the 2026-09-07 spelling aliases
+    # families reached only through the curated spelling aliases
     _product(1020, "Omega-3 Fish Oil"),
     _product(1004, "Calcium Complex"),
     _product(1300, "Plant Protein - Vanilla"),
@@ -139,7 +139,7 @@ class TestLegacyRenames:
         assert "curated" in renames["NO7 Rage"]["source"]
 
     def test_pdsrg_disposition_renames(self):
-        # support lead, 2026-09-01 (5): renamed PDSRG-only products
+        # support-lead dispositions: renamed PDSRG-only products
         renames = {r["deprecated"]: r for r in build_alias_table(PRODUCTS)["legacy_renames"]}
         assert renames["SuperiorAntioxidant"]["current_family"] == "Antioxidant"
         assert renames["SuperiorAntioxidant"]["part_nos"] == [1000]
@@ -186,7 +186,7 @@ class TestDeterministicAliases:
 
     def test_mvm_is_context_only_never_all_mvs(self):
         # MVs are distinct products chosen by audience; a deterministic
-        # all-MV tag would blur the distinction (reconsidered 2026-09-01)
+        # all-MV tag would blur the distinction
         table = build_alias_table(PRODUCTS)
         tokens = {a["token"] for a in table["deterministic_aliases"]}
         assert "MVM" not in tokens
@@ -407,8 +407,7 @@ class TestRealCorpusSanity:
             pytest.skip("real products.json not present")
         products = json.loads(products_path.read_text(encoding="utf-8"))
         table = build_alias_table(products)
-        assert table["n_products"] == 58  # +1000 Antioxidant 2026-09-01; +1470/+1471
-        # dotBAR flavors 2026-09-10
+        assert table["n_products"] == 58
         assert table["n_families"] >= 31
         renames = {r["deprecated"] for r in table["legacy_renames"]}
         assert {"LeanMR", "MuscleDefender", "NO7 Rage", "SuperiorAntioxidant",
@@ -430,8 +429,7 @@ class TestRealCorpusSanity:
         published) SKU's content. A re-export that renumbers SKUs, retires a
         hero, or backfills a lower number would silently revoice families —
         this pins canonicals + membership so that change goes red and forces
-        a conscious call (verified sane 2026-09-05: every canonical is the
-        hero flavor)."""
+        a conscious call (every canonical is the hero flavor)."""
         from pathlib import Path
         products_path = Path(__file__).resolve().parents[2] / \
             "original-data" / "Product Data" / "products.json"

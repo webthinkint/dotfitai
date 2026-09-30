@@ -1,10 +1,10 @@
 """Batch ASR for the dotFIT Masterclass corpus (original-data/Masterclass/videos).
 
-Sister sweep to scripts/asr_pilot.py --all (the Suppbeast Podcast §7 run):
-same Azure fast-transcription call (reused verbatim — locales, diarization,
-phrase list, profanity masking, retries), pointed at the Masterclass webinar
-audio instead. Triggered by the 2026-09-22 mp3-vs-PDF probe: the audio is the
-only source of the live Q&A and practical dosing guidance; analysis of the
+Sister sweep to scripts/asr_pilot.py --all (the Suppbeast Podcast run): same
+Azure fast-transcription call (reused verbatim — locales, diarization, phrase
+list, profanity masking, retries), pointed at the Masterclass webinar audio
+instead. The audio is the only source of the live Q&A and practical dosing
+guidance (the PDFs carry the slides only); analysis of the
 transcripts happens later, this sweep just produces them.
 
 Conventions inherited from the podcast sweep, unchanged:

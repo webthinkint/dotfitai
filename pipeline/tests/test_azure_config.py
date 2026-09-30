@@ -160,7 +160,7 @@ def test_repo_root_holds_the_pipeline_regardless_of_cwd(tmp_path, monkeypatch):
     assert root.joinpath(".git").exists()
 
 
-# --- require= subsets (open item 1: chat deployments pending quota) ---------
+# --- require= subsets ---------
 
 
 def test_load_require_subset_allows_missing_chat_and_speech(tmp_path):

@@ -1,4 +1,4 @@
-"""AI Search connectivity check (plan §9) — read-only, creates/uploads nothing.
+"""AI Search connectivity check — read-only, creates/uploads nothing.
 
 Loads the Search section of ``.env`` (``require=REQUIRE_SEARCH``) and calls
 ``get_service_statistics()`` + a ``get_index`` probe: proves the endpoint

@@ -1,24 +1,24 @@
-"""Stage 4 — deduplication & currency filter (plan §4, Stage 4).
+"""Stage 4 — deduplication & currency filter.
 
-Consumes Stage 2 ``documents.jsonl`` (canonical records) plus the §5 alias
+Consumes Stage 2 ``documents.jsonl`` (canonical records) plus the alias
 table and stamps every record with its retrieval currency:
 
 - ``cluster_id`` — near-duplicate canonical questions (cosine ≥
   :data:`SIMILARITY_THRESHOLD` on ``question_canonical`` embeddings), compared
-  only within §4 buckets (records sharing a part_no or a topic); identical
+  only within buckets (records sharing a part_no or a topic); identical
   question strings merge regardless of bucket. ``null`` for singletons and
   for records without a canonical question (expert notes — there is no
   question to dedup on).
 - ``stage4_status`` — ``current`` / ``superseded_dup`` (a newer canonical
   answer exists; ``superseded_by`` names it) / ``superseded_currency`` (the
   answer depends on a product that is gone or replaced). ``is_current`` is
-  the §9 filterable boolean derived from it (conflicted-cluster members stay
+  the filterable boolean derived from it (conflicted-cluster members stay
   ``current`` pending disposition — nothing leaves the index on a proxy).
 - ``currency_judgment`` — ``null`` (no cues, or rename-only cues), or the
   gpt-5-mini formulation-independence call for replacement/discontinued cues:
   ``independent`` / ``dependent`` / ``low_confidence`` / ``no_llm`` / error.
 
-Owner rulings baked in (2026-09-07, docs/v1/decisions.md):
+Owner rulings baked in:
 
 - **Renames never supersede.** A rename (LeanMR→LeanMeal and the other
   legacy entries) is an identity mapping — same product, same formula — so a
@@ -29,26 +29,25 @@ Owner rulings baked in (2026-09-07, docs/v1/decisions.md):
   KidsMV, VeganMV) can supersede, and only when the answer's guidance is
   formulation-*dependent* — an incidental mention in an otherwise general
   answer stays current (LLM-judged, conservative default superseded).
-- **Threshold 0.88 is scan-locked, not guessed** (scripts/stage4_cluster_scan.py,
-  2026-09-07): at 0.88 every sampled merge is a true duplicate; below 0.86
+- **Threshold 0.88 is scan-locked, not guessed** (scripts/stage4_cluster_scan.py):
+  at 0.88 every sampled merge is a true duplicate; below 0.86
   distinct questions fuse ("replace" vs "combine" Alln1+ActiveMV at 0.8436),
   and a wrong merge silently removes a distinct answer from the index while a
   wrong miss only leaves a harmless duplicate retrievable.
 
-Conflict routing (§4 step 3): a cluster whose members' part_no sets are
+Conflict routing: a cluster whose members' part_no sets are
 non-nested "materially disagree" by proxy — deterministic code cannot judge
 prose — so the cluster is routed to the review queue *instead of auto-picking*
 (no member is dedup-superseded pending disposition; a member's own currency
 supersession still stands). Once the owner rules on a queued cluster the ruling
 lands in :data:`CURATED_CLUSTER_DISPOSITIONS` and the cluster stops being
-queued; ``split`` (owner rulings 2026-09-08 and 2026-09-10 — every conflict
-cluster the corpus has produced) means the members are distinct questions,
+queued; ``split`` means the members are distinct questions,
 so no member ever supersedes another and both stay retrievable. The ruling pins its exact membership: if the cluster
 reshapes or stops forming, Stage 4 raises rather than re-applying a ruling
 nobody made for it (only a whole-corpus run can prove a ruling stale, so the
 CLI passes ``strict_dispositions`` off for ``--include`` / ``--limit`` runs,
 and it is off by default for library callers). A deterministic 5% audit sample
-of auto-resolved clusters joins the queue (§4 Stage 3 audit precedent), and
+of auto-resolved clusters joins the queue, and
 every multi-member cluster lands in the committed ``clusters.jsonl``
 worksheet — the session record for owner review, the alias-worksheet
 precedent.
@@ -72,7 +71,7 @@ from .stage2 import is_audit_sample
 
 # --- tunables (curation lives in constants — AGENTS.md) ----------------------
 
-SIMILARITY_THRESHOLD = 0.88  # scan-locked 2026-09-07 (see module docstring)
+SIMILARITY_THRESHOLD = 0.88  # scan-locked (see module docstring)
 MIN_JUDGE_CONFIDENCE_DEFAULT = 0.7  # below -> superseded (default) + review
 AUDIT_RATE = 0.05  # deterministic audit sample of auto-resolved clusters
 CURRENCY_PROMPT_VERSION = "1.0.0"  # part of the cache key
@@ -212,7 +211,7 @@ def normalize_vector(vec: list[float]) -> list[float]:
 
 
 def share_bucket(a: dict[str, Any], b: dict[str, Any]) -> bool:
-    """§4 bucket rule: same product or same topic (case-insensitive)."""
+    """bucket rule: same product or same topic (case-insensitive)."""
     if set(a.get("products") or []) & set(b.get("products") or []):
         return True
     return bool({t.casefold() for t in (a.get("topics") or [])}
@@ -266,14 +265,14 @@ def cluster_questions(records: list[dict[str, Any]],
 
 
 def pick_canonical(members: list[dict[str, Any]]) -> dict[str, Any]:
-    """§4 step 2: newest wins; null dates lose (empty key); ties break on
+    """Newest wins; null dates lose (empty key); ties break on
     source_file (lexicographic max — deterministic, documented)."""
     return max(members, key=lambda r: (r.get("thread_date") or "",
                                        r["source_file"]))
 
 
 def products_conflict(members: list[dict[str, Any]]) -> bool:
-    """§4 step 3 proxy for 'materially disagree': non-nested part_no sets.
+    """Proxy for 'materially disagree': non-nested part_no sets.
 
     Empty product sets nest with anything (an untagged dup is still a dup).
     Prose contradiction is not deterministically checkable — that is what the
@@ -289,13 +288,12 @@ def products_conflict(members: list[dict[str, Any]]) -> bool:
 
 DISPOSITION_SPLIT = "split"
 
-# Owner dispositions for queued clusters (§4 step 3; docs/v1/decisions.md). Keyed
+# Owner dispositions for queued clusters. Keyed
 # by ``cluster_id`` (= min member id); ``members`` pins the exact membership
 # the ruling was made on, so a corpus change that reshapes the cluster raises
 # rather than silently re-applying a ruling nobody made for it.
 CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {
-    # 2026-09-08, open item 7 — the corpus's only cluster_conflict. The two
-    # records are consecutive turns of ONE email thread: 8be45e86 is the
+    # Two consecutive turns of ONE email thread: 8be45e86 is the
     # webform enquiry (why FirstString, 1 g protein per lb LBM, whether the
     # pre-workout serving is mandatory), and 79c66301 is the same customer's
     # follow-up ("what else with FirstString") answered with creatine + the
@@ -313,32 +311,27 @@ CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {
         "members": ["79c663016afc2345", "8be45e86eb76c09f"],
         "source": "owner ruling 2026-09-08 (Stage 4 queue, open item 7)",
     },
-    # 2026-09-10, open item 7 — the first of the two conflict pairs the
-    # gpt-5.6-luna re-canonicalization pushed over the threshold (2026-09-09).
     # Two turns of ONE email thread, thirteen days apart: 8d9c6bc1 is the
-    # 27 Jan enquiry (LeanMR + creatine monohydrate, and whether the daily
-    # creatine drink goes before or after a workout), 3d361242 is the 9 Feb
-    # follow-up whose question is a superset (LeanMR + creatine + AminoFormula)
+    # enquiry (LeanMR + creatine monohydrate, and whether the daily creatine
+    # drink goes before or after a workout), 3d361242 is the follow-up whose
+    # question is a superset (LeanMR + creatine + AminoFormula)
     # and whose reply adds the new guidance not to mix LeanMR with
     # AminoFormula — a meal replacement and an amino-acid formula serve
-    # different slots in the day. The FirstString shape (second turn a delta,
-    # not a superset), and the owner read it the same way: split — both stay
-    # retrievable, neither supersedes the other. Both members are already
-    # superseded_currency on their own cues; the ruling governs only the
-    # intra-cluster dedup.
+    # different slots in the day. The same shape as the cluster above (second
+    # turn a delta, not a superset): split — both stay retrievable, neither
+    # supersedes the other. Both members are superseded_currency on their own
+    # cues; the disposition governs only the intra-cluster dedup.
     "3d361242df468533": {
         "disposition": DISPOSITION_SPLIT,
         "members": ["3d361242df468533", "8d9c6bc18836b209"],
         "source": "owner ruling 2026-09-10 (Stage 4 queue, open item 7)",
     },
-    # 2026-09-10, open item 7 — the second luna-regen conflict pair: the same
-    # Lean Pack 90 question a year and a half apart. b135886d (27 Jan 2023)
-    # asks whether the pack's products go all at once or individually across
-    # the 90 days, reply quoting the FAQ: either way. 8e5f29de (17 Jul 2024)
-    # asks it again and the answers agree (all at once on a tight timeline,
-    # as directed otherwise) — a textbook supersede candidate, except the
-    # 2023 record carries the fuller FAQ text, which owner task 3 flagged
-    # before ruling. Owner ruled split: retiring the older record would drop
+    # The same Lean Pack 90 question a year and a half apart. b135886d asks
+    # whether the pack's products go all at once or individually across the
+    # 90 days, reply quoting the FAQ: either way. 8e5f29de asks it again and
+    # the answers agree (all at once on a tight timeline, as directed
+    # otherwise) — a textbook supersede candidate, except the older record
+    # carries the fuller FAQ text. Split: retiring the older record would drop
     # the fuller wording from search, so both stay retrievable.
     "8e5f29ded9aad54a": {
         "disposition": DISPOSITION_SPLIT,
@@ -445,7 +438,7 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
                 else:
                     judgment, superseded = "independent", False
             else:
-                # no usable judgment (no-llm mode or hard error): the §4
+                # no usable judgment (no-llm mode or hard error): the
                 # conservative default — superseded unless proven independent
                 # — plus a queue reason so a disposition can flip it.
                 superseded = True
@@ -532,7 +525,7 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
     stats["n_dispositioned_clusters"] = sum(
         1 for w in worksheet if w["disposition"] is not None)
 
-    # -- finalize review flags + the §9 contract boolean
+    # -- finalize review flags + the contract boolean
     for r in stamped:
         reasons = sorted(set(r.get("stage4_review_reasons", []))
                          | set(review.get(r["id"], [])))

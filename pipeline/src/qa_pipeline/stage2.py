@@ -1,6 +1,6 @@
-"""Stage 2 — LLM-assisted structuring (plan §4, Stage 2). Scrubbed text only.
+"""Stage 2 — LLM-assisted structuring. Scrubbed text only.
 
-Consumes Stage 1 ``documents.jsonl`` (scrubbed, never raw) plus the §5 alias
+Consumes Stage 1 ``documents.jsonl`` (scrubbed, never raw) plus the alias
 table (built from ``products.json``) and produces one canonical record per
 document:
 
@@ -16,7 +16,7 @@ document:
   MVM), replacements and discontinued names never tag — currency cues.
 - ``topics[]`` — LLM labels + subfolder hint (+ ``multivitamin`` when an
   unresolved MVM mention leaves no product tag, per ``CONTEXT_ONLY_TOKENS``)
-- ``audience_flags{}`` — the plan's five escalation booleans (LLM)
+- ``audience_flags{}`` — five escalation booleans (LLM)
 - ``currency_cues[]`` — deprecated/discontinued names found by tolerant
   deterministic scan (renames, replacements, discontinued)
 - ``residual_pii_flag`` — Stage 1 flag OR LLM flag (the LLM redacts what it
@@ -59,11 +59,9 @@ from .scrub import ACCEPTED_HONORIFIC_NAMES
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
 PROMPT_VERSION = "1.2.0"  # part of the cache key: a prompt edit must miss cache
-# 1.1.0 → 1.2.0: gpt-5.6-luna regen — the first run after SILENT_STAFF_NAMES
-# gained "Zane" (owner ruling 2026-09-08), so the silent redaction lands here
-MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue (plan §4 Stage 3)
+MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue
 CONTAINMENT_THRESHOLD = 0.85  # answer word-recall against source, below -> review
-AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample (plan §4 Stage 3)
+AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample
 MAX_SOURCE_CHARS = 80_000  # combined source sections; above -> fallback, never truncated
 MAX_RETRIES = 6
 
@@ -75,24 +73,22 @@ AUDIENCE_KEYS = (
     "weight_extreme",
 )
 
-# Staff names the owner confirmed (Stage 2 triage round 1, 2026-09-06):
-# first names CC'd across program notes plus the surnames that complete the
+# Staff names the owner confirmed: first names CC'd across program notes plus
+# the surnames that complete the
 # known staff full names (Neal Spruce, Mark Rowland, Kat Barefield — spelled
 # as attested). The prompt redacts these to [NAME] SILENTLY (no flag): they
 # recur in hundreds of answers and bulk-accepting them every run is not
 # triage. NOTE the trade taken: a future customer sharing one of these first
 # names is silently redacted too — harmless (bare first names carry no answer
 # content), and anything fuller still flags. Veto here if that trade is ever
-# wrong. Deliberately EXCLUDED (customer-side per the same triage): James,
-# Paul, Steve, Neil, Matt, Kendra, Ferguson, Gay, Riley, Jessica.
-# "Zane" added by owner ruling 2026-09-08 (triage round 2): the SuppBeast
-# co-host, named by customers writing in about the show ("Neal and Zane"), and
-# a public figure across 427 podcast mentions — the same standing as Neal,
-# whose surname "Spruce" he shares and which is already here.
+# wrong. Names that appear on the customer side are deliberately excluded.
+# "Zane" is the SuppBeast co-host, named by customers writing in about the
+# show ("Neal and Zane") and a public figure across 427 podcast mentions — the
+# same standing as Neal, whose surname "Spruce" he shares.
 # NOTE this constant only reaches the model through SYSTEM_PROMPT, and
 # ``cache_key`` keys on PROMPT_VERSION rather than the prompt text — so an
 # edit here changes nothing until PROMPT_VERSION is bumped and the corpus
-# re-canonicalized. The ruling is recorded now; it lands on that run.
+# re-canonicalized.
 SILENT_STAFF_NAMES = frozenset({
     "Berlinda", "Chad", "Kat", "Mark", "Jill", "Neal", "Zane",
     "Spruce", "Rowland", "Barefield",
@@ -261,8 +257,8 @@ def word_tokens(text: str) -> list[str]:
 
     Digit↔letter boundaries split first, so dosage forms (``34mg``,
     ``1.01grams``, ``B12``) match their spaced writings (``34 mg``) — without
-    this, a perfectly transcribed dosage scores as invented (triage round 2,
-    2026-09-06: ``34 mg/serving`` vs source ``34mg/serving`` scored 0.33).
+    this, a perfectly transcribed dosage scores as invented (``34 mg/serving``
+    vs source ``34mg/serving`` would score 0.33).
     """
     return _WORD_RE.findall(_BOUNDARY_RE.sub(" ", text.casefold()))
 
@@ -310,7 +306,7 @@ def build_product_lookup(alias_table: dict[str, Any]) -> dict[str, Any]:
     never_tag = {_norm(r["deprecated"]) for r in alias_table.get("replacements", [])}
     never_tag |= {_norm(d["name"]) for d in alias_table.get("discontinued", [])}
     # A token that is both deterministic and context-only must never tag:
-    # the ambiguity ruling wins (the MVM lesson — progress 2026-09-01).
+    # the ambiguity wins (a blanket MVM tag would blur three distinct formulas).
     for tok in context_only | never_tag:
         tag.pop(tok, None)
     return {"tag": tag, "context_only": context_only, "never_tag": never_tag}
@@ -525,13 +521,13 @@ def fallback_record(rec: dict[str, Any], alias_table: dict[str, Any],
 
 def review_reasons(rec2: dict[str, Any],
                    min_confidence: float = MIN_CONFIDENCE_DEFAULT) -> list[str]:
-    """Why *rec2* is in the Stage 3 queue (plan §4 Stage 3), most specific first.
+    """Why *rec2* is in the Stage 3 queue, most specific first.
 
     ``products_unresolved`` is deliberately NOT a queue reason: the LLM names
     every brand it sees (Gatorade, dotFIT housekeeping, discontinued spellings),
     so queuing on it puts ~every document in review. Unresolved mentions are a
     *curation* signal — tallied in ``summarize()`` for the alias worksheet —
-    while the queue stays on quality signals (plan: confidence + residual PII;
+    while the queue stays on quality signals (confidence + residual PII;
     plus containment and hard errors, which are confidence by another name).
     """
     reasons: list[str] = []

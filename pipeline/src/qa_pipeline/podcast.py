@@ -1,4 +1,4 @@
-"""Podcast transcript segmentation (plan §7 step 3).
+"""Podcast transcript segmentation.
 
 Reads the fast-transcription JSONs produced by ``scripts/asr_pilot.py --all``
 (word-level timestamps + diarization) and merges diarized turns into topic
@@ -8,14 +8,13 @@ full-width characters ｜：？ that NFKC folds to ASCII), ``start``/``end``
 (mm:ss), ``speakers``, and text.
 
 Chunk text keeps one ``Speaker N: …`` line per turn (consecutive same-speaker
-phrases merged) so the later speaker-map step (plan §7; per-episode LLM
-attribution, blocked on the small chat deployment like Stage 2) can rewrite
+phrases merged) so the later speaker-map step can rewrite
 the labels with a line-anchored substitution — and so clip segments (third-
 party audio diarizes as its own speaker, e.g. Layne Norton in the David
 Protein Bar episode) stay visibly distinct from host turns.
 
 Phrase text passes through ``TRANSCRIPT_CORRECTIONS`` before it enters a
-chunk: attested ASR proper-noun mis-hearings (2026-09-14 audit, below). The
+chunk: attested ASR proper-noun mis-hearings (see below). The
 raw transcripts (``transcripts/*.json`` and their ``.txt`` renderings) stay
 verbatim-ASR — they are the provenance record of what the API returned —
 and the correction applies at the one chokepoint all indexed podcast text
@@ -30,7 +29,7 @@ emits them in order); outputs sorted by chunk id; no timestamps inside
 artifacts (run manifests under ``runs/`` carry those). Paths in outputs are
 relative to the audio root, never the cwd.
 
-Not stamped here (index-layer concerns, plan §7 step 4): ``source_type``/
+Not stamped here (index-layer concerns, podcast step 4): ``source_type``/
 ``authority``/``is_current``. The YouTube ``citation_url`` *is* owned here —
 ``PODCAST_VIDEO_IDS`` + ``citation_url`` at the foot of the module — because
 the episode→video mapping is curation, and ``index_build`` only applies it.
@@ -43,7 +42,7 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
-# §7 step 3 targets: ~60–120 s / 150–250 words per chunk.
+# podcast step 3 targets: ~60–120 s / 150–250 words per chunk.
 TARGET_WORDS = 200
 MAX_WORDS = 250
 TARGET_SECONDS = 90.0
@@ -55,11 +54,11 @@ GAP_SECONDS = 3.0
 # than indexing as a near-empty document (single-chunk episodes exempt).
 MIN_WORDS = 50
 
-# --- ASR proper-noun corrections (2026-09-14 corpus audit) --------------------
+# --- ASR proper-noun corrections ------------------------------------------------
 #
 # How ASR mis-heard the two names customers actually search for. Every
 # occurrence in all 47 transcripts was checked in context before joining
-# this table — curation lives in code, same ruling as PODCAST_VIDEO_IDS
+# this table — curation lives in code, like PODCAST_VIDEO_IDS
 # below. Two invariants:
 #
 # - Episode titles are NOT corrected: titles come from the .mp3 filenames
@@ -73,7 +72,7 @@ MIN_WORDS = 50
 #   "Sup Beast"-family 48 (sup beast 37, subbeast 6, supbeast 3, sub beast 2)
 #   + sutbeast 3 + "South Beast" 1 = 52 total, all intro/name boilerplate;
 #   the official spelling SuppBeast never once appears (it does in QA ×56,
-#   the chat-box URL and the golden set). "Neil" 35 — always the co-host
+#   and the chat-box URL). "Neil" 35 — always the co-host
 #   Neal Spruce (correct spelling attested 61×; no guest named Neil).
 TRANSCRIPT_CORRECTIONS: list[tuple["re.Pattern[str]", str]] = [
     # the show's name — one pattern per distinct ASR hearing
@@ -248,9 +247,9 @@ def summarize(chunks: list[dict]) -> dict[str, Any]:
     }
 
 
-# --- §7 step 4: YouTube citation URLs (progress open item 14) ----------------
+# --- podcast step 4: YouTube citation URLs ----------------
 
-# Episode .mp3 stem -> YouTube video id, verified 2026-09-08 against the real
+# Episode .mp3 stem -> YouTube video id, verified against the real
 # video titles (`scripts/podcast_archive_verify.py`, which resolves each id
 # through YouTube's public oEmbed endpoint): 47 ids, 47 episodes, 47 matched at
 # Dice 1.00 — every filename's token set is *identical* to its video's title,
@@ -363,13 +362,12 @@ PODCAST_VIDEO_IDS: dict[str, str] = {
 
 def citation_url(source_file: str, start_ms: int,
                  video_ids: dict[str, str] | None = None) -> str:
-    """Deep link to the moment a segment starts (§7 step 4).
+    """Deep link to the moment a segment starts.
 
     ``…as covered at 14:32 in *Creatine FAQs*`` is only useful if the link
     lands there, so the timestamp rides on the URL. A stem this table does not
-    know **raises**: a podcast document with a silently absent link is exactly
-    the failure open item 14 describes, and it must not be reintroduced by a
-    new episode landing in the corpus.
+    know **raises**: a podcast document with a silently absent link must not
+    be introduced by a new episode landing in the corpus.
     """
     table = PODCAST_VIDEO_IDS if video_ids is None else video_ids
     stem = source_file[:-4] if source_file.lower().endswith(".mp3") else source_file

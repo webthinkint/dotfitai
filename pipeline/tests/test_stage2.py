@@ -1,4 +1,4 @@
-"""Stage 2 structuring tests (plan §4 Stage 2) — synthetic fixtures, no network."""
+"""Stage 2 structuring tests — synthetic fixtures, no network."""
 
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ PRODUCTS = [
     _product(1371, "First String - Chocolate"),
     _product(8001, "Alln1 SuperBlend - Orange Burst"),
     _product(1100, "WeightLoss & LiverSupport"),
-    # families the 2026-09-07 spelling aliases target
+    # families the curated spelling aliases target
     _product(1369, "WheySmooth -  High Protein - Chocolate"),
     _product(1374, "All Natural WheySmooth - Chocolate"),
     _product(1020, "Omega-3 Fish Oil"),
@@ -194,7 +194,7 @@ class TestNormalizeProducts:
         assert pns == [] and unresolved == ["MysteryPowder 9000"]
 
     def test_corpus_spellings_the_prefix_rule_cannot_reach(self, lookup, families):
-        # curation pass 2026-09-07: norm() collapses the written variants
+        # norm() collapses the written variants
         for tok in ("SuperOmega-3", "Super Omega 3", "SuperOmega 3"):
             pns, _ = normalize_products([tok], lookup, families)
             assert pns == [1020], tok
@@ -215,7 +215,7 @@ class TestNormalizeProducts:
         assert pns == [1369, 1374] and unresolved == []
 
     def test_dose_tiers_collapse_to_active_mv(self, lookup, families):
-        # owner ruling 2026-09-07: 1-Active / 2-Active are one-a-day and
+        # 1-Active / 2-Active are one-a-day and
         # two-a-day Active MV, not separate products
         for tok in ("1-Active", "2-Active"):
             pns, _ = normalize_products([tok], lookup, families)
@@ -510,7 +510,7 @@ class TestRunStage2:
 
 
 class TestPromptContract:
-    """Triage round 1 (2026-09-06) prompt fixes are pinned: [NAME] (never
+    """The prompt's redaction contract is pinned: [NAME] (never
     [CUSTOMER]) for residual names, silent staff redaction, verbatim public
     figures, transcription-not-summary for expert notes."""
 
@@ -523,8 +523,8 @@ class TestPromptContract:
         from qa_pipeline.stage2 import (
             ACCEPTED_HONORIFIC_NAMES, SILENT_STAFF_NAMES, SYSTEM_PROMPT,
         )
-        # "Zane": the SuppBeast co-host, owner ruling 2026-09-08 (triage
-        # round 2) — same standing as Neal, whose surname he shares
+        # "Zane": the SuppBeast co-host — same standing as Neal, whose surname
+        # he shares
         for name in ("Berlinda", "Chad", "Spruce", "Barefield", "Zane"):
             assert name in SILENT_STAFF_NAMES
             assert name in SYSTEM_PROMPT

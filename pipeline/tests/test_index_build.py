@@ -1,4 +1,4 @@
-"""Index builder tests (plan §9) — synthetic fixtures, no network, no real claims."""
+"""Index builder tests — synthetic fixtures, no network, no real claims."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def test_split_sections_preamble_and_unknown_header():
                     ("product-information", "Product Information\n\nBody.")]
 
 
-# --- product_documents (§5 family grouping) --------------------------------
+# --- product_documents --------------------------------
 
 
 def test_product_documents_family_and_variant_rules():
@@ -188,7 +188,7 @@ def test_infopage_documents_shape_and_h1_to_description():
     assert win["locator"] == "Refund Window"
     for doc in docs:
         assert doc["source_type"] == "infopage"
-        assert doc["authority"] == 1            # same §3 weight as products.json
+        assert doc["authority"] == 1            # same authority as products.json
         assert doc["title"] == "dotFIT Return/Refund Policy"   # PAGE_META display title
         assert doc["topics"] == ["policy"]                      # PAGE_META page class
         assert doc["citation_url"] == "https://www.dotfit.com/example"
@@ -262,7 +262,7 @@ def test_podcast_documents_shape_and_defaults():
     assert doc["title"] == "#1 Expert Reacts (00:00–01:36)"
     assert doc["locator"] == "00:00–01:36"
     assert doc["content"] == "Speaker 1: Take creatine daily."
-    # deep-linked to the segment start, so §7.4's "at 14:32" lands there
+    # deep-linked to the segment start, so "at 14:32" lands there
     assert doc["citation_url"] == "https://www.youtube.com/watch?v=testVideoId0&t=32s"
     assert doc["products"] == [] and doc["topics"] == []
     assert doc["date"] is None and doc["product_status"] is None
@@ -270,8 +270,8 @@ def test_podcast_documents_shape_and_defaults():
 
 
 def test_index_ids_are_search_key_safe():
-    """Regression: AI Search keys allow only [A-Za-z0-9_\-=] — the 2026-09-05
-    upload failed wholesale on colon ids (InvalidDocumentKey)."""
+    """Regression: AI Search keys allow only [A-Za-z0-9_\-=] — an upload with
+    colon ids fails wholesale (InvalidDocumentKey)."""
     import re
 
     docs = build_documents(_chunks(), PRODUCTS, FAMILIES,
@@ -303,7 +303,7 @@ def test_build_documents_without_podcast_unchanged():
             == len(build_documents(*args, _segments(), None, VIDEO_IDS)))
 
 
-# --- qa_documents (Stage 2 canonicals -> §9) ------------------------------------
+# --- qa_documents (Stage 2 canonicals -> index documents) -----------------------
 
 
 def _qa_rec(**kw):
@@ -350,7 +350,7 @@ def test_qa_documents_empty_answer_skipped():
 
 
 def test_qa_documents_stage4_superseded_skipped():
-    """§4: superseded answers stay in the committed store, never the index."""
+    """Superseded answers stay in the committed store, never the index."""
     live = _qa_rec()
     dup = _qa_rec(id="dup0000000000000", source_file="2023/dup.docx",
                   is_current=False)
@@ -545,7 +545,7 @@ def test_ensure_index_get_based_create_exists_and_reset(monkeypatch):
 
 class _SlowDeleteIndexes:
     """Deletion is async: get_index keeps answering for a few polls, and the
-    first create still races (the 2026-09-07 kb-main incident shape)."""
+    first create still races."""
 
     def __init__(self, polls_before_gone=3, create_failures=1):
         self.deleted = False
@@ -637,8 +637,8 @@ class _PendingDeleteIndexes:
 
 
 def test_ensure_index_reset_polls_through_pending_delete_404(monkeypatch):
-    """A 404 saying "is being deleted" is not "gone" — creating into it is the
-    2026-09-08 incident that lost kb-main."""
+    """A 404 saying "is being deleted" is not "gone" — creating into it loses
+    the index."""
     import azure.search.documents.indexes as ixmod
 
     fake = _PendingDeleteIndexes(polls_pending=3)

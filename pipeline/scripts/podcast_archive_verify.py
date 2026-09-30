@@ -1,20 +1,20 @@
-"""Verify the podcast ``archive.txt`` → YouTube mapping (open item 14).
+"""Verify the podcast ``archive.txt`` → YouTube mapping.
 
 `original-data/Suppbeast Podcast/archive.txt` is a bare list of ``youtube <video_id>``
-lines with no titles and no stated ordering, so §7 step 4's citation URL
+lines with no titles and no stated ordering, so podcast step 4's citation URL
 (``…as covered at 14:32 in *Creatine FAQs*``) cannot be built from it without
 guessing. This resolves each id to its real video title through YouTube's
 public **oEmbed** endpoint — title metadata only, no API key, no scraping —
 and matches those titles against the episode filenames.
 
-Result (run 2026-09-08): **47 ids, 47 episodes, 47 matched at Dice 1.00** —
+Result: **47 ids, 47 episodes, 47 matched at Dice 1.00** —
 every id resolved and every filename's token set is *identical* to its video's
 title, because the downloader wrote the titles out verbatim and only
 substituted the characters Windows forbids. The mapping was never ambiguous,
 only unverified. (A ``wc -l`` of ``archive.txt`` reports 46: the file has no
 trailing newline. It is 47 lines of content.)
 
-That verdict is now frozen as ``PODCAST_VIDEO_IDS`` in ``podcast.py`` — the
+That verdict is frozen as ``PODCAST_VIDEO_IDS`` in ``podcast.py`` — the
 pipeline must stay offline and deterministic, so it reads the constant, and
 this script is the session record behind it. Re-run it when episodes are
 added, and update the constant from the result.
@@ -29,7 +29,7 @@ citation URL, which is why the index stamps ``null`` today.
 
 This is a one-off verification tool, not part of the CLI: it makes network
 calls, so it can never sit on the deterministic pipeline path. It writes
-nothing — read the report, then decide (progress open item 14).
+nothing — read the report, then decide.
 
     uv run python scripts/podcast_archive_verify.py            # human report
     uv run python scripts/podcast_archive_verify.py --json     # machine
@@ -203,7 +203,7 @@ def main() -> int:
         print(f"  ----  {failure['video_id']}  UNRESOLVABLE: {failure['status']}")
     print()
     print("Only a full, human-checked match justifies stamping citation_url; "
-          "a partial one means some episodes cite linkless (open item 14).")
+          "a partial one means some episodes cite linkless.")
     return 0
 
 
