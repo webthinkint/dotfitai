@@ -83,7 +83,7 @@ WebApplication app = builder.Build();
 app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOptions agent, PriceSheet sheet, AssembledPrompt prompt) => Results.Ok(new
 {
     status = "ok",
-    runtime = "agentic",
+    runtime = "dotfit-assistant",
     index = opts.IndexName,
     prompt_variant = prompt.Variant,
     prompt_version = prompt.Version,

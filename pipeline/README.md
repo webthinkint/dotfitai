@@ -1,405 +1,146 @@
-# dotFIT Phase 1 offline pipeline — QA stages, PDSRG, podcast, index, golden set
+# dotFIT pipeline
 
-Implements the offline half of `docs/v1/phase1-knowledge-assistant.md`: §4 (QA
-Stages 0–2 and 4), §5 (alias table), §6 (PDSRG chunking), §7 (podcast
-segmentation), §8 (menu descriptions), §9 (index build) and §12 (golden-set
-sampling). The overview bullets below skip `aliases` and `podcast`; both are
-covered under Usage and Output layout.
+Turns the original corpora in `original-data/` into the committed outputs in
+`pipeline-output/` and the Azure AI Search index the assistant queries
+(`kb-main-v2`). Everything here is offline and deterministic except the calls
+that are cached (LLM structuring, embeddings) and the upload.
 
-- **Stage 0** — deterministic, local PII scrub of `.docx` QA files: structural
-  redaction (contact blocks, `From:`/`To:`/`Cc:` display names, signatures,
-  copyright footers), greeting de-naming across the whole document, pattern
-  redaction (emails, phones, postal addresses, SSNs, cards, social-profile
-  URLs), per-file scrub reports. No LLM, no network. What cannot be redacted
-  without risking prose is **flagged for review, never guessed at**.
-- **Stage 1** — deterministic parse & classify: split expert answer vs. quoted
-  customer message (three document shapes, including forwarded threads whose
-  header is line 0 and whose reply sits *below* the quoted block), classify
-  (`qa_email` / `expert_note` / `other`), extract metadata (year, topic
-  subfolder, `thread_date` from `Sent:`, question text), route edge cases to a
-  review queue. Date parsing is locale-independent by construction.
-- **Stage 2** (`stage2` subcommand) — LLM-assisted structuring on scrubbed text
-  only (small chat deployment, strict JSON-schema, no temperature knob):
-  `question_canonical`, cleaned `answer` (transcription, never generation — a
-  source-containment diff pass verifies no invented content), `products[]`
-  normalized to `part_no` via the alias table (LLM mentions mapped
-  deterministically, unioned with the blind alias/rename text scan;
-  `CURATED_LLM_ONLY_ALIASES` resolve on the mention path only — the model
-  supplies the context that tells `Women's MV` from `women's health`;
-  context-only tokens, replacements and discontinued names never tag),
-  `topics[]` (LLM + subfolder hint), `audience_flags`, `currency_cues`
-  (tolerant deterministic scan), `residual_pii_flag` (Stage 1 OR LLM — the LLM
-  redacts what it flags), `confidence` → review queue below threshold.
-  LLM responses cache in the gitignored `runs/stage2_cache.jsonl` (keyed
-  deployment|api-version|prompt|source), so same-machine reruns are free and
-  byte-identical; `--no-llm` runs the deterministic rule-based fallback (no
-  Azure calls — CI/tests/shaping).
-- **Stage 4** (`stage4` subcommand) — deduplication & currency filter on the
-  Stage 2 canonicals (§4): near-duplicate question clustering (cosine ≥ 0.88
-  on `question_canonical` embeddings — scan-locked threshold — compared only
-  within shared-product/topic buckets), newest-wins canonical pick among
-  currency-current members, non-nested part_no sets as the conflict proxy
-  (queue the cluster, no auto-pick), 5% deterministic cluster audit, and the
-  currency pass: renames never supersede (identity mappings — the cue stays
-  as a dated-name signal); replacement/discontinued cues get a gpt-5-mini
-  formulation-dependence judgment (strict schema, cached, conservative
-  default superseded). Outputs `documents.jsonl` (everything retained, with
-  `cluster_id` / `stage4_status` / `superseded_by` / `currency_judgment` /
-  `is_current`), `clusters.jsonl` (the owner's worksheet), `review_queue.jsonl`.
-- **PDSRG** (`pdsrg` subcommand) — chunk the Practitioner Dietary Supplement
-  Reference Guide PDFs: hybrid table extraction inherited from the validated
-  gate test + the prose false-positive filter, font-based heading detection
-  across the corpus's four layout templates, section-level chunks with
-  heading-path prefixes (~650/800 tokens target/max, tables atomic), product /
-  category / topic metadata, per-doc review outlines. References sections are
-  excluded by default (`--keep-references` to include).
-- **Index** (`index` subcommand) — shape and upload the §9 AI Search
-  index: PDSRG chunks (pass-through — already §9-stamped), products.json §5
-  section-split with family grouping (the canonical SKU's sections are the
-  family documents; variants contribute only genuinely distinct sections),
-  §8 menu description docs, §7 podcast segments (`authority=4`,
-  `citation_url` null until the archive.txt → YouTube mapping is
-  verified), and Stage 2 QA canonicals (`authority=3`, one doc per pair —
-  answers over the embedding cap split into paragraph-boundary parts, never
-  truncated). Vectors (`text-embedding-3-large`, 3072-dim)
-  embed `title + content` and cache under the gitignored
-  `runs/embeddings.jsonl`, so the committed `documents.jsonl` (no vectors)
-  stays byte-identical across reruns.
-- **Golden set** (`golden` subcommand) — the §12 sampling pass over the
-  Stage 4 canonicals: 250 items stratified by enquiry year × product family
-  (2025–2026 weighted ×2 for currency, ≥1 per present year, FAQ-family and
-  evergreen-topic coverage floors), split 125/125, plus the 50 **written**
-  adversarial items (`CURATED_ADVERSARIAL`, 25/25) = §12's 150 dev / 150 test,
-  plus 120 PDSRG/podcast retrieval probes (open item 15 — those corpora have
-  no golden question). Outputs `sample.jsonl`, `worksheet.md` (rubric +
-  prefilled source candidates), `adversarial.jsonl` / `adversarial.md`,
-  `probes.jsonl`, `summary.json`; selection order is sha256(seed:id) — no RNG,
-  byte-identical reruns from any cwd.
-- **Eval** (`eval` subcommand) — the §12 harness. Drives the .NET runtime as a
-  subprocess over `dotfit-agent --json` and scores source recall@k, probe
-  recall, citation rate, escalation accuracy, claims-audit precision (open item
-  12) and the RAGAS-style judged metrics. **The one subcommand that measures a
-  live service**, so its output is not byte-reproducible: metrics land in a
-  committed `summary.json` + `report.md`, per-item rows in the gitignored
-  `runs/`. `--no-answers` skips the expensive tier, `--no-judge` the LLM calls,
-  `--ranker-ab` answers open item 5.
+| Command | Input | Output | What it does |
+|---|---|---|---|
+| `stage0` | `original-data/QAs/**/*.docx` | `qa/stage0/` | PII scrub: deterministic, local, no model |
+| `stage1` | Stage 0 text | `qa/stage1/` | Parse and classify each document |
+| `run` | | | `stage0` then `stage1` |
+| `stage2` | Stage 1 + `products.json` | `qa/stage2/` | LLM structuring on scrubbed text only |
+| `stage4` | Stage 2 + `products.json` | `qa/stage4/` | Deduplication and currency filter |
+| `aliases` | `products.json` + Stage 1 | `aliases/` | The alias table and its curation worksheet |
+| `pdsrg` | the PDSRG PDFs | `pdsrg/` | Section chunks with tables kept intact |
+| `podcast` | ASR transcripts | `podcasts/` | Topic chunks with timings |
+| `index` | everything above | `index/` | Shape, embed and upload the search index |
 
-Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
-the QA stages consume only `original-data/QAs/**/*.docx`.
-
-**Index name:** `INDEX_NAME` is `kb-main-v2`, the live index — no override
-needed. `kb-main`, the original index, was lost to a wedged delete (progress
-open item 10, closed 2026-09-08); the name is free again but the default stays
-`kb-main-v2` — a rename is cosmetic. `RuntimeOptions.IndexName` mirrors this
-constant and a test pins each side; change both or neither.
+Standalone scripts in `scripts/` cover what is not a stage: ASR
+(`asr_pilot.py --all`, `masterclass_transcribe.py`), the product summaries deck
+(`summaries_pptx_md.py`), a new-export diff (`products_diff.py`), the Stage 2
+review-queue triage (`stage2_queue_triage.py`), and Azure smoke checks.
 
 ## Tooling
 
-- [uv](https://docs.astral.sh/uv/) (only prerequisite; no system Python needed)
-- Python **3.12** (pinned in `.python-version`)
-- Runtime deps: `python-docx`, `pdfplumber` (corpus); `openai`,
-  `azure-search-documents` (Azure data plane — credentials live only in the
-  gitignored `.env`, loaded by `azure_config.py`)
-- Dev deps: `pytest`
-- `uv.lock` is committed → identical dependency resolution on every machine
-
-## Usage
+- [uv](https://docs.astral.sh/uv/) is the only prerequisite; Python **3.12** is
+  pinned in `.python-version` and `uv.lock` is committed.
+- Runtime dependencies: `python-docx`, `pdfplumber`, `python-pptx` (corpora);
+  `openai`, `azure-search-documents` (Azure). Credentials live only in the
+  gitignored root `.env`, read by `azure_config.py`.
+- Tests use synthetic fixtures only; real corpus text never appears in them.
 
 ```bash
-# dev (Windows) — from pipeline/
-uv sync                      # creates .venv from the lockfile
-uv run pytest                # unit tests (synthetic fixtures, no real PII)
-uv run qa-pipeline run --input ../original-data/QAs --out ../pipeline-output/qa
-
-# production (Linux VM) — same commands, same bytes out
+# from pipeline/
 uv sync
-uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/pipeline-output/qa
+uv run pytest
+uv run qa-pipeline --help          # <command> --help for every flag
 ```
 
-Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run` (stages 0+1), `aliases`, `pdsrg`,
-`index` (+ `--qa-docs`), `podcast`, `golden`, `eval`. Options on all: `--include GLOB` (repeatable), `--limit N`
-(pilots), `--quiet`, `--fail-on-error` (non-zero exit if any file fails —
-for cron/CI), `--no-prune` (keep outputs whose input has been deleted; by
-default they are removed so the output tree always matches the corpus).
-`pdsrg` adds `--keep-references` and `--citation-base`; `stage2` takes
-`--qa-docs` + `--products` instead of `--input` and adds `--min-confidence`,
-`--api-version`, `--no-llm` (rule-based fallback, no Azure calls) and `--no-cache`;
-`stage4` mirrors `stage2` (`--min-judge-confidence`, `--no-llm` = conservative
-supersession + queue; clustering still embeds);
-`podcast` takes `--transcripts` + `--audio` instead of `--input` (no corpus tree to prune);
-`index` (no corpus tree to prune) has `--limit N`,
-`--no-embed` (shape only), `--no-upload` (embed, skip AI Search), `--reset`
-(drop + recreate the index — waits out the async deletion), `--no-prune`
-(keep service-side docs absent from the build; default prunes them) and
-`--index-name`.
+Path defaults are repo-root-relative, so from `pipeline/` pass `../original-data/…`
+and `../pipeline-output/…`. Corpus filenames contain spaces, commas and `&` —
+always quote paths.
 
-PDSRG chunking (plan §6):
+## The stages
 
-```bash
-uv run qa-pipeline pdsrg \
-    --input "../original-data/Practitioner Dietary Supplement Reference Guide" \
-    --products "../original-data/Product Data/products.json" \
-    --out ../pipeline-output/pdsrg
-```
+- **Stage 0** — PII scrub of the `.docx` Q&A files: structural redaction
+  (contact blocks, `From:`/`To:`/`Cc:` display names, signatures, copyright
+  footers), greeting de-naming, pattern redaction (emails, phones, postal
+  addresses, SSNs, cards, social-profile URLs), per-file scrub reports. No model,
+  no network. What cannot be redacted without risking prose is **flagged for
+  review, never guessed at**. Nothing unscrubbed leaves this stage.
+- **Stage 1** — parse and classify: split the expert answer from the quoted
+  customer message (three document shapes), classify (`qa_email` /
+  `expert_note` / `other`), extract metadata (year, topic subfolder,
+  `thread_date` from the enquiry's `Sent:` header, question text). Documents
+  with no expert answer are excluded and tallied, not queued.
+- **Stage 2** — LLM structuring on scrubbed text only (small chat deployment,
+  strict JSON schema): `question_canonical`, a cleaned `answer` (transcription,
+  never generation — a containment diff checks no content was invented),
+  `products[]` resolved to part numbers through the alias table, `topics[]`,
+  `audience_flags`, `currency_cues`, `residual_pii_flag`, `confidence`.
+  Responses cache in the gitignored `runs/stage2_cache.jsonl`; `--no-llm` runs
+  the rule-based fallback with no Azure calls.
+- **Stage 4** — deduplication and currency. Near-duplicate questions cluster at
+  cosine ≥ 0.88 (a scan-locked threshold) within shared product/topic buckets;
+  the newest current member wins. Non-nested part-number sets mark a conflict:
+  the cluster is queued, never auto-picked, and curated dispositions pin their
+  exact membership (a reshaped cluster raises). **Renames never supersede.**
+  Replacement and discontinued cues supersede only when the answer depends on
+  the formulation (a cached LLM judgment; no usable judgment means superseded).
+  Outputs `documents.jsonl` with `is_current`, `clusters.jsonl` (the review
+  worksheet) and `review_queue.jsonl`.
+- **PDSRG** — the Practitioner Dietary Supplement Reference Guide PDFs: hybrid
+  table extraction (wide dosage grids re-extracted before the prose filter),
+  font-based heading detection, section chunks with heading-path prefixes,
+  tables atomic. Bibliographies are excluded (`--keep-references` keeps them).
+  An unknown PDF stem raises.
+- **Podcast** — ASR transcripts into topic chunks with speaker turns and
+  timings. Attested ASR mis-hearings of the show's names are corrected in the
+  chunks (the raw transcripts stay verbatim). Citation URLs deep-link to the
+  segment's start second; an episode missing from `PODCAST_VIDEO_IDS` raises.
+- **Index** — shapes every source into index documents, embeds
+  `title + content` (`text-embedding-3-large`, 3072-dim) and uploads. Product
+  copy is section-split per family; info pages reuse the same splitter (an
+  unknown page raises); menus are one description document per menu type; QA
+  records over the embedding cap split at paragraph boundaries, never truncated.
+  Superseded documents are pruned from the service, not just skipped.
+  `--no-embed` shapes only, `--no-upload` skips AI Search, `--reset` drops and
+  recreates the index (waiting out the asynchronous delete).
 
-Podcast segmentation (plan §7 step 3 — transcripts must exist first, see
-`scripts/asr_pilot.py --all`):
+## Rules the pipeline keeps
 
-```bash
-uv run qa-pipeline podcast \
-    --transcripts ../pipeline-output/podcasts/transcripts \
-    --audio "../original-data/Suppbeast Podcast" \
-    --out ../pipeline-output/podcasts
-```
+- `original-data/QAs/` is read-only and holds real customer mail; it is
+  gitignored and nothing unscrubbed leaves Stage 0.
+- **Aliases tag and expand; they never rewrite corpus text.** A rename is one
+  product under two names and expands to the successor's part numbers; a
+  replacement is a different formula and is a currency cue only. Every alias is
+  attested in the corpus in the form the corpus writes it, and a token sits in
+  exactly one tier: safe for a blind scan, LLM-mention only, or context-only.
+- **Every index document stamps `is_current`**: AI Search does not match null
+  against a filter, so an unstamped document is invisible to every query.
+  `product_status` is a separate axis — a discontinued product's documents stay
+  current so "what happened to X" is answerable.
+- Index keys use dashes (AI Search forbids colons); a test pins the rule.
+- Vectors are API results: they cache in gitignored `runs/embeddings.jsonl`, and
+  the committed `documents.jsonl` carries none.
+- **Reruns are byte-identical**, from any working directory and on Windows or
+  Linux: explicit UTF-8 everywhere, `\n` line endings on every write, POSIX
+  document ids, sorted iteration, no timestamps in per-file outputs. Run
+  manifests in `runs/` carry timestamps and input hashes and are never compared.
+- `pipeline-output/` is derived: regenerate it, never hand-edit it.
 
-Product summaries deck (D10 — legal-approved, the top authority; not yet
-indexed). Standalone script, no model call; the `.pptx` is gitignored (65 MB):
+## When `products.json` changes
 
-```bash
-uv run scripts/summaries_pptx_md.py
-```
+A new export arrives whenever an update is known. Run, in order: `products_diff.py`
+(old against new — the claims report for the owner), `aliases`, `stage2`
+(cached; product tags re-resolve), `stage4`, `index` (embed, upload, prune), and
+`scripts/search_ping.py`. A new flavor of an existing family joins it in
+`CURATED_FAMILIES` in `alias.py`.
 
-Reads `original-data/Product Summaries/summaries_teaching.pptx` text-exact and writes
-`pipeline-output/summaries/md/NN-<slug>.md` (one per section of the hand-curated
-slide→section map in the script) + `summary.json`; the full per-slide dump goes
-to `pipeline-output/summaries/runs/`. Every price is masked to `[price]`. The run fails
-if a slide is in no section and not listed as dropped, or a product tag is not an
-alias-table family. `pipeline-output/summaries/dotfit-program-guide.md` sits beside the
-output but is hand-written, not generated (§7.4).
+## The product summaries deck
 
-§12 golden-set sampling (labeling worksheet + adversarial scaffold):
+`scripts/summaries_pptx_md.py` reads the deck (gitignored `.pptx`) text-exact
+through a hand-curated slide→section map and writes
+`pipeline-output/summaries/md/`. Every price is masked to `[price]`; the run
+fails if a slide is in no section and not listed as dropped, or if a product tag
+is not an alias-table family. Trainer scripts, taglines and flyer copy are held
+back. The sections are not indexed; the assistant's program guide
+(`assistant/references/program-guide.md`) is written from them by hand.
 
-```bash
-uv run qa-pipeline golden \
-    --qa-docs ../pipeline-output/qa/stage4/documents.jsonl \
-    --products "../original-data/Product Data/products.json" \
-    --out ../pipeline-output/golden
-```
+## Review queues
 
-§9 index build (shape + embed + upload):
+`review_queue.jsonl` reasons:
 
-```bash
-uv run qa-pipeline index \
-    --chunks ../pipeline-output/pdsrg/chunks/chunks.jsonl \
-    --products "../original-data/Product Data/products.json" \
-    --menus "../original-data/Reference Menus/All Reference Menus Export.csv" \
-    --out ../pipeline-output/index --no-upload    # drop --no-upload to upload
-```
-
-Pilot per plan §13 week 1 (20 docs incl. nastiest):
-
-```bash
-uv run qa-pipeline run --input ../original-data/QAs --out ../pipeline-output/qa-pilot \
-    --include "2023/*.docx" --limit 20
-```
-
-Stage 2 pilot (5 docs, live small-chat calls) and full run:
-
-```bash
-uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
-    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2-pilot \
-    --limit 5
-uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
-    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2
-# offline equivalent (no Azure calls, confidence 0, everything queued):
-uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
-    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2 \
-    --no-llm
-```
-
-Stage 4 (consumes Stage 2 canonicals; embeddings from the question surface,
-judgments from the small chat deployment — both cached):
-
-```bash
-uv run qa-pipeline stage4 --qa-docs ../pipeline-output/qa/stage2/documents.jsonl \
-    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage4
-```
-
-## Output layout
-
-```
-<out>/stage0/text/<year>/<subdirs>/<name>.txt      scrubbed text (LF, UTF-8)
-<out>/stage0/reports/<year>/<subdirs>/<name>.json  per-file scrub report
-<out>/stage1/documents.jsonl                       one record per document
-<out>/stage1/review_queue.jsonl                    parse errors + residual PII + edge cases
-<out>/stage0/errors.json                           parse errors (committed;
-                                                   the review queue reads this,
-                                                   not the gitignored runs/)
-<out>/stage1/summary.json                          counts by type/year
-<out>/runs/stage0-<timestamp>.json                 run manifest (audit trail)
-```
-
-Stage 2 outputs (relative to the `stage2 --out` root, default
-`pipeline-output/qa/stage2`):
-
-```
-<out>/documents.jsonl        one canonical record per document (sorted by
-                            source_file — byte-identical reruns)
-<out>/review_queue.jsonl    low confidence + residual PII + containment fails +
-                            LLM errors + deterministic 5% audit sample
-<out>/summary.json           counts + review reasons + unresolved-mention tally
-                            (curation signal for the alias worksheet)
-<out>/runs/stage2-<ts>.json run manifest
-<out>/runs/stage2_cache.jsonl LLM response cache (gitignored — API results,
-                            keyed deployment|api-version|prompt|source)
-```
-
-- `documents.jsonl` record: `id, source_file, year, doc_type, thread_date,
-  topic_subfolder, filename, question_original, question_canonical, answer,
-  products[] (int part_nos), products_unresolved[] (curation signal, never a
-  queue reason), topics[], audience_flags{minor, pregnancy_breastfeeding,
-  medical_condition, drug_test_athlete, weight_extreme}, currency_cues[],
-  residual_pii_flag, confidence, containment_score, needs_review, llm_error,
-  model` — the canonical input contract for Stage 4/indexing. Evidence spans
-  for residual-PII flags live only in the gitignored cache, never in records.
-- Reruns are byte-identical when LLM responses are (same-machine cache hit or
-  `--no-llm`); run manifests carry timestamps + input SHA-256s.
-
-PDSRG outputs (relative to the `pdsrg --out` root, default `pipeline-output/pdsrg`):
-
-```
-<out>/chunks/chunks.jsonl    one record per chunk (index-ready, §9 fields)
-<out>/chunks/summary.json    per-doc stats + review flags
-<out>/review/<slug>.md       per-doc chunking outline (human spot-check)
-<out>/runs/pdsrg-<ts>.json   run manifest
-```
-
-Podcast outputs (relative to the `podcast --out` root, default
-`pipeline-output/podcasts` — transcripts themselves live in
-`<out>/transcripts/`, written by `scripts/asr_pilot.py --all`):
-
-```
-<out>/segments/segments.jsonl  one record per topic chunk (id,
-                               episode_id/title, chunk_index, start/end
-                               mm:ss + ms, speakers, Speaker-turn text)
-<out>/segments/summary.json    per-episode stats
-<out>/runs/podcast-<ts>.json  run manifest
-```
-
-Index outputs (relative to the `index --out` root, default `pipeline-output/index`):
-
-```
-<out>/documents.jsonl        one §9 record per document (no vectors —
-                            byte-identical reruns)
-<out>/summary.json           counts + embedding/upload stats
-<out>/runs/embeddings.jsonl  vector cache (gitignored — API results,
-                            keyed deployment|api-version|text)
-<out>/runs/index-<ts>.json   run manifest
-```
-
-- `documents.jsonl` record: `id, source_file, year, topic_subfolder, filename,
-  doc_type, needs_review, residual_pii_flag, thread_date, question,
-  expert_section, customer_section, scrub_flags, n_lines` — the deterministic
-  input contract for Stage 2. **`thread_date` is the enquiry's `Sent:` header**,
-  not the expert's reply date (which the corpus rarely records); Stage 4 should
-  treat it as a lower bound when ordering by currency.
-- Per-file outputs are **deterministic** (verified: byte-identical reruns);
-  run manifests carry timestamps + input SHA-256s for the audit trail.
-
-## Cross-platform contract (Windows dev ⇄ Linux prod)
-
-The code is written so the same commit produces identical output on both:
-
-| Concern | How it's handled |
-|---|---|
-| Text encoding | every read/write is explicit `utf-8`; console reconfigured via `configure_stdio()` (Windows code pages crash otherwise) |
-| Line endings | `newline="\n"` on all writes (no CRLF leakage) |
-| Path separators | `pathlib` everywhere; document ids are POSIX-normalized relative paths (`rel_posix`) |
-| Determinism | sorted iteration, no timestamps in per-file outputs, pure scrub functions |
-| Dependencies | `uv.lock` committed; no OS-level packages required |
-| Filenames | corpus names contain spaces/commas/`&` — always quote paths in shells |
-
-Known benign platform difference: `runs/*.json` manifests record
-`platform`/`python` — audit metadata only, never compared for equality.
-
-## Review queue (feeds plan §4 Stage 3)
-
-`review_queue.jsonl` reasons map to the plan's manual queue:
-
-- `parse_error` — file is not a valid `.docx`; needs a data-owner look (read
-  from the committed `stage0/errors.json`)
-- `honorific_plus_name` — e.g. "Dr. Smith" in content (period optional —
-  "Dr Smith" flags the same way); humans confirm whether
-  it's staff/expert (clear it into `ACCEPTED_HONORIFIC_NAMES`) or a customer
-- `greeting_name_residual` — a greeting whose name has no terminator and is
-  not in the corpus-attested `GREETING_NAME_TOKENS` vocabulary (`Hey Jasmine
-  any advice…`); redacting it automatically would corrupt prose
-- `no_quotable_structure` — `doc_type: other`; the LLM-confirm path in Stage 2
-
-Not queued, by owner disposition (2026-09-05): documents with no expert
-reply and blank documents are excluded from `documents.jsonl` and tallied in
-`summary.json` (`n_excluded`) instead — there is nothing left to decide about
-them. Filenames are neither scrubbed nor flagged (owner disposition
-2026-09-05); the former `filename_contains_redacted_name` flag is gone.
-
-## Verified corpus numbers (Stage 2, full run 2026-09-06; alias-1.3.0 regen 2026-09-07)
-
-- 1,041 Stage 1 docs → **1,041 canonical records** on prompt 1.1.0, 0 fallbacks,
-  0 LLM errors (~1,040 small-chat calls across chunked runs — per-doc cache
-  checkpoints make the run resumable surviving 2 timeouts and 1 Azure 403;
-  a cache-hit rerun is byte-identical with 0 calls). Alias-1.3.0 regen
-  (2026-09-07): 2 live calls (the two scrub-fix docs) + 1,039 cache hits,
-  0 errors — 338 docs gained part_nos (42 newly tagged), unresolved mentions
-  3,474 → 2,292 (−34%)
-- Review queue **222** (21%, down from 590 pre-triage), fully dispositioned
-  (rounds 1–2, `docs/v1/progress-archive.md` entries 19–20): 168 residual-PII flags
-  (customer-side names correctly caught; staff bulk-accepted via silent-redact
-  vocabulary), 48 deterministic 5% audit samples, 1 containment fail,
-  5 low-confidence
-- Quality: containment median 0.996 (answer word-recall vs source), confidence
-  median 0.92; 676 docs carry product tags (50 part_nos), 306 carry currency
-  cues, 275 null canonical questions (264 expert notes + 11 question-less)
-- Curation signal (never a queue reason), post-1.3.0 tally — top unresolved
-  mentions: `dotFIT Multivitamin & Mineral` (159), `Kids` (149), `MVM` (123),
-  `VeganMV` (76), `dotFIT Nutrition High Protein Bar` (52), `1-Vegan` (48),
-  `dotFIT protein shakes` (38), `Gatorade` (30), `Protein Powders` (29),
-  `dotFIT protein mix` (29). Curation pass 2 (2026-09-07, alias table 1.3.0)
-  resolved the family spellings, dose tiers and `Women's` (LLM-only tier);
-  `Kids`/`VeganMV`/`1-Vegan` stay unresolved by design (discontinued — no
-  part_no to tag) and `MVM` is context-only — this tally is the input to any
-  pass 3 (§14 open item 3)
-- Safety, re-verified on the regen artifacts: 0 own-answer evidence leaks
-  (flagged name spans absent from their own answers, including both live-call
-  docs); 0 raw emails/phones in title/answer fields
-
-## Verified corpus numbers (Stage 0–1 full run, 2026-09-05)
-
-- 1,051 `.docx` → **1,051 scrubbed**, 0 parse errors
-- Classification: **777 qa_email**, 264 expert_note, 0 other — 10
-  unanswerable docs excluded (6 no-answer stubs, 4 blanks), not queued
-- Redactions (per occurrence): 1,681 contact-block email fields, 1,057 inline
-  emails, 774 customer-name fields, 693 opening greetings + 283 greetings in
-  quoted replies, 43 customer sign-off names (`Thanks,`/`Regards,` + bare name
-  below the quoted header — `[NAME]`, honorific/credential kept), 362 phone
-  fields, 243 inline phones, 221 recipient display names, 25 postal addresses,
-  5 card-shaped numbers, 3 social-profile URLs
-- Dropped: 711 copyright footers, 195 disclaimer lines, 139 signature blocks,
-  1 `--` email delimiter above a redacted sign-off
-- 0 files in the review queue (round 2, owner-dispositioned 2026-09-05: 5
-  study-author honorifics cleared into `ACCEPTED_HONORIFIC_NAMES`, 2 full-name
-  sign-off leaks redacted by the new sign-off rule — see plan §14 item 6)
-- DOI strings like `10.1007/s13197-011-0571` are correctly *not* matched as
-  phones; the address rule was corpus-verified with zero false positives
-
-Earlier entries in `docs/v1/progress-archive.md` quote per-*document* pattern counts: the
-counter incremented once per pattern per file until 2026-09-02 (2).
-
-§12 evaluation (plan §12) — measures the live runtime, so build the agent first:
-
-```bash
-cd ../runtime && dotnet build && cd ../pipeline
-
-# cheap: retrieval only, no chat tokens, both ranker settings (open item 5)
-uv run qa-pipeline eval \
-  --agent ../runtime/src/DotFit.Agents.Cli/bin/Debug/net10.0/dotfit-agent.exe \
-  --split dev --no-answers --no-judge --ranker-ab
-
-# full dev sweep: answers + LLM judge (real Azure spend)
-uv run qa-pipeline eval \
-  --agent ../runtime/src/DotFit.Agents.Cli/bin/Debug/net10.0/dotfit-agent.exe \
-  --split dev
-```
-
-Point `--agent` at the built binary, not `dotnet run` — `dotnet run` writes
-build output to stdout, which is where the JSON contract lives. `--split test`
-is the held-back release check; keep tuning on `dev`.
+- `parse_error` — not a valid `.docx`; needs a data-owner look.
+- `honorific_plus_name` — e.g. "Dr. Smith" in content; a person confirms
+  whether it is staff or a public figure (cleared into
+  `ACCEPTED_HONORIFIC_NAMES`) or a customer.
+- `greeting_name_residual` — a greeting whose name has no terminator and is not
+  in the corpus-attested `GREETING_NAME_TOKENS`; redacting it automatically
+  would corrupt prose.
+- `no_quotable_structure` — `doc_type: other`; confirmed in Stage 2.
+- Stage 2 adds low confidence, residual PII, containment failures, LLM errors
+  and a deterministic 5% audit sample. The queue does not gate: a flagged record
+  is already redacted. `scripts/stage2_queue_triage.py` groups it for sign-off.
