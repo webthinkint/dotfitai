@@ -99,6 +99,18 @@ public sealed class SourceLedger(int maxSourceChars)
         }
     }
 
+    /// <summary>
+    /// Number one tool result's documents in one hold of the lock, so the
+    /// result's new sources are consecutive even when another call is numbering
+    /// at the same time. <see cref="Lock"/> is reentrant, so <see cref="Add"/>
+    /// takes it again inside.
+    /// </summary>
+    public IReadOnlyList<(SourceRef Source, bool IsNew)> AddAll(IReadOnlyList<RetrievedDocument> documents)
+    {
+        lock (_gate)
+            return [.. documents.Select(Add)];
+    }
+
     /// <summary>Queue a stage event from inside a tool, so it reaches the caller in call order.</summary>
     public void Stage(string stage, string? detail = null)
     {
@@ -197,7 +209,9 @@ public sealed class SourceLedger(int maxSourceChars)
           .Append(SourceLabels.SourceLabel(document.SourceType, document.Authority))
           .Append(" — ").Append(SourceLabels.ClaimsMarker(document.Authority));
         if (!isNew)
-            sb.Append(" — already given to you earlier this turn");
+            // "This turn", not "earlier": under concurrent calls the source may
+            // be in another result of the same round trip.
+            sb.Append(" — already given to you this turn");
         sb.AppendLine();
     }
 

@@ -21,16 +21,16 @@ is closed; the commit message records why.
 
 - **First-token latency misses the targets**: under 1.5 s with no tool call,
   under 4 s with one search, under 8 s with two or three, measured to first
-  delta. The cause is unattributed between the deployment's own
-  time-to-first-token, prompt size and the search round trip. Program turns
-  that look up several products run 12–17 s.
-- **Parallel tool calls run one at a time.** The Agent Framework's function
-  invocation does not run a round trip's calls concurrently unless
-  `AllowConcurrentInvocation` is set, and `AssistantFactory.CreateAgent` does
-  not set it. A program turn that looks up several products waits for each in
-  turn. The ledger, budget and meter are already safe for concurrent calls;
-  the comments in `SourceLedger` and `KnowledgeTools` say the calls do run
-  concurrently.
+  delta. The 2026-09-30 smoke run: no-tool turns 0.6–2.1 s, one or two
+  lookups 2.4–6.3 s, program turns that look up several products 9.0–14.5 s
+  (S-094 reran at 6.2 s, so run-to-run variance is several seconds). Tool
+  time is not the cause: a round trip's calls run concurrently and a
+  `get_product` takes 200–250 ms. The time is in the model round trips — a
+  program turn makes three (read the guide, look up the products, answer),
+  and three is accepted, since references load on demand. What is
+  unattributed is each round trip's share between the deployment's own
+  time-to-first-token, reasoning and prompt size; neither the turn log nor
+  the smoke table records per-round-trip timing.
 - **The turn budgets are estimates** (8 tool calls, 60 s). Replace them with the
   distribution the turn log shows.
 - **Tool results are not replayed**, so a follow-up sometimes searches again.

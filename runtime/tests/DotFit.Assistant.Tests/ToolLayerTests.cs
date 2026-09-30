@@ -24,6 +24,30 @@ public class SourceLedgerTests
     }
 
     [Fact]
+    public async Task Concurrent_results_each_get_consecutive_numbers()
+    {
+        // Concurrent tool calls must not interleave numbers: a result reading
+        // [1] [3] [5] is harder for the model to follow than [1] [2] [3].
+        var ledger = new SourceLedger(1000);
+        var start = new Barrier(4);
+        Task<IReadOnlyList<(SourceRef Source, bool IsNew)>>[] calls =
+        [
+            .. Enumerable.Range(0, 4).Select(call => Task.Run(() =>
+            {
+                start.SignalAndWait();
+                return ledger.AddAll(
+                    [.. Enumerable.Range(0, 50).Select(i => Fixtures.Document(id: $"call{call}-{i}"))]);
+            })),
+        ];
+
+        foreach (var result in await Task.WhenAll(calls))
+        {
+            int first = result[0].Source.N;
+            Assert.Equal(Enumerable.Range(first, 50), result.Select(r => r.Source.N));
+        }
+    }
+
+    [Fact]
     public void A_document_keeps_its_number_for_the_whole_turn()
     {
         var ledger = new SourceLedger(1000);
@@ -627,7 +651,7 @@ public class AliasTierTests
 
         Assert.Single(tools.Ledger.Sources);
         string text = result?.ToString() ?? "";
-        Assert.Contains("already given to you earlier this turn", text, StringComparison.Ordinal);
+        Assert.Contains("already given to you this turn", text, StringComparison.Ordinal);
         // The number was given; the rest of the page was not, so it is still shown.
         Assert.Contains("section id: product-9001-a", text, StringComparison.Ordinal);
     }

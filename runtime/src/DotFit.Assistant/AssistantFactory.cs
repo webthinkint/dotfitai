@@ -53,20 +53,27 @@ public static class AssistantFactory
     // OPENAI001: the SDK still marks the Responses surface experimental.
 #pragma warning disable OPENAI001
     public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt) =>
-        client.GetResponsesClient()
-            .AsAIAgent(
-                new ChatClientAgentOptions
-                {
-                    Name = "dotfit",
-                    ChatOptions = new ChatOptions
-                    {
-                        Instructions = prompt.Text,
-                        // Responses API: reasoning deployments reject tools on Chat Completions.
-                        // Storage off: a stored response would keep the customer's question on Azure.
-                        RawRepresentationFactory = _ => new CreateResponseOptions { StoredOutputEnabled = false },
-                    },
-                },
-                model: options.RequireChatDeployment());
+        client.GetResponsesClient().AsAIAgent(AgentOptions(prompt.Text), model: options.RequireChatDeployment());
+
+    /// <summary>
+    /// The agent's options, apart from the client, so the loop tests run the
+    /// same configuration production does.
+    /// </summary>
+    public static ChatClientAgentOptions AgentOptions(string instructions) => new()
+    {
+        Name = "dotfit",
+        // A round trip's calls run concurrently, so a program turn that looks
+        // up five products waits for the slowest lookup rather than the sum.
+        // The ledger, budget, meter and call records are safe under it.
+        AllowConcurrentInvocation = true,
+        ChatOptions = new ChatOptions
+        {
+            Instructions = instructions,
+            // Responses API: reasoning deployments reject tools on Chat Completions.
+            // Storage off: a stored response would keep the customer's question on Azure.
+            RawRepresentationFactory = _ => new CreateResponseOptions { StoredOutputEnabled = false },
+        },
+    };
 #pragma warning restore OPENAI001
 
     /// <summary>The fully wired assistant: live Azure clients + the alias artifact.</summary>

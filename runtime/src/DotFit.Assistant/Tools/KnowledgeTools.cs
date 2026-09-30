@@ -643,12 +643,13 @@ public sealed partial class KnowledgeTools
     private (int Sources, int New) AppendSources(StringBuilder body, IReadOnlyList<RetrievedDocument> documents)
     {
         int sources = 0, newCount = 0;
-        foreach (IGrouping<string, RetrievedDocument> page in documents.GroupBy(SourceLedger.KeyOf, StringComparer.Ordinal))
+        IReadOnlyList<(SourceRef Source, bool IsNew)> numbered = Ledger.AddAll(documents);
+        foreach (var page in documents
+                     .Select((document, i) => (Document: document, Index: i))
+                     .GroupBy(x => SourceLedger.KeyOf(x.Document), StringComparer.Ordinal))
         {
-            List<RetrievedDocument> sections = [.. page];
-            (SourceRef source, bool isNew) = Ledger.Add(sections[0]);
-            foreach (RetrievedDocument section in sections.Skip(1))
-                Ledger.Add(section);
+            List<RetrievedDocument> sections = [.. page.Select(x => x.Document)];
+            (SourceRef source, bool isNew) = numbered[page.First().Index];
             sources++;
             if (isNew)
                 newCount++;

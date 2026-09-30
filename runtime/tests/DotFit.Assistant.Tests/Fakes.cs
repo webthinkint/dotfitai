@@ -109,10 +109,32 @@ internal sealed class FakeSearch(params RetrievedDocument[] documents) : IKnowle
     /// </summary>
     public Task? Gate { get; set; }
 
+    private readonly Lock _gate = new();
+    private readonly List<(int Count, TaskCompletionSource Reached)> _waiters = [];
+
+    /// <summary>Completes once this many queries have started — calls run concurrently.</summary>
+    public Task WaitForQueriesAsync(int count)
+    {
+        lock (_gate)
+        {
+            if (Queries.Count >= count)
+                return Task.CompletedTask;
+            var reached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _waiters.Add((count, reached));
+            return reached.Task;
+        }
+    }
+
     public async Task<IReadOnlyList<RetrievedDocument>> SearchAsync(
         SearchParameters parameters, CancellationToken ct = default)
     {
-        Queries.Add(parameters);
+        lock (_gate)
+        {
+            Queries.Add(parameters);
+            foreach ((int count, TaskCompletionSource reached) in _waiters)
+                if (Queries.Count >= count)
+                    reached.TrySetResult();
+        }
         if (Gate is not null)
             await Gate.WaitAsync(ct).ConfigureAwait(false);
         return Handler?.Invoke(parameters) ?? (IReadOnlyList<RetrievedDocument>)documents;

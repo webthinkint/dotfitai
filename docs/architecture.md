@@ -81,8 +81,8 @@ index. It remains a per-call switch.
 `DotFitAssistant` runs one turn: the system prompt, the conversation history
 (user and assistant text only), and the question go to the chat deployment with
 four tools. The model may call tools any number of times, in any order, in
-parallel; results come back as numbered sources; then it writes the answer,
-which streams as it is generated.
+parallel, and a round trip's calls run concurrently; results come back as
+numbered sources; then it writes the answer, which streams as it is generated.
 
 - **No pre-check, no rewrite, no post-check.** Small talk needs no special case:
   a greeting is a turn on which no tool is called.
@@ -122,12 +122,14 @@ All deterministic; none calls a model. Built fresh per turn (`KnowledgeTools`).
   reference's version for the turn log.
 
 **Source numbering** (`SourceLedger`): numbers are assigned when a tool returns,
-first-seen order from 1, and keep counting across searches. A document keeps
-its number for the whole turn. Sections sharing a `citation_url` (a product
-page) share one number. Each new number queues a `source` event, and the loop
-drains the queue before yielding any text, so a client always holds `[3]` before
-text citing it arrives. A tool's stage event is drained while the tool is still
-running, so "looking up X" reaches the caller during the lookup.
+first-seen order from 1 (completion order across concurrent calls), and keep
+counting across searches. One tool result's new sources are numbered
+consecutively. A document keeps its number for the whole turn.
+Sections sharing a `citation_url` (a product page) share one number. Each new
+number queues a `source` event, and the loop drains the queue before yielding
+any text, so a client always holds `[3]` before text citing it arrives. A
+tool's stage event is drained while the tool is still running, so "looking up
+X" reaches the caller during the lookup.
 
 ## The system prompt
 

@@ -25,7 +25,7 @@ public class LoopTests
             Fixtures.Document(id: "pdsrg-example-001", title: "Dosing"),
             Fixtures.Document(id: "pdsrg-example-002", title: "Mechanism"));
         var store = new FakeDocumentStore();
-        AIAgent agent = client.AsAIAgent(instructions: "test instructions", name: "test");
+        AIAgent agent = client.AsAIAgent(AssistantFactory.AgentOptions("test instructions"));
         return new DotFitAssistant(
             agent, search, store, Fixtures.Aliases(), options ?? new AssistantOptions(), prices: prices);
     }
@@ -124,6 +124,30 @@ public class LoopTests
         {
         }
         await events.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Parallel_calls_in_one_round_trip_run_concurrently()
+    {
+        // A program turn issues several lookups at once; run one at a time,
+        // its latency is the sum of them rather than the slowest.
+        var client = new ScriptedChatClient(
+            [.. ScriptedChatClient.Call("c1", "search", new { query = "creatine dosing" }),
+             .. ScriptedChatClient.Call("c2", "search", new { query = "protein timing" })],
+            ScriptedChatClient.Text("Both [1] [2]."));
+        DotFitAssistant assistant = Build(client, out FakeSearch search);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        search.Gate = gate.Task;
+
+        Task<List<TurnEvent>> run = RunAsync(assistant, new AskRequest { Question = "creatine and protein?" });
+
+        // Both searches must be in flight while the gate is shut; run in turn,
+        // the second never starts and this times out.
+        await search.WaitForQueriesAsync(2).WaitAsync(TimeSpan.FromSeconds(10));
+        gate.SetResult();
+        TurnResult result = (await run).OfType<TurnResultEvent>().Single().Result;
+
+        Assert.Equal(2, result.ToolCalls.Count);
     }
 
     /// <summary>One pull, bounded, so a loop that cannot make progress fails instead of hanging.</summary>
