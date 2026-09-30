@@ -8,15 +8,11 @@ using DotFit.Assistant.Aliases;
 using DotFit.Assistant.Sources;
 using DotFit.Assistant.Prompting;
 
-// dotfit-service — the §6 loop behind an SSE endpoint (design §9).
-// Transport only: config load, one endpoint, one health check.
+// dotfit-service — the assistant loop behind an SSE endpoint.
+// Transport only: config load, one endpoint, one health check. Deltas stream
+// live and nothing is withheld; see AskStream for the event contract.
 //
-// The caller contract is v1's, deliberately (decision D6): the website relay
-// already speaks it, so a preview can point at either runtime. What differs is
-// the event stream — deltas are live, `source` is new, `retraction` is gone,
-// because nothing on this branch gates (D3). See AskStream.
-//
-// Every request writes one turn-log line to stdout (§10) — what the model did,
+// Every request writes one turn-log line to stdout — what the model did,
 // never what it or the customer said. DOTFIT_ASSISTANT_DEBUG_TRANSCRIPT adds the
 // words, for preview debugging only.
 
@@ -30,18 +26,18 @@ if (builder.Configuration["DotFit:Index"] is { Length: > 0 } index)
     options = options with { IndexName = index };
 
 ServiceOptions service = ServiceOptions.Load(options);
-AssistantOptions agentic = AssistantOptions.Load(options.EnvFilePath);
-// The sheet the per-turn `cost` block is priced against (§9). Validated here
+AssistantOptions assistantOptions = AssistantOptions.Load(options.EnvFilePath);
+// The sheet the per-turn `cost` block is priced against. Validated here
 // for the same reason everything else is: if the service is up, the numbers
 // it emits are interpretable — which sheet, which currency.
 PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
 // Both ceilings are independent knobs; inverted, the host kills the turn before
-// the loop can hand off, and the customer gets a truncated stream (§6, §9).
-service.RequireRoomForTurn(agentic);
+// the loop can hand off, and the customer gets a truncated stream.
+service.RequireRoomForTurn(assistantOptions);
 AliasTable aliases = AliasTable.Load(options.AliasTablePath);
 // Assembled once, here, so a broken prompt variant stops the boot.
 SourceRegistry registry = SourceRegistry.Load(options.SourcesPath);
-AssembledPrompt prompt = AssembledPrompt.Load(options, agentic, aliases, registry);
+AssembledPrompt prompt = AssembledPrompt.Load(options, assistantOptions, aliases, registry);
 
 // A question plus eight trimmed history turns. Kestrel's 30 MB default is for
 // file uploads; this endpoint feeds model prompts.
@@ -49,14 +45,14 @@ builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = ServiceOptio
 
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(service);
-builder.Services.AddSingleton(agentic);
+builder.Services.AddSingleton(assistantOptions);
 builder.Services.AddSingleton(prices);
 builder.Services.AddSingleton(prompt);
 builder.Services.AddSingleton<IDotFitAssistant>(
-    _ => AssistantFactory.Create(options, agentic, aliases, prices: prices, prompt: prompt, registry: registry));
+    _ => AssistantFactory.Create(options, assistantOptions, aliases, prices: prices, prompt: prompt, registry: registry));
 
 // Not optional and not configurable. With nothing gated, this log is the only
-// reconstruction of what an audience was shown (§8.3) — and it holds no
+// reconstruction of what an audience was shown — and it holds no
 // question and no answer text, so there is nothing to switch off for privacy.
 builder.Services.AddSingleton<ITurnSink>(_ => new JsonLinesTurnSink(Console.Out));
 
@@ -100,7 +96,7 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
     max_question_chars = svc.MaxQuestionChars,
     timeout_seconds = (int)svc.RequestTimeout.TotalSeconds,
     debug_transcript = svc.DebugTranscript ? "on" : "off",
-    // The §6 budgets, so a latency complaint can be read against them.
+    // The loop's budgets, so a latency complaint can be read against them.
     max_tool_calls = agent.MaxToolCalls,
     turn_timeout_seconds = (int)agent.TurnTimeout.TotalSeconds,
     default_top = agent.DefaultTop,
@@ -118,8 +114,7 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
     },
     price_embedding_usd_per_1m = sheet.EmbeddingPerMillion,
     price_search_usd_per_1k = sheet.SearchPerThousand,
-    // Said out loud, because it is the difference from v1 a caller most needs
-    // to know: there is no retraction event and no withheld answer.
+    // Said out loud: there is no retraction event and no withheld answer.
     gating = "none",
 }));
 
@@ -146,7 +141,7 @@ app.MapPost("/ask", async (
     http.Response.Headers.ContentType = "text/event-stream";
     http.Response.Headers.CacheControl = "no-cache";
     // A proxy that buffers turns live streaming back into one lump at the end,
-    // which is the entire point of this branch undone in transit.
+    // which undoes live streaming in transit.
     http.Response.Headers["X-Accel-Buffering"] = "no";
 
     var writer = new HttpSseWriter(http.Response);

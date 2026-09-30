@@ -7,7 +7,7 @@ using DotFit.Assistant;
 
 namespace DotFit.Assistant.Service;
 
-/// <summary>The wire body of <c>POST /ask</c> (design §9).</summary>
+/// <summary>The wire body of <c>POST /ask</c>.</summary>
 public sealed record AskBody
 {
     public string Question { get; init; } = "";
@@ -39,17 +39,13 @@ public interface ISseWriter
 }
 
 /// <summary>
-/// Maps one turn of <see cref="IDotFitAssistant"/> onto the SSE contract
-/// (design §9). Transport only — no decision is made here.
-///
-/// Three differences from v1's stream, all consequences of decision D3:
+/// Maps one turn of <see cref="IDotFitAssistant"/> onto the SSE contract.
+/// Transport only — no decision is made here.
 ///
 /// - **Deltas stream live.** Nothing is buffered, because nothing downstream
-///   can fail and retract them. That is the latency this branch was built for.
-/// - **There is no <c>retraction</c> event.** Nothing is withheld, so there is
-///   nothing to retract. The name is retired rather than reused.
+///   can withhold or retract them.
 /// - **There is a <c>source</c> event**, emitted as each source is numbered and
-///   before any delta that could cite it (§7). A client can therefore resolve
+///   before any delta that could cite it. A client can therefore resolve
 ///   <c>[3]</c> the moment it arrives instead of waiting for <c>result</c>.
 ///
 /// What the caller is sent is narrower than what the CLI shows: no source
@@ -164,11 +160,11 @@ public static class AskStream
             // is still open and the response has been 200 since the first
             // frame, so the only honest ending is the one every other failure
             // gets — `error`, the handoff as a delta, then `result` last. The
-            // filtered catch above must not swallow this: without this branch
-            // the exception left RunAsync, the stream ended with no terminal
-            // event (breaking "`result` is always last"), and the turn logged
-            // `abandoned` — the operator view saying the customer left when in
-            // fact the service gave up.
+            // filtered catch above must not swallow this: otherwise the
+            // exception leaves RunAsync, the stream ends with no terminal event
+            // (breaking "`result` is always last"), and the turn logs
+            // `abandoned` — saying the customer left when in fact the service
+            // gave up.
             outcome = TurnLog.OutcomeError;
             errorKind = "timeout";
             result = await FailAsync(
@@ -179,8 +175,8 @@ public static class AskStream
         finally
         {
             // Written from a finally so every terminal path logs — with nothing
-            // gated, this record is the only account of what an audience saw
-            // (§8.3). A client that hangs up mid-stream produces no result, and
+            // gated, this record is the only account of what an audience saw.
+            // A client that hangs up mid-stream produces no result, and
             // that turn is exactly the one worth knowing about, so it logs an
             // empty one rather than nothing.
             turns.Write(result is not null
@@ -272,7 +268,7 @@ public static class AskStream
         citation_url = source.CitationUrl,
         locator = source.Locator,
         quotable = source.Quotable,
-        // §5's `products` tags, per-source. Always present, empty when the
+        // The alias table's `products` tags, per source. Always present, empty when the
         // document is untagged — a predictable shape beats conditional
         // presence for a field a client unions over `cited`.
         part_nos = source.PartNos,
@@ -289,9 +285,7 @@ public static class AskStream
         first_delta_ms = result.FirstDeltaMs,
         total_ms = result.TotalMs,
         // Null only on the service-timeout handoff, where the loop's meter was
-        // lost with the cancelled turn — omitted rather than guessed. The shape
-        // is `TurnCost.ToWire()`, shared with v1's service so an A/B caller
-        // reads one cost schema.
+        // lost with the cancelled turn — omitted rather than guessed.
         cost = result.Cost?.ToWire(),
     };
 

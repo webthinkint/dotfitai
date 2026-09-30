@@ -7,7 +7,6 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>DotFit.Assistant.Cli</RootNamespace>
-    <!-- The exe is `dotfit`, beside v1's `dotfit-agent`. -->
     <AssemblyName>dotfit</AssemblyName>
   </PropertyGroup>
 

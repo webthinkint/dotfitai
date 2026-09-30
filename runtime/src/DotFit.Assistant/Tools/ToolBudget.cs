@@ -3,15 +3,15 @@ using System.Diagnostics;
 namespace DotFit.Assistant.Tools;
 
 /// <summary>
-/// The turn's tool-call and wall-clock budget (design §6).
+/// The turn's tool-call and wall-clock budget.
 ///
 /// The refusal is prose, not an exception, and that is the design: a model told
 /// "you have no searches left, answer with what you have" finishes its turn in
 /// a sentence, while a model whose tool call throws produces an error the
 /// customer sees. Nothing here gates content — the budget bounds cost, not
-/// speech (decision D3).
+/// speech.
 ///
-/// The numbers are guesses awaiting the turn log (open item 5).
+/// The numbers are estimates the turn log is expected to replace.
 /// </summary>
 public sealed class ToolBudget(int maxCalls, TimeSpan timeout)
 {

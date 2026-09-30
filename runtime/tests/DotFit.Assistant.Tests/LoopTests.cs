@@ -9,7 +9,7 @@ using Microsoft.Extensions.AI;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The loop's shapes (design §11): the handful of behaviours that would fail
+/// The loop's shapes: the handful of behaviours that would fail
 /// silently if they broke. Not a correctness suite for the model — the model is
 /// not deterministic and no test here pretends otherwise.
 /// </summary>
@@ -41,8 +41,7 @@ public class LoopTests
     [Fact]
     public async Task A_turn_that_needs_no_lookup_calls_no_tool()
     {
-        // The whole reason small talk needs no special branch on this branch
-        // (v1 needed one — its item 25). A greeting is just a turn with no call.
+        // Small talk needs no special case: a greeting is just a turn with no call.
         var client = new ScriptedChatClient(ScriptedChatClient.Text("Hey! What can I help with?"));
         DotFitAssistant assistant = Build(client, out FakeSearch search);
 
@@ -58,7 +57,7 @@ public class LoopTests
     [Fact]
     public async Task Every_source_is_published_before_any_delta_that_could_cite_it()
     {
-        // The §7 ordering contract, and the reason [n] survives live streaming.
+        // The ordering contract, and the reason [n] survives live streaming.
         var client = new ScriptedChatClient(
             ScriptedChatClient.Call("c1", "search", new { query = "creatine dosing" }),
             ScriptedChatClient.Text("Take 5 g daily [1]."));
@@ -76,11 +75,11 @@ public class LoopTests
     [Fact]
     public async Task A_tools_stage_reaches_the_caller_while_the_tool_is_still_running()
     {
-        // §9 sells stage.detail as the texture that stands in for a progress
+        // stage.detail is the texture that stands in for a progress
         // bar, which it only is if it arrives during the wait. A loop that
         // drained on the model's next update could not: for a tool call that
         // update *is* the tool's own result, so "looking up creatine dosing"
-        // landed once the lookup was done (open item 11).
+        // landed once the lookup was done.
         var client = new ScriptedChatClient(
             ScriptedChatClient.Call("c1", "search", new { query = "creatine dosing" }),
             ScriptedChatClient.Text("Take 5 g daily [1]."));
@@ -112,7 +111,7 @@ public class LoopTests
             // Deliberately not disposed on this path: disposing with the pull
             // still outstanding throws NotSupportedException and buries this.
             Assert.Fail("the search stage never arrived while the search was in flight — the loop is " +
-                        "waiting on the model's next update, which is waiting on the tool (open item 11)");
+                        "waiting on the model's next update, which is waiting on the tool");
         }
 
         Assert.NotNull(stage);
@@ -189,7 +188,7 @@ public class LoopTests
     [Fact]
     public async Task The_budget_ends_tool_use_in_a_tool_result_not_an_exception()
     {
-        // §6: a model told to stop finishes its turn in a sentence. A model
+        // A model told to stop finishes its turn in a sentence. A model
         // whose tool throws produces an error the customer sees.
         var client = new ScriptedChatClient(
             ScriptedChatClient.Call("c1", "search", new { query = "one" }),
@@ -266,7 +265,7 @@ public class LoopTests
         // The result is the record of the turn: the website team persists
         // `result.answer`. Replacing the partial text with the handoff stored
         // an answer nobody saw and lost the one they did — and took `cited`
-        // with it, biasing the §8.3 record that stands in for a gate.
+        // with it, biasing the record that stands in for a gate.
         var client = new ThrowsAfterDeltasChatClient(
             new InvalidOperationException("deployment exploded"), "Take 5 g daily", " with food");
         DotFitAssistant assistant = Build(client, out _);
@@ -290,7 +289,7 @@ public class LoopTests
         // Every round trip reports its own usage. Taking the last one dropped
         // the output tokens of every tool-calling round trip and reported the
         // last call's context as the input — understating exactly the expensive
-        // turns the log exists to price (open item 5).
+        // turns the log exists to price.
         var client = new ScriptedChatClient(
             [
                 new FunctionCallContent("c1", "search",
@@ -313,7 +312,7 @@ public class LoopTests
     [Fact]
     public async Task The_cost_block_prices_all_three_components_from_observed_usage()
     {
-        // §9's `cost`: chat tokens off the model's own reports (cached input
+        // `cost`: chat tokens off the model's own reports (cached input
         // kept apart — it is billed at a different rate), embedding tokens off
         // the search call's report, index queries off the calls the tool made.
         // Nothing is estimated and nothing is rounded — the arithmetic must be
@@ -412,8 +411,8 @@ public class LoopTests
     [Fact]
     public async Task Nothing_is_withheld_when_an_answer_cites_nothing()
     {
-        // The v1 behaviour this branch removed: an uncited answer was withheld
-        // on citation_presence and the customer got a support handoff instead.
+        // Nothing gates: an answer that cites nothing is delivered as written,
+        // never swapped for a support handoff.
         var client = new ScriptedChatClient(ScriptedChatClient.Text("Generally, protein helps recovery."));
         DotFitAssistant assistant = Build(client, out _);
 

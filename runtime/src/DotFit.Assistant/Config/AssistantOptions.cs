@@ -3,15 +3,15 @@ using DotFit.Assistant.Config;
 namespace DotFit.Assistant.Config;
 
 /// <summary>
-/// The knobs the loop runs on (design §6 "Budgets", §7 <c>top</c>).
+/// The knobs the loop runs on.
 ///
-/// Every value here is a guess that the turn log is expected to replace (open
-/// item 5), which is why they are options rather than constants: the first
-/// owner sessions produce a real distribution of tool calls per turn and wall
-/// clock per turn, and those numbers land here without touching the loop.
+/// The budgets are estimates the turn log is expected to replace, which is why
+/// they are options rather than constants: real traffic produces a
+/// distribution of tool calls and wall clock per turn, and those numbers land
+/// here without touching the loop.
 ///
-/// The budgets are not a safety mechanism. Nothing on this branch gates
-/// (decision D3) — they exist so one pathological turn cannot hold a request
+/// The budgets are not a safety mechanism. Nothing gates — they exist so one
+/// pathological turn cannot hold a request
 /// open until the service's own 120 s timeout kills it, and so a model that
 /// loops on a fruitless search gives up and answers with what it has.
 /// </summary>
@@ -23,14 +23,14 @@ public sealed record AssistantOptions
     public const string PromptVariantVar = "DOTFIT_ASSISTANT_PROMPT_VARIANT";
 
     /// <summary>
-    /// Tool calls allowed in one turn (§6). On exhaustion the model is not cut
+    /// Tool calls allowed in one turn. On exhaustion the model is not cut
     /// off: the next tool returns a result telling it to answer with what it
     /// has, so the turn ends in prose rather than in a truncated sentence.
     /// </summary>
     public int MaxToolCalls { get; init; } = 8;
 
     /// <summary>
-    /// Wall clock for one turn (§6), below the service's 120 s request timeout
+    /// Wall clock for one turn, below the service's 120 s request timeout
     /// so the budget — which ends in an answer — wins the race against the
     /// timeout, which ends in a handoff.
     ///
@@ -66,8 +66,8 @@ public sealed record AssistantOptions
         TimeSpan.FromSeconds(Math.Min(TurnTimeout.TotalSeconds * 2, HardTimeoutSeconds));
 
     /// <summary>
-    /// Default <c>top</c> for the search tool (§7.1). Six rather than v1's
-    /// eight: the model can search again, so each search should be cheap.
+    /// Default <c>top</c> for the search tool. Kept small because the model
+    /// can search again, so each search should be cheap.
     /// </summary>
     public int DefaultTop { get; init; } = 6;
 
@@ -86,7 +86,7 @@ public sealed record AssistantOptions
     /// Characters of a single source's content handed to the model. A PDSRG
     /// table chunk can be long; the cap keeps one oversize source from eating
     /// the context the other five needed. A truncated source says so, and
-    /// <c>fetch</c> (§7.2) is how the model gets the rest.
+    /// <c>fetch</c> is how the model gets the rest.
     /// </summary>
     public int MaxSourceChars { get; init; } = 6_000;
 
@@ -110,10 +110,8 @@ public sealed record AssistantOptions
         }
 
         // Fallbacks read off a default instance rather than repeated as
-        // literals. Repeating them made the property initializers dead on every
-        // real path — the service and the CLI both load through here — so
-        // changing a default changed nothing that shipped, which is a trap for
-        // exactly the edit open item 5 exists to make.
+        // literals, so the property initializers are the one place a default
+        // lives: the service and the CLI both load through here.
         var defaults = new AssistantOptions();
 
         var options = new AssistantOptions

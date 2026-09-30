@@ -7,7 +7,7 @@ using DotFit.Assistant;
 
 namespace DotFit.Assistant.Cli;
 
-/// <summary>One item of the written conversational smoke set (design §11.2).</summary>
+/// <summary>One item of the written conversational smoke set.</summary>
 internal sealed record SmokeItem
 {
     [JsonPropertyName("id")] public string Id { get; init; } = "";
@@ -19,13 +19,11 @@ internal sealed record SmokeItem
 }
 
 /// <summary>
-/// Runs the smoke set live and writes a transcript a non-engineer can read
-/// (design §11.2, build order §12.7).
+/// Runs the smoke set live and writes a transcript a non-engineer can read.
 ///
 /// It deliberately reports **no pass rate**. The set has no labels and no
-/// expected answers, so a number computed from it would be invented — and this
-/// branch's whole evaluation position (decision D7) is that an unvalidated
-/// number is worse than an honest transcript. What it does report is the three
+/// expected answers, so a number computed from it would be invented, and an
+/// unvalidated number is worse than an honest transcript. What it does report is the three
 /// things that can be read mechanically: latency, whether tools were called,
 /// and whether anything was cited.
 ///
@@ -82,9 +80,8 @@ internal static class Smoke
         string stamp = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
         string path = Path.Combine(outDir, $"smoke-{stamp}{(tier is null ? "" : "-" + tier.ToLowerInvariant())}.md");
 
-        // Written as it goes, not at the end. A 29-item live run is real Azure
-        // spend, and one exception two thirds of the way through used to lose
-        // the whole document and everything it cost.
+        // Written as it goes, not at the end: a live run is real Azure spend,
+        // and one exception partway through must not lose the whole document.
         var header = new StringBuilder();
         header.AppendLine($"# Smoke run — {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         header.AppendLine();
@@ -146,7 +143,7 @@ internal static class Smoke
         await File.AppendAllTextAsync(path, tail.ToString()).ConfigureAwait(false);
         Console.Out.WriteLine();
         Console.Out.WriteLine($"transcript written to {path}");
-        Console.Out.WriteLine("Read it. There is no pass rate on purpose (design §11).");
+        Console.Out.WriteLine("Read it. There is no pass rate on purpose.");
         return 0;
     }
 

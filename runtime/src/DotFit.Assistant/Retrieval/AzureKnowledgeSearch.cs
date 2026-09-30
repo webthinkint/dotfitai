@@ -9,7 +9,7 @@ using OpenAI.Embeddings;
 namespace DotFit.Assistant.Retrieval;
 
 /// <summary>
-/// Hybrid BM25 + vector search over the §9 index (plan §9/§11): the query is
+/// Hybrid BM25 + vector search over the index: the query is
 /// embedded with the same deployment the index was built with
 /// (text-embedding-3-large, 3072-dim), searched with the is_current prefilter,
 /// optionally re-ranked by the semantic ranker, then deterministically
@@ -34,8 +34,7 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
     {
         // The plural call is the only one that exposes the usage the API
         // reports back, and the usage is the only thing wanted from it: the
-        // embedding itself is byte-identical to the single-input call, so v1
-        // callers see no change beyond an extra field on the request.
+        // embedding itself is byte-identical to the single-input call.
         OpenAIEmbeddingCollection embeddings =
             (await _embeddings.GenerateEmbeddingsAsync([p.QueryText], cancellationToken: ct).ConfigureAwait(false))
             .Value;
@@ -46,7 +45,7 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
         var options = new SearchOptions
         {
             // Every source must stamp is_current — AI Search does not match null
-            // against a filter (plan §9), so this is a hard contract with the index.
+            // against a filter, so this is a hard contract with the index.
             Filter = BuildFilter(_settings.CurrentFilter, p.AdditionalFilter),
             // retrieve a wider pool than Top so the authority re-rank has room
             Size = Math.Max(p.Top * 3, 25),
@@ -108,7 +107,7 @@ public sealed class AzureKnowledgeSearch : IKnowledgeSearch
     };
 
     /// <summary>
-    /// POCO for the §9 fields — explicit JSON names so it matches the index
+    /// POCO for the fields — explicit JSON names so it matches the index
     /// regardless of the serializer's naming policy (the classic
     /// null-properties gotcha). The vector field is stored=false, never returned.
     /// </summary>

@@ -3,8 +3,7 @@ namespace DotFit.Assistant.Config;
 /// <summary>
 /// Which slice of the <c>.env</c> contract a caller needs — the .NET mirror of
 /// <c>azure_config.py</c>'s <c>require=</c> subsets, and for the same reason:
-/// the two chat deployments are pending a quota increase (open item 1), so
-/// retrieval-only work must not demand them. A flags enum rather than Python's
+/// retrieval-only work must not demand a chat deployment. A flags enum rather than Python's
 /// list of variable names, which makes the compiler the typo guard.
 /// </summary>
 [Flags]
@@ -19,15 +18,14 @@ public enum RuntimeNeeds
     Chat = 1 << 2,
     /// <summary>The <c>search</c> verb: embed the query, run the hybrid query. No chat model.</summary>
     Retrieval = Search | Embedding,
-    /// <summary>The <c>ask</c> / <c>chat</c> verbs: the whole §11 pipeline.</summary>
+    /// <summary>The <c>ask</c> / <c>chat</c> verbs: the whole loop.</summary>
     Full = Search | Embedding | Chat,
 }
 
 /// <summary>
-/// The runtime view of the <c>.env</c> contract (plan §10): endpoints and
+/// The runtime view of the <c>.env</c> contract: endpoints and
 /// deployments in the clear, keys never rendered. The query-only search key is
-/// preferred over the admin key when present — the runtime *is* the query-only
-/// answer service that variable was waiting for.
+/// preferred over the admin key when present: the runtime only queries.
 ///
 /// Every value is nullable, exactly as <c>AzureConfig</c>'s fields are: what
 /// gets loaded depends on the <see cref="RuntimeNeeds"/> subset the caller asks
@@ -53,28 +51,25 @@ public sealed record RuntimeOptions
     public bool UsingQueryKey { get; init; }
     public Uri? OpenAiEndpoint { get; init; }
     public string? OpenAiApiKey { get; init; }
-    /// <summary>Grounded-answer deployment (frontier model when quota lands).</summary>
+    /// <summary>The chat deployment the loop runs on.</summary>
     public string? ChatDeployment { get; init; }
     public string? EmbeddingDeployment { get; init; }
     /// <summary>The subset this instance was loaded for.</summary>
     public RuntimeNeeds Needs { get; init; } = RuntimeNeeds.Full;
     /// <summary>
-    /// The §9 index. <c>kb-main</c> was the original name — its delete wedged
-    /// mid-flight (progress open item 10, closed 2026-09-08: the orphan is
-    /// gone, the name is free again), so the rebuild lives under <c>-v2</c> and
-    /// the default stays. This mirrors <c>index_build.INDEX_NAME</c>; a test
-    /// pins each side, so the two must not drift.
+    /// The index. This mirrors <c>index_build.INDEX_NAME</c>; a test pins each
+    /// side, so the two must not drift.
     /// </summary>
     public string IndexName { get; init; } = "kb-main-v2";
     /// <summary>
-    /// Where the two handoff templates send a customer who was refused or whose
-    /// answer was withheld (progress open item 22). Defaults to the
-    /// corpus-attested route in <see cref="Prompting.SystemPrompt.DefaultSupportContact"/>;
+    /// Where the prompt and the handoff send a customer who needs a person.
+    /// Defaults to the published route in
+    /// <see cref="Prompting.SystemPrompt.DefaultSupportContact"/>;
     /// <c>DOTFIT_SUPPORT_CONTACT=none</c> drops the line and leaves the prose as
     /// it was, for a deployment whose audience is not dotFIT's support line.
     /// </summary>
     public string? SupportContact { get; init; } = Prompting.SystemPrompt.DefaultSupportContact;
-    /// <summary>Alias table artifact (plan §5 output) — default lives beside the .env.</summary>
+    /// <summary>Alias table artifact — default lives beside the .env.</summary>
     public required string AliasTablePath { get; init; }
     public required string EnvFilePath { get; init; }
     /// <summary>The prompt folder (<c>assistant/prompt</c>) beside the .env, read at boot.</summary>

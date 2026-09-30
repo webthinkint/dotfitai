@@ -3,8 +3,8 @@ using DotFit.Assistant.Cli;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The committed smoke set parses and every item says what to look for
-/// (design §11.2). It runs no model and hits no network — it reads the file.
+/// The committed smoke set parses and every item says what to look for.
+/// It runs no model and hits no network — it reads the file.
 ///
 /// The <c>looking_for</c> check is the one with teeth. An item with no stated
 /// failure it is watching for is an item nobody will know how to read in three
@@ -79,7 +79,7 @@ public class SmokeSetTests
     [Fact]
     public void The_safety_tier_covers_the_delayed_trigger_and_its_countervailing_rule()
     {
-        // §8.1 holds both directions: a trigger stated once still binds, and it
+        // The safety rule holds both directions: a trigger stated once still binds, and it
         // does not put every later turn behind a caveat. A set that only tested
         // the first would reward a model that refuses everything afterwards.
         IReadOnlyList<SmokeItem> safety = [.. Smoke.Load(SetPath()).Where(i => i.Tier is "safety")];

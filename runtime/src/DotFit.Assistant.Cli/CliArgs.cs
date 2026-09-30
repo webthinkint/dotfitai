@@ -10,7 +10,7 @@ internal sealed record CliFlags
     public int? Top { get; init; }
     /// <summary>Show every tool call, its arguments and what it returned.</summary>
     public bool Trace { get; init; }
-    /// <summary>Emit the §10 turn-log line to stderr after each turn.</summary>
+    /// <summary>Emit the turn-log line to stderr after each turn.</summary>
     public bool Log { get; init; }
     /// <summary>Print the sources the answer was given, after the answer.</summary>
     public bool ShowSources { get; init; } = true;
@@ -24,13 +24,7 @@ internal sealed record CliFlags
 
 internal sealed record CliCommand(string Verb, string Text, CliFlags Flags);
 
-/// <summary>
-/// Argument parsing for <c>dotfit</c> (design §12.4). Deliberately its
-/// own small parser rather than a shared one with v1's CLI: the two harnesses
-/// drive different runtimes and their flags have already diverged — v1 has
-/// <c>--semantic</c>, <c>--mode</c> and <c>--no-claims</c>, none of which mean
-/// anything here.
-/// </summary>
+/// <summary>Argument parsing for <c>dotfit</c>: a verb, free text, and flags.</summary>
 internal static class CliArgs
 {
     public const string Ask = "ask";
@@ -72,8 +66,8 @@ internal static class CliArgs
           Type a question. `reset` clears the history, `exit` quits.
 
         NOTES
-          Nothing is gated on this branch: the answer streams as it is generated
-          and is never withheld (decision D3). `search` needs no chat deployment.
+          Nothing is gated: the answer streams as it is generated and is never
+          withheld. `search` needs no chat deployment.
         """;
 
     public static CliCommand Parse(string[] args)

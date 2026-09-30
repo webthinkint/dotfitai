@@ -5,23 +5,13 @@ using DotFit.Assistant.Config;
 namespace DotFit.Assistant.Service;
 
 /// <summary>
-/// Transport hardening for <c>POST /ask</c> (design §9).
-///
-/// Every limit here is carried over from v1's service unchanged — none of them
-/// was part of what the owners disliked, and an endpoint that lost its auth
-/// while gaining a better answer would be a bad trade. A shared secret that is
-/// missing **fails the boot** rather than serving an open endpoint;
+/// Transport hardening for <c>POST /ask</c>. A shared secret that is missing
+/// **fails the boot** rather than serving an open endpoint;
 /// <c>DOTFIT_SERVICE_AUTH=none</c> is the explicit opt-out for a deployment
 /// behind mTLS.
 ///
-/// This duplicates v1's <c>ServiceOptions</c> rather than sharing it. The two
-/// are separately deployable web apps whose contracts have already diverged
-/// (this one has no gating, no retraction and no claims posture to configure),
-/// and hoisting a shared hosting library out of v1 would mean editing the
-/// baseline this branch is measured against (decision D1).
-///
-/// Deliberately absent, as in v1: CORS and rate limiting. One trusted
-/// server-side caller, no browser origin.
+/// Deliberately absent: CORS and rate limiting. One trusted server-side
+/// caller, no browser origin.
 /// </summary>
 public sealed record ServiceOptions
 {
@@ -32,9 +22,8 @@ public sealed record ServiceOptions
 
     /// <summary>
     /// Full question and answer text to stdout. Off by default, on in the
-    /// preview unit, **off before public traffic** — the same ruling and the
-    /// same switch v1 carries. With nothing gated on this branch it is the only
-    /// way to see what a bad turn actually said.
+    /// preview unit, **off before public traffic**. With nothing gated it is
+    /// the only way to see what a bad turn actually said.
     /// </summary>
     public const string DebugTranscriptVar = "DOTFIT_ASSISTANT_DEBUG_TRANSCRIPT";
 
@@ -58,8 +47,8 @@ public sealed record ServiceOptions
     /// is library-wide rather than service-only.
     ///
     /// The **process environment wins** over the file for this class's five
-    /// variables — the one v1 departure from the <c>.env</c> contract, carried
-    /// over here deliberately: a deployment injects its posture as a unit /
+    /// variables — the one departure from the <c>.env</c> contract, and a
+    /// deliberate one: a deployment injects its posture as a unit /
     /// container setting rather than editing a shared file, which is exactly
     /// how the preview unit turns the debug transcript on. The Azure keys keep
     /// the file-only rule, because <c>azure_config.py</c> mirrors it and these
@@ -125,20 +114,20 @@ public sealed record ServiceOptions
     }
 
     /// <summary>
-    /// The request ceiling must sit *above* the loop's own hard ceiling (§6):
+    /// The request ceiling must sit *above* the loop's own hard ceiling:
     /// the loop is meant to lose to itself, ending in a handoff the customer
     /// reads, rather than losing to the host mid-sentence. Both are independent
     /// environment knobs, so the ordering is checked at boot — this service
     /// already prefers failing at startup over failing on a customer's
     /// question.
     /// </summary>
-    public void RequireRoomForTurn(AssistantOptions agentic)
+    public void RequireRoomForTurn(AssistantOptions assistantOptions)
     {
-        if (RequestTimeout > agentic.HardTimeout)
+        if (RequestTimeout > assistantOptions.HardTimeout)
             return;
         throw new EnvFile.EnvFileException(
             $"{EnvFile.FileName}: {TimeoutSecondsVar}={RequestTimeout.TotalSeconds:0} is not above the " +
-            $"assistant's {agentic.HardTimeout.TotalSeconds:0}-second turn ceiling (raised by " +
+            $"assistant's {assistantOptions.HardTimeout.TotalSeconds:0}-second turn ceiling (raised by " +
             $"{AssistantOptions.TurnTimeoutVar}). The request timeout must be the outer one, or a slow turn " +
             "ends with no answer instead of with a handoff.");
     }

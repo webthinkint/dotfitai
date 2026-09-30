@@ -70,7 +70,7 @@ public class TurnLogTests
     [Fact]
     public void The_line_carries_no_question_and_no_answer_text()
     {
-        // Enforced by the schema having no field for it (§10), not by
+        // Enforced by the schema having no field for it, not by
         // remembering. This test is the tripwire on that claim.
         string line = TurnLog.From(Result(Call(Stages.Search, "creatine dosing")), TurnLog.OutcomeAnswered).ToJsonLine();
 
@@ -78,8 +78,7 @@ public class TurnLogTests
         foreach (string forbidden in (string[])["\"question\"", "\"answer\"", "\"answer_text\"", "\"text\""])
             Assert.DoesNotContain(forbidden, line, StringComparison.Ordinal);
 
-        // The one text-bearing field, and it is the model's, not the customer's
-        // — open item 3 is whether that distinction is good enough.
+        // The one text-bearing field, and it is the model's, not the customer's.
         Assert.Contains("\"queries\":[\"creatine dosing\"]", line, StringComparison.Ordinal);
     }
 
@@ -194,7 +193,7 @@ public class TurnLogTests
 public class AssistantOptionsTests
 {
     [Fact]
-    public void Defaults_are_the_designs_numbers()
+    public void Defaults_are_eight_calls_sixty_seconds_and_six_sources()
     {
         var options = new AssistantOptions();
         Assert.Equal(8, options.MaxToolCalls);
@@ -257,11 +256,9 @@ public class AssistantOptionsTests
     [Fact]
     public void The_defaults_that_ship_are_the_property_initializers()
     {
-        // FromValues used to repeat 8 / 60 / 6 as literals, which made the
-        // initializers dead on every real path — the service and the CLI both
-        // load through here, so changing a default changed nothing that
-        // shipped. That is a trap for exactly the edit open item 5 exists to
-        // make, so it is pinned by construction rather than by number.
+        // The service and the CLI both load through FromValues, so if it
+        // repeated the defaults as literals, changing an initializer would
+        // change nothing that ships. Pinned by construction rather than by number.
         var moved = new AssistantOptions { MaxToolCalls = 5, DefaultTop = 4 };
         var loaded = AssistantOptions.FromValues(new Dictionary<string, string>());
 

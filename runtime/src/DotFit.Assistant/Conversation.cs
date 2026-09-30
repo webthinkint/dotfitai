@@ -8,7 +8,7 @@ public enum ConversationRole
 }
 
 /// <summary>
-/// One earlier turn of the same conversation (plan §11, open item 18). The
+/// One earlier turn of the same conversation. The
 /// caller's database is the system of record — the runtime holds no state
 /// between requests — so history arrives with each question rather than being
 /// looked up.
@@ -17,20 +17,17 @@ public sealed record ConversationTurn(ConversationRole Role, string Text);
 
 /// <summary>
 /// What the runtime will accept as conversation history, and the one place
-/// that decides it (open item 18).
+/// that decides it.
 ///
-/// History is a caller-supplied, unbounded input to a small-model prompt, so
-/// the bound is ours and not theirs: a relay that sends a whole transcript
-/// must not turn one question into a prompt that costs more than the answer.
-/// The trims are deterministic and testable for the same reason every other
-/// §11 wording decision lives in code.
+/// History is a caller-supplied, unbounded input to the model, so the bound is
+/// ours and not theirs: a relay that sends a whole transcript must not turn one
+/// question into a prompt that costs more than the answer. The trims are
+/// deterministic and testable.
 ///
-/// **History reaches the guardrail and the rewrite, and nothing else.** The
-/// guardrail needs it to know who is asking — a hard-escalation trigger is
-/// stated once and holds for the conversation (open item 19) — and the rewrite
-/// needs it to know what is being asked. It never reaches the answer agent:
-/// the answer stays grounded strictly in retrieved sources, which is what
-/// makes the §11 citation and claims contracts mean anything.
+/// History reaches the model as earlier user and assistant messages: text
+/// only, no tool calls and no sources. A trigger stated earlier (an age, a
+/// pregnancy) therefore still binds, and an earlier answer's citations are not
+/// sources the model may cite again.
 /// </summary>
 public static class ConversationHistory
 {
@@ -44,11 +41,8 @@ public static class ConversationHistory
 
     /// <summary>
     /// Wire <c>role</c> → <see cref="ConversationRole"/>, case-insensitively.
-    /// One implementation because there is more than one door: the SSE
-    /// service's JSON body and the CLI's <c>--history</c> flag, which the §12
-    /// multi-turn set drives. Both reject an unknown role rather than dropping
-    /// the turn — a transcript with a hole in it silently changes what the
-    /// conversation says.
+    /// An unknown role is rejected rather than dropped: a transcript with a
+    /// hole in it silently changes what the conversation says.
     /// </summary>
     public static bool TryParseRole(string? role, out ConversationRole parsed)
     {
@@ -67,7 +61,7 @@ public static class ConversationHistory
     ///
     /// The echo rule is defensive, not cosmetic: a relay that appends the turn
     /// to its transcript *before* calling us would otherwise send the current
-    /// question as its own context, and the rewriter would read the repetition
+    /// question as its own context, and the model would read the repetition
     /// as the customer asking twice.
     /// </summary>
     public static IReadOnlyList<ConversationTurn> Normalize(

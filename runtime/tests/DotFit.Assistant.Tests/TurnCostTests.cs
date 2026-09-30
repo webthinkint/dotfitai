@@ -7,9 +7,9 @@ using Microsoft.Extensions.AI;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The cost accounting behind <c>result.cost</c> (§9) and the turn log's
-/// <c>cost</c> block (§10). Deterministic arithmetic over observed counts —
-/// exactly the layer design §11 says deserves unit tests, because a wrong
+/// The cost accounting behind <c>result.cost</c> and the turn log's
+/// <c>cost</c> block. Deterministic arithmetic over observed counts —
+/// exactly the kind of layer that deserves unit tests, because a wrong
 /// price here is invisible everywhere else: every number the owners see flows
 /// through it.
 /// </summary>
@@ -129,7 +129,7 @@ public class TurnMeterTests
     [Fact]
     public void A_turn_that_cost_nothing_says_zero_not_null()
     {
-        // Small talk is a real outcome (§6): no tool, no usage — but it still
+        // Small talk is a real outcome: no tool, no usage — but it still
         // gets a cost block, because "0.0000" and "missing" are different
         // answers to "what did that turn cost".
         var cost = new TurnMeter().Cost(Sheet());

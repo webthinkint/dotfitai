@@ -14,9 +14,8 @@ using DotFit.Assistant.Sources;
 namespace DotFit.Assistant.Cli;
 
 /// <summary>
-/// <c>dotfit</c> — the harness the first owner sessions run against
-/// (design §12.4). Everything real is in the library; this is wiring, argument
-/// parsing and console rendering.
+/// <c>dotfit</c>: the assistant on the command line. Everything real is in the
+/// library; this is wiring, argument parsing and console rendering.
 ///
 /// It renders the turn the way the widget will: stage lines while the model
 /// works, the answer streaming live, the source list after. <c>--trace</c> adds
@@ -81,27 +80,27 @@ internal static class Program
             options = options with { AliasTablePath = flags.AliasesPath };
 
         AliasTable aliases = AliasTable.Load(options.AliasTablePath);
-        AssistantOptions agentic = AssistantOptions.Load(options.EnvFilePath);
+        AssistantOptions assistantOptions = AssistantOptions.Load(options.EnvFilePath);
         if (flags.Top is int top)
-            agentic = agentic with { DefaultTop = top };
+            assistantOptions = assistantOptions with { DefaultTop = top };
         if (flags.Variant is not null)
-            agentic = agentic with { PromptVariant = flags.Variant };
+            assistantOptions = assistantOptions with { PromptVariant = flags.Variant };
 
         // Every verb but `search` runs on (or prints) the assembled prompt; a
         // broken variant fails here, before any model call.
         SourceRegistry registry = SourceRegistry.Load(options.SourcesPath);
-        AssembledPrompt? prompt = command.Verb == CliArgs.Search ? null : AssembledPrompt.Load(options, agentic, aliases, registry);
+        AssembledPrompt? prompt = command.Verb == CliArgs.Search ? null : AssembledPrompt.Load(options, assistantOptions, aliases, registry);
 
         return command.Verb switch
         {
             CliArgs.Prompt => Print(prompt!.Text),
-            CliArgs.Config => Print($"{options}\n{agentic}\n{PriceSheet.Load(options.EnvFilePath)}\nalias table v{aliases.Version}, " +
+            CliArgs.Config => Print($"{options}\n{assistantOptions}\n{PriceSheet.Load(options.EnvFilePath)}\nalias table v{aliases.Version}, " +
                                     $"{aliases.Families.Count} families\nprompt variant {prompt!.Variant}, version {prompt.Version}"),
-            CliArgs.Search => await SearchAsync(options, aliases, agentic, command.Text).ConfigureAwait(false),
-            CliArgs.Ask => await AskAsync(options, aliases, agentic, prompt!, flags, command.Text).ConfigureAwait(false),
-            CliArgs.Chat => await ChatAsync(options, aliases, agentic, prompt!, flags).ConfigureAwait(false),
+            CliArgs.Search => await SearchAsync(options, aliases, assistantOptions, command.Text).ConfigureAwait(false),
+            CliArgs.Ask => await AskAsync(options, aliases, assistantOptions, prompt!, flags, command.Text).ConfigureAwait(false),
+            CliArgs.Chat => await ChatAsync(options, aliases, assistantOptions, prompt!, flags).ConfigureAwait(false),
             CliArgs.Smoke => await Smoke.RunAsync(
-                AssistantFactory.Create(options, agentic, aliases, prompt: prompt, registry: registry),
+                AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt, registry: registry),
                 flags.SmokeSet ?? DefaultPath(options, "assistant", "smoke", "conversations.jsonl"),
                 flags.OutDir ?? DefaultPath(options, "assistant", "smoke", "runs"),
                 flags.Tier, prompt).ConfigureAwait(false),
@@ -127,10 +126,10 @@ internal static class Program
     // ------------------------------------------------------------------ ask
 
     private static async Task<int> AskAsync(
-        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, AssembledPrompt prompt, CliFlags flags,
+        RuntimeOptions options, AliasTable aliases, AssistantOptions assistantOptions, AssembledPrompt prompt, CliFlags flags,
         string question)
     {
-        var assistant = AssistantFactory.Create(options, agentic, aliases, prompt: prompt);
+        var assistant = AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt);
         Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
         Console.Out.WriteLine();
         await RenderTurnAsync(assistant, new AskRequest { Question = question }, flags, prompt).ConfigureAwait(false);
@@ -140,9 +139,9 @@ internal static class Program
     // ----------------------------------------------------------------- chat
 
     private static async Task<int> ChatAsync(
-        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, AssembledPrompt prompt, CliFlags flags)
+        RuntimeOptions options, AliasTable aliases, AssistantOptions assistantOptions, AssembledPrompt prompt, CliFlags flags)
     {
-        var assistant = AssistantFactory.Create(options, agentic, aliases, prompt: prompt);
+        var assistant = AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt);
         var history = new List<ConversationTurn>();
 
         Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
@@ -175,7 +174,7 @@ internal static class Program
                 prompt).ConfigureAwait(false);
 
             // The transcript the caller would keep: text only, no tool calls
-            // and no sources — the same thing the service is sent (§6). A turn
+            // and no sources — the same thing the service is sent. A turn
             // that produced no result — Ctrl-C — contributes neither half: a
             // user turn with nothing after it would reach the model as an
             // unanswered question and change what the next turn means.
@@ -190,7 +189,7 @@ internal static class Program
     /// <summary>
     /// One turn, rendered as the stream arrives. The ordering here is the
     /// contract under test: a source line is printed before any answer text
-    /// that could cite it, because the library emits it that way (§7).
+    /// that could cite it, because the library emits it that way.
     /// </summary>
     private static async Task<TurnResult?> RenderTurnAsync(
         IDotFitAssistant assistant, AskRequest request, CliFlags flags, AssembledPrompt prompt)
@@ -325,13 +324,12 @@ internal static class Program
     // --------------------------------------------------------------- search
 
     /// <summary>
-    /// The search tool on its own, no model in the loop (design §12.2). This is
-    /// what the retrieval probes run against and what makes a bad answer
+    /// The search tool on its own, no model in the loop. It makes a bad answer
     /// separable into "it retrieved the wrong thing" and "it read the right
     /// thing wrong".
     /// </summary>
     private static async Task<int> SearchAsync(
-        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, string query)
+        RuntimeOptions options, AliasTable aliases, AssistantOptions assistantOptions, string query)
     {
         var searchClient = AssistantFactory.CreateSearchClient(options);
         // The same object the factory builds, passed the same three places, so
@@ -344,9 +342,9 @@ internal static class Program
             new AzureKnowledgeSearch(openAi, options.RequireEmbeddingDeployment(), searchClient, settings),
             new AzureDocumentStore(searchClient, settings),
             aliases,
-            agentic,
-            new SourceLedger(agentic.MaxSourceChars),
-            new ToolBudget(agentic.MaxToolCalls, agentic.TurnTimeout),
+            assistantOptions,
+            new SourceLedger(assistantOptions.MaxSourceChars),
+            new ToolBudget(assistantOptions.MaxToolCalls, assistantOptions.TurnTimeout),
             settings);
 
         // Invoke through the same AIFunction the model would call, so what this

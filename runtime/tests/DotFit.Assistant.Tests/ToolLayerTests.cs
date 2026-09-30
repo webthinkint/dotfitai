@@ -8,7 +8,7 @@ using Microsoft.Extensions.AI;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The deterministic half of the branch (design §11): numbering, filters,
+/// The deterministic half of the assistant: numbering, filters,
 /// alias tiers, budgets. This is the layer with a right answer, so it is the
 /// layer that gets pinned.
 /// </summary>
@@ -40,7 +40,7 @@ public class SourceLedgerTests
     [Fact]
     public void A_source_event_is_queued_when_the_number_is_assigned()
     {
-        // The ordering contract of §7: the event exists before any delta could
+        // The ordering contract: the event exists before any delta could
         // cite it. A repeat hit queues nothing — the client already has it.
         var ledger = new SourceLedger(1000);
         ledger.Add(Fixtures.Document(id: "a"));
@@ -55,7 +55,7 @@ public class SourceLedgerTests
     [Fact]
     public void A_source_carries_the_documents_part_nos()
     {
-        // §5's `products` tags copied onto the caller-facing source at
+        // `products` tags copied onto the caller-facing source at
         // numbering time — deterministic catalog metadata, never model text.
         // Pinned on the queued event because that is what reaches the wire.
         var ledger = new SourceLedger(1000);
@@ -87,7 +87,7 @@ public class SourceLedgerTests
     [InlineData(5, false)]
     public void The_claims_line_sits_between_authority_2_and_3(int authority, bool quotable)
     {
-        // §3's line, pinned here because on this branch nothing downstream
+        // line, pinned here because nothing downstream
         // re-checks it: the marker the model reads is the only thing carrying it.
         var ledger = new SourceLedger(1000);
         RetrievedDocument document = Fixtures.Document(authority: authority);
@@ -139,7 +139,7 @@ public class SourceLedgerTests
     public async Task Queued_completes_on_the_enqueue_and_re_arms_after_the_drain()
     {
         // What lets the loop wake on a tool's stage line instead of on the
-        // model's next update (§9, open item 11). Re-arming matters as much as
+        // model's next update. Re-arming matters as much as
         // completing: a signal left completed after a drain would spin the loop.
         var ledger = new SourceLedger(1000);
 
@@ -161,8 +161,8 @@ public class SourceLedgerTests
     [Fact]
     public void Sections_of_one_product_page_share_a_number_and_one_source_event()
     {
-        // Open item 17: product copy numbered per section put 50 "[n]"s for one
-        // page in a turn and the model cited the wrong ones. A page is one source.
+        // Product copy numbered per section would put dozens of "[n]"s for one
+        // page in a turn, and the model would cite the wrong ones. A page is one source.
         var ledger = new SourceLedger(1000);
         (SourceRef a, bool aIsNew) = ledger.Add(Section("product-9001-a", "https://example.com/p/9001"));
         (SourceRef b, bool bIsNew) = ledger.Add(Section("product-9001-b", "https://example.com/p/9001"));
@@ -261,8 +261,8 @@ public class ToolBudgetTests
     [Fact]
     public void A_refused_call_is_still_a_call_on_both_branches()
     {
-        // The time branch used to return before the counter moved, so a model
-        // that kept calling tools after the research budget expired got a free
+        // If the time branch returned before the counter moved, a model that
+        // kept calling tools after the research budget expired would get a free
         // instant refusal each time — and each refusal is a full paid model
         // round trip carrying the whole conversation. The call budget is what
         // stops a spinner; it cannot if the spinning does not count.
@@ -285,10 +285,10 @@ public class DocumentStoreTests
     [Fact]
     public void A_key_lookup_that_lands_on_a_superseded_document_returns_nothing()
     {
-        // `fetch` is a key lookup, so it carries no filter and used to be the
-        // one path past `is_current` — while being the tool that numbers what
-        // it gets as a citable source. Latent (the index holds only current
-        // documents today) and pinned here while the invariant is still true.
+        // `fetch` is a key lookup, so it carries no filter and could be the one
+        // path past `is_current` — while being the tool that numbers what it
+        // gets as a citable source. The index holds only current documents
+        // today; this pins the invariant regardless.
         static AzureDocumentStore.KbDoc Doc(bool isCurrent) => new()
         {
             Id = "pdsrg-example-004", SourceType = "pdsrg", Authority = 2,
@@ -355,7 +355,7 @@ public class AliasTierTests
     [Fact]
     public async Task The_query_takes_the_blind_path_and_products_take_the_mention_path()
     {
-        // §5's tier rule, mapped onto the tool's two inputs: an LLM-only alias
+        // tier rule, mapped onto the tool's two inputs: an LLM-only alias
         // resolves when the model names it as a product, and not when it merely
         // appears in the query text.
         KnowledgeTools tools = Tools(out FakeSearch search, out _);
@@ -375,14 +375,14 @@ public class AliasTierTests
     [Fact]
     public async Task A_product_name_in_the_query_text_widens_the_search_and_never_restricts_it()
     {
-        // The regression the branch shipped and v1 never had. `Expand` merges
-        // both paths into one PartNos list, so a family name, a deterministic
-        // alias or a legacy name that merely *appeared in the question* became
-        // a hard products/any(...) — and 59% of the corpus (every podcast,
-        // every info page, every menu description, much of PDSRG and QA) has no
-        // products tag at all, so all of it fell out of the candidate set.
+        // `Expand` merges both paths into one PartNos list, so without care a
+        // family name, a deterministic alias or a legacy name that merely
+        // *appeared in the question* would become a hard products/any(...) —
+        // and 59% of the corpus (every podcast, every info page, every menu
+        // description, much of PDSRG and QA) has no products tag at all, so all
+        // of it would fall out of the candidate set.
         //
-        // The blind path widens the query text. Only `products` narrows (§7.1).
+        // The blind path widens the query text. Only `products` narrows.
         KnowledgeTools tools = Tools(out FakeSearch search, out _);
         var function = (AIFunction)tools.AsTools()[0];
 
@@ -463,8 +463,8 @@ public class AliasTierTests
     [Fact]
     public async Task An_unknown_name_is_reported_even_when_another_name_produced_a_note()
     {
-        // The rename note used to swallow the warning, so the model heard about
-        // the first product and never heard that the second matched nothing.
+        // A rename note must not swallow the warning: the model has to hear
+        // that the second name matched nothing.
         KnowledgeTools tools = Tools(out _, out _);
         var function = (AIFunction)tools.AsTools()[0];
 
@@ -484,9 +484,8 @@ public class AliasTierTests
     [Fact]
     public async Task The_query_knobs_come_from_the_search_settings()
     {
-        // SemanticDefault and VectorCandidates used to be read by nothing on
-        // this branch: SearchParameters was built without them, so the settings
-        // object looked wired and was not.
+        // SemanticDefault and VectorCandidates must reach SearchParameters, or
+        // the settings object looks wired and is not.
         KnowledgeTools tools = Tools(out FakeSearch search, out _, settings:
             new SearchSettings { SemanticDefault = true, VectorCandidates = 17 });
         var function = (AIFunction)tools.AsTools()[0];

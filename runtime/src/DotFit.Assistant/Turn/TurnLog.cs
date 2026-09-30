@@ -6,30 +6,25 @@ using System.Text.Json.Serialization;
 namespace DotFit.Assistant.Turn;
 
 /// <summary>
-/// One structured record of what happened on one turn (design §10), written as
+/// One structured record of what happened on one turn, written as
 /// a single JSON line to stdout.
 ///
-/// It carries more weight here than v1's verdict log did. On that branch the
-/// log recorded decisions a gate had already made; on this one **nothing
-/// gates** (decision D3), so the log is the third of the three mechanisms that
-/// replaced the gate (§8.3) and the only reconstruction of what an audience was
-/// shown. It is also the instrument for four open items at once: the latency
-/// targets (§6), the guessed budgets (open item 5), the repeat-search cost of
-/// not replaying tool results (open item 4), and whether the in-prompt safety
-/// handling is holding (open item 1).
+/// **Nothing gates**, so this log is, with the prompt and the tool surface,
+/// one of the three things that stand in for a gate, and the only
+/// reconstruction of what an audience was shown. It is also the instrument for
+/// the latency targets, the tool budgets, the repeat-search cost of not
+/// replaying tool results, and whether the in-prompt safety handling holds.
 ///
 /// **No question text and no answer text, by construction** — there is no field
-/// on this record to put them in, which is the same enforcement-not-promise
-/// rule v1 used.
+/// on this record to put them in.
 ///
-/// <see cref="Queries"/> is the deliberate exception and the one thing an owner
-/// must rule on (open item 3): the searches the model chose are the single most
-/// useful column for tuning — they are how you see a model looping on a term
-/// that retrieves nothing — but they are the model's text, and a model asked
-/// "is LeanMeal ok while breastfeeding?" may well search for close to that. It
-/// is model text, not customer text, and that is a real distinction, but it is
-/// not a guarantee. If the owner rules against it, this becomes a flag rather
-/// than a redaction — a half-logged query is worse than none.
+/// <see cref="Queries"/> is the deliberate exception: the searches the model
+/// chose are the single most useful column for tuning — they are how you see a
+/// model looping on a term that retrieves nothing — but they are the model's
+/// text, and a model asked "is LeanMeal ok while breastfeeding?" may well
+/// search for close to that. Model text is not customer text, which is why it
+/// is logged; if that ever stops being good enough, the fix is a flag that
+/// drops the field, not a redaction — a half-logged query is worse than none.
 /// </summary>
 public sealed record TurnLog
 {
@@ -67,12 +62,11 @@ public sealed record TurnLog
     [JsonPropertyName("tools_used")] public required IReadOnlyDictionary<string, int> ToolsUsed { get; init; }
 
     /// <summary>
-    /// The search text the model chose, in call order. See the type remarks —
-    /// this is the field open item 3 is about.
+    /// The search text the model chose, in call order. See the type remarks.
     /// </summary>
     [JsonPropertyName("queries")] public required IReadOnlyList<string> Queries { get; init; }
 
-    /// <summary>True when a tool call was refused because the budget was spent (§6).</summary>
+    /// <summary>True when a tool call was refused because the budget was spent.</summary>
     [JsonPropertyName("budget_exhausted")] public required bool BudgetExhausted { get; init; }
 
     // ---- what it had to work with -----------------------------------------
@@ -82,11 +76,11 @@ public sealed record TurnLog
     /// <summary>Sources the answer actually cites — not the ones it was given.</summary>
     [JsonPropertyName("cited")] public required int CitedCount { get; init; }
 
-    /// <summary>Distinct §3 authority tiers among the cited sources, ascending.</summary>
+    /// <summary>Distinct authority tiers among the cited sources, ascending.</summary>
     [JsonPropertyName("cited_authorities")] public required IReadOnlyList<int> CitedAuthorities { get; init; }
 
     /// <summary>
-    /// Product families touched this turn. **Our** vocabulary from the §5 alias
+    /// Product families touched this turn. **Our** vocabulary from the alias
     /// table, not the customer's words, which is what makes it loggable — and
     /// slicing by product is the first thing a claims question needs.
     /// </summary>
@@ -107,7 +101,7 @@ public sealed record TurnLog
 
     // ---- how it went -------------------------------------------------------
 
-    /// <summary>Milliseconds to the first delta. The number this branch exists for (§6).</summary>
+    /// <summary>Milliseconds to the first delta: the latency the customer feels.</summary>
     [JsonPropertyName("first_delta_ms")] public required long FirstDeltaMs { get; init; }
 
     [JsonPropertyName("total_ms")] public required long TotalMs { get; init; }
@@ -116,7 +110,7 @@ public sealed record TurnLog
     [JsonPropertyName("output_tokens")] public long? OutputTokens { get; init; }
 
     /// <summary>
-    /// The turn's cost, counts and derived money (added in 1.1.0). The token
+    /// The turn's cost, counts and derived money. The token
     /// counts above remain the raw pair; this carries the fuller breakdown —
     /// cached input, embedding usage, index queries — and the sheet that
     /// priced it, which is the only way a dollar figure in an old line still

@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <!--
-      Minimal by decision, not by neglect (design §11, D7). The deterministic
-      tool layer is pinned because it has a right answer; the loop gets shape
-      tests for the failures that would otherwise be silent. This is not a port
-      of v1's 264 tests and should not grow into one.
+      Minimal by decision, not by neglect. The deterministic tool layer is
+      pinned because it has a right answer; the loop gets shape tests for the
+      failures that would otherwise be silent. Prompt wording is not tested;
+      prompt structure is.
 
       Hermetic: scripted IChatClient fakes and synthetic fixtures. No Azure.
     -->

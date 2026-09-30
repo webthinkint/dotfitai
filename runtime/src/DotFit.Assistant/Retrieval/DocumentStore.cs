@@ -7,17 +7,12 @@ using DotFit.Assistant.Retrieval;
 namespace DotFit.Assistant.Retrieval;
 
 /// <summary>
-/// The two index reads that are not a hybrid query (design §7.2, §7.3):
+/// The two index reads that are not a hybrid query:
 /// fetch one document by key, and pull every document matching an OData
-/// filter. <c>DotFit.Agents</c>'s <see cref="IKnowledgeSearch"/> covers the
-/// third — searching — and is used as-is.
+/// filter. <see cref="IKnowledgeSearch"/> covers the third, searching.
 ///
-/// Why this is a separate interface rather than a widened one: v1's search
-/// client is the comparison baseline and stays untouched (design §4). The
-/// POCO below duplicates its <c>KbDocument</c>, which is internal to that
-/// assembly; twelve fields of duplication is cheaper than making one
-/// assembly's internals another's public contract. The §9 schema is the thing
-/// both mirror, and a test pins the field names on this side.
+/// The POCO below mirrors <c>AzureKnowledgeSearch</c>'s <c>KbDocument</c>:
+/// both follow the index schema, and a test pins the field names on this side.
 /// </summary>
 public interface IDocumentStore
 {
@@ -113,7 +108,7 @@ public sealed class AzureDocumentStore(SearchClient search, SearchSettings? sett
     };
 
     /// <summary>
-    /// The §9 fields, with explicit JSON names so the mapping holds whatever
+    /// The fields, with explicit JSON names so the mapping holds whatever
     /// the serializer's naming policy is (the classic null-properties gotcha).
     /// The vector field is <c>stored=false</c> and never comes back.
     /// </summary>

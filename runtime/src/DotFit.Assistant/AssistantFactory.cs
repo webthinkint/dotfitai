@@ -55,10 +55,10 @@ public static class AssistantFactory
                 name: "dotfit",
                 instructions: prompt.Text);
 
-    /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
+    /// <summary>The fully wired assistant: live Azure clients + the alias artifact.</summary>
     public static DotFitAssistant Create(
         RuntimeOptions options,
-        AssistantOptions? agentic = null,
+        AssistantOptions? assistantOptions = null,
         AliasTable? aliases = null,
         SearchSettings? settings = null,
         PriceSheet? prices = null,
@@ -66,11 +66,11 @@ public static class AssistantFactory
         SourceRegistry? registry = null)
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
-        agentic ??= AssistantOptions.Load(options.EnvFilePath);
+        assistantOptions ??= AssistantOptions.Load(options.EnvFilePath);
         registry ??= SourceRegistry.Load(options.SourcesPath);
-        prompt ??= AssembledPrompt.Load(options, agentic, aliases, registry);
+        prompt ??= AssembledPrompt.Load(options, assistantOptions, aliases, registry);
         prices ??= PriceSheet.Load(options.EnvFilePath);
-        // Not `DefaultTop`: on this branch `top` is the model's per-call choice,
+        // Not `DefaultTop`: `top` is the model's per-call choice,
         // clamped against AssistantOptions, and SearchParameters always carries it
         // explicitly — so setting it here would describe a default nothing
         // reads. What this object does carry to the loop is the is_current
@@ -87,7 +87,7 @@ public static class AssistantFactory
                 openAi, options.RequireEmbeddingDeployment(), searchClient, settings),
             store: new AzureDocumentStore(searchClient, settings),
             aliases: aliases,
-            options: agentic,
+            options: assistantOptions,
             supportContact: options.SupportContact,
             settings: settings,
             prices: prices,

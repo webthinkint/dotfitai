@@ -2,9 +2,9 @@ namespace DotFit.Assistant.Retrieval;
 
 /// <summary>
 /// Deterministic authority re-rank: multiply the ranking score by a per-tier
-/// weight (§3: 1 product copy … 5 menus). Pure and order-stable so it is
-/// unit-testable; the weights themselves are a tuning knob for the golden-set
-/// eval, not a correctness claim.
+/// weight (1 product copy … 5 menus). Pure and order-stable so it is
+/// unit-testable; the weights themselves are a tuning knob, not a correctness
+/// claim.
 /// </summary>
 public static class AuthorityBoost
 {

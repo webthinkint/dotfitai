@@ -113,7 +113,7 @@ public class RuntimeOptionsTests
     public void RetrievalSubsetLoadsWithoutAnyChatDeployment()
     {
         // `search` embeds and queries; it never touches a chat deployment, and
-        // the frontier one is pending quota (open item 1).
+        // the frontier one is pending quota.
         string root = Root();
         WriteEnv(root, ValidEnv
             .Replace("AZURE_OPENAI_CHAT_DEPLOYMENT=chat-model\n", ""));
@@ -157,8 +157,7 @@ public class RuntimeOptionsTests
     {
         // index_build.INDEX_NAME and this default name the same index; they
         // drift silently otherwise (the pipeline uploads to one, the runtime
-        // queries the other). Named for the wedged delete that lost kb-main —
-        // open item 10, closed.
+        // queries the other).
         string root = Root();
         RuntimeOptions options = RuntimeOptions.Load(WriteEnv(root, ValidEnv));
         Assert.Equal("kb-main-v2", options.IndexName);
@@ -167,9 +166,9 @@ public class RuntimeOptionsTests
     [Fact]
     public void SupportContactDefaultsOverridesAndCanBeTurnedOffByName()
     {
-        // Item 22. Unset is the attested default, because a handoff with no
-        // route is the failure this variable exists to prevent; "none" is how a
-        // deployment says it wants the old prose, so an empty value can never
+        // Unset is the published default, because a handoff with no route is
+        // the failure this variable exists to prevent; "none" is how a
+        // deployment says it wants no route, so an empty value can never
         // silently become that.
         string root = Root();
         Assert.Equal(Prompting.SystemPrompt.DefaultSupportContact,

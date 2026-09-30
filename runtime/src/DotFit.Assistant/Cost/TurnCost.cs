@@ -3,13 +3,12 @@ using System.Text.Json.Serialization;
 namespace DotFit.Assistant.Cost;
 
 /// <summary>
-/// What one turn cost, as the caller (agentic §9) and the logs (agentic §10,
-/// v1's verdict log) see it. Shared by both runtimes so their cost blocks are
-/// one schema and an A/B dashboard can read them side by side.
+/// What one turn cost, as the caller's <c>result</c> event and the turn log
+/// see it.
 ///
 /// The counts are observed — token counts off the model's own usage reports,
 /// embedding counts off the embedding API's, index-query counts off the calls
-/// the pipeline actually made — and the money is those counts priced against a
+/// the tools actually made — and the money is those counts priced against a
 /// <see cref="PriceSheet"/>. No rounding happens here; a cost is a decimal sum
 /// of exact products, and display precision belongs to whoever displays it.
 ///
@@ -27,7 +26,7 @@ public sealed record TurnCost
     /// <summary>The <see cref="PriceSheet.Id"/> that priced this turn, verbatim.</summary>
     [JsonPropertyName("price_sheet")] public required string PriceSheet { get; init; }
 
-    // The main chat deployment — the agentic loop's one model, v1's answer agent.
+    // The chat deployment the loop runs on.
 
     [JsonPropertyName("chat_input_tokens")] public required long ChatInputTokens { get; init; }
     /// <summary>
@@ -92,10 +91,9 @@ public sealed record TurnCost
 
 /// <summary>
 /// Accumulates the usage a turn's cost is priced from. One instance per turn,
-/// shared by everything a turn runs — the agentic loop and its tools, v1's
-/// pipeline stages — so the result's <c>cost</c> block is one account of the
-/// turn. Stage agents may be invoked concurrently by a future caller, so every
-/// mutation takes the same kind of lock the agentic ledger does.
+/// shared by the loop and its tools, so the result's <c>cost</c> block is one
+/// account of the turn. Tools may run concurrently when the model issues
+/// parallel calls, so every mutation takes a lock, as the source ledger does.
 ///
 /// Deliberately counts, not costs: the money is derived once, at result time,
 /// against the sheet the caller was built with, so a mid-turn price change is
@@ -118,8 +116,7 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
 
     /// <summary>
     /// One round trip's usage on the **main** chat deployment, each count
-    /// optional — the same permissiveness the agentic loop's old locals had:
-    /// input and output are summed independently, so a report carrying only
+    /// optional: input and output are summed independently, so a report carrying only
     /// one of them still contributes its half.
     /// </summary>
     public void Chat(long? input, long? cached, long? output) => ChatInto(

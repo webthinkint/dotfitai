@@ -33,11 +33,11 @@ public sealed record Discontinued(
     [property: JsonPropertyName("note")] string? Note);
 
 /// <summary>
-/// The result of query-side alias expansion (plan §5): terms that widen the
-/// BM25 query, resolved families/part_nos for trace and post-check, and notes
-/// the answer agent needs (renames are identity — "LeanMR, now LeanMeal";
-/// replacements are a different formula and must never be conflated;
-/// context-only tokens resolve per-document, never to a blanket tag).
+/// The result of query-side alias expansion: terms that widen the BM25 query,
+/// the families and part numbers it resolved, and notes the model needs
+/// (renames are identity — "LeanMR, now LeanMeal"; replacements are a
+/// different formula and must never be conflated; context-only tokens resolve
+/// per document, never to a blanket tag).
 /// </summary>
 public sealed record AliasExpansion(
     IReadOnlyList<string> SearchTerms,
@@ -49,15 +49,15 @@ public sealed record AliasExpansion(
 }
 
 /// <summary>
-/// The committed <c>pipeline-output/aliases/alias_table.json</c> artifact (§5
-/// output, versioned by the pipeline). Query-side expansion only — corpus
-/// text is never rewritten through this table.
+/// The committed <c>pipeline-output/aliases/alias_table.json</c> artifact,
+/// versioned by the pipeline. Query-side expansion only — corpus text is never
+/// rewritten through this table.
 ///
 /// Two consumers with different context, mirroring the pipeline's tier rules:
-/// the *mention path* (LLM-judged mentions from the rewriter) may resolve
-/// deterministic AND llm-only aliases; the *blind path* (raw question text)
+/// the *mention path* (product names the model chose to pass) may resolve
+/// deterministic AND llm-only aliases; the *blind path* (free query text)
 /// may resolve deterministic aliases only. Context-only tokens (PP, MVM)
-/// resolve in neither — they contribute guidance notes for the answer agent.
+/// resolve in neither — they contribute guidance notes for the model.
 /// </summary>
 public sealed class AliasTable
 {
@@ -200,7 +200,7 @@ public sealed class AliasTable
                 notes.Add(note);
         }
 
-        // --- mention path: the rewriter already judged these to be products ----
+        // --- mention path: the model already judged these to be products ------
         foreach (string mention in llmMentions ?? [])
         {
             string n = Norm(mention);
@@ -216,7 +216,7 @@ public sealed class AliasTable
             }
             else if (_llmOnlyByNorm.TryGetValue(n, out var llm))
             {
-                AddFamily(llm.Family, llm.PartNos); // LLM-only tier: mention path only (§5)
+                AddFamily(llm.Family, llm.PartNos); // LLM-only tier: mention path only
             }
             else if (_renamesByNorm.TryGetValue(n, out var rename))
             {

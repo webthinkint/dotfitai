@@ -4,7 +4,7 @@ using DotFit.Assistant.Turn;
 
 namespace DotFit.Assistant.Service;
 
-/// <summary>Where the §10 turn log goes. One line, one turn.</summary>
+/// <summary>Where the turn log goes. One line, one turn.</summary>
 public interface ITurnSink
 {
     void Write(TurnLog log);
@@ -24,10 +24,10 @@ public sealed class JsonLinesTurnSink(TextWriter writer) : ITurnSink
 }
 
 /// <summary>
-/// The debug transcript: the words themselves (design §10, carried over from
-/// v1's owner ruling). Off by default and off before public traffic.
+/// The debug transcript: the words themselves. Off by default and off before
+/// public traffic.
 ///
-/// It exists because nothing is gated on this branch. When an owner session
+/// It exists because nothing is gated. When an owner session
 /// turns up an answer that was wrong, the turn log says the model ran three
 /// searches and cited two sources — it cannot say what it claimed. This can.
 /// </summary>

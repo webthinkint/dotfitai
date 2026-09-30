@@ -22,9 +22,9 @@ public sealed record AskRequest
 
     /// <summary>
     /// Earlier turns, oldest first, excluding <see cref="Question"/>. The
-    /// runtime holds no state between requests (decision D6), so this is the
+    /// runtime holds no state between requests, so this is the
     /// only conversation the model gets — and it is user/assistant text only.
-    /// Tool calls and their results are *not* replayed (§6): the model
+    /// Tool calls and their results are *not* replayed: the model
     /// re-retrieves if it needs the material again, which is what keeps an
     /// earlier turn's citation numbers from meaning anything in this one.
     /// </summary>
@@ -40,24 +40,23 @@ public interface IDotFitAssistant
 }
 
 /// <summary>
-/// The loop (design §6): one model, one conversation, three tools, and nothing
-/// before or after it.
+/// The loop: one model, one conversation, its tools, and nothing before or
+/// after it.
 ///
-/// There is no guardrail call, no query rewrite, no post-check and no repair
-/// pass — that chain is v1's and it is what this branch replaced. The model
+/// There is no guardrail call, no query rewrite and no post-check. The model
 /// decides whether a turn needs retrieval at all, which is why small talk needs
 /// no special case here: a greeting is simply a turn on which no tool is
 /// called, and it comes back in about a second.
 ///
-/// What this class owns is the event ordering the SSE contract depends on
-/// (§9). Two rules:
+/// What this class owns is the event ordering the SSE contract depends on.
+/// Two rules:
 ///
 /// - **Sources are published before the text that cites them.** Tools number
 ///   sources and queue their events as they run; the loop drains that queue
 ///   before yielding any delta. A client streaming live therefore always holds
 ///   source 3 by the time "[3]" arrives. The drain races the model's next
 ///   update rather than following it, so a tool's stage line reaches the caller
-///   while the tool is still running and not once it has returned (§9).
+///   while the tool is still running and not once it has returned.
 /// - **A result always ends the turn**, including after a failure. An error is
 ///   followed by the templated handoff and then the result carrying it, so a
 ///   caller has exactly one place to look for what the customer saw. On a
@@ -65,7 +64,7 @@ public interface IDotFitAssistant
 ///   in that order: the deltas already sent are part of what was seen.
 ///
 /// Nothing here inspects the answer. Deltas are forwarded as they arrive and
-/// the text is never held back (decision D3).
+/// the text is never held back.
 /// </summary>
 public sealed class DotFitAssistant : IDotFitAssistant
 {
@@ -98,7 +97,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
         // Passed on to the tools so the query knobs — ranker, candidate pool —
         // are read where the query is built, not only where the client was.
         _settings = settings ?? new SearchSettings();
-        // What the turn's usage is priced against (§9's `cost` block). The
+        // What the turn's usage is priced against (`cost` block). The
         // default is the built-in placeholder sheet; the service and the CLI
         // load theirs from the same .env everything else reads.
         _prices = prices ?? new PriceSheet();
@@ -180,9 +179,9 @@ public sealed class DotFitAssistant : IDotFitAssistant
                 // this is outstanding. A tool queues its stage line *before* it
                 // runs, and the update that completes this await is that same
                 // tool's result — so draining only on an update renders
-                // "looking up creatine dosing" once the lookup has finished
-                // (§9, open item 11). Waking on either lets the detail arrive
-                // during the wait, which is what §9 sells it as.
+                // "looking up creatine dosing" once the lookup has finished.
+                // Waking on either lets the detail arrive during the wait,
+                // which is what the stage detail is for.
                 Task<bool> next = Start(updates);
                 while (!next.IsCompleted)
                 {
@@ -225,7 +224,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
                 // Anything queued while this update was being produced — which
                 // on a synchronously-completed update the race above never got
                 // to see. Drained *before* the delta either way, which is the
-                // whole ordering contract (§7).
+                // whole ordering contract.
                 foreach (TurnEvent queued in ledger.Drain())
                     yield return queued;
 
@@ -239,7 +238,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
                         // the output tokens of every round trip but the final
                         // one and report the last call's context as the input —
                         // understating exactly the expensive turns the log
-                        // exists to price (§10, open item 5). The cached-input
+                        // exists to price. The cached-input
                         // breakdown is kept beside the totals because it is
                         // billed at a different rate, and a multi-round-trip
                         // turn re-sends its context every time.

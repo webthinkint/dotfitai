@@ -4,7 +4,7 @@ using DotFit.Assistant.Turn;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// A client that hangs up mid-stream (design §9, §10). With nothing gated, the
+/// A client that hangs up mid-stream. With nothing gated, the
 /// turn log is the only account of what an audience saw — so the turn nobody
 /// read is exactly the one that must not vanish from it.
 /// </summary>

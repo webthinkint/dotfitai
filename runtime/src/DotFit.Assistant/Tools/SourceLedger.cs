@@ -5,7 +5,7 @@ using DotFit.Assistant.Retrieval;
 namespace DotFit.Assistant.Tools;
 
 /// <summary>
-/// The turn's source numbering (design §7), and the one place a source is
+/// The turn's source numbering, and the one place a source is
 /// rendered for the model.
 ///
 /// Four rules, all load-bearing:
@@ -19,9 +19,9 @@ namespace DotFit.Assistant.Tools;
 ///    queues a <see cref="TurnSourceEvent"/>, and the loop drains the queue before
 ///    yielding any delta. Without this, a client streaming live would see
 ///    "[3]" before it knew what 3 was.
-/// 4. **A product page is one source** (open item 17). Product copy is one
-///    web page cut into sections; numbered per section, SuperBlend alone was 50
-///    near-identical "[n]"s and the model cited the wrong ones. Sections that
+/// 4. **A product page is one source**. Product copy is one web page cut into
+///    sections; numbered per section, a large family would be dozens of
+///    near-identical "[n]"s and the model would cite the wrong ones. Sections that
 ///    share a <c>citation_url</c> share a number, whichever tool returned them
 ///    — so a search hit on one section and a later <c>get_product</c> for the
 ///    page are the same source. Every other type stays one number per document.
@@ -107,11 +107,11 @@ public sealed class SourceLedger(int maxSourceChars)
 
     /// <summary>
     /// Completes as soon as the queue is non-empty, so the loop can wake on a
-    /// tool's stage line instead of on the model's next update (§9, open item
-    /// 11). A tool queues "search — <em>query</em>" and then blocks on the
-    /// round trip to AI Search; the update that ends the loop's await is that
-    /// same tool's result, so a loop that only drained on an update rendered
-    /// "looking up X" after X had been looked up. Already-completed when
+    /// tool's stage line instead of on the model's next update. A tool queues
+    /// "search — <em>query</em>" and then blocks on the round trip to AI Search;
+    /// the update that ends the loop's await is that same tool's result, so a
+    /// loop that only drained on an update would render "looking up X" after X
+    /// had been looked up. Already-completed when
     /// something is waiting, so the caller need not check first.
     /// </summary>
     public Task Queued
@@ -149,14 +149,13 @@ public sealed class SourceLedger(int maxSourceChars)
     }
 
     /// <summary>
-    /// One source as the model sees it (design §7, §8.2). The authority label
-    /// and the quotable marker come from <see cref="Prompts"/> — the same §3
-    /// vocabulary v1 uses, deliberately shared so there is one wording to
-    /// review rather than two that drift.
+    /// One source as the model sees it. The authority label and the quotable
+    /// marker come from <see cref="SourceLabels"/>, so there is one wording to
+    /// review.
     ///
     /// Long content is truncated with the cut said out loud, because a silently
     /// halved dosing table is exactly the failure <c>fetch</c> exists to fix
-    /// (§7.2) and the model can only reach for it if it knows.
+    /// and the model can only reach for it if it knows.
     /// </summary>
     public string Render(SourceRef source, RetrievedDocument document, bool isNew)
     {

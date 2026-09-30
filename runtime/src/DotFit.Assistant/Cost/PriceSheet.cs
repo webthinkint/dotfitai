@@ -5,8 +5,7 @@ namespace DotFit.Assistant.Cost;
 
 /// <summary>
 /// The per-unit prices a turn's usage is priced against — the sheet behind
-/// the <c>cost</c> block both runtimes put on their <c>result</c> event and in
-/// their logs (agentic §9/§10; v1's integration doc and verdict log).
+/// the <c>cost</c> block on the <c>result</c> event and in the turn log.
 ///
 /// The money on the wire is **derived, not observed**: usage counts come back
 /// from the APIs, and this sheet turns them into currency. That makes the
@@ -56,15 +55,13 @@ public sealed record PriceSheet
 
     public decimal ChatOutputPerMillion { get; init; } = 10m;
 
-
     /// <summary>Query embedding — <c>text-embedding-3-large</c>'s list price.</summary>
     public decimal EmbeddingPerMillion { get; init; } = 0.13m;
 
     /// <summary>
     /// Per *thousand* index queries: one unit per query-plane call the runtime
     /// makes (hybrid search, <c>get_product</c>'s filter query, <c>fetch</c>'s
-    /// key lookups, v1's single hybrid search). A placeholder until real cost
-    /// data replaces it.
+    /// key lookups). A placeholder until real cost data replaces it.
     /// </summary>
     public decimal SearchPerThousand { get; init; } = 0.25m;
 

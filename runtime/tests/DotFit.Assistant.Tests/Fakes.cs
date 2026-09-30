@@ -7,8 +7,8 @@ using Microsoft.Extensions.AI;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// An <see cref="IChatClient"/> that replays a script (design §11: "script the
-/// IChatClient for the loop").
+/// An <see cref="IChatClient"/> that replays a script, so loop tests never
+/// pretend the model is deterministic.
 ///
 /// One scripted turn per model round trip. The Agent Framework's
 /// function-invoking decorator sits between this fake and the agent, so a
@@ -23,7 +23,7 @@ internal sealed class ScriptedChatClient(params IEnumerable<IList<AIContent>> tu
     /// <summary>Every message list the fake was called with, for asserting on what the model saw.</summary>
     public List<List<ChatMessage>> Calls { get; } = [];
 
-    /// <summary>Thrown instead of answering, when set — the failure path (§9).</summary>
+    /// <summary>Thrown instead of answering, when set — the failure path.</summary>
     public Exception? Throw { get; set; }
 
     public static IList<AIContent> Text(string text) => [new TextContent(text)];
@@ -68,7 +68,7 @@ internal sealed class ScriptedChatClient(params IEnumerable<IList<AIContent>> tu
 
 /// <summary>
 /// Streams some text and then throws — the failure that happens *while the
-/// model composes*, which is the one the §6 hard ceiling is most likely to
+/// model composes*, which is the one the hard ceiling is most likely to
 /// produce and the one where deltas have already reached the customer.
 /// </summary>
 internal sealed class ThrowsAfterDeltasChatClient(Exception failure, params string[] deltas) : IChatClient
@@ -105,7 +105,7 @@ internal sealed class FakeSearch(params RetrievedDocument[] documents) : IKnowle
     /// <summary>
     /// When set, the search records its query and then waits on this before
     /// returning — a tool held mid-flight, which is the only way to observe
-    /// what the loop emits *during* a lookup rather than after it (§9).
+    /// what the loop emits *during* a lookup rather than after it.
     /// </summary>
     public Task? Gate { get; set; }
 
@@ -140,8 +140,8 @@ internal sealed class FakeDocumentStore(params RetrievedDocument[] documents) : 
 }
 
 /// <summary>
-/// Synthetic fixtures only. Real corpus text never appears in tests — the §4
-/// PII posture predates this branch and is not relaxed by it.
+/// Synthetic fixtures only. Real corpus text never appears in tests: the
+/// customer Q&A corpus holds real customer mail.
 /// </summary>
 internal static class Fixtures
 {
@@ -170,7 +170,7 @@ internal static class Fixtures
 
     /// <summary>
     /// A minimal alias table with one family, one rename, one replacement and
-    /// one discontinued SKU — the four shapes §6's currency facts must keep
+    /// one discontinued SKU — the four shapes currency facts must keep
     /// apart. Invented names, so nothing here asserts on real curation.
     /// </summary>
     public const string AliasJson = """

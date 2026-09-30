@@ -6,7 +6,7 @@ using DotFit.Assistant.Turn;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The transport contract (design §9). These do not boot a host — they pin the
+/// The transport contract. These do not boot a host — they pin the
 /// rules that a host cannot enforce for us: what gets a status code, what the
 /// auth posture is, and which events go on the wire.
 /// </summary>
@@ -68,7 +68,7 @@ public class ServiceOptionsTests
     [Fact]
     public void Load_lets_the_process_environment_override_the_env_file()
     {
-        // v1's rule, carried over: a deployment states its posture as a unit /
+        // A deployment states its posture as a unit /
         // container setting instead of editing the shared .env — the preview
         // unit turns the debug transcript on exactly this way, so a unit's
         // Environment= line must reach the options or it silently does nothing.
@@ -249,7 +249,7 @@ public class AskStreamTests
     [Fact]
     public async Task The_result_frame_carries_the_turns_cost()
     {
-        // §9: the cost block is on `result`, always last, so the owners can
+        // The cost block is on `result`, always last, so the owners can
         // see a turn's spend while chatting. Counts and money, snake_case —
         // the same field names the turn log's `cost` object uses.
         var cost = new TurnCost
@@ -294,10 +294,10 @@ public class AskStreamTests
     }
 
     [Fact]
-    public async Task There_is_no_retraction_event_on_this_branch()
+    public async Task There_is_no_retraction_event()
     {
-        // D3. The name is retired rather than reused — a caller that still
-        // handles it will simply never see it.
+        // Nothing is withheld, so nothing is retracted: a caller that still
+        // handles the event will simply never see it.
         var assistant = new FakeAssistant(
             new TurnStageEvent(Stages.Search, "creatine"),
             new TurnSourceEvent(Result().Sources[0]),

@@ -90,7 +90,7 @@ public sealed partial class KnowledgeTools
 
     /// <summary>
     /// Product families the alias table resolved this turn. Loggable where the
-    /// question is not (§10): these are the §5 artifact's names, our
+    /// question is not: these are the alias table's names, our
     /// vocabulary, not the customer's words.
     /// </summary>
     public IReadOnlyList<string> Families
@@ -101,7 +101,7 @@ public sealed partial class KnowledgeTools
     /// <summary>
     /// The tools as the Agent Framework sees them. Names and descriptions are
     /// the model's only documentation for the corpus, so they carry the
-    /// §3 authority story rather than describing an index.
+    /// authority story rather than describing an index.
     /// </summary>
     public IList<AITool> AsTools()
     {
@@ -168,7 +168,7 @@ public sealed partial class KnowledgeTools
 
         Ledger.Stage(Stages.Search, query);
 
-        // The alias tier contract, mapped onto the tool's two inputs (§5, §7.1):
+        // The alias tier contract, mapped onto the tool's two inputs:
         // `products` is a *judged* product mention — the model decided it names a
         // product — so it takes the mention path and may resolve LLM-only
         // aliases. `query` is raw text and takes the blind path, deterministic
@@ -181,7 +181,7 @@ public sealed partial class KnowledgeTools
         if (sourceTypeError is not null)
             return Record(Stages.Search, query, sourceTypeError, clock);
 
-        // Only the *mention* path may restrict (§7.1). A name the customer
+        // Only the *mention* path may restrict. A name the customer
         // happened to type widens the query text; it must not become a hard
         // `products/any(...)`, because 59% of the corpus — every podcast, every
         // info page, every menu description and much of PDSRG and QA — carries
@@ -362,7 +362,7 @@ public sealed partial class KnowledgeTools
         Ledger.Stage(Stages.Product, name_or_part_no);
 
         // The model named this as a product, so it is a judged mention: the
-        // mention path, which may resolve the LLM-only tier (§5).
+        // mention path, which may resolve the LLM-only tier.
         AliasExpansion expansion = _aliases.Expand("", [name_or_part_no]);
         NoteFamilies(expansion);
         IReadOnlyList<string> partNos = PartNoFilterValues(expansion, [name_or_part_no]);
@@ -389,9 +389,8 @@ public sealed partial class KnowledgeTools
         {
             // This tool returns the whole record or it has not done its job.
             // A family is not "a handful": SuperBlend is 52 sections across two
-            // pages, and the old cap of 50 dropped two without a word (open
-            // item 17). The cap is headroom over the largest family; reaching
-            // it is said out loud below.
+            // pages. The cap is headroom over the largest family; reaching it is
+            // said out loud below, never a silent cut.
             sections = await _store.FilterAsync(filter, top: ProductSectionCap, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -498,15 +497,15 @@ public sealed partial class KnowledgeTools
     }
 
     /// <summary>
-    /// Part numbers a restriction may be built from: the mention path only
-    /// (§5, §7.1). <see cref="AliasTable.Expand"/> merges both paths into one
+    /// Part numbers a restriction may be built from: the mention path only.
+    /// <see cref="AliasTable.Expand"/> merges both paths into one
     /// <see cref="AliasExpansion.PartNos"/>, so the query is re-expanded here
     /// without it — deterministic dictionary lookups over a handful of
     /// mentions, no model call and no second index round trip.
     ///
     /// The blind path's resolutions still reach the search: they feed
     /// <see cref="BuildQueryText"/>, the currency notes and
-    /// <see cref="Families"/>, which is all §5 asks of them.
+    /// <see cref="Families"/>, which is all the log needs of them.
     /// </summary>
     private IReadOnlyList<string> MentionPartNos(IReadOnlyList<string>? products) =>
         products is { Count: > 0 }
@@ -535,7 +534,7 @@ public sealed partial class KnowledgeTools
     }
 
     /// <summary>
-    /// The §9 source types, as a closed set. An unknown value is corrected in
+    /// The source types, as a closed set. An unknown value is corrected in
     /// prose rather than passed through: an OData filter on a type that does
     /// not exist returns zero hits, which the model would read as "the corpus
     /// has nothing on this" — the most expensive possible way to mistype.
@@ -557,9 +556,9 @@ public sealed partial class KnowledgeTools
     internal static readonly string[] KnownSourceTypes = [.. SourceLabels.SourceTypeAuthority.Keys];
 
     /// <summary>
-    /// The currency guidance the alias table produced for this call (§5).
-    /// The system prompt already carries the whole rename/replacement list
-    /// (§6), but a note beside the sources says which of them is live *now* —
+    /// The currency guidance the alias table produced for this call.
+    /// The system prompt already carries the whole rename/replacement list,
+    /// but a note beside the sources says which of them is live *now* —
     /// and says out loud that the search ran on terms the model did not type,
     /// which it otherwise has no way to know.
     /// </summary>
