@@ -77,6 +77,8 @@ public sealed record RuntimeOptions
     /// <summary>Alias table artifact (plan §5 output) — default lives beside the .env.</summary>
     public required string AliasTablePath { get; init; }
     public required string EnvFilePath { get; init; }
+    /// <summary>The prompt folder (<c>assistant/prompt</c>) beside the .env, read at boot.</summary>
+    public required string PromptDir { get; init; }
 
     public Uri RequireSearchEndpoint() => SearchEndpoint ?? throw Missing(SearchEndpointVar);
     public string RequireSearchKey() => SearchKey ?? throw MissingEitherKey();
@@ -169,6 +171,7 @@ public sealed record RuntimeOptions
             Needs = needs,
             AliasTablePath = Path.Combine(envDir, "pipeline-output", "aliases", "alias_table.json"),
             EnvFilePath = envFilePath,
+            PromptDir = Path.Combine(envDir, "assistant", "prompt"),
         };
     }
 
@@ -202,6 +205,6 @@ public sealed record RuntimeOptions
             $"openai={Show(OpenAiEndpoint)}, api_key={(OpenAiApiKey is null ? "unset" : "***")}, " +
             $"chat='{Show(ChatDeployment)}', " +
             $"embed='{Show(EmbeddingDeployment)}', index='{IndexName}', " +
-            $"support='{Show(SupportContact)}', aliases='{AliasTablePath}')";
+            $"support='{Show(SupportContact)}', aliases='{AliasTablePath}', prompt='{PromptDir}')";
     }
 }

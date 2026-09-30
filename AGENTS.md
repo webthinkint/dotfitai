@@ -23,7 +23,7 @@ Steps, in order:
 4. (done) Folder rename: `data/` → `original-data/`, `processed/` → `pipeline-output/`,
    plus a new `assistant/` (`sources.yaml`, `prompt/`, `references/`, `smoke/`).
    Update the PII ignore rules **before** moving untracked folders.
-5. The system prompt moves from C# into `assistant/prompt/*.md` with
+5. (done) The system prompt moves from C# into `assistant/prompt/*.md` with
    `variants/`; the assembled text is byte-identical. Phrase-pinning prompt
    tests are replaced by structural tests over every variant.
 6. Source registry, `read_reference(id, section?)` in place of

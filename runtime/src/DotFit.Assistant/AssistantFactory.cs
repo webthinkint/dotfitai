@@ -48,11 +48,11 @@ public static class AssistantFactory
     /// prompt as its instructions. Tools are *not* bound here — they are
     /// turn-scoped (their ledger and budget are) and arrive as per-run options.
     /// </summary>
-    public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AliasTable aliases) =>
+    public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt) =>
         client.GetChatClient(options.RequireChatDeployment())
             .AsAIAgent(
                 name: "dotfit",
-                instructions: SystemPrompt.Build(aliases, options.SupportContact));
+                instructions: prompt.Text);
 
     /// <summary>The fully wired assistant: live Azure clients + the §5 alias artifact.</summary>
     public static DotFitAssistant Create(
@@ -60,10 +60,12 @@ public static class AssistantFactory
         AssistantOptions? agentic = null,
         AliasTable? aliases = null,
         SearchSettings? settings = null,
-        PriceSheet? prices = null)
+        PriceSheet? prices = null,
+        AssembledPrompt? prompt = null)
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
         agentic ??= AssistantOptions.Load(options.EnvFilePath);
+        prompt ??= AssembledPrompt.Load(options, agentic, aliases);
         prices ??= PriceSheet.Load(options.EnvFilePath);
         // Not `DefaultTop`: on this branch `top` is the model's per-call choice,
         // clamped against AssistantOptions, and SearchParameters always carries it
@@ -77,7 +79,7 @@ public static class AssistantFactory
         SearchClient searchClient = AssistantFactory.CreateSearchClient(options);
 
         return new DotFitAssistant(
-            agent: CreateAgent(options, openAi, aliases),
+            agent: CreateAgent(options, openAi, prompt),
             search: new AzureKnowledgeSearch(
                 openAi, options.RequireEmbeddingDeployment(), searchClient, settings),
             store: new AzureDocumentStore(searchClient, settings),

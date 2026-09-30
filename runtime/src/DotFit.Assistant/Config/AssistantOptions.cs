@@ -20,6 +20,7 @@ public sealed record AssistantOptions
     public const string MaxToolCallsVar = "DOTFIT_ASSISTANT_MAX_TOOL_CALLS";
     public const string TurnTimeoutVar = "DOTFIT_ASSISTANT_TURN_TIMEOUT_SECONDS";
     public const string DefaultTopVar = "DOTFIT_ASSISTANT_DEFAULT_TOP";
+    public const string PromptVariantVar = "DOTFIT_ASSISTANT_PROMPT_VARIANT";
 
     /// <summary>
     /// Tool calls allowed in one turn (§6). On exhaustion the model is not cut
@@ -89,6 +90,12 @@ public sealed record AssistantOptions
     /// </summary>
     public int MaxSourceChars { get; init; } = 6_000;
 
+    /// <summary>
+    /// Which prompt variant the loop runs: <c>assistant/prompt/variants/&lt;name&gt;.md</c>.
+    /// Validated at boot by <see cref="Prompting.PromptTemplate.Load"/>.
+    /// </summary>
+    public string PromptVariant { get; init; } = Prompting.PromptTemplate.DefaultVariant;
+
     /// <summary>Read the optional overrides out of an already-parsed .env.</summary>
     public static AssistantOptions FromValues(IReadOnlyDictionary<string, string> values)
     {
@@ -115,6 +122,9 @@ public sealed record AssistantOptions
             TurnTimeout = TimeSpan.FromSeconds(Int(
                 TurnTimeoutVar, (int)defaults.TurnTimeout.TotalSeconds, 5, MaxTurnTimeoutSeconds)),
             DefaultTop = Int(DefaultTopVar, defaults.DefaultTop, 1, defaults.MaxTop),
+            PromptVariant = values.TryGetValue(PromptVariantVar, out string? variant) && variant.Trim().Length > 0
+                ? variant.Trim()
+                : defaults.PromptVariant,
         };
         if (options.DefaultTop > options.MaxTop)
             throw new EnvFile.EnvFileException(
@@ -128,5 +138,5 @@ public sealed record AssistantOptions
 
     public override string ToString() =>
         $"AssistantOptions(max_tool_calls={MaxToolCalls}, turn_timeout={TurnTimeout.TotalSeconds:0}s, " +
-        $"default_top={DefaultTop}, max_top={MaxTop}, max_source_chars={MaxSourceChars})";
+        $"default_top={DefaultTop}, max_top={MaxTop}, max_source_chars={MaxSourceChars}, prompt_variant={PromptVariant})";
 }

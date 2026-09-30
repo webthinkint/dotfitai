@@ -80,6 +80,7 @@ public class ServiceOptionsTests
             {
                 AliasTablePath = "aliases.json",
                 EnvFilePath = envPath,
+                PromptDir = "prompt",
                 SupportContact = null,
             };
 

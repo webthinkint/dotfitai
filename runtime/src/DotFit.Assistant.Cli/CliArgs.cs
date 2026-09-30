@@ -19,6 +19,7 @@ internal sealed record CliFlags
     public string? SmokeSet { get; init; }
     public string? OutDir { get; init; }
     public string? Tier { get; init; }
+    public string? Variant { get; init; }
 }
 
 internal sealed record CliCommand(string Verb, string Text, CliFlags Flags);
@@ -40,7 +41,7 @@ internal static class CliArgs
     public const string Smoke = "smoke";
 
     public const string Usage = """
-        dotfit — the agentic knowledge assistant (design §6).
+        dotfit — the dotFIT assistant.
 
         USAGE
           dotfit ask "<question>"     one question, streamed
@@ -48,15 +49,16 @@ internal static class CliArgs
           dotfit search "<query>"     run the search tool alone, no model
           dotfit prompt               print the assembled system prompt
           dotfit config               print the resolved configuration
-          dotfit smoke                run the written smoke set (design §11.2)
+          dotfit smoke                run the written smoke set
 
         FLAGS
           --env <path>        .env to use (default: walk up from the cwd)
           --index <name>      override the index (default: kb-main-v2)
           --aliases <path>    override the alias table artifact
           --top <n>           sources per search, 1-20 (default: 6)
+          --variant <name>    prompt variant in assistant/prompt/variants (default: default)
           --trace             show every tool call and what it returned
-          --log               print the turn-log line (§10) to stderr after each turn
+          --log               print the turn-log line to stderr after each turn
           --no-sources        do not print the source list after the answer
 
         SMOKE FLAGS
@@ -100,6 +102,7 @@ internal static class CliArgs
                 case "--set": flags = flags with { SmokeSet = Next(arg) }; break;
                 case "--out": flags = flags with { OutDir = Next(arg) }; break;
                 case "--tier": flags = flags with { Tier = Next(arg) }; break;
+                case "--variant": flags = flags with { Variant = Next(arg) }; break;
                 case "--top":
                     string raw = Next(arg);
                     if (!int.TryParse(raw, out int top) || top < 1 || top > 20)

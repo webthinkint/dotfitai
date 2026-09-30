@@ -83,17 +83,23 @@ internal static class Program
         AssistantOptions agentic = AssistantOptions.Load(options.EnvFilePath);
         if (flags.Top is int top)
             agentic = agentic with { DefaultTop = top };
+        if (flags.Variant is not null)
+            agentic = agentic with { PromptVariant = flags.Variant };
+
+        // Every verb but `search` runs on (or prints) the assembled prompt; a
+        // broken variant fails here, before any model call.
+        AssembledPrompt? prompt = command.Verb == CliArgs.Search ? null : AssembledPrompt.Load(options, agentic, aliases);
 
         return command.Verb switch
         {
-            CliArgs.Prompt => Print(SystemPrompt.Build(aliases, options.SupportContact)),
+            CliArgs.Prompt => Print(prompt!.Text),
             CliArgs.Config => Print($"{options}\n{agentic}\n{PriceSheet.Load(options.EnvFilePath)}\nalias table v{aliases.Version}, " +
-                                    $"{aliases.Families.Count} families"),
+                                    $"{aliases.Families.Count} families\nprompt variant {prompt!.Variant}, version {prompt.Version}"),
             CliArgs.Search => await SearchAsync(options, aliases, agentic, command.Text).ConfigureAwait(false),
-            CliArgs.Ask => await AskAsync(options, aliases, agentic, flags, command.Text).ConfigureAwait(false),
-            CliArgs.Chat => await ChatAsync(options, aliases, agentic, flags).ConfigureAwait(false),
+            CliArgs.Ask => await AskAsync(options, aliases, agentic, prompt!, flags, command.Text).ConfigureAwait(false),
+            CliArgs.Chat => await ChatAsync(options, aliases, agentic, prompt!, flags).ConfigureAwait(false),
             CliArgs.Smoke => await Smoke.RunAsync(
-                AssistantFactory.Create(options, agentic, aliases),
+                AssistantFactory.Create(options, agentic, aliases, prompt: prompt),
                 flags.SmokeSet ?? DefaultPath(options, "assistant", "smoke", "conversations.jsonl"),
                 flags.OutDir ?? DefaultPath(options, "assistant", "smoke", "runs"),
                 flags.Tier).ConfigureAwait(false),
@@ -119,21 +125,22 @@ internal static class Program
     // ------------------------------------------------------------------ ask
 
     private static async Task<int> AskAsync(
-        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, CliFlags flags, string question)
+        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, AssembledPrompt prompt, CliFlags flags,
+        string question)
     {
-        var assistant = AssistantFactory.Create(options, agentic, aliases);
+        var assistant = AssistantFactory.Create(options, agentic, aliases, prompt: prompt);
         Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
         Console.Out.WriteLine();
-        await RenderTurnAsync(assistant, new AskRequest { Question = question }, flags).ConfigureAwait(false);
+        await RenderTurnAsync(assistant, new AskRequest { Question = question }, flags, prompt).ConfigureAwait(false);
         return 0;
     }
 
     // ----------------------------------------------------------------- chat
 
     private static async Task<int> ChatAsync(
-        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, CliFlags flags)
+        RuntimeOptions options, AliasTable aliases, AssistantOptions agentic, AssembledPrompt prompt, CliFlags flags)
     {
-        var assistant = AssistantFactory.Create(options, agentic, aliases);
+        var assistant = AssistantFactory.Create(options, agentic, aliases, prompt: prompt);
         var history = new List<ConversationTurn>();
 
         Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
@@ -162,7 +169,8 @@ internal static class Program
             TurnResult? result = await RenderTurnAsync(
                 assistant,
                 new AskRequest { Question = question, History = history },
-                flags).ConfigureAwait(false);
+                flags,
+                prompt).ConfigureAwait(false);
 
             // The transcript the caller would keep: text only, no tool calls
             // and no sources — the same thing the service is sent (§6). A turn
@@ -183,7 +191,7 @@ internal static class Program
     /// that could cite it, because the library emits it that way (§7).
     /// </summary>
     private static async Task<TurnResult?> RenderTurnAsync(
-        IDotFitAssistant assistant, AskRequest request, CliFlags flags)
+        IDotFitAssistant assistant, AskRequest request, CliFlags flags, AssembledPrompt prompt)
     {
         TurnResult? result = null;
         bool answering = false;
@@ -267,7 +275,8 @@ internal static class Program
                 Console.Error.WriteLine(TurnLog.From(
                     result,
                     TurnLog.OutcomeAnswered,
-                    historyTurns: request.History.Count).ToJsonLine());
+                    historyTurns: request.History.Count,
+                    prompt: prompt).ToJsonLine());
 
             return result;
         }

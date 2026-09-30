@@ -5,6 +5,7 @@ using DotFit.Assistant;
 using DotFit.Assistant.Config;
 using DotFit.Assistant.Service;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Prompting;
 
 // dotfit-service — the §6 loop behind an SSE endpoint (design §9).
 // Transport only: config load, one endpoint, one health check.
@@ -37,6 +38,8 @@ PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
 // the loop can hand off, and the customer gets a truncated stream (§6, §9).
 service.RequireRoomForTurn(agentic);
 AliasTable aliases = AliasTable.Load(options.AliasTablePath);
+// Assembled once, here, so a broken prompt variant stops the boot.
+AssembledPrompt prompt = AssembledPrompt.Load(options, agentic, aliases);
 
 // A question plus eight trimmed history turns. Kestrel's 30 MB default is for
 // file uploads; this endpoint feeds model prompts.
@@ -46,8 +49,9 @@ builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(service);
 builder.Services.AddSingleton(agentic);
 builder.Services.AddSingleton(prices);
+builder.Services.AddSingleton(prompt);
 builder.Services.AddSingleton<IDotFitAssistant>(
-    _ => AssistantFactory.Create(options, agentic, aliases, prices: prices));
+    _ => AssistantFactory.Create(options, agentic, aliases, prices: prices, prompt: prompt));
 
 // Not optional and not configurable. With nothing gated, this log is the only
 // reconstruction of what an audience was shown (§8.3) — and it holds no
@@ -78,11 +82,13 @@ builder.Services.ConfigureHttpJsonOptions(json =>
 
 WebApplication app = builder.Build();
 
-app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOptions agent, PriceSheet sheet) => Results.Ok(new
+app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOptions agent, PriceSheet sheet, AssembledPrompt prompt) => Results.Ok(new
 {
     status = "ok",
     runtime = "agentic",
     index = opts.IndexName,
+    prompt_variant = prompt.Variant,
+    prompt_version = prompt.Version,
     // Deployment names are configuration, not secrets; no key is read here.
     chat_deployment = opts.ChatDeployment,
     embedding_deployment = opts.EmbeddingDeployment,
@@ -121,6 +127,7 @@ app.MapPost("/ask", async (
     ServiceOptions service,
     ITurnSink turns,
     ITranscriptSink transcripts,
+    AssembledPrompt prompt,
     HttpContext http,
     CancellationToken ct) =>
 {
@@ -141,7 +148,7 @@ app.MapPost("/ask", async (
     http.Response.Headers["X-Accel-Buffering"] = "no";
 
     var writer = new HttpSseWriter(http.Response);
-    await AskStream.RunAsync(assistant, request, writer, service, turns, transcripts, ct);
+    await AskStream.RunAsync(assistant, request, writer, service, turns, transcripts, ct, prompt);
     return Results.Empty;
 });
 

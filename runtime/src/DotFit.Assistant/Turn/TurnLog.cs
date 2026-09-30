@@ -36,7 +36,7 @@ public sealed record TurnLog
     /// <summary>Line discriminator — these share stdout with the host's own logs.</summary>
     public const string SchemaName = "dotfit.turn";
 
-    public const string SchemaVersion = "1.2.0";
+    public const string SchemaVersion = "1.3.0";
 
     /// <summary>The model answered, with or without having searched.</summary>
     public const string OutcomeAnswered = "answered";
@@ -100,6 +100,12 @@ public sealed record TurnLog
     /// </summary>
     [JsonPropertyName("program_guide")] public string? ProgramGuideVersion { get; init; }
 
+    /// <summary>The prompt variant the turn ran on (<c>assistant/prompt/variants/</c>).</summary>
+    [JsonPropertyName("prompt_variant")] public string? PromptVariant { get; init; }
+
+    /// <summary><see cref="AssembledPrompt.Version"/>: which exact prompt text the turn ran on.</summary>
+    [JsonPropertyName("prompt_version")] public string? PromptVersion { get; init; }
+
     // ---- how it went -------------------------------------------------------
 
     /// <summary>Milliseconds to the first delta. The number this branch exists for (§6).</summary>
@@ -137,7 +143,8 @@ public sealed record TurnLog
         string outcome,
         string? requestId = null,
         string? errorKind = null,
-        int historyTurns = 0)
+        int historyTurns = 0,
+        AssembledPrompt? prompt = null)
     {
         var toolsUsed = new SortedDictionary<string, int>(StringComparer.Ordinal);
         foreach (ToolCallRecord call in result.ToolCalls)
@@ -162,6 +169,8 @@ public sealed record TurnLog
             CitedAuthorities = [.. citedAuthorities],
             Families = result.Families,
             ProgramGuideVersion = result.ToolCalls.Any(c => c.Tool == Stages.Guide) ? ProgramGuide.Version : null,
+            PromptVariant = prompt?.Variant,
+            PromptVersion = prompt?.Version,
             FirstDeltaMs = result.FirstDeltaMs,
             TotalMs = result.TotalMs,
             HistoryTurns = historyTurns,

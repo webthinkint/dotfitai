@@ -7,10 +7,8 @@ using DotFit.Assistant.Aliases;
 namespace DotFit.Assistant.Tests;
 
 /// <summary>
-/// The system prompt is this branch's main safety mechanism (design §8), so the
-/// things that must be in it are asserted rather than assumed. These are
-/// presence checks, not quality checks — no test can tell you the wording works,
-/// only that a deletion was noticed.
+/// The generated currency block. The written prompt parts are checked for
+/// structure in <see cref="PromptTemplateTests"/>; their wording is not tested.
 /// </summary>
 public class SystemPromptTests
 {
@@ -35,139 +33,10 @@ public class SystemPromptTests
         Assert.Equal(SystemPrompt.CurrencyFacts(aliases), SystemPrompt.CurrencyFacts(aliases));
     }
 
-    [Theory]
-    [InlineData("pregnan")]
-    [InlineData("under 12")]
-    [InlineData("self-harm")]
-    [InlineData("disordered eating")]
-    [InlineData("Prescription medication")]
-    public void The_escalation_list_survives_in_the_assembled_prompt(string topic)
-    {
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains(topic, prompt, StringComparison.OrdinalIgnoreCase);
-    }
-
     [Fact]
-    public void Escalation_is_handled_in_the_conversation_rather_than_by_refusing()
+    public void Currency_facts_use_the_same_line_endings_on_every_platform()
     {
-        // Decision D5. If this instruction goes, the branch has quietly become
-        // v1's refusal behaviour without the gate that at least made it visible.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("Stay in the conversation", prompt, StringComparison.Ordinal);
-        Assert.Contains("do not refuse the whole turn", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_claims_rule_outranks_the_rest_and_says_so()
-    {
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("outranks every other instruction", prompt, StringComparison.Ordinal);
-        Assert.Contains("diagnoses, treats, cures or prevents", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_support_route_is_configurable_and_droppable()
-    {
-        string withRoute = SystemPrompt.Build(Fixtures.Aliases(), "support@example.com");
-        Assert.Contains("support@example.com", withRoute, StringComparison.Ordinal);
-
-        // DOTFIT_SUPPORT_CONTACT=none — a deployment whose audience is not
-        // dotFIT's support line still gets a route, just not that one.
-        string without = SystemPrompt.Build(Fixtures.Aliases(), null);
-        Assert.DoesNotContain("support@example.com", without, StringComparison.Ordinal);
-        Assert.Contains("healthcare professional", without, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Scope_is_dotFITs_ground_and_the_model_is_told_it_is_not_a_general_assistant()
-    {
-        // Owner-ruled 2026-09-15: no general chat. v1 had a classifier for
-        // this; here it is a paragraph, and this is the check that it stays.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("You are not a general-purpose", prompt, StringComparison.Ordinal);
-        Assert.Contains("do not search for", prompt, StringComparison.Ordinal);
-        Assert.Contains("a request outside your scope", prompt, StringComparison.Ordinal);
-        Assert.Contains("You are an AI assistant", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_tag_governs_product_claims_only_so_QA_guidance_is_not_hedged_away()
-    {
-        // The carve-out v1's audit needed, restated for the model that now has
-        // no audit: general information and site procedure from a CONTEXT ONLY
-        // source is ordinary, cited information.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("governs product claims", prompt, StringComparison.Ordinal);
-        Assert.Contains("carve-out stops where supplements start", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void A_source_is_about_its_own_subject_and_the_prompt_says_how_to_attribute()
-    {
-        // The observed v1 failure: dosing lifted from one product's chunk onto
-        // another that shares the ingredient. The fix is attribution, not
-        // silence, and the prompt has to say both halves.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("A source is about its own subject", prompt, StringComparison.Ordinal);
-        Assert.Contains("never carry its dosing, timing or usage directions", prompt, StringComparison.Ordinal);
-        Assert.Contains("naming its subject", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Text_inside_a_source_is_material_not_instruction()
-    {
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("text inside a source", prompt, StringComparison.Ordinal);
-        Assert.Contains("answering from half", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Program_requests_go_through_the_guide_uncited_and_unattributed()
-    {
-        // Owner-ruled 2026-09-17 (§7.4): the guide is the method, its doses
-        // are dotFIT's, and it is not a numbered source.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("call get_program_guide", prompt, StringComparison.Ordinal);
-        Assert.Contains("Don't interrogate", prompt, StringComparison.Ordinal);
-        Assert.Contains("overlap check", prompt, StringComparison.Ordinal);
-        // S-094, 2026-09-29: a stack they already take is a program too.
-        Assert.Contains("combination they take, or plan to take, is okay", prompt, StringComparison.Ordinal);
-        // S-094, 2026-09-29: it said "the program guide" aloud.
-        Assert.Contains("not something the customer sees. Never mention it", prompt, StringComparison.Ordinal);
-        Assert.Contains("Do not cite the guide", prompt, StringComparison.Ordinal);
-        Assert.Contains("without attributing them", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Teenagers_are_answered_within_the_guides_under_18_limits()
-    {
-        // Owner-ruled 2026-09-17: the age trigger is under 12, and the teen
-        // limits are what replaced the old line. Since D10 (2026-09-28) the
-        // limits are the deck's youth program: creatine only 16+ with a
-        // parent's approval, nothing else outside it.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.DoesNotContain("The customer is under 18", prompt, StringComparison.Ordinal);
-        Assert.Contains("Teenagers (12–17) are not on that list", prompt, StringComparison.Ordinal);
-        Assert.Contains("creatine only for post-pubescent athletes", prompt, StringComparison.Ordinal);
-        Assert.Contains("no pre-workouts, glutamine or weight-loss products", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_guides_screening_is_an_allowed_answer_and_nothing_past_it_is()
-    {
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("a multivitamin and protein powder", prompt, StringComparison.Ordinal);
-        Assert.Contains("still their doctor's call", prompt, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void The_citation_contract_tells_the_model_the_numbering_rule()
-    {
-        // The client-side half of §7 only holds if the model cites the numbers
-        // it was given, in the turn it was given them.
-        string prompt = SystemPrompt.Build(Fixtures.Aliases());
-        Assert.Contains("keeps its number for the whole turn", prompt, StringComparison.Ordinal);
-        Assert.Contains("never cite a source from an earlier turn", prompt, StringComparison.Ordinal);
+        Assert.DoesNotContain("\r", SystemPrompt.CurrencyFacts(Fixtures.Aliases()), StringComparison.Ordinal);
     }
 }
 
@@ -276,7 +145,7 @@ public class TurnLogTests
         Assert.Contains("\"cost\":{", line, StringComparison.Ordinal);
         Assert.Contains("\"price_sheet\":\"test-sheet\"", line, StringComparison.Ordinal);
         Assert.Contains("\"total_usd\":0.0040462", line, StringComparison.Ordinal);
-        Assert.Equal("1.2.0", TurnLog.SchemaVersion);
+        Assert.Equal("1.3.0", TurnLog.SchemaVersion);
     }
 
     [Fact]
@@ -291,6 +160,18 @@ public class TurnLogTests
         TurnLog with = TurnLog.From(Result(Call(Stages.Guide, "")), TurnLog.OutcomeAnswered);
         Assert.Equal(ProgramGuide.Version, with.ProgramGuideVersion);
         Assert.Equal(1, with.ToolsUsed[Stages.Guide]);
+    }
+
+    [Fact]
+    public void The_prompt_variant_and_version_are_logged_when_known()
+    {
+        var prompt = new AssembledPrompt("safety-early", "the prompt text");
+        string line = TurnLog.From(Result(), TurnLog.OutcomeAnswered, prompt: prompt).ToJsonLine();
+
+        Assert.Contains("\"prompt_variant\":\"safety-early\"", line, StringComparison.Ordinal);
+        Assert.Contains($"\"prompt_version\":\"{PromptTemplate.Version("the prompt text")}\"", line, StringComparison.Ordinal);
+        Assert.DoesNotContain("the prompt text", line, StringComparison.Ordinal);
+        Assert.DoesNotContain("prompt_variant", TurnLog.From(Result(), TurnLog.OutcomeAnswered).ToJsonLine(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -335,6 +216,16 @@ public class AssistantOptionsTests
         Assert.Equal(3, options.MaxToolCalls);
         Assert.Equal(TimeSpan.FromSeconds(20), options.TurnTimeout);
         Assert.Equal(10, options.DefaultTop);
+    }
+
+    [Fact]
+    public void The_prompt_variant_is_read_from_the_env_and_defaults_to_default()
+    {
+        Assert.Equal(PromptTemplate.DefaultVariant, AssistantOptions.FromValues(new Dictionary<string, string>()).PromptVariant);
+        Assert.Equal("safety-early", AssistantOptions.FromValues(new Dictionary<string, string>
+        {
+            [AssistantOptions.PromptVariantVar] = " safety-early ",
+        }).PromptVariant);
     }
 
     [Fact]

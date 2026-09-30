@@ -1,6 +1,7 @@
 using DotFit.Assistant.Cost;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotFit.Assistant.Prompting;
 using DotFit.Assistant.Turn;
 using DotFit.Assistant;
 
@@ -79,7 +80,8 @@ public static class AskStream
         ServiceOptions options,
         ITurnSink turns,
         ITranscriptSink transcripts,
-        CancellationToken ct)
+        CancellationToken ct,
+        AssembledPrompt? prompt = null)
     {
         string requestId = Trim(body.RequestId) ?? Guid.NewGuid().ToString("n");
         var request = new AskRequest
@@ -182,8 +184,8 @@ public static class AskStream
             // that turn is exactly the one worth knowing about, so it logs an
             // empty one rather than nothing.
             turns.Write(result is not null
-                ? TurnLog.From(result, outcome, requestId, errorKind, request.History.Count)
-                : Abandoned(requestId, request.History.Count));
+                ? TurnLog.From(result, outcome, requestId, errorKind, request.History.Count, prompt)
+                : Abandoned(requestId, request.History.Count, prompt));
 
             if (result is not null)
                 transcripts.Write(requestId, request.Question, result, sourceIds);
@@ -242,9 +244,11 @@ public static class AskStream
     /// result — an abandoned line is a statement that a request arrived and
     /// ended without one, not a claim about what it would have said.
     /// </summary>
-    private static TurnLog Abandoned(string requestId, int historyTurns) => new()
+    private static TurnLog Abandoned(string requestId, int historyTurns, AssembledPrompt? prompt) => new()
     {
         RequestId = requestId,
+        PromptVariant = prompt?.Variant,
+        PromptVersion = prompt?.Version,
         Outcome = TurnLog.OutcomeAbandoned,
         ToolCalls = 0,
         ToolsUsed = new Dictionary<string, int>(),
