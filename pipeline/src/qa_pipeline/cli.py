@@ -1,5 +1,5 @@
 """CLI entry points: ``stage0``, ``stage1``, ``stage2``, ``stage4``, ``run``
-(stages 0+1), ``aliases``, ``pdsrg``, ``podcast``, ``index``, ``golden``.
+(stages 0+1), ``aliases``, ``pdsrg``, ``podcast``, ``index``.
 Per-subcommand contracts live in the module each one drives; what follows is
 the QA-stage layout, which this module owns.
 
@@ -46,18 +46,7 @@ from .azure_config import (
     REQUIRE_OPENAI_SMALL_CHAT, load_azure_config,
 )
 from .embeddings import EMBEDDING_API_VERSION, Embedder
-from .evaluate import (
-    ADVERSARIAL_JUDGE_SCHEMA, ANSWER_JUDGE_SCHEMA, AgentCli, AgentError,
-    DEFAULT_SPLIT, DEFAULT_TOP_K, EVAL_VERSION, JUDGE_PROMPT_VERSION,
-    run_eval, select_split, write_report,
-)
 from .extract import extract_docx
-from .golden import (
-    ADVERSARIAL_SIZE, GOLDEN_VERSION, build_adversarial, build_multiturn,
-    build_probes, run_golden, write_adversarial_jsonl,
-    write_adversarial_worksheet, write_multiturn_jsonl,
-    write_multiturn_worksheet, write_probes_jsonl, write_worksheet,
-)
 from .index_build import (
     INDEX_NAME, build_documents, delete_documents, embed_text, ensure_index,
     list_index_ids, read_menu_rows, upload_documents,
@@ -787,132 +776,6 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     return 1 if errors and args.fail_on_error else 0
 
 
-def _write_written_sets(out_dir: Path) -> tuple[list[dict], dict]:
-    """The hand-written sets — no sampling, no corpus read.
-
-    Split out because the drawn 250 and the written 50/20 have different
-    lifecycles: re-drawing the sample is an owner decision (it moves open
-    item 8's labeling target), while the written sets are curation in code
-    and may be rebuilt whenever that code changes — open item 23's rubric
-    rewrite is exactly that.
-    """
-    adversarial = build_adversarial()
-    write_adversarial_jsonl(out_dir / "adversarial.jsonl", adversarial)
-    write_adversarial_worksheet(out_dir / "adversarial.md", adversarial)
-    multiturn = build_multiturn()
-    write_multiturn_jsonl(out_dir / "multiturn.jsonl", multiturn)
-    write_multiturn_worksheet(out_dir / "multiturn.md", multiturn)
-    return adversarial, {
-        "n": len(multiturn),
-        "by_category": {
-            plan_category: sum(1 for i in multiturn
-                               if i["category"] == plan_category)
-            for plan_category in dict.fromkeys(
-                i["category"] for i in multiturn)},
-        "splits": {"dev": sum(1 for i in multiturn if i["split"] == "dev"),
-                   "test": sum(1 for i in multiturn if i["split"] == "test")},
-    }
-
-
-def cmd_golden_written(args: argparse.Namespace) -> int:
-    """``golden --written-only``: rebuild the written sets, keep the draw.
-
-    Touches ``adversarial.*`` and ``multiturn.*`` only. ``summary.json``'s
-    ``golden_version`` and multi-turn block are restamped so the summary does
-    not describe a version of the written sets that is no longer on disk;
-    every sampling number in it belongs to the draw it already described and
-    is left exactly as it was.
-    """
-    out_dir = Path(args.out).resolve()
-    if not out_dir.is_dir():
-        print(f"error: golden dir not found: {out_dir} (run without "
-              f"--written-only to build it)", file=sys.stderr)
-        return 2
-    adversarial, multiturn_summary = _write_written_sets(out_dir)
-
-    summary_path = out_dir / "summary.json"
-    if summary_path.is_file():
-        summary = json.loads(summary_path.read_text(encoding="utf-8"))
-        summary["golden_version"] = GOLDEN_VERSION
-        summary["multiturn"] = multiturn_summary
-        write_json(summary_path, summary)
-    mpath = _manifest(out_dir, "golden", args, [], out_dir, {
-        "written_only": True,
-        "n_adversarial": len(adversarial),
-        "n_multiturn": multiturn_summary["n"],
-        "golden_version": GOLDEN_VERSION,
-    })
-    print(f"golden written sets: {len(adversarial)} adversarial + "
-          f"{multiturn_summary['n']} multi-turn (sample untouched) -> "
-          f"{out_dir}")
-    print(f"manifest: {mpath}")
-    return 0
-
-
-def cmd_golden(args: argparse.Namespace) -> int:
-    if getattr(args, "written_only", False):
-        return cmd_golden_written(args)
-    qa_path = Path(args.qa_docs).resolve()
-    if not qa_path.is_file():
-        print(f"error: Stage 4 documents.jsonl not found: {qa_path}",
-              file=sys.stderr)
-        return 2
-    products_path = Path(args.products).resolve()
-    if not products_path.is_file():
-        print(f"error: products.json not found: {products_path}", file=sys.stderr)
-        return 2
-
-    records = read_jsonl(qa_path)
-    alias_table = build_alias_table(
-        json.loads(products_path.read_text(encoding="utf-8")))
-    items, swaps, summary = run_golden(records, alias_table)
-
-    out_dir = Path(args.out).resolve()
-    out_dir.mkdir(parents=True, exist_ok=True)
-    sample_path = out_dir / "sample.jsonl"
-    with sample_path.open("w", encoding="utf-8", newline="\n") as f:
-        for item in items:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-    write_worksheet(out_dir / "worksheet.md", items)
-    _, summary["multiturn"] = _write_written_sets(out_dir)
-
-    # Retrieval probes need the §9 build, which the QA-only pipelines have not
-    # necessarily run — absent, the sample and the adversarial set still stand.
-    index_path = Path(args.index_docs).resolve()
-    if index_path.is_file():
-        probes, probe_summary = build_probes(read_jsonl(index_path))
-        write_probes_jsonl(out_dir / "probes.jsonl", probes)
-        summary["probes"] = probe_summary
-    else:
-        summary["probes"] = None
-    write_json(out_dir / "summary.json", summary)
-
-    mpath = _manifest(out_dir, "golden", args, [qa_path], qa_path.parent, {
-        "n_items": len(items),
-        "products_sha256": sha256_file(products_path),
-        "alias_table_version": alias_table["version"],
-        "golden_version": GOLDEN_VERSION,
-    })
-    years = ", ".join(
-        f"{row['year']}:{row['sampled']}" for row in summary["year_allocation"])
-    probe_note = (
-        f"{summary['probes']['n_probes']} retrieval probes"
-        if summary["probes"] else "no retrieval probes (no index build)")
-    print(f"golden set: {summary['pool']['n_pool']} current QA pairs -> "
-          f"{len(items)} items ({years}); splits "
-          f"{summary['splits']['sampled']['dev']}/"
-          f"{summary['splits']['sampled']['test']} dev/test + "
-          f"{ADVERSARIAL_SIZE} adversarial + "
-          f"{summary['multiturn']['n']} multi-turn; {probe_note}; "
-          f"{len(swaps)} coverage swap(s) -> {out_dir}")
-    if summary["unmet"]:
-        for u in summary["unmet"]:
-            print(f"  WARNING unmet coverage: {u}", file=sys.stderr)
-        return 1
-    print(f"manifest: {mpath}")
-    return 0
-
-
 def cmd_index(args: argparse.Namespace) -> int:
     chunks_path = Path(args.chunks).resolve()
     products_path = Path(args.products).resolve()
@@ -1073,96 +936,6 @@ def _count_by(docs: list[dict], key: str) -> dict[str, int]:
         k = str(d.get(key) or "none")
         out[k] = out.get(k, 0) + 1
     return dict(sorted(out.items()))
-
-
-def cmd_eval(args: argparse.Namespace) -> int:
-    golden_dir = Path(args.golden).resolve()
-    if not golden_dir.is_dir():
-        print(f"error: golden dir not found: {golden_dir}", file=sys.stderr)
-        return 2
-
-    def _load(name: str) -> list[dict]:
-        path = golden_dir / name
-        return read_jsonl(path) if path.is_file() else []
-
-    sample = select_split(_load("sample.jsonl"), args.split, args.limit)
-    probes = select_split(_load("probes.jsonl"), args.split, args.limit)
-    adversarial = select_split(_load("adversarial.jsonl"), args.split,
-                               args.limit)
-    multiturn = select_split(_load("multiturn.jsonl"), args.split, args.limit)
-    if not (sample or probes or adversarial or multiturn):
-        print(f"error: no golden items in {golden_dir} — run "
-              "`qa-pipeline golden` first", file=sys.stderr)
-        return 2
-
-    # Retrieval-only sweeps need no chat deployment (the runtime enforces the
-    # same split via RuntimeNeeds); asking for one we will not use would fail
-    # a run that open item 1's quota has nothing to do with.
-    answer_sample = not args.no_answers
-    needs_chat = bool(adversarial) or answer_sample
-    judge_call = None
-    deployment = None
-    if needs_chat and not args.no_judge:
-        try:
-            cfg = load_azure_config(require=REQUIRE_OPENAI_SMALL_CHAT)
-        except AzureConfigError as e:
-            print(f"error: {e}", file=sys.stderr)
-            return 2
-        deployment = cfg.small_chat_deployment
-        answer_judge = Extractor(cfg.openai_endpoint, cfg.openai_api_key,
-                                 deployment, args.api_version,
-                                 schema=ANSWER_JUDGE_SCHEMA,
-                                 schema_name="qa_eval_answer")
-        adv_judge = Extractor(cfg.openai_endpoint, cfg.openai_api_key,
-                              deployment, args.api_version,
-                              schema=ADVERSARIAL_JUDGE_SCHEMA,
-                              schema_name="qa_eval_adversarial")
-        judge_call = (answer_judge, adv_judge)
-
-    agent = AgentCli(args.agent.split(), index=args.index, top=args.top,
-                     cwd=args.agent_cwd, timeout=args.timeout)
-    try:
-        summary, raw = run_eval(
-            sample, probes, adversarial, agent, multiturn=multiturn,
-            answer_judge=(judge_call[0] if judge_call else None),
-            adversarial_judge=(judge_call[1] if judge_call else None),
-            k=args.top, ranker_ab=args.ranker_ab,
-            answer_sample=answer_sample, workers=max(1, args.workers))
-    except AgentError as e:
-        print(f"error: agent: {e}", file=sys.stderr)
-        return 1
-
-    summary.update({
-        "split": args.split,
-        "index": args.index or "(runtime default)",
-        "deployment": deployment or "(no judge)",
-        "judge_prompt_version": JUDGE_PROMPT_VERSION,
-        "n_sample": len(sample), "n_probes": len(probes),
-        "n_adversarial": len(adversarial), "n_multiturn": len(multiturn),
-    })
-
-    out_dir = Path(args.out).resolve()
-    out_dir.mkdir(parents=True, exist_ok=True)
-    write_json(out_dir / "summary.json", summary)
-    write_text(out_dir / "report.md", write_report(summary) + "\n")
-    mpath = _manifest(out_dir, "eval", args, [], golden_dir,
-                      {"eval_version": EVAL_VERSION, "summary": summary,
-                       "results": raw})
-
-    retrieval = summary.get("retrieval") or {}
-    parts = [f"{name} recall@{args.top} "
-             f"{(row['recall_at_k'] or 0) * 100:.1f}%"
-             for name, row in retrieval.items()]
-    if summary.get("adversarial"):
-        escalation = summary["adversarial"]["escalation"]
-        parts.append(f"escalation {escalation['n_escalated']}/{escalation['n']}")
-    if summary.get("multiturn"):
-        multi = summary["multiturn"]
-        parts.append(f"multi-turn {multi['n_correct']}/{multi['n_scored']}")
-    print(f"eval ({args.split}): " + "; ".join(parts) if parts else "eval: done")
-    print(f"report: {out_dir / 'report.md'}")
-    print(f"manifest: {mpath}")
-    return 0
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -1370,66 +1143,6 @@ def build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--quiet", action="store_true")
     pc.add_argument("--fail-on-error", action="store_true")
     pc.set_defaults(func=cmd_podcast)
-
-    g = sub.add_parser(
-        "golden",
-        help="stratified golden-set sample + labeling worksheets (plan §12)")
-    g.add_argument("--qa-docs", default="processed/qa/stage4/documents.jsonl",
-                   help="Stage 4 documents.jsonl (the sampling pool)")
-    g.add_argument("--products", default="data/Product Data/products.json",
-                   help="path to products.json (alias table source)")
-    g.add_argument("--index-docs", default="processed/index/documents.jsonl",
-                   help="§9 index build — the PDSRG/podcast retrieval probes "
-                        "are drawn from it (skipped when absent)")
-    g.add_argument("--out", default="processed/golden",
-                   help="output dir (default: processed/golden)")
-    g.add_argument("--written-only", action="store_true",
-                   help="rebuild only the hand-written adversarial and "
-                        "multi-turn sets, leaving the drawn 250 and the "
-                        "probes as they are (re-drawing the sample is an "
-                        "owner decision — open item 8)")
-    g.set_defaults(func=cmd_golden)
-
-    e = sub.add_parser(
-        "eval",
-        help="§12 evaluation harness — golden-set metrics over the live "
-             "runtime (drives `dotfit-agent --json`)")
-    e.add_argument("--golden", default="processed/golden",
-                   help="golden-set dir (sample/probes/adversarial/multiturn "
-                        "jsonl)")
-    e.add_argument("--out", default="processed/eval",
-                   help="output dir (default: processed/eval)")
-    e.add_argument("--agent", default="dotfit-agent",
-                   help="agent command; split on spaces, e.g. "
-                        "\"dotnet run --project runtime/src/DotFit.Agents.Cli --\"")
-    e.add_argument("--agent-cwd", default=None,
-                   help="working directory for the agent process")
-    e.add_argument("--index", default=None,
-                   help="AI Search index (default: the runtime's own default)")
-    e.add_argument("--split", default=DEFAULT_SPLIT, choices=["dev", "test", "all"],
-                   help=f"golden split to measure (default: {DEFAULT_SPLIT}; "
-                        "`test` is the held-back release check)")
-    e.add_argument("--limit", type=int, default=None,
-                   help="first N items of each set (smoke runs)")
-    e.add_argument("--top", type=int, default=DEFAULT_TOP_K,
-                   help=f"retrieval depth k (default: {DEFAULT_TOP_K})")
-    e.add_argument("--ranker-ab", action="store_true",
-                   help="also run retrieval with the semantic ranker on and "
-                        "report both (open item 5)")
-    e.add_argument("--no-answers", action="store_true",
-                   help="skip the full pipeline over the sampled questions — "
-                        "retrieval + adversarial only (much cheaper)")
-    e.add_argument("--no-judge", action="store_true",
-                   help="deterministic metrics only; no LLM judge calls")
-    e.add_argument("--workers", type=int, default=1,
-                   help="concurrent agent/judge calls — the sweep is hundreds "
-                        "of independent round trips, so >1 only changes the "
-                        "wall clock, not the results (default: 1, sequential)")
-    e.add_argument("--api-version", default=CHAT_API_VERSION,
-                   help=f"judge API version (default: {CHAT_API_VERSION})")
-    e.add_argument("--timeout", type=float, default=180.0,
-                   help="per-agent-call timeout in seconds")
-    e.set_defaults(func=cmd_eval)
 
     r = sub.add_parser("run", help="stage0 followed by stage1")
     common(r)

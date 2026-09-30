@@ -15,8 +15,6 @@ runtime/**/*.user
 /processed/index/runs
 /data/Product Summaries/All Product Summaries, Teaching, Marketing, etc -Dan V2.pptx
 /processed/podcasts/runs
-/processed/golden/runs
-/processed/eval/runs
 
 # python bytecode (deploy tooling is python: verdict-log, turn-log)
 __pycache__/
