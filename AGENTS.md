@@ -9,7 +9,7 @@ refusal-prone, or closer to the owners' preferred prose?
 
 - The loop, tools, source numbering, prompt assembly, service, logs, cost →
   `docs/architecture.md`, which also holds the runtime's rules.
-- Anything the caller sees (an event, a `result` or `/healthz` field, a limit) →
+- Anything the caller sees (an event, a `result` field, a limit) →
   `docs/website-integration.md`. The website team builds against it, not the
   code, so it changes in the same commit.
 - The prompt, references, `sources.yaml`, the smoke set → `assistant/README.md`
@@ -53,6 +53,3 @@ contain spaces, commas and `&`, so always quote paths.
   shape tests, prompt structure is tested and prompt wording is not.
 - Docs and comments are present tense. When a rule changes, edit it in place and
   say why in the commit message. There is no history log.
-- Each file keeps the line endings it was committed with (runtime LF, some
-  pipeline files CRLF). Check `git diff --stat` for whole-file rewrites.
-- Commits: `area: description`, lowercase.
