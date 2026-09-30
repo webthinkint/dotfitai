@@ -17,12 +17,12 @@ public class SmokeSetTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null)
         {
-            string candidate = Path.Combine(dir.FullName, "smoke", "conversations.jsonl");
+            string candidate = Path.Combine(dir.FullName, "assistant", "smoke", "conversations.jsonl");
             if (File.Exists(candidate))
                 return candidate;
             dir = dir.Parent;
         }
-        throw new FileNotFoundException("runtime/smoke/conversations.jsonl not found from the test output directory");
+        throw new FileNotFoundException("assistant/smoke/conversations.jsonl not found from the test output directory");
     }
 
     [Fact]

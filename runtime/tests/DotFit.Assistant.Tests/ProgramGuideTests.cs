@@ -97,12 +97,12 @@ public partial class ProgramGuideTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null)
         {
-            string candidate = Path.Combine(dir.FullName, "processed", "aliases", "alias_table.json");
+            string candidate = Path.Combine(dir.FullName, "pipeline-output", "aliases", "alias_table.json");
             if (File.Exists(candidate))
                 return candidate;
             dir = dir.Parent;
         }
-        throw new FileNotFoundException("processed/aliases/alias_table.json not found from the test output directory");
+        throw new FileNotFoundException("pipeline-output/aliases/alias_table.json not found from the test output directory");
     }
 
     [GeneratedRegex(@"\[([^\]]*)\]")]

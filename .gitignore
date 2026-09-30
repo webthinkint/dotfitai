@@ -1,24 +1,29 @@
 tmp/
 .env
 /.scan_*.txt
+__pycache__/
+*.pyc
 runtime/**/bin/
 runtime/**/obj/
 runtime/**/*.user
-/data/QAs
-/data/Masterclass
-/data/Suppbeast Podcast
-/processed/qa/runs
-/processed/qa/stage0/reports
-/processed/qa/stage2/runs
-/processed/qa/stage4/runs
-/processed/pdsrg/runs
-/processed/index/runs
-/data/Product Summaries/All Product Summaries, Teaching, Marketing, etc -Dan V2.pptx
-/processed/podcasts/runs
 
-# python bytecode (deploy tooling is python: verdict-log, turn-log)
-__pycache__/
-*.pyc
-/processed/masterclass/runs
-/data/Product Summaries/*.pptx
-/processed/summaries/runs
+# Original data that must never be committed: real customer mail (QAs, PII),
+# and large media and decks.
+/original-data/QAs
+/original-data/Masterclass
+/original-data/Suppbeast Podcast
+/original-data/Product Summaries/*.pptx
+
+# Pipeline run artifacts: manifests, caches, embeddings, scrub reports.
+/pipeline-output/qa/runs
+/pipeline-output/qa/stage0/reports
+/pipeline-output/qa/stage2/runs
+/pipeline-output/qa/stage4/runs
+/pipeline-output/pdsrg/runs
+/pipeline-output/index/runs
+/pipeline-output/podcasts/runs
+/pipeline-output/masterclass/runs
+/pipeline-output/summaries/runs
+
+# Smoke-run transcripts.
+/assistant/smoke/runs

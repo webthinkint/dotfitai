@@ -1,6 +1,6 @@
 """Triage the Stage 2 review queue into bulk-dispositionable groups (item 13).
 
-`processed/qa/stage2/review_queue.jsonl` is rows of ``source_file`` +
+`pipeline-output/qa/stage2/review_queue.jsonl` is rows of ``source_file`` +
 ``reasons`` and nothing else, so working it means opening every record. The
 dispositions are the owner's; what this does is make the pass a sign-off
 instead of a 219-item read, the same way the alias worksheet did for §5.
@@ -69,10 +69,10 @@ from pathlib import Path
 
 from qa_pipeline.io_utils import configure_stdio, read_jsonl
 
-DEFAULT_STAGE2 = Path("../processed/qa/stage2")
-DEFAULT_STAGE4 = Path("../processed/qa/stage4/documents.jsonl")
-DEFAULT_STAGE0_TEXT = Path("../processed/qa/stage0/text")
-DEFAULT_CACHE = Path("../processed/qa/stage2/runs/stage2_cache.jsonl")
+DEFAULT_STAGE2 = Path("../pipeline-output/qa/stage2")
+DEFAULT_STAGE4 = Path("../pipeline-output/qa/stage4/documents.jsonl")
+DEFAULT_STAGE0_TEXT = Path("../pipeline-output/qa/stage0/text")
+DEFAULT_CACHE = Path("../pipeline-output/qa/stage2/runs/stage2_cache.jsonl")
 
 # The Stage 0 placeholder vocabulary that stands for a redacted person
 # (AGENTS.md: these tokens are parsed by Stage 1 and by human reviewers). Only
@@ -245,7 +245,7 @@ def main() -> int:
     if not evidence:
         print("!! Stage 2 cache not found — no evidence spans, so residual-PII "
               "rows land in 'unverifiable'. Run on the machine that has "
-              "processed/qa/stage2/runs/stage2_cache.jsonl for the real split.")
+              "pipeline-output/qa/stage2/runs/stage2_cache.jsonl for the real split.")
     print()
     for name in (*GROUP_ORDER, "other"):
         rows = groups.get(name) or []

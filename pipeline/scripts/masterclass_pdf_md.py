@@ -1,4 +1,4 @@
-"""dotFIT Masterclass PDFs -> markdown (data/Masterclass/pdfs).
+"""dotFIT Masterclass PDFs -> markdown (original-data/Masterclass/pdfs).
 
 "Like we do the PDSRG": extraction is the validated §6 machinery from
 ``qa_pipeline.pdsrg``, reused piece-for-piece — the hybrid lines/text table
@@ -21,7 +21,7 @@ PDSRG-specific parts:
 - per-page hyperlink annotations are collected and appended as a link
   appendix (the deck's live PubMed/PMC citations are not text-extractable).
 
-Output: processed/masterclass/md/<slug>.md (slug = pdsrg-style slugify of
+Output: pipeline-output/masterclass/md/<slug>.md (slug = pdsrg-style slugify of
 the stem) + a deterministic summary.json (sorted, no timestamps — reruns
 are byte-identical, the pipeline determinism rule).
 
@@ -53,11 +53,11 @@ def repo_root() -> Path:
 
 
 def pdf_dir() -> Path:
-    return repo_root() / "data" / "Masterclass" / "pdfs"
+    return repo_root() / "original-data" / "Masterclass" / "pdfs"
 
 
 def out_dir() -> Path:
-    return repo_root() / "processed" / "masterclass" / "md"
+    return repo_root() / "pipeline-output" / "masterclass" / "md"
 
 
 def clean_title(stem: str) -> str:

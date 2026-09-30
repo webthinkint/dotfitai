@@ -49,7 +49,7 @@ public sealed record AliasExpansion(
 }
 
 /// <summary>
-/// The committed <c>processed/aliases/alias_table.json</c> artifact (§5
+/// The committed <c>pipeline-output/aliases/alias_table.json</c> artifact (§5
 /// output, versioned by the pipeline). Query-side expansion only — corpus
 /// text is never rewritten through this table.
 ///

@@ -294,7 +294,7 @@ def test_chunk_records_carry_discontinued_status():
     chunks = chunk_section(section, "KidsMV", ["Goal"])
     chunks[0]["id"] = "pdsrg:kidsmv:001"
     doc = {"doc_title": "KidsMV", "family": "KidsMV", "part_nos": [],
-           "category": "MVM", "topics": [], "source_file": "data/x.pdf",
+           "category": "MVM", "topics": [], "source_file": "original-data/x.pdf",
            "slug": "kidsmv", "status": "discontinued",
            "note": "discontinued — older kids/teens: Active MV"}
     rec = chunk_records(doc, chunks)[0]
@@ -313,7 +313,7 @@ def test_chunk_records_shape():
     chunks[0]["id"] = "pdsrg:thermaccel:001"
     doc = {"doc_title": "ThermAccel", "family": "ThermAccel",
            "part_nos": [1102], "category": "WeightLoss", "topics": [],
-           "source_file": "data/x.pdf", "slug": "thermaccel"}
+           "source_file": "original-data/x.pdf", "slug": "thermaccel"}
     rec = chunk_records(doc, chunks)[0]
     assert rec["id"] == "pdsrg:thermaccel:001"
     assert rec["source_type"] == "pdsrg"

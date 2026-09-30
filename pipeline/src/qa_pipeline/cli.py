@@ -5,7 +5,7 @@ the QA-stage layout, which this module owns.
 
 Designed for identical behavior on Windows (dev) and Linux (production):
 
-    uv run qa-pipeline run --input data/QAs --out processed/qa
+    uv run qa-pipeline run --input original-data/QAs --out pipeline-output/qa
 
 Output layout (mirrors the input tree so files are traceable by path):
 
@@ -17,7 +17,7 @@ Output layout (mirrors the input tree so files are traceable by path):
     <out>/runs/*.json                                 run manifests (audit trail)
 
 Stage 2 (``stage2``) reads Stage 1 output + products.json and writes into its
-own out dir (default ``processed/qa/stage2/``): ``documents.jsonl`` (one
+own out dir (default ``pipeline-output/qa/stage2/``): ``documents.jsonl`` (one
 canonical record per doc), ``review_queue.jsonl``, ``summary.json`` and
 ``runs/`` (manifests + the gitignored ``stage2_cache.jsonl`` LLM cache).
 
@@ -955,10 +955,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     def common(sp: argparse.ArgumentParser) -> None:
-        sp.add_argument("--input", default="data/QAs",
-                        help="root of the QA corpus (default: data/QAs)")
-        sp.add_argument("--out", default="processed/qa",
-                        help="output root (default: processed/qa)")
+        sp.add_argument("--input", default="original-data/QAs",
+                        help="root of the QA corpus (default: original-data/QAs)")
+        sp.add_argument("--out", default="pipeline-output/qa",
+                        help="output root (default: pipeline-output/qa)")
         sp.add_argument("--include", action="append", metavar="GLOB",
                         help="only process files whose input-relative path matches "
                              "this glob (repeatable)")
@@ -984,12 +984,12 @@ def build_parser() -> argparse.ArgumentParser:
         "stage2",
         help="LLM-assisted structuring: stage1 docs -> canonical Q&A "
              "(plan §4 Stage 2)")
-    s2.add_argument("--qa-docs", default="processed/qa/stage1/documents.jsonl",
+    s2.add_argument("--qa-docs", default="pipeline-output/qa/stage1/documents.jsonl",
                     help="Stage 1 documents.jsonl (scrubbed input)")
-    s2.add_argument("--products", default="data/Product Data/products.json",
+    s2.add_argument("--products", default="original-data/Product Data/products.json",
                     help="path to products.json (alias table source)")
-    s2.add_argument("--out", default="processed/qa/stage2",
-                    help="output dir (default: processed/qa/stage2)")
+    s2.add_argument("--out", default="pipeline-output/qa/stage2",
+                    help="output dir (default: pipeline-output/qa/stage2)")
     s2.add_argument("--include", action="append", metavar="GLOB",
                     help="only process docs whose source_file matches this "
                          "glob (repeatable)")
@@ -1019,12 +1019,12 @@ def build_parser() -> argparse.ArgumentParser:
         "stage4",
         help="deduplication + currency filter: stage2 canonicals -> "
              "is_current stamps (plan §4 Stage 4)")
-    s4.add_argument("--qa-docs", default="processed/qa/stage2/documents.jsonl",
+    s4.add_argument("--qa-docs", default="pipeline-output/qa/stage2/documents.jsonl",
                     help="Stage 2 documents.jsonl (canonical input)")
-    s4.add_argument("--products", default="data/Product Data/products.json",
+    s4.add_argument("--products", default="original-data/Product Data/products.json",
                     help="path to products.json (alias table source)")
-    s4.add_argument("--out", default="processed/qa/stage4",
-                    help="output dir (default: processed/qa/stage4)")
+    s4.add_argument("--out", default="pipeline-output/qa/stage4",
+                    help="output dir (default: pipeline-output/qa/stage4)")
     s4.add_argument("--include", action="append", metavar="GLOB",
                     help="only process docs whose source_file matches this "
                          "glob (repeatable)")
@@ -1049,21 +1049,21 @@ def build_parser() -> argparse.ArgumentParser:
     s4.set_defaults(func=cmd_stage4)
 
     al = sub.add_parser("aliases", help="build alias table from products.json")
-    al.add_argument("--products", default="data/Product Data/products.json",
+    al.add_argument("--products", default="original-data/Product Data/products.json",
                     help="path to products.json")
-    al.add_argument("--out", default="processed/aliases",
-                    help="output dir (default: processed/aliases)")
-    al.add_argument("--qa-docs", default="processed/qa/stage1/documents.jsonl",
+    al.add_argument("--out", default="pipeline-output/aliases",
+                    help="output dir (default: pipeline-output/aliases)")
+    al.add_argument("--qa-docs", default="pipeline-output/qa/stage1/documents.jsonl",
                     help="Stage 1 documents.jsonl for the candidate harvest "
                          "(empty string / missing file skips the worksheet)")
     al.set_defaults(func=cmd_aliases)
 
     pd = sub.add_parser("pdsrg", help="chunk the PDSRG PDF corpus (plan §6)")
-    pd.add_argument("--input", default="data/Practitioner Dietary Supplement Reference Guide",
+    pd.add_argument("--input", default="original-data/Practitioner Dietary Supplement Reference Guide",
                     help="root of the PDSRG PDF corpus")
-    pd.add_argument("--out", default="processed/pdsrg",
-                    help="output root (default: processed/pdsrg)")
-    pd.add_argument("--products", default="data/Product Data/products.json",
+    pd.add_argument("--out", default="pipeline-output/pdsrg",
+                    help="output root (default: pipeline-output/pdsrg)")
+    pd.add_argument("--products", default="original-data/Product Data/products.json",
                     help="path to products.json (alias table source)")
     pd.add_argument("--include", action="append", metavar="GLOB",
                     help="only process files whose input-relative path matches "
@@ -1086,26 +1086,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="shape + embed + upload the §9 kb-main index "
              "(pdsrg chunks + products.json + infopages.json + menu "
              "descriptions)")
-    ix.add_argument("--chunks", default="processed/pdsrg/chunks/chunks.jsonl",
+    ix.add_argument("--chunks", default="pipeline-output/pdsrg/chunks/chunks.jsonl",
                     help="§6 chunks.jsonl")
-    ix.add_argument("--products", default="data/Product Data/products.json",
+    ix.add_argument("--products", default="original-data/Product Data/products.json",
                     help="products.json (§5 section-split source)")
     ix.add_argument("--menus",
-                    default="data/Reference Menus/All Reference Menus Export.csv",
+                    default="original-data/Reference Menus/All Reference Menus Export.csv",
                     help="menu CSV (§8 description docs)")
     ix.add_argument("--infopages",
-                    default="data/Product Data/infopages.json",
+                    default="original-data/Product Data/infopages.json",
                     help="infopages.json (dotFIT.com info pages, authority 1)")
     ix.add_argument("--podcast-segments",
-                    default="processed/podcasts/segments/segments.jsonl",
+                    default="pipeline-output/podcasts/segments/segments.jsonl",
                     help="§7 segments.jsonl (missing file shapes without "
                          "the podcast source)")
     ix.add_argument("--qa-docs",
-                    default="processed/qa/stage4/documents.jsonl",
+                    default="pipeline-output/qa/stage4/documents.jsonl",
                     help="Stage 4 documents.jsonl (missing file shapes "
                          "without the QA source)")
-    ix.add_argument("--out", default="processed/index",
-                    help="output dir (default: processed/index)")
+    ix.add_argument("--out", default="pipeline-output/index",
+                    help="output dir (default: pipeline-output/index)")
     ix.add_argument("--index-name", default=INDEX_NAME,
                     help=f"AI Search index name (default: {INDEX_NAME})")
     ix.add_argument("--limit", type=int, default=None,
@@ -1129,12 +1129,12 @@ def build_parser() -> argparse.ArgumentParser:
         "podcast",
         help="segment podcast transcripts into topic chunks (plan §7 step 3)")
     pc.add_argument("--transcripts",
-                    default="processed/podcasts/transcripts",
+                    default="pipeline-output/podcasts/transcripts",
                     help="dir of fast-transcription .json files")
-    pc.add_argument("--audio", default="data/Suppbeast Podcast",
+    pc.add_argument("--audio", default="original-data/Suppbeast Podcast",
                     help="dir of the .mp3 files (episode-title source)")
-    pc.add_argument("--out", default="processed/podcasts",
-                    help="output root (default: processed/podcasts)")
+    pc.add_argument("--out", default="pipeline-output/podcasts",
+                    help="output root (default: pipeline-output/podcasts)")
     pc.add_argument("--include", action="append", metavar="GLOB",
                     help="only process transcripts whose dir-relative path "
                          "matches this glob (repeatable)")

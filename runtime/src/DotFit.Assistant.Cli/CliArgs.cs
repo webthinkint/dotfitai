@@ -60,8 +60,8 @@ internal static class CliArgs
           --no-sources        do not print the source list after the answer
 
         SMOKE FLAGS
-          --set <path>        the smoke set (default: runtime/smoke/conversations.jsonl)
-          --out <dir>         where the transcript goes (default: processed/agentic/smoke)
+          --set <path>        the smoke set (default: assistant/smoke/conversations.jsonl)
+          --out <dir>         where the transcript goes (default: assistant/smoke/runs)
           --tier <name>       only one tier: chat, product, currency, multiturn,
                               safety, claims, scope, adversarial, retrieval
 

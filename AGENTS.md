@@ -20,7 +20,7 @@ Steps, in order:
    `golden`/`eval` and the retrieval probes. Rename projects to
    `DotFit.Assistant*` and the CLI to `dotfit`; the service port (5299) and URL
    paths stay the same.
-4. Folder rename: `data/` → `original-data/`, `processed/` → `pipeline-output/`,
+4. (done) Folder rename: `data/` → `original-data/`, `processed/` → `pipeline-output/`,
    plus a new `assistant/` (`sources.yaml`, `prompt/`, `references/`, `smoke/`).
    Update the PII ignore rules **before** moving untracked folders.
 5. The system prompt moves from C# into `assistant/prompt/*.md` with
@@ -36,7 +36,7 @@ Steps, in order:
    `docs/website-integration.md` (same contract content; recover the old one
    with `git show pre-restructure:docs/website-integration.md`),
    `docs/open.md`, `assistant/README.md`.
-9. Final checks: a grep for `v1|§|D[0-9]+|owner-ruled|open item|dotfit-agent|processed/|data/`
+9. Final checks: a grep for `v1|§|D[0-9]+|owner-ruled|open item|dotfit-agent|processed/|(^|[^-])data/`
    returns nothing; pytest, dotnet test, a pipeline rerun and a smoke run all
    pass.
 

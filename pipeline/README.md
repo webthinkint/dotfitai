@@ -85,7 +85,7 @@ covered under Usage and Output layout.
   `--ranker-ab` answers open item 5.
 
 Stage 2 (LLM structuring) and Stage 4 (dedupe/currency) are later additions;
-the QA stages consume only `data/QAs/**/*.docx`.
+the QA stages consume only `original-data/QAs/**/*.docx`.
 
 **Index name:** `INDEX_NAME` is `kb-main-v2`, the live index — no override
 needed. `kb-main`, the original index, was lost to a wedged delete (progress
@@ -109,11 +109,11 @@ constant and a test pins each side; change both or neither.
 # dev (Windows) — from pipeline/
 uv sync                      # creates .venv from the lockfile
 uv run pytest                # unit tests (synthetic fixtures, no real PII)
-uv run qa-pipeline run --input ../data/QAs --out ../processed/qa
+uv run qa-pipeline run --input ../original-data/QAs --out ../pipeline-output/qa
 
 # production (Linux VM) — same commands, same bytes out
 uv sync
-uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/processed/qa
+uv run qa-pipeline run --input /srv/dotfit/QAs --out /srv/dotfit/pipeline-output/qa
 ```
 
 Subcommands: `stage0`, `stage1`, `stage2`, `stage4`, `run` (stages 0+1), `aliases`, `pdsrg`,
@@ -137,9 +137,9 @@ PDSRG chunking (plan §6):
 
 ```bash
 uv run qa-pipeline pdsrg \
-    --input "../data/Practitioner Dietary Supplement Reference Guide" \
-    --products "../data/Product Data/products.json" \
-    --out ../processed/pdsrg
+    --input "../original-data/Practitioner Dietary Supplement Reference Guide" \
+    --products "../original-data/Product Data/products.json" \
+    --out ../pipeline-output/pdsrg
 ```
 
 Podcast segmentation (plan §7 step 3 — transcripts must exist first, see
@@ -147,9 +147,9 @@ Podcast segmentation (plan §7 step 3 — transcripts must exist first, see
 
 ```bash
 uv run qa-pipeline podcast \
-    --transcripts ../processed/podcasts/transcripts \
-    --audio "../data/Suppbeast Podcast" \
-    --out ../processed/podcasts
+    --transcripts ../pipeline-output/podcasts/transcripts \
+    --audio "../original-data/Suppbeast Podcast" \
+    --out ../pipeline-output/podcasts
 ```
 
 Product summaries deck (D10 — legal-approved, the top authority; not yet
@@ -159,51 +159,51 @@ indexed). Standalone script, no model call; the `.pptx` is gitignored (65 MB):
 uv run scripts/summaries_pptx_md.py
 ```
 
-Reads `data/Product Summaries/summaries_teaching.pptx` text-exact and writes
-`processed/summaries/md/NN-<slug>.md` (one per section of the hand-curated
+Reads `original-data/Product Summaries/summaries_teaching.pptx` text-exact and writes
+`pipeline-output/summaries/md/NN-<slug>.md` (one per section of the hand-curated
 slide→section map in the script) + `summary.json`; the full per-slide dump goes
-to `processed/summaries/runs/`. Every price is masked to `[price]`. The run fails
+to `pipeline-output/summaries/runs/`. Every price is masked to `[price]`. The run fails
 if a slide is in no section and not listed as dropped, or a product tag is not an
-alias-table family. `processed/summaries/dotfit-program-guide.md` sits beside the
+alias-table family. `pipeline-output/summaries/dotfit-program-guide.md` sits beside the
 output but is hand-written, not generated (§7.4).
 
 §12 golden-set sampling (labeling worksheet + adversarial scaffold):
 
 ```bash
 uv run qa-pipeline golden \
-    --qa-docs ../processed/qa/stage4/documents.jsonl \
-    --products "../data/Product Data/products.json" \
-    --out ../processed/golden
+    --qa-docs ../pipeline-output/qa/stage4/documents.jsonl \
+    --products "../original-data/Product Data/products.json" \
+    --out ../pipeline-output/golden
 ```
 
 §9 index build (shape + embed + upload):
 
 ```bash
 uv run qa-pipeline index \
-    --chunks ../processed/pdsrg/chunks/chunks.jsonl \
-    --products "../data/Product Data/products.json" \
-    --menus "../data/Reference Menus/All Reference Menus Export.csv" \
-    --out ../processed/index --no-upload    # drop --no-upload to upload
+    --chunks ../pipeline-output/pdsrg/chunks/chunks.jsonl \
+    --products "../original-data/Product Data/products.json" \
+    --menus "../original-data/Reference Menus/All Reference Menus Export.csv" \
+    --out ../pipeline-output/index --no-upload    # drop --no-upload to upload
 ```
 
 Pilot per plan §13 week 1 (20 docs incl. nastiest):
 
 ```bash
-uv run qa-pipeline run --input ../data/QAs --out ../processed/qa-pilot \
+uv run qa-pipeline run --input ../original-data/QAs --out ../pipeline-output/qa-pilot \
     --include "2023/*.docx" --limit 20
 ```
 
 Stage 2 pilot (5 docs, live small-chat calls) and full run:
 
 ```bash
-uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage2-pilot \
+uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
+    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2-pilot \
     --limit 5
-uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage2
+uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
+    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2
 # offline equivalent (no Azure calls, confidence 0, everything queued):
-uv run qa-pipeline stage2 --qa-docs ../processed/qa/stage1/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage2 \
+uv run qa-pipeline stage2 --qa-docs ../pipeline-output/qa/stage1/documents.jsonl \
+    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage2 \
     --no-llm
 ```
 
@@ -211,8 +211,8 @@ Stage 4 (consumes Stage 2 canonicals; embeddings from the question surface,
 judgments from the small chat deployment — both cached):
 
 ```bash
-uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
-    --products "../data/Product Data/products.json" --out ../processed/qa/stage4
+uv run qa-pipeline stage4 --qa-docs ../pipeline-output/qa/stage2/documents.jsonl \
+    --products "../original-data/Product Data/products.json" --out ../pipeline-output/qa/stage4
 ```
 
 ## Output layout
@@ -230,7 +230,7 @@ uv run qa-pipeline stage4 --qa-docs ../processed/qa/stage2/documents.jsonl \
 ```
 
 Stage 2 outputs (relative to the `stage2 --out` root, default
-`processed/qa/stage2`):
+`pipeline-output/qa/stage2`):
 
 ```
 <out>/documents.jsonl        one canonical record per document (sorted by
@@ -255,7 +255,7 @@ Stage 2 outputs (relative to the `stage2 --out` root, default
 - Reruns are byte-identical when LLM responses are (same-machine cache hit or
   `--no-llm`); run manifests carry timestamps + input SHA-256s.
 
-PDSRG outputs (relative to the `pdsrg --out` root, default `processed/pdsrg`):
+PDSRG outputs (relative to the `pdsrg --out` root, default `pipeline-output/pdsrg`):
 
 ```
 <out>/chunks/chunks.jsonl    one record per chunk (index-ready, §9 fields)
@@ -265,7 +265,7 @@ PDSRG outputs (relative to the `pdsrg --out` root, default `processed/pdsrg`):
 ```
 
 Podcast outputs (relative to the `podcast --out` root, default
-`processed/podcasts` — transcripts themselves live in
+`pipeline-output/podcasts` — transcripts themselves live in
 `<out>/transcripts/`, written by `scripts/asr_pilot.py --all`):
 
 ```
@@ -276,7 +276,7 @@ Podcast outputs (relative to the `podcast --out` root, default
 <out>/runs/podcast-<ts>.json  run manifest
 ```
 
-Index outputs (relative to the `index --out` root, default `processed/index`):
+Index outputs (relative to the `index --out` root, default `pipeline-output/index`):
 
 ```
 <out>/documents.jsonl        one §9 record per document (no vectors —

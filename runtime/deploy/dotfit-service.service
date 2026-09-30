@@ -22,7 +22,7 @@ Description=dotFIT assistant SSE service
 After=network-online.target
 
 [Service]
-# Repo root, so the .env walk-up and processed/aliases/alias_table.json
+# Repo root, so the .env walk-up and pipeline-output/aliases/alias_table.json
 # (resolved relative to the .env) are both found without extra config.
 WorkingDirectory=/home/kovach/dotfitai
 # A separate publish dir from v1's — one deploy must never overwrite the

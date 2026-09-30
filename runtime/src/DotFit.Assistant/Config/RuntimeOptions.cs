@@ -167,7 +167,7 @@ public sealed record RuntimeOptions
             EmbeddingDeployment = embedding,
             SupportContact = support,
             Needs = needs,
-            AliasTablePath = Path.Combine(envDir, "processed", "aliases", "alias_table.json"),
+            AliasTablePath = Path.Combine(envDir, "pipeline-output", "aliases", "alias_table.json"),
             EnvFilePath = envFilePath,
         };
     }

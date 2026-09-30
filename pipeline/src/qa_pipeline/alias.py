@@ -38,8 +38,8 @@ Ambiguous tokens get no deterministic rule; they are resolved contextually by
 the Stage 2 LLM (unsure cases → Stage 3 review queue).
 
 Outputs (deterministic, no timestamps — byte-identical reruns):
-    processed/aliases/alias_table.json       authoritative table
-    processed/aliases/curation_worksheet.md  candidate abbreviations + evidence
+    pipeline-output/aliases/alias_table.json       authoritative table
+    pipeline-output/aliases/curation_worksheet.md  candidate abbreviations + evidence
 """
 
 from __future__ import annotations
@@ -421,7 +421,7 @@ def build_alias_table(products: list[dict]) -> dict:
 
     return {
         "version": ALIAS_TABLE_VERSION,
-        "source": "data/Product Data/products.json",
+        "source": "original-data/Product Data/products.json",
         "normalization": "NFKC, casefold, strip non-alphanumeric",
         "n_products": len(products),
         # gear is excluded from families, so the ratio that matters for

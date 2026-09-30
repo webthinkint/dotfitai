@@ -10,7 +10,7 @@ namespace DotFit.Assistant.Prompting;
 /// as a pick list of current dotFIT products with doses.
 ///
 /// Embedded at build time from
-/// <c>processed/summaries/dotfit-program-guide.md</c>, so the deployed service
+/// <c>pipeline-output/summaries/dotfit-program-guide.md</c>, so the deployed service
 /// carries the revision it was built with and there is no file to go missing
 /// at boot. Owner-ruled 2026-09-28 (D10): built from the product summaries
 /// deck, dotFIT's legal-approved and highest-authority guidance, replacing the

@@ -65,7 +65,7 @@ The same gitignored root `.env` the Python pipeline uses (see
 prefers `AZURE_SEARCH_QUERY_KEY` over the admin key, and falls back
 `AZURE_OPENAI_SMALL_CHAT_DEPLOYMENT` → `AZURE_OPENAI_CHAT_DEPLOYMENT`. Keys
 are never echoed. The alias table is read from
-`processed/aliases/alias_table.json` (override `--aliases`).
+`pipeline-output/aliases/alias_table.json` (override `--aliases`).
 
 Each verb loads only the slice of the contract it uses (`RuntimeNeeds`, the
 mirror of `azure_config.py`'s `require=` subsets): `search` needs the search

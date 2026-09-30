@@ -402,7 +402,7 @@ class TestRealCorpusSanity:
     def test_builds_and_meets_expectations(self):
         from pathlib import Path
         products_path = Path(__file__).resolve().parents[2] / \
-            "data" / "Product Data" / "products.json"
+            "original-data" / "Product Data" / "products.json"
         if not products_path.is_file():
             pytest.skip("real products.json not present")
         products = json.loads(products_path.read_text(encoding="utf-8"))
@@ -434,7 +434,7 @@ class TestRealCorpusSanity:
         hero flavor)."""
         from pathlib import Path
         products_path = Path(__file__).resolve().parents[2] / \
-            "data" / "Product Data" / "products.json"
+            "original-data" / "Product Data" / "products.json"
         if not products_path.is_file():
             pytest.skip("real products.json not present")
         products = json.loads(products_path.read_text(encoding="utf-8"))

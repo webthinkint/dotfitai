@@ -24,7 +24,7 @@
   <ItemGroup>
     <!-- The supplement program guide, embedded so the deployed service carries
          the revision it was built with. -->
-    <EmbeddedResource Include="..\..\..\processed\summaries\dotfit-program-guide.md"
+    <EmbeddedResource Include="..\..\..\assistant\references\program-guide.md"
                       LogicalName="DotFit.Assistant.Prompting.program-guide.md" />
   </ItemGroup>
 

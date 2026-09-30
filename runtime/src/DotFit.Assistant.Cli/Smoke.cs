@@ -39,7 +39,7 @@ internal static class Smoke
     {
         if (!File.Exists(path))
             throw new CliUsageException(
-                $"smoke set not found at {path} — it lives in runtime/smoke/conversations.jsonl, " +
+                $"smoke set not found at {path} — it lives in assistant/smoke/conversations.jsonl, " +
                 "or pass --set <path>");
 
         var items = new List<SmokeItem>();

@@ -1,6 +1,6 @@
 """Verify the podcast ``archive.txt`` → YouTube mapping (open item 14).
 
-`data/Suppbeast Podcast/archive.txt` is a bare list of ``youtube <video_id>``
+`original-data/Suppbeast Podcast/archive.txt` is a bare list of ``youtube <video_id>``
 lines with no titles and no stated ordering, so §7 step 4's citation URL
 (``…as covered at 14:32 in *Creatine FAQs*``) cannot be built from it without
 guessing. This resolves each id to its real video title through YouTube's
@@ -53,7 +53,7 @@ WATCH = "https://www.youtube.com/watch?v={id}"
 TIMEOUT = 15.0
 MATCH_THRESHOLD = 0.60      # Dice coefficient over token sets
 
-DEFAULT_AUDIO = Path("../data/Suppbeast Podcast")
+DEFAULT_AUDIO = Path("../original-data/Suppbeast Podcast")
 
 # Filename noise that carries no signal for matching: the downloader's episode
 # suffix and the fullwidth punctuation it substitutes for illegal characters.

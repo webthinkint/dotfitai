@@ -11,8 +11,8 @@ returned), and a dotFIT phrase list (product names + supplement jargon —
 the plan's predictable failure mode).
 
 Outputs (no timestamps inside — deterministic for a fixed API version):
-    processed/podcasts/pilot/<slug>.json   raw API response
-    processed/podcasts/pilot/<slug>.txt    readable Speaker/mm:ss transcript
+    pipeline-output/podcasts/pilot/<slug>.json   raw API response
+    pipeline-output/podcasts/pilot/<slug>.txt    readable Speaker/mm:ss transcript
 
 Usage (from pipeline/):
     uv run scripts/asr_pilot.py --list
@@ -82,7 +82,7 @@ def repo_root() -> Path:
 
 
 def podcast_dir() -> Path:
-    return repo_root() / "data" / "Suppbeast Podcast"
+    return repo_root() / "original-data" / "Suppbeast Podcast"
 
 
 def find_episode(substr: str) -> Path:
@@ -196,7 +196,7 @@ def transcribe_one(audio: Path, out_dir: Path, endpoint: str, key: str,
 
 def run_batch(args: argparse.Namespace, cfg) -> int:
     out_dir = (Path(args.out) if args.out
-               else repo_root() / "processed" / "podcasts" / "transcripts")
+               else repo_root() / "pipeline-output" / "podcasts" / "transcripts")
     out_dir.mkdir(parents=True, exist_ok=True)
     episodes = sorted(podcast_dir().glob("*.mp3"))
     print(f"episodes: {len(episodes)}, workers={args.workers}, out={out_dir}")
@@ -232,7 +232,7 @@ def main() -> int:
                         help="list episodes with sizes and exit")
     parser.add_argument("--max-speakers", type=int, default=3)
     parser.add_argument("--out", default=None,
-                        help="output dir (default: processed/podcasts/pilot,"
+                        help="output dir (default: pipeline-output/podcasts/pilot,"
                         " or transcripts/ with --all)")
     parser.add_argument("--all", action="store_true",
                         help="transcribe all 47 episodes (skips slugs with"
@@ -260,7 +260,7 @@ def main() -> int:
         return run_batch(args, cfg)
 
     episode = find_episode(args.episode)
-    out_dir = Path(args.out) if args.out else repo_root() / "processed" / "podcasts" / "pilot"
+    out_dir = Path(args.out) if args.out else repo_root() / "pipeline-output" / "podcasts" / "pilot"
     out_dir.mkdir(parents=True, exist_ok=True)
     slug = slugify(episode.name)
     print(f"episode : {episode.name} ({episode.stat().st_size / 1e6:.1f} MB)")

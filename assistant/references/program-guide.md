@@ -1,6 +1,6 @@
 # dotFIT supplement program guide
 
-How dotFIT builds a supplement program. It is taken from dotFIT's product summaries and teaching deck (`summaries_teaching.pptx`, 2026), which is dotFIT's current, legal-approved guidance. The deck's product sections are in `processed/summaries/md/`, and the slide numbers below point into them. Part numbers are in brackets. Flavors of the same product share one entry.
+How dotFIT builds a supplement program. It is taken from dotFIT's product summaries and teaching deck (`summaries_teaching.pptx`, 2026), which is dotFIT's current, legal-approved guidance. The deck's product sections are in `pipeline-output/summaries/md/`, and the slide numbers below point into them. Part numbers are in brackets. Flavors of the same product share one entry.
 
 Two parts are **carried over from the previous guide**, because the deck says nothing on them: the screening rules for medical conditions (§2), and the nutrient arithmetic in the overlap check (§9). Both are marked where they appear.
 

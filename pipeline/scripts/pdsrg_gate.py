@@ -22,7 +22,7 @@ Automated checks per file:
                                 text (whitespace-normalized; catches drift)
   table_rows_rectangular      — non-trivial tables have consistent widths
 
-Writes human-review artifacts: processed/pdsrg/gate/<stem>/page-NNN.md
+Writes human-review artifacts: pipeline-output/pdsrg/gate/<stem>/page-NNN.md
 (each page's text + its non-trivial tables as markdown) and gate_summary.json.
 Exit 0 = PASS on all files, 1 = FAIL.
 """

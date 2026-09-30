@@ -1,4 +1,4 @@
-"""dotFIT Product Summaries deck -> markdown sections (data/Product Summaries).
+"""dotFIT Product Summaries deck -> markdown sections (original-data/Product Summaries).
 
 Owner-ruled 2026-09-28: the deck is legal-approved and the highest authority
 for now; on a disagreement it wins, then the PDSRG. Prices are individualized
@@ -32,9 +32,9 @@ products are combined), ``brand`` (the dotFIT difference, credibility),
 flyer and email copy — owner-ruled 2026-09-28 to hold back for now, possibly
 for a separate tool later).
 
-Output: processed/summaries/md/NN-<slug>.md + summary.json (sorted, no
+Output: pipeline-output/summaries/md/NN-<slug>.md + summary.json (sorted, no
 timestamps — reruns are byte-identical, the pipeline determinism rule), and
-the full per-slide dump under processed/summaries/runs/ (gitignored).
+the full per-slide dump under pipeline-output/summaries/runs/ (gitignored).
 
 Usage (from pipeline/): uv run scripts/summaries_pptx_md.py
 """
@@ -364,15 +364,15 @@ def repo_root() -> Path:
 
 
 def deck_path() -> Path:
-    return repo_root() / "data" / "Product Summaries" / DECK_NAME
+    return repo_root() / "original-data" / "Product Summaries" / DECK_NAME
 
 
 def out_dir() -> Path:
-    return repo_root() / "processed" / "summaries"
+    return repo_root() / "pipeline-output" / "summaries"
 
 
 def alias_path() -> Path:
-    return repo_root() / "processed" / "aliases" / "alias_table.json"
+    return repo_root() / "pipeline-output" / "aliases" / "alias_table.json"
 
 
 def mask_prices(text: str) -> str:

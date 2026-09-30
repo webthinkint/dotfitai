@@ -11,7 +11,7 @@ constant:
    threshold is a judged number, not a guess.
 
 Embeds question_canonical via the production Embedder; vectors cache in
-processed/qa/stage4/runs/embeddings.jsonl so the full stage4 run reuses
+pipeline-output/qa/stage4/runs/embeddings.jsonl so the full stage4 run reuses
 every API call this scan spends.
 """
 
@@ -28,8 +28,8 @@ from qa_pipeline.azure_config import (
 from qa_pipeline.embeddings import EMBEDDING_API_VERSION, Embedder
 from qa_pipeline.io_utils import configure_stdio, read_jsonl
 
-DEFAULT_DOCS = "../processed/qa/stage2/documents.jsonl"
-DEFAULT_CACHE = "../processed/qa/stage4/runs/embeddings.jsonl"
+DEFAULT_DOCS = "../pipeline-output/qa/stage2/documents.jsonl"
+DEFAULT_CACHE = "../pipeline-output/qa/stage4/runs/embeddings.jsonl"
 THRESHOLDS = [round(0.80 + 0.02 * i, 2) for i in range(9)]  # 0.80..0.96
 CANDIDATES = (0.88, 0.90, 0.92, 0.94)
 N_SAMPLES = 12

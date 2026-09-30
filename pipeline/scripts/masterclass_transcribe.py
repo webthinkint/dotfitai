@@ -1,4 +1,4 @@
-"""Batch ASR for the dotFIT Masterclass corpus (data/Masterclass/videos).
+"""Batch ASR for the dotFIT Masterclass corpus (original-data/Masterclass/videos).
 
 Sister sweep to scripts/asr_pilot.py --all (the Suppbeast Podcast §7 run):
 same Azure fast-transcription call (reused verbatim — locales, diarization,
@@ -21,8 +21,8 @@ Conventions inherited from the podcast sweep, unchanged:
   collected and reported, exit 1 if any.
 
 Outputs:
-    processed/masterclass/transcripts/<slug>.json   raw API payload
-    processed/masterclass/transcripts/<slug>.txt    readable Speaker/mm:ss
+    pipeline-output/masterclass/transcripts/<slug>.json   raw API payload
+    pipeline-output/masterclass/transcripts/<slug>.txt    readable Speaker/mm:ss
 
 Usage (from pipeline/):
     uv run scripts/masterclass_transcribe.py            # all, resumable
@@ -54,7 +54,7 @@ def repo_root() -> Path:
 
 
 def audio_dir() -> Path:
-    return repo_root() / "data" / "Masterclass" / "videos"
+    return repo_root() / "original-data" / "Masterclass" / "videos"
 
 
 def transcribe_one(audio: Path, out_dir: Path, endpoint: str, key: str,
@@ -101,7 +101,7 @@ def main() -> int:
     args = parser.parse_args()
 
     episodes = sorted(audio_dir().glob("*.mp3"))
-    out_dir = repo_root() / "processed" / "masterclass" / "transcripts"
+    out_dir = repo_root() / "pipeline-output" / "masterclass" / "transcripts"
     out_dir.mkdir(parents=True, exist_ok=True)
     print(f"episodes: {len(episodes)}, workers={args.workers}, out={out_dir}",
           flush=True)

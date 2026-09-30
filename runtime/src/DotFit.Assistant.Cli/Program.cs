@@ -94,8 +94,8 @@ internal static class Program
             CliArgs.Chat => await ChatAsync(options, aliases, agentic, flags).ConfigureAwait(false),
             CliArgs.Smoke => await Smoke.RunAsync(
                 AssistantFactory.Create(options, agentic, aliases),
-                flags.SmokeSet ?? DefaultPath(options, "runtime", "smoke", "conversations.jsonl"),
-                flags.OutDir ?? DefaultPath(options, "processed", "agentic", "smoke"),
+                flags.SmokeSet ?? DefaultPath(options, "assistant", "smoke", "conversations.jsonl"),
+                flags.OutDir ?? DefaultPath(options, "assistant", "smoke", "runs"),
                 flags.Tier).ConfigureAwait(false),
             _ => throw new CliUsageException($"unhandled verb '{command.Verb}'"),
         };

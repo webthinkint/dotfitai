@@ -34,7 +34,7 @@ public class RuntimeOptionsTests
         Assert.Equal("chat-model", o.ChatDeployment);
         Assert.Equal("embed-model", o.EmbeddingDeployment);
         Assert.False(o.UsingQueryKey); // admin key fallback
-        Assert.Equal(Path.Combine(root, "processed", "aliases", "alias_table.json"), o.AliasTablePath);
+        Assert.Equal(Path.Combine(root, "pipeline-output", "aliases", "alias_table.json"), o.AliasTablePath);
     }
 
     [Fact]
