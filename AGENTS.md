@@ -30,7 +30,7 @@ Steps, in order:
    `get_program_guide`, the customer-service FAQ, and the prompt changes ruled
    in rules 6, 14, 17, 18, 19 and 22. This is the only step that changes
    behaviour; smoke tiers are run live.
-7. Docstring sweep: code states current contracts only, with no `§`/decision
+7. (done) Docstring sweep: code states current contracts only, with no `§`/decision
    references and no history.
 8. Docs rewritten from scratch: `AGENTS.md`, `docs/architecture.md`,
    `docs/website-integration.md` (same contract content; recover the old one
