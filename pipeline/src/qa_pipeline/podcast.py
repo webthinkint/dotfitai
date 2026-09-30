@@ -257,11 +257,11 @@ def summarize(chunks: list[dict]) -> dict[str, Any]:
 # characters Windows forbids (｜ ？ ：). The mapping was never ambiguous, only
 # unverified, which is why the index stamped `citation_url: null` until now.
 #
-# It lives here as a constant rather than being read from `archive.txt` for two
-# reasons: `archive.txt` carries ids in an order that means nothing (verifying
-# it needs the network, and the pipeline is offline and deterministic), and
-# curation lives in code (AGENTS.md). Re-run the script when episodes are
-# added; an episode missing from this table raises rather than citing linkless.
+# It lives here as a constant rather than being read from `archive.txt`, which
+# carries ids in an order that means nothing: verifying it needs the network,
+# and the pipeline is offline and deterministic. Re-run the script when
+# episodes are added; an episode missing from this table raises rather than
+# citing linkless.
 PODCAST_VIDEO_IDS: dict[str, str] = {
     "#1 Expert Reacts to Nutrition and Fitness Advice":
         "VKSaDuASiWo",

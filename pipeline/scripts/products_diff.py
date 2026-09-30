@@ -14,10 +14,10 @@ What it reports, in the order that matters:
 2. **Added / removed SKUs** — a removed SKU with corpus mentions becomes an
    alias-table currency question.
 3. **Renames** — ``longname`` changed on the same ``part_no``. A rename is an
-   identity mapping and never supersedes (AGENTS.md), so it belongs in the
-   alias table's rename section, not its replacement section. This tool cannot
-   tell a rename from a reformulation that kept the part_no; it reports the
-   change and says so.
+   identity mapping and never supersedes (pipeline/README.md), so it belongs
+   in the alias table's rename section, not its replacement section. This tool
+   cannot tell a rename from a reformulation that kept the part_no; it reports
+   the change and says so.
 4. **URL changes** — every product document's ``citation_url``.
 
 Naming the owner and setting the cadence is still item 2 and still a decision;
@@ -141,7 +141,7 @@ def main() -> int:
     if report["renames"]:
         print(f"## longname changes ({len(report['renames'])})")
         print("   A rename is an identity mapping and never supersedes "
-              "(AGENTS.md). This cannot distinguish a rename from a "
+              "(pipeline/README.md). This cannot distinguish a rename from a "
               "reformulation that kept its part_no — confirm before filing it "
               "in the alias table's rename section.")
         for row in report["renames"]:

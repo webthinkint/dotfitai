@@ -55,7 +55,7 @@ from .alias import _tolerant_pattern as _alias_tolerant_pattern
 from .alias import build_alias_table, norm as _norm
 from .scrub import ACCEPTED_HONORIFIC_NAMES
 
-# --- tunables (curation lives in constants — AGENTS.md) ----------------------
+# --- tunables -----------------------------------------------------------------
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
 PROMPT_VERSION = "1.2.0"  # part of the cache key: a prompt edit must miss cache

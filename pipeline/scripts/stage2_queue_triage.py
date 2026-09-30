@@ -72,8 +72,7 @@ DEFAULT_STAGE4 = Path("../pipeline-output/qa/stage4/documents.jsonl")
 DEFAULT_STAGE0_TEXT = Path("../pipeline-output/qa/stage0/text")
 DEFAULT_CACHE = Path("../pipeline-output/qa/stage2/runs/stage2_cache.jsonl")
 
-# The Stage 0 placeholder vocabulary that stands for a redacted person
-# (AGENTS.md: these tokens are parsed by Stage 1 and by human reviewers). Only
+# The Stage 0 placeholder vocabulary that stands for a redacted person. Only
 # used for the degraded path now — see the module docstring on why a
 # placeholder census does not answer "did this flag get resolved".
 PERSON_PLACEHOLDERS = ("[NAME]", "[CUSTOMER]", "[EMAIL]", "[PHONE]",

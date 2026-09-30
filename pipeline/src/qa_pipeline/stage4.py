@@ -69,7 +69,7 @@ from typing import Any, Callable
 
 from .stage2 import is_audit_sample
 
-# --- tunables (curation lives in constants — AGENTS.md) ----------------------
+# --- tunables -----------------------------------------------------------------
 
 SIMILARITY_THRESHOLD = 0.88  # scan-locked (see module docstring)
 MIN_JUDGE_CONFIDENCE_DEFAULT = 0.7  # below -> superseded (default) + review
@@ -87,7 +87,7 @@ def classify_cues(cues: list[str], alias_table: dict[str, Any]) -> dict[str, lis
 
     A cue the alias table does not know raises: currency cues are emitted by
     ``detect_currency_cues`` from the same table, so an unknown name means the
-    two builds disagree and must not be silently resolved (AGENTS.md).
+    two builds disagree and must not be silently resolved.
     """
     renames = {r["deprecated"] for r in alias_table.get("legacy_renames", [])}
     gone = ({r["deprecated"] for r in alias_table.get("replacements", [])}

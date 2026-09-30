@@ -134,8 +134,9 @@ def _read_stage0_errors(out_root: Path) -> dict:
 
 
 def _prune_orphans(root: Path, expected: set[Path]) -> int:
-    """Delete outputs whose input no longer exists (see AGENTS.md: outputs are
-    regenerated, and a byte-identical rerun cannot detect a stale file)."""
+    """Delete outputs whose input no longer exists (see
+    pipeline/README.md: outputs are regenerated, and a byte-identical rerun
+    cannot detect a stale file)."""
     if not root.is_dir():
         return 0
     removed = 0
