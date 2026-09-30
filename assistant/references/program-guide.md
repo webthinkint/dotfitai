@@ -14,13 +14,13 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 
 ## 1. Rules for every program
 
-1. **Foundation first.** A long, healthy, active life rests on three cornerstones, in this order: meeting nutrient needs, regular activity, and a healthy body composition. Every program starts with the foundation (§3). Then add products for the goal (§4–§7), then extras as needs, activity and budget allow. Nobody has to take everything. Start with the essentials and build from there. (Slides 9, 36, 90, 266.)
-2. **Everyone gets one complete multivitamin/mineral.** Use one of the multis in §3.1, or Alln1 SuperBlend. **Never both.**
-3. **Protein: at least 1 g per lb of lean body mass per day**, spread over 4–5 meals. Food comes first, and a dotFIT protein closes the gap (§3.4). Youth aim for about 1 g per lb of body weight (§7).
+1. **Foundation first.** A long, healthy, active life rests on three cornerstones, in this order: meeting nutrient needs, regular activity, and a healthy body composition. Every program starts with the foundation (section 3). Then add products for the goal (section 4–section 7), then extras as needs, activity and budget allow. Nobody has to take everything. Start with the essentials and build from there. (Slides 9, 36, 90, 266.)
+2. **Everyone gets one complete multivitamin/mineral.** Use one of the multis in section 3.1, or Alln1 SuperBlend. **Never both.**
+3. **Protein: at least 1 g per lb of lean body mass per day**, spread over 4–5 meals. Food comes first, and a dotFIT protein closes the gap (section 3.4). Youth aim for about 1 g per lb of body weight (section 7).
 4. **Omega-3 depends on fatty-fish intake. Calcium depends on dietary calcium. Vitamin D depends on a blood test.** None of the three is automatic.
 5. **Fat-loss aids are temporary.** Stop WeightLoss & LiverSupport, CarbRepel and ThermAccel once the goal is reached. The foundation continues. (Slide 201.)
 6. **Stimulants.** ThermAccel and NO7 PreWorkout contain caffeine. Neither is for caffeine-sensitive people. ThermAccel is never combined with another stimulant. (Slides 172, 180.)
-7. **Under 18:** use only the youth program (§7).
+7. **Under 18:** use only the youth program (section 7).
 
 ---
 
@@ -28,12 +28,12 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 
 | Situation | What to do |
 |---|---|
-| Liver disease, a past cardiovascular event, or medications that may interact | Only a multi (§3.1) and protein powder (§3.4). They should tell their doctor. |
+| Liver disease, a past cardiovascular event, or medications that may interact | Only a multi (section 3.1) and protein powder (section 3.4). They should tell their doctor. |
 | Pregnant, nursing, or trying to conceive | dotFIT has **no prenatal product**. Refer them to a physician. The deck says not to use CollagenComplex or CarbRepel in pregnancy or while nursing, and ThermAccel is not for pregnant or nursing women (slides 97, 184, 180). |
 | Takes diabetes medication and wants CarbRepel | Monitor blood glucose closely (slide 184). The medication itself is the doctor's call. |
 | Heart condition, heart medication, or stimulant medication | No ThermAccel (slides 172, 180). |
-| Under 18 | Youth program only (§7). |
-| Hormone therapy, peptides, or GLP-1 drugs | These are medical decisions. Refer to a physician (§6.5). |
+| Under 18 | Youth program only (section 7). |
+| Hormone therapy, peptides, or GLP-1 drugs | These are medical decisions. Refer to a physician (section 6.5). |
 
 ---
 
@@ -50,7 +50,7 @@ Otherwise:
   Women 18–65 training intensely / competitive ........................ → Active MV [1005], 2 tablets
   Over 50 ............................................................. → Over 50 MV [1009], 2 tablets
   50–65 and still training hard or competing .......................... → stay on Active MV [1005], 2 tablets
-Under 12 → no dotFIT multi (§7)
+Under 12 → no dotFIT multi (section 7)
 ```
 
 | Product | Dose |
@@ -91,9 +91,9 @@ Under 12 → no dotFIT multi (§7)
 | Vegan, dairy allergy, or avoids animal protein | **Plant Protein** [1300/1301] | 21 g protein, 130 kcal |
 | Performance, size, strength, youth athletes, weight gain | **First String** [1371/1372] | 21 g protein, about 45 g carbs, 290 kcal. Take 30–40 min before training and right after. |
 | One powder for several jobs: pre/post workout, meal replacement, gain | **Pre & Post Workout Formula** [1367/1368] | 21 g protein, 33–35 g carbs, about 250 kcal. Take 30–40 min before training and again after. |
-| Fat loss, meal replacement | **LeanMeal** [1333/1334] (§5) | 21 g protein, 7 g fiber, about 170–180 kcal |
+| Fat loss, meal replacement | **LeanMeal** [1333/1334] (section 5) | 21 g protein, 7 g fiber, about 170–180 kcal |
 
-- **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (§4).
+- **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (section 4).
 - **dotBAR** [1456/1457/1462/1470/1471/1480/1482] and **Vanilla dotWAFER** [1466] are convenient protein snacks.
 
 ---
@@ -119,7 +119,7 @@ The levels build on each other.
 **Competition or weight-class cuts** (slide 234):
 - **Competitor Shred**: Active MV + WeightLoss & LiverSupport + LeanMeal + AminoFormula.
 - **Champion Shred**: the same, plus ThermAccel **or** CarbRepel.
-- Doses are as in §5.
+- Doses are as in section 5.
 
 ---
 
@@ -153,7 +153,7 @@ Add omega-3 as needed. Stop the fat-loss aids at the goal.
 
 | Level | Pill version | SuperBlend version |
 |---|---|---|
-| 1 – Essentials | Multi (§3.1) + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed | SuperBlend + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed |
+| 1 – Essentials | Multi (section 3.1) + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed | SuperBlend + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed |
 | 2 – Living Stronger | + **Antioxidant** [1000] | (already in SuperBlend) |
 | 3 – Stronger & Healthier | + **Probiotics** [1017] | (already in SuperBlend) |
 | 4 – Looking, Moving & Staying Younger | + **CollagenComplex** [1003] | + CollagenComplex |
@@ -169,7 +169,7 @@ Protein to target applies at every level.
 
 1. **Foundation:** Over 50 MV or SuperBlend, protein (All Natural WheySmooth), omega-3, and calcium and vitamin D as needed.
 2. **Health + Performance:** add **Creatine Monohydrate**, about 5 g a day.
-3. **Longevity / Lifelong Performance:** add **AminoFormula** (older adults and non-exercisers: see §6.4). The deck's text for this level also names joint and brain support, which means CollagenComplex and Brain Health from §6.1.
+3. **Longevity / Lifelong Performance:** add **AminoFormula** (older adults and non-exercisers: see section 6.4). The deck's text for this level also names joint and brain support, which means CollagenComplex and Brain Health from section 6.1.
 
 ### 6.3 Brain and mental health (slides 119–125)
 
@@ -187,7 +187,7 @@ Protein to target applies at every level.
 | **Antioxidant** [1000] | 2 capsules a day with a main meal, alongside the multi |
 | **Probiotics** [1017] | 1 capsule a day with a meal |
 | **CollagenComplex** [1003] | Age 35+, joints and skin: 1 in the morning and 1 at night. Skin only: 1 a day. Athletes, heavy training, or injury recovery: 2 in the morning and 2 at night. Not in pregnancy or while nursing. |
-| **Brain Health** [1001] | See §6.3 |
+| **Brain Health** [1001] | See section 6.3 |
 | **AminoFormula** for older adults and non-exercisers | About 1 scoop (12 g) 2–3 times a day between meals, including before bed. After 60: 15 g a dose. ½–1 scoop can also boost a low-protein meal. |
 | **Digestive Enzymes** [1019] | 1 capsule with each of the 3 main meals. If it is for discomfort and nothing improves in about 30 days, stop. |
 | **SleepAid** [1048] | Adults: 1 capsule 30 min before bed. Go to 2 only if needed. |
@@ -207,7 +207,7 @@ Protein to target applies at every level.
   - Under 12: dotFIT has no multi. The deck recommends the ChildLife children's multivitamin, which is **not a dotFIT product**.
   - 12–17: **Active MV** [1005], 1 tablet a day with a meal, or **Alln1 SuperBlend** [8001/8016], 1 scoop.
 - **First String** [1371/1372]: daily, to reach about 1 g of protein per lb of body weight. On workout days, 25–35 g of protein 30–40 min before and again right after. Children who avoid animal protein use **Plant Protein** [1300/1301].
-- **Omega-3 Fish Oil** [1020]: if they eat fatty fish fewer than 2 times a week (fried fish doesn't count). 1–2 a day, as in §3.2.
+- **Omega-3 Fish Oil** [1020]: if they eat fatty fish fewer than 2 times a week (fried fish doesn't count). 1–2 a day, as in section 3.2.
 - **Calcium Complex** [1004]: only if food and shakes don't reach about 1,000–1,200 mg a day.
 
 **Level 2 – Advanced Athlete (post-pubescent, typically 16+, with a parent's approval):**
@@ -219,7 +219,7 @@ Protein to target applies at every level.
 
 ## 8. Family wellness (slides 15, 257–259)
 
-- Each family member takes the multi that fits them (§3.1). First String and SuperOmega-3 are shared.
+- Each family member takes the multi that fits them (section 3.1). First String and SuperOmega-3 are shared.
 - Add **dotBARs** for convenient protein.
 - Add **Electrolytes** [1225] in water during or after heavy sweating, heat, tournaments, travel, fasting or low-carb diets.
 
@@ -232,7 +232,7 @@ The nutrient amounts come from the product labels.
 | Combination | Problem | Fix |
 |---|---|---|
 | SuperBlend + another multi | Two multis | Drop one |
-| SuperBlend + Antioxidant or Probiotics | SuperBlend already contains both | Leave them out of the SuperBlend version (§6.1). Add them only as a deliberate extra. |
+| SuperBlend + Antioxidant or Probiotics | SuperBlend already contains both | Leave them out of the SuperBlend version (section 6.1). Add them only as a deliberate extra. |
 | More than one creatine source (Creatine Monohydrate, Creatine Complex 2.5 g a scoop, NO7 PreWorkout 2.5 g a scoop) | The deck allows combining them at the competitor level, but creatine adds up | Count the total creatine and state it |
 | NO7 PreWorkout + ThermAccel | Both contain caffeine, and ThermAccel is not used with other stimulants | Never together |
 | **Magnesium** from SuperBlend (160 mg) + Calcium Complex (125 mg a tablet) + Active MV (100 mg a tablet) + GlutamineComplex (34 mg a scoop) | Supplemental magnesium is capped at **350 mg a day** | Add it up |

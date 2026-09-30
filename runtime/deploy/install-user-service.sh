@@ -1,29 +1,20 @@
 #!/usr/bin/env bash
-# runtime/deploy-agentic/install-user-service.sh — install dotfit-service
-# as a systemd *user* service on a Linux VM (design §9, the preview deployment).
-#
-# The sibling of runtime/deploy/install-user-service.sh, deliberately not a
-# modification of it: v1's deploy tooling is part of the baseline this branch is
-# measured against, so it stays untouched and this folder deploys the agentic
-# runtime *beside* it. The two coexist by construction — separate unit, separate
-# publish directory, separate port (5299 to v1's 5199) — and this script never
-# writes anything the v1 unit reads.
+# runtime/deploy/install-user-service.sh — install dotfit-service as a systemd
+# *user* service on a Linux VM (the preview deployment).
 #
 # Idempotent: re-running it is the redeploy procedure — publish the current
 # build, rewrite the unit, restart in place, smoke the health check.
 #
 #   1. dotnet publish the SSE service to ~/.local/share/dotfit/service
-#      (not v1's ~/.local/share/dotfit/service)
 #   2. verify DOTFIT_SERVICE_API_KEY in the repo .env, generating it if absent
-#      — the same variable v1 reads, so one caller secret works against both
-#      runtimes (fail-closed boot: the service refuses to start without one)
+#      (fail-closed boot: the service refuses to start without one)
 #   3. install the committed unit into ~/.config/systemd/user/ with the
 #      repo/home paths substituted (BIND=... to change the listen address)
 #   4. install the turn-log viewer as ~/.local/bin/dotfit-turn-log
 #   5. enable linger (survives logout), enable --now, wait for /healthz
 #
 # Deployment shape this encodes — a preview, deliberately not production:
-# trusted internal network, ports 5199/5299 not exposed externally, one trusted
+# trusted internal network, port 5299 not exposed externally, one trusted
 # server-side caller (the website backend) on the shared secret, no TLS proxy.
 # Anything public-facing needs the front layer runtime/README.md describes
 # before DOTFIT_SERVICE_AUTH=none is even a question.
@@ -50,29 +41,27 @@ echo "publishing DotFit.Assistant.Service (Release)…"
 dotnet publish "$REPO_ROOT/runtime/src/DotFit.Assistant.Service" \
   -c Release -o "$PUBLISH_DIR" > /dev/null
 
-# --- 2. shared secret (same variable as v1, fail-closed) ------------------
+# --- 2. shared secret (fail-closed) -----------------------------------------
 ENV_FILE="$REPO_ROOT/.env"
 if [ ! -f "$ENV_FILE" ]; then
     echo "ERROR: $ENV_FILE missing — copy .env.example and fill it in first." >&2
     exit 1
 fi
 if ! grep -q '^DOTFIT_SERVICE_API_KEY=' "$ENV_FILE"; then
-    # Same generation rule as v1's installer: the two runtimes share the
-    # secret so the website relay needs no second credential to A/B them.
     if command -v openssl > /dev/null; then
         KEY=$(openssl rand -hex 24)
     else
         KEY=$(od -An -N24 -tx1 /dev/urandom | tr -d ' \n')
     fi
-    printf '\n# --- added by runtime/deploy-agentic/install-user-service.sh ---\nDOTFIT_SERVICE_API_KEY=%s\n' \
+    printf '\n# --- added by runtime/deploy/install-user-service.sh ---\nDOTFIT_SERVICE_API_KEY=%s\n' \
         "$KEY" >> "$ENV_FILE"
     echo "generated DOTFIT_SERVICE_API_KEY into .env (gitignored) — the caller sends it"
     echo "as 'Authorization: Bearer <key>'. Retrieve with:"
     echo "    grep DOTFIT_SERVICE_API_KEY $ENV_FILE"
 else
-    echo "DOTFIT_SERVICE_API_KEY already present in .env (shared with v1 — one secret, both runtimes)"
+    echo "DOTFIT_SERVICE_API_KEY already present in .env"
 fi
-# Outside the branch: the file holds the Azure keys and the shared secret
+# Either way: the file holds the Azure keys and the shared secret
 # whether or not this run is what generated them, and a repo that arrived with
 # a world-readable .env kept whatever mode it had.
 chmod 600 "$ENV_FILE"
@@ -83,7 +72,7 @@ sed -e "s|/home/kovach/dotfitai|$REPO_ROOT|g" \
     -e "s|/home/kovach/.local|$HOME/.local|g" \
     -e "s|http://0.0.0.0:5299|http://$BIND|" \
     "$UNIT_SRC" > "$UNIT_DST"
-echo "unit written (listening on $BIND; v1 keeps 5199 — untouched)"
+echo "unit written (listening on $BIND)"
 
 # --- 4. the turn-log command on PATH ----------------------------------------
 # The traffic view of the journal: only the dotfit.turn lines (and, with

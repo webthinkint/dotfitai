@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """turn-log — the request/response view of the dotfit-service journal.
 
-Design §10: every request writes exactly one `dotfit.turn` JSON line to the
-service's stdout — what the model did, never what it or the customer said —
-and the service runs as a systemd *user* unit, so the journal holds those
-lines interleaved with the host's own console logging. This command picks the
-turns out and prints one readable line per request. It is the sibling of v1's
-`verdict-log` (runtime/deploy/verdict-log), reading the sibling unit's journal
-— same shape, different schema, because the two logs answer different
-questions: v1's reconstructed what a gate decided, this one reconstructs what
-an ungated loop actually did (§8.3 — with nothing withheld, the log is the
-record of what an audience was shown).
+Every request writes exactly one `dotfit.turn` JSON line to the service's
+stdout — what the model did, never what it or the customer said — and the
+service runs as a systemd *user* unit, so the journal holds those lines
+interleaved with the host's own console logging. This command picks the turns
+out and prints one readable line per request. With nothing withheld, the log is
+the record of what an audience was shown.
 
-The default line leads with the number this branch exists for (§6): time to
-first delta, then total. Around it, only the fields that carry news — tools
+The default line closes with the latency the customer feels: time to first
+delta, then total. Around it, only the fields that carry news — tools
 called, searches issued, budget stops, sources vs citations, families, token
 counts.
 
@@ -21,8 +17,8 @@ counts.
 (`dotfit.transcript`, the opt-in DOTFIT_ASSISTANT_DEBUG_TRANSCRIPT
 record the preview unit enables): one block per request with the question, the
 tool calls and the full answer — the words the turn log structurally cannot
-carry. Transcripts hold the words themselves (owner ruling 2026-09-11,
-preview-only), so treat the output like customer data.
+carry. Transcripts hold the words themselves (preview only), so treat the
+output like customer data.
 
 Lines that are not turns/transcripts — boot banners, ASP.NET host logs — are
 filtered **by journalctl itself** (`--grep`), which is also what makes
@@ -66,7 +62,7 @@ TRANSCRIPT_TAG = "dotfit.transcript"
 # Widest of the turn outcomes, so the column lines up for scanning.
 OUTCOME_WIDTH = 9
 
-# Search texts are model text (open item 3, owner-ruled loggable) but they can
+# Search texts are model text, not customer text, but they can
 # run long; the traffic view clips them, --queries shows them whole.
 QUERY_CLIP = 30
 
@@ -107,8 +103,8 @@ def turn_line(entry, show_queries, utc):
                 q if len(q) <= QUERY_CLIP else q[:QUERY_CLIP - 1] + "…"
                 for q in queries) + "]")
     if entry.get("budget_exhausted"):
-        # A §6 budget refusal: the model wanted another call and did not get
-        # one. The answer still went out — that is D3 — so this is the flag
+        # A budget refusal: the model wanted another call and did not get one.
+        # The answer still went out — nothing is withheld — so this is the flag
         # that says "read this transcript".
         detail.append("BUDGET-STOP")
 
@@ -142,8 +138,7 @@ def turn_line(entry, show_queries, utc):
         entry.get("request_id", "?"),
         f"{entry.get('outcome', '?'):<{OUTCOME_WIDTH}}",
     ]
-    # The latency pair closes the line: first delta / total (§6's two targets,
-    # in the order the branch cares about them).
+    # The latency pair closes the line: first delta / total.
     latency = f"{fmt_ms(entry.get('first_delta_ms', 0))}/{fmt_ms(entry.get('total_ms', 0))}"
     return " ".join(head + detail) + " " + latency
 
@@ -152,8 +147,8 @@ def transcript_block(entry, utc):
     """The what-did-it-actually-say view: one indented block per request.
 
     Written for the question the owner actually asks after a bad turn — "what
-    did it look up and what did it then say" — because nothing on this branch
-    withheld or repaired anything: the transcript *is* what the customer saw.
+    did it look up and what did it then say" — because nothing is withheld or
+    repaired: the transcript *is* what the customer saw.
     """
     request_id = entry.get("request_id", "?")
     head = "── " + render_ts(entry.get("ts"), utc) + "  " + request_id
@@ -184,7 +179,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="turn-log",
         description="Show only the dotfit.turn / dotfit.transcript "
-            "lines from the agentic service journal.",
+            "lines from the dotfit-service journal.",
         epilog="Anything unrecognized is passed to journalctl verbatim "
             "(e.g. -n 50, --since '…', -b, --grep).",
         add_help=True,
