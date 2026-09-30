@@ -84,7 +84,6 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
     runtime = "agentic",
     index = opts.IndexName,
     // Deployment names are configuration, not secrets; no key is read here.
-    // The small-chat deployment is absent on purpose — nothing calls one (§10).
     chat_deployment = opts.ChatDeployment,
     embedding_deployment = opts.EmbeddingDeployment,
     // Readable without a key on purpose: "auth": "none" on a deployment that
@@ -108,15 +107,6 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
         input = sheet.ChatInputPerMillion,
         cached_input = sheet.ChatCachedInputPerMillion,
         output = sheet.ChatOutputPerMillion,
-    },
-    // Unused by this runtime (no small model in the loop, §10) but on the
-    // sheet v1's service prices from — shown so the two health checks read as
-    // one price list.
-    price_small_chat_usd_per_1m = new
-    {
-        input = sheet.SmallChatInputPerMillion,
-        cached_input = sheet.SmallChatCachedInputPerMillion,
-        output = sheet.SmallChatOutputPerMillion,
     },
     price_embedding_usd_per_1m = sheet.EmbeddingPerMillion,
     price_search_usd_per_1k = sheet.SearchPerThousand,

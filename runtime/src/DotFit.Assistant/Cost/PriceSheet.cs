@@ -23,24 +23,12 @@ namespace DotFit.Assistant.Cost;
 /// there is no per-query price to read; the dummy stands in until a real
 /// cost-per-query is derived from the service's own billing data. The counts
 /// (<c>index_queries</c>, <c>ranker_queries</c>) are exact either way.
-///
-/// The small-chat trio has no independent defaults: **unset small-chat prices
-/// fall back to the chat trio's configured values**, because the deployment
-/// this repo currently points <c>SMALL_CHAT</c> at is the same frontier model
-/// as <c>CHAT</c> — builtin cheap-model defaults would silently understate,
-/// and builtin frontier defaults would silently overstate, every v1 turn the
-/// moment real chat prices are configured. Set the three apart the day the
-/// deployments actually differ; `/healthz` on either service shows the
-/// effective prices either way.
 /// </summary>
 public sealed record PriceSheet
 {
     public const string ChatInputVar = "DOTFIT_PRICE_CHAT_INPUT_PER_1M";
     public const string ChatCachedInputVar = "DOTFIT_PRICE_CHAT_CACHED_INPUT_PER_1M";
     public const string ChatOutputVar = "DOTFIT_PRICE_CHAT_OUTPUT_PER_1M";
-    public const string SmallChatInputVar = "DOTFIT_PRICE_SMALL_CHAT_INPUT_PER_1M";
-    public const string SmallChatCachedInputVar = "DOTFIT_PRICE_SMALL_CHAT_CACHED_INPUT_PER_1M";
-    public const string SmallChatOutputVar = "DOTFIT_PRICE_SMALL_CHAT_OUTPUT_PER_1M";
     public const string EmbeddingVar = "DOTFIT_PRICE_EMBEDDING_PER_1M";
     public const string SearchVar = "DOTFIT_PRICE_SEARCH_PER_1K";
     public const string CurrencyVar = "DOTFIT_PRICE_CURRENCY";
@@ -68,9 +56,6 @@ public sealed record PriceSheet
 
     public decimal ChatOutputPerMillion { get; init; } = 10m;
 
-    public decimal SmallChatInputPerMillion { get; init; } = 1.25m;
-    public decimal SmallChatCachedInputPerMillion { get; init; } = 0.125m;
-    public decimal SmallChatOutputPerMillion { get; init; } = 10m;
 
     /// <summary>Query embedding — <c>text-embedding-3-large</c>'s list price.</summary>
     public decimal EmbeddingPerMillion { get; init; } = 0.13m;
@@ -109,11 +94,6 @@ public sealed record PriceSheet
             ChatInputPerMillion = chatInput,
             ChatCachedInputPerMillion = chatCached,
             ChatOutputPerMillion = chatOutput,
-            // Unset small-chat prices inherit the chat trio's *configured*
-            // values, not the builtin defaults — see the type remarks.
-            SmallChatInputPerMillion = Parse(SmallChatInputVar, chatInput),
-            SmallChatCachedInputPerMillion = Parse(SmallChatCachedInputVar, chatCached),
-            SmallChatOutputPerMillion = Parse(SmallChatOutputVar, chatOutput),
             EmbeddingPerMillion = Parse(EmbeddingVar, defaults.EmbeddingPerMillion),
             SearchPerThousand = Parse(SearchVar, defaults.SearchPerThousand),
             Currency = Text(CurrencyVar, defaults.Currency).ToUpperInvariant(),
@@ -128,9 +108,6 @@ public sealed record PriceSheet
         $"PriceSheet({Id}, {Currency}: chat {ChatInputPerMillion.ToString(CultureInfo.InvariantCulture)} in / " +
         $"{ChatCachedInputPerMillion.ToString(CultureInfo.InvariantCulture)} cached / " +
         $"{ChatOutputPerMillion.ToString(CultureInfo.InvariantCulture)} out per 1M tok, " +
-        $"small chat {SmallChatInputPerMillion.ToString(CultureInfo.InvariantCulture)} in / " +
-        $"{SmallChatCachedInputPerMillion.ToString(CultureInfo.InvariantCulture)} cached / " +
-        $"{SmallChatOutputPerMillion.ToString(CultureInfo.InvariantCulture)} out per 1M tok, " +
         $"embedding {EmbeddingPerMillion.ToString(CultureInfo.InvariantCulture)} per 1M tok, " +
         $"search {SearchPerThousand.ToString(CultureInfo.InvariantCulture)} per 1k queries)";
 }

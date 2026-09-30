@@ -15,20 +15,16 @@ namespace DotFit.Assistant;
 
 /// <summary>
 /// Wires <see cref="RuntimeOptions"/> and <see cref="AssistantOptions"/> into a
-/// live assistant (design §12.1). All the behavior is in the components; this
+/// live assistant. All the behavior is in the components; this
 /// only builds Azure clients and the agent over them.
 ///
-/// One deployment does everything (decision D2): the frontier
-/// <c>AZURE_OPENAI_CHAT_DEPLOYMENT</c> runs the loop and
-/// <c>AZURE_OPENAI_EMBEDDING_DEPLOYMENT</c> embeds queries. The small-chat
-/// deployment is deliberately unused — no stage on this branch calls a second
-/// model — so this project asks for <see cref="RuntimeNeeds.Search"/> +
-/// <see cref="RuntimeNeeds.Embedding"/> + <see cref="RuntimeNeeds.Chat"/> and
-/// boots fine on a resource that has no small deployment at all.
+/// One chat deployment runs the loop (<c>AZURE_OPENAI_CHAT_DEPLOYMENT</c>) and
+/// <c>AZURE_OPENAI_EMBEDDING_DEPLOYMENT</c> embeds queries; nothing else calls
+/// a model.
 /// </summary>
 public static class AssistantFactory
 {
-    /// <summary>What the loop needs out of the <c>.env</c> contract. Notably not SmallChat.</summary>
+    /// <summary>What the loop needs out of the <c>.env</c> contract.</summary>
     public const RuntimeNeeds Needs = RuntimeNeeds.Search | RuntimeNeeds.Embedding | RuntimeNeeds.Chat;
 
     /// <summary>

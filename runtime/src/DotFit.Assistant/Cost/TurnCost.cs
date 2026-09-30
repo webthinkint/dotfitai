@@ -13,11 +13,7 @@ namespace DotFit.Assistant.Cost;
 /// <see cref="PriceSheet"/>. No rounding happens here; a cost is a decimal sum
 /// of exact products, and display precision belongs to whoever displays it.
 ///
-/// The <c>small_chat</c> block is v1's small-deployment stages (guardrail,
-/// rewrite, claims audit, conversational reply). The agentic runtime calls no
-/// small model, so it reports the block at zeros — saying "nothing was spent
-/// there", which is a different statement from a block being absent. The
-/// search line is priced off a **dummy** per-query rate (see
+/// The search line is priced off a **dummy** per-query rate (see
 /// <see cref="PriceSheet.SearchPerThousand"/>): a provisioned AI Search tier
 /// bills the month, not the query, so the honest per-turn search cost on the
 /// current setup is the amortized share of a fixed bill — unknowable per turn
@@ -41,13 +37,6 @@ public sealed record TurnCost
     [JsonPropertyName("chat_cached_input_tokens")] public required long ChatCachedInputTokens { get; init; }
     [JsonPropertyName("chat_output_tokens")] public required long ChatOutputTokens { get; init; }
 
-    // The small chat deployment — v1's guardrail, rewrite, claims audit and
-    // conversational reply. Always zero on the agentic runtime.
-
-    [JsonPropertyName("small_chat_input_tokens")] public required long SmallChatInputTokens { get; init; }
-    [JsonPropertyName("small_chat_cached_input_tokens")] public required long SmallChatCachedInputTokens { get; init; }
-    [JsonPropertyName("small_chat_output_tokens")] public required long SmallChatOutputTokens { get; init; }
-
     [JsonPropertyName("embedding_calls")] public required int EmbeddingCalls { get; init; }
     [JsonPropertyName("embedding_tokens")] public required long EmbeddingTokens { get; init; }
 
@@ -61,12 +50,11 @@ public sealed record TurnCost
     [JsonPropertyName("ranker_queries")] public required int RankerQueries { get; init; }
 
     [JsonPropertyName("chat_usd")] public required decimal ChatUsd { get; init; }
-    [JsonPropertyName("small_chat_usd")] public required decimal SmallChatUsd { get; init; }
     [JsonPropertyName("embedding_usd")] public required decimal EmbeddingUsd { get; init; }
     [JsonPropertyName("search_usd")] public required decimal SearchUsd { get; init; }
 
     [JsonPropertyName("total_usd")] public decimal TotalUsd =>
-        ChatUsd + SmallChatUsd + EmbeddingUsd + SearchUsd;
+        ChatUsd + EmbeddingUsd + SearchUsd;
 
     /// <summary>
     /// The wire shape both runtimes' SSE <c>result</c> projections emit, in one
@@ -85,13 +73,6 @@ public sealed record TurnCost
             cached_input_tokens = ChatCachedInputTokens,
             output_tokens = ChatOutputTokens,
             usd = ChatUsd,
-        },
-        small_chat = new
-        {
-            input_tokens = SmallChatInputTokens,
-            cached_input_tokens = SmallChatCachedInputTokens,
-            output_tokens = SmallChatOutputTokens,
-            usd = SmallChatUsd,
         },
         embedding = new
         {
@@ -126,9 +107,6 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
     private long _chatInput;
     private long _chatCached;
     private long _chatOutput;
-    private long _smallInput;
-    private long _smallCached;
-    private long _smallOutput;
     private long _embeddingTokens;
     private int _embeddingCalls;
     private int _indexQueries;
@@ -146,14 +124,6 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
     /// </summary>
     public void Chat(long? input, long? cached, long? output) => ChatInto(
         ref _chatInput, ref _chatCached, ref _chatOutput, input, cached, output);
-
-    /// <summary>
-    /// One call's usage on the **small** chat deployment — v1's guardrail,
-    /// rewriter, claims audit and conversational reply. Cached input is a
-    /// subset of input on the same call, priced at the small trio's rate.
-    /// </summary>
-    public void ChatSmall(long? input, long? cached, long? output) => ChatInto(
-        ref _smallInput, ref _smallCached, ref _smallOutput, input, cached, output);
 
     private void ChatInto(
         ref long inputAcc, ref long cachedAcc, ref long outputAcc,
@@ -194,16 +164,13 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
 
     public TurnCost Cost(PriceSheet sheet)
     {
-        long chatInput, chatCached, chatOutput, smallInput, smallCached, smallOutput, embeddingTokens;
+        long chatInput, chatCached, chatOutput, embeddingTokens;
         int embeddingCalls, indexQueries, rankerQueries;
         lock (_gate)
         {
             chatInput = _chatInput;
             chatCached = _chatCached;
             chatOutput = _chatOutput;
-            smallInput = _smallInput;
-            smallCached = _smallCached;
-            smallOutput = _smallOutput;
             embeddingTokens = _embeddingTokens;
             embeddingCalls = _embeddingCalls;
             indexQueries = _indexQueries;
@@ -214,7 +181,6 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
         // trusted, so a provider reporting an inconsistent pair cannot mint
         // negative tokens into the money.
         long uncached = Math.Max(0, chatInput - chatCached);
-        long smallUncached = Math.Max(0, smallInput - smallCached);
         return new TurnCost
         {
             Currency = sheet.Currency,
@@ -222,9 +188,6 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
             ChatInputTokens = chatInput,
             ChatCachedInputTokens = chatCached,
             ChatOutputTokens = chatOutput,
-            SmallChatInputTokens = smallInput,
-            SmallChatCachedInputTokens = smallCached,
-            SmallChatOutputTokens = smallOutput,
             EmbeddingCalls = embeddingCalls,
             EmbeddingTokens = embeddingTokens,
             IndexQueries = indexQueries,
@@ -233,10 +196,6 @@ public sealed class TurnMeter : Retrieval.IEmbeddingUsageSink
                 uncached * sheet.ChatInputPerMillion / 1_000_000m
                 + chatCached * sheet.ChatCachedInputPerMillion / 1_000_000m
                 + chatOutput * sheet.ChatOutputPerMillion / 1_000_000m,
-            SmallChatUsd =
-                smallUncached * sheet.SmallChatInputPerMillion / 1_000_000m
-                + smallCached * sheet.SmallChatCachedInputPerMillion / 1_000_000m
-                + smallOutput * sheet.SmallChatOutputPerMillion / 1_000_000m,
             EmbeddingUsd = embeddingTokens * sheet.EmbeddingPerMillion / 1_000_000m,
             SearchUsd = indexQueries * sheet.SearchPerThousand / 1_000m,
         };
