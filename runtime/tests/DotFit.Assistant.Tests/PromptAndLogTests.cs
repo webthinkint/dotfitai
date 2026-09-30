@@ -149,17 +149,24 @@ public class TurnLogTests
     }
 
     [Fact]
-    public void The_guide_revision_is_logged_only_when_the_guide_was_read()
+    public void Reference_versions_are_logged_only_for_the_references_read()
     {
-        // The guide is uncited, so this field is the only record of which
-        // revision shaped a program answer (§7.4, §10).
+        // References are uncited, so this field is the only record of which
+        // revision of dotFIT's guidance shaped an answer.
         TurnLog without = TurnLog.From(Result(Call(Stages.Search, "q")), TurnLog.OutcomeAnswered);
-        Assert.Null(without.ProgramGuideVersion);
-        Assert.DoesNotContain("program_guide", without.ToJsonLine(), StringComparison.Ordinal);
+        Assert.Null(without.References);
+        Assert.DoesNotContain("\"references\"", without.ToJsonLine(), StringComparison.Ordinal);
 
-        TurnLog with = TurnLog.From(Result(Call(Stages.Guide, "")), TurnLog.OutcomeAnswered);
-        Assert.Equal(ProgramGuide.Version, with.ProgramGuideVersion);
-        Assert.Equal(1, with.ToolsUsed[Stages.Guide]);
+        TurnLog with = TurnLog.From(
+            Result(
+                Call(Stages.Guide, "program-guide") with { Version = "aaaaaaaaaaaa" },
+                Call(Stages.Guide, "customer-service-faq#Returns") with { Version = "bbbbbbbbbbbb" },
+                Call(Stages.Guide, "nope")),
+            TurnLog.OutcomeAnswered);
+        Assert.Equal(
+            new Dictionary<string, string> { ["customer-service-faq"] = "bbbbbbbbbbbb", ["program-guide"] = "aaaaaaaaaaaa" },
+            with.References);
+        Assert.Equal(3, with.ToolsUsed[Stages.Guide]);
     }
 
     [Fact]

@@ -8,17 +8,17 @@ using DotFit.Assistant.Prompting;
 using DotFit.Assistant.Retrieval;
 using DotFit.Assistant.Turn;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 using Microsoft.Extensions.AI;
 
 namespace DotFit.Assistant.Tools;
 
 /// <summary>
-/// The corpus as three tools (design §7): <c>search</c>, <c>fetch</c>,
-/// <c>get_product</c> — plus <c>get_program_guide</c> (§7.4), which returns
-/// the supplement program method rather than a source. This is the entire
-/// surface the model can reach — there is no general-knowledge path to a
-/// dotFIT product fact, which is the second of the three mechanisms that
-/// replaced v1's gate (§8.2).
+/// The corpus as three tools, <c>search</c>, <c>fetch</c> and
+/// <c>get_product</c>, plus <c>read_reference</c>, which opens dotFIT's own
+/// guidance from the source registry rather than a numbered source. This is
+/// the entire surface the model can reach: there is no general-knowledge path
+/// to a dotFIT product fact.
 ///
 /// Everything here is deterministic and calls no model. Alias expansion,
 /// filters, numbering and budget are code; what to look up and what to say
@@ -42,6 +42,7 @@ public sealed partial class KnowledgeTools
     private readonly AssistantOptions _options;
     private readonly SearchSettings _settings;
     private readonly TurnMeter _meter;
+    private readonly SourceRegistry? _registry;
     private readonly List<ToolCallRecord> _calls = [];
     private readonly SortedSet<string> _families = new(StringComparer.Ordinal);
     private readonly Lock _callGate = new();
@@ -54,7 +55,8 @@ public sealed partial class KnowledgeTools
         SourceLedger ledger,
         ToolBudget budget,
         SearchSettings? settings = null,
-        TurnMeter? meter = null)
+        TurnMeter? meter = null,
+        SourceRegistry? registry = null)
     {
         _search = search;
         _store = store;
@@ -68,6 +70,8 @@ public sealed partial class KnowledgeTools
         // cost block; standalone callers (the CLI `search` verb) get a private
         // one and read it off `Meter`.
         _meter = meter ?? new TurnMeter();
+        // What read_reference can open. Without one the tool is not offered.
+        _registry = registry;
         Ledger = ledger;
         Budget = budget;
     }
@@ -99,42 +103,47 @@ public sealed partial class KnowledgeTools
     /// the model's only documentation for the corpus, so they carry the
     /// §3 authority story rather than describing an index.
     /// </summary>
-    public IList<AITool> AsTools() =>
-    [
-        AIFunctionFactory.Create(
-            SearchAsync,
-            name: "search",
-            description:
-                "Search dotFIT's knowledge base: approved product copy and website pages (authority 1), the " +
-                "Practitioner Dietary Supplement Reference Guide (2), answers dotFIT experts wrote to real " +
-                "customers (3), podcast transcripts (4) and meal-plan descriptions (5). Hybrid keyword + " +
-                "semantic search over current documents only. Product names are alias-expanded for you, " +
-                "including discontinued and renamed ones. Search more than once — narrow, rephrase, or search " +
-                "for a different aspect — rather than settling for a thin first result."),
-        AIFunctionFactory.Create(
-            FetchAsync,
-            name: "fetch",
-            description:
-                "Retrieve one document by its id, exactly as returned by search. Use it when a source you were " +
-                "given is truncated, or when a table, dosing protocol or list appears to be cut off mid-way. " +
-                "Set neighbors=true to also get the chunks either side of it in the same document."),
-        AIFunctionFactory.Create(
-            GetProductAsync,
-            name: "get_product",
-            description:
-                "Get the complete legal-approved copy for one dotFIT product family, by name or part number, " +
-                "including discontinued and former names. This is approved wording you may quote directly. " +
-                "Call it before making any claim about what a product contains, does, or is for — it is the " +
-                "shortest route to wording you are allowed to use."),
-        AIFunctionFactory.Create(
-            GetProgramGuide,
-            name: "get_program_guide",
-            description:
-                "Get dotFIT's supplement program guide: how dotFIT builds a supplement program for a person — " +
-                "screening, the baseline everyone gets, what to add for each goal, optional extras, and the " +
-                "overlap check — with the dotFIT product and dose for each step. Call it before recommending " +
-                "what someone should take, a stack, or a program. It is your method, not a citable source."),
-    ];
+    public IList<AITool> AsTools()
+    {
+        List<AITool> tools =
+        [
+            AIFunctionFactory.Create(
+                SearchAsync,
+                name: "search",
+                description:
+                    "Search dotFIT's knowledge base: approved product copy and website pages (authority 1), the " +
+                    "Practitioner Dietary Supplement Reference Guide (2), answers dotFIT experts wrote to real " +
+                    "customers (3), podcast transcripts (4) and meal-plan descriptions (5). Hybrid keyword + " +
+                    "semantic search over current documents only. Product names are alias-expanded for you, " +
+                    "including discontinued and renamed ones. Search more than once — narrow, rephrase, or search " +
+                    "for a different aspect — rather than settling for a thin first result."),
+            AIFunctionFactory.Create(
+                FetchAsync,
+                name: "fetch",
+                description:
+                    "Retrieve one document by its id, exactly as returned by search. Use it when a source you were " +
+                    "given is truncated, or when a table, dosing protocol or list appears to be cut off mid-way. " +
+                    "Set neighbors=true to also get the chunks either side of it in the same document."),
+            AIFunctionFactory.Create(
+                GetProductAsync,
+                name: "get_product",
+                description:
+                    "Get the complete legal-approved copy for one dotFIT product family, by name or part number, " +
+                    "including discontinued and former names. This is approved wording you may quote directly. " +
+                    "Call it before making any claim about what a product contains, does, or is for — it is the " +
+                    "shortest route to wording you are allowed to use."),
+        ];
+        if (_registry is { References.Count: > 0 } registry)
+            tools.Add(AIFunctionFactory.Create(
+                ReadReference,
+                name: "read_reference",
+                description:
+                    "Read one of dotFIT's references, whole or one section: " +
+                    string.Join("; ", registry.References.Select(r => $"{r.Id} ({r.Title})")) +
+                    ". References are dotFIT's own guidance, not numbered sources: use them in your own words " +
+                    "and do not cite them. Pass section to read just the part you need."));
+        return tools;
+    }
 
     // ---------------------------------------------------------------- search
 
@@ -417,32 +426,55 @@ public sealed partial class KnowledgeTools
         return Record(Stages.Product, name_or_part_no, body.ToString(), clock, sourceCount, newCount);
     }
 
-    // ----------------------------------------------------- get_program_guide
+    // -------------------------------------------------------- read_reference
 
     /// <summary>
-    /// The guide, whole, from the embedded copy (§7.4). No ledger entry: it is
-    /// the method, not a source, and is not cited (owner-ruled 2026-09-17).
-    /// It still consumes a call — a model re-reading it in a loop is still a
-    /// paid round trip each time.
+    /// A reference from the registry, whole or one section. No ledger entry: a
+    /// reference is guidance, not a numbered source, and is never cited. It
+    /// emits the <c>guide</c> stage with the reference's title, spends a call
+    /// like any tool, and records the reference's version for the turn log,
+    /// since an uncited source is otherwise invisible in the record.
     /// </summary>
-    [Description("Get dotFIT's supplement program guide.")]
-    private string GetProgramGuide()
+    [Description("Read one of dotFIT's references.")]
+    private string ReadReference(
+        [Description("The reference id, as listed in the reference library.")]
+        string id,
+        [Description("Optional: a section heading from the library, to read only that part.")]
+        string? section = null)
     {
         var clock = Stopwatch.StartNew();
+        string argument = string.IsNullOrWhiteSpace(section) ? id : $"{id}#{section.Trim()}";
         if (!Budget.TryConsume(out string refusal))
-            return Record(Stages.Guide, "", refusal, clock);
+            return Record(Stages.Guide, argument, refusal, clock);
 
-        Ledger.Stage(Stages.Guide);
+        Reference? reference = _registry?.FindReference(id);
+        if (reference is null)
+            return Record(Stages.Guide, argument,
+                $"There is no reference \"{id}\". Use one of: " +
+                string.Join(", ", _registry?.References.Select(r => r.Id) ?? []) + ".", clock);
+
+        string? text = reference.Text;
+        if (!string.IsNullOrWhiteSpace(section))
+        {
+            text = reference.Section(section);
+            if (text is null)
+                return Record(Stages.Guide, argument,
+                    $"{reference.Title} has no section \"{section}\". Its sections: " +
+                    string.Join("; ", reference.Sections) + ". Or omit section to read all of it.", clock);
+        }
+
+        Ledger.Stage(Stages.Guide, reference.Title);
 
         var body = new StringBuilder();
-        body.AppendLine(
-            "dotFIT's supplement program guide follows. Build the program the way it says. It is your method, " +
-            "not a source: it has no number, so do not cite it and do not refer to it as a document. Its " +
-            "product choices and doses are dotFIT's recommendations — give them directly, without " +
-            "attributing them to anyone.");
+        body.Append(reference.Title)
+            .Append(" follows. It is dotFIT's own guidance, not a numbered source: use it in your own words, ")
+            .Append("do not cite it, and do not name it to the customer.");
+        if (reference.PolicyFigures)
+            body.Append(" Its prices, fees and thresholds are fixed dotFIT policy and may be stated as written.");
         body.AppendLine();
-        body.AppendLine(ProgramGuide.Text);
-        return Record(Stages.Guide, "", body.ToString(), clock, 0, 0);
+        body.AppendLine();
+        body.AppendLine(text);
+        return Record(Stages.Guide, argument, body.ToString(), clock, 0, 0, reference.Version);
     }
 
     // ----------------------------------------------------------------- parts
@@ -522,8 +554,7 @@ public sealed partial class KnowledgeTools
         return null;
     }
 
-    internal static readonly string[] KnownSourceTypes =
-        ["product", "infopage", "pdsrg", "qa", "podcast", "menu_desc"];
+    internal static readonly string[] KnownSourceTypes = [.. SourceLabels.SourceTypeAuthority.Keys];
 
     /// <summary>
     /// The currency guidance the alias table produced for this call (§5).
@@ -630,7 +661,7 @@ public sealed partial class KnowledgeTools
 
     private string Record(
         string tool, string argument, string result, Stopwatch clock,
-        int? resultCount = null, int newCount = 0)
+        int? resultCount = null, int newCount = 0, string? version = null)
     {
         lock (_callGate)
         {
@@ -642,6 +673,7 @@ public sealed partial class KnowledgeTools
                 NewSourceCount = newCount,
                 ElapsedMs = clock.ElapsedMilliseconds,
                 Refusal = resultCount is null ? result : null,
+                Version = version,
             });
         }
         return result.TrimEnd();

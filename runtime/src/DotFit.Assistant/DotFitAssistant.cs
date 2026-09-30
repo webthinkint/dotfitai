@@ -9,6 +9,7 @@ using DotFit.Assistant.Tools;
 using DotFit.Assistant.Turn;
 using DotFit.Assistant;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
@@ -75,6 +76,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
     private readonly AssistantOptions _options;
     private readonly SearchSettings _settings;
     private readonly PriceSheet _prices;
+    private readonly SourceRegistry? _registry;
     private readonly string? _supportContact;
 
     public DotFitAssistant(
@@ -85,7 +87,8 @@ public sealed class DotFitAssistant : IDotFitAssistant
         AssistantOptions? options = null,
         string? supportContact = SystemPrompt.DefaultSupportContact,
         SearchSettings? settings = null,
-        PriceSheet? prices = null)
+        PriceSheet? prices = null,
+        SourceRegistry? registry = null)
     {
         _agent = agent;
         _search = search;
@@ -99,6 +102,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
         // default is the built-in placeholder sheet; the service and the CLI
         // load theirs from the same .env everything else reads.
         _prices = prices ?? new PriceSheet();
+        _registry = registry;
         _supportContact = supportContact;
     }
 
@@ -151,7 +155,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
         // time, against the sheet.
         var meter = new TurnMeter();
         var tools = new KnowledgeTools(
-            _search, _store, _aliases, turnOptions, ledger, budget, _settings, meter);
+            _search, _store, _aliases, turnOptions, ledger, budget, _settings, meter, _registry);
 
         yield return new TurnStageEvent(Stages.Thinking);
 

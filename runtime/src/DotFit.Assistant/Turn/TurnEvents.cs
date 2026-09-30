@@ -22,7 +22,7 @@ public static class Stages
     /// <summary>A <c>get_product</c> tool call. <c>detail</c> is what was asked for.</summary>
     public const string Product = "product";
 
-    /// <summary>A <c>get_program_guide</c> call — the turn is building a supplement program. No <c>detail</c>.</summary>
+    /// <summary>A <c>read_reference</c> call: the assistant is reading dotFIT's own guidance. <c>detail</c> is the reference's title.</summary>
     public const string Guide = "guide";
 
     /// <summary>The turn started; nothing has been decided yet.</summary>
@@ -76,6 +76,9 @@ public sealed record ToolCallRecord
     public required long ElapsedMs { get; init; }
     /// <summary>Set when the call was refused — the budget was spent, or the tool failed.</summary>
     public string? Refusal { get; init; }
+
+    /// <summary>For a <c>read_reference</c> call: the version of the reference it read.</summary>
+    public string? Version { get; init; }
 }
 
 /// <summary>The assembled turn. What the CLI prints, the service returns, and the log reads.</summary>

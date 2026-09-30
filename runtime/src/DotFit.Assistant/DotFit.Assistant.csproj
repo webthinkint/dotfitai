@@ -22,18 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The supplement program guide, embedded so the deployed service carries
-         the revision it was built with. -->
-    <EmbeddedResource Include="..\..\..\assistant\references\program-guide.md"
-                      LogicalName="DotFit.Assistant.Prompting.program-guide.md" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
     <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
     <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.20.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.9.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
 </Project>

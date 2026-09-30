@@ -8,6 +8,7 @@ using DotFit.Assistant.Prompting;
 using DotFit.Assistant.Retrieval;
 using DotFit.Assistant;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 using Microsoft.Agents.AI;
 using OpenAI.Chat;
 
@@ -61,11 +62,13 @@ public static class AssistantFactory
         AliasTable? aliases = null,
         SearchSettings? settings = null,
         PriceSheet? prices = null,
-        AssembledPrompt? prompt = null)
+        AssembledPrompt? prompt = null,
+        SourceRegistry? registry = null)
     {
         aliases ??= AliasTable.Load(options.AliasTablePath);
         agentic ??= AssistantOptions.Load(options.EnvFilePath);
-        prompt ??= AssembledPrompt.Load(options, agentic, aliases);
+        registry ??= SourceRegistry.Load(options.SourcesPath);
+        prompt ??= AssembledPrompt.Load(options, agentic, aliases, registry);
         prices ??= PriceSheet.Load(options.EnvFilePath);
         // Not `DefaultTop`: on this branch `top` is the model's per-call choice,
         // clamped against AssistantOptions, and SearchParameters always carries it
@@ -87,6 +90,7 @@ public static class AssistantFactory
             options: agentic,
             supportContact: options.SupportContact,
             settings: settings,
-            prices: prices);
+            prices: prices,
+            registry: registry);
     }
 }

@@ -93,12 +93,11 @@ public sealed record TurnLog
     [JsonPropertyName("families")] public required IReadOnlyList<string> Families { get; init; }
 
     /// <summary>
-    /// <see cref="ProgramGuide.Version"/>, set only when the turn read the
-    /// program guide (added in 1.2.0). The guide is uncited (§7.4), so this is
-    /// the only record of which revision shaped a program answer — and the
-    /// guide is due a review that will change it (open item 12).
+    /// Reference id to version, for every reference the turn read; absent when
+    /// it read none. References are uncited, so this is the only record of which
+    /// revision of dotFIT's guidance shaped an answer.
     /// </summary>
-    [JsonPropertyName("program_guide")] public string? ProgramGuideVersion { get; init; }
+    [JsonPropertyName("references")] public IReadOnlyDictionary<string, string>? References { get; init; }
 
     /// <summary>The prompt variant the turn ran on (<c>assistant/prompt/variants/</c>).</summary>
     [JsonPropertyName("prompt_variant")] public string? PromptVariant { get; init; }
@@ -138,6 +137,15 @@ public sealed record TurnLog
     /// calls rather than tracked separately, so a tool that stops recording
     /// them stops logging them — there is no second path that could disagree.
     /// </summary>
+    private static IReadOnlyDictionary<string, string>? ReferencesRead(IReadOnlyList<ToolCallRecord> calls)
+    {
+        var read = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (ToolCallRecord call in calls)
+            if (call.Tool == Stages.Guide && call.Version is { } version)
+                read[call.Argument.Split('#')[0]] = version;
+        return read.Count == 0 ? null : read;
+    }
+
     public static TurnLog From(
         TurnResult result,
         string outcome,
@@ -168,7 +176,7 @@ public sealed record TurnLog
             CitedCount = result.CitedSources.Count,
             CitedAuthorities = [.. citedAuthorities],
             Families = result.Families,
-            ProgramGuideVersion = result.ToolCalls.Any(c => c.Tool == Stages.Guide) ? ProgramGuide.Version : null,
+            References = ReferencesRead(result.ToolCalls),
             PromptVariant = prompt?.Variant,
             PromptVersion = prompt?.Version,
             FirstDeltaMs = result.FirstDeltaMs,

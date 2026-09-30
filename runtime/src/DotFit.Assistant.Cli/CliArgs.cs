@@ -65,7 +65,8 @@ internal static class CliArgs
           --set <path>        the smoke set (default: assistant/smoke/conversations.jsonl)
           --out <dir>         where the transcript goes (default: assistant/smoke/runs)
           --tier <name>       only one tier: chat, product, currency, multiturn,
-                              safety, claims, scope, adversarial, retrieval
+                              safety, claims, scope, adversarial, retrieval,
+                              program, support
 
         CHAT
           Type a question. `reset` clears the history, `exit` quits.

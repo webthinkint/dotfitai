@@ -5,6 +5,7 @@ using DotFit.Assistant;
 using DotFit.Assistant.Config;
 using DotFit.Assistant.Service;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 using DotFit.Assistant.Prompting;
 
 // dotfit-service — the §6 loop behind an SSE endpoint (design §9).
@@ -39,7 +40,8 @@ PriceSheet prices = PriceSheet.Load(options.EnvFilePath);
 service.RequireRoomForTurn(agentic);
 AliasTable aliases = AliasTable.Load(options.AliasTablePath);
 // Assembled once, here, so a broken prompt variant stops the boot.
-AssembledPrompt prompt = AssembledPrompt.Load(options, agentic, aliases);
+SourceRegistry registry = SourceRegistry.Load(options.SourcesPath);
+AssembledPrompt prompt = AssembledPrompt.Load(options, agentic, aliases, registry);
 
 // A question plus eight trimmed history turns. Kestrel's 30 MB default is for
 // file uploads; this endpoint feeds model prompts.
@@ -51,7 +53,7 @@ builder.Services.AddSingleton(agentic);
 builder.Services.AddSingleton(prices);
 builder.Services.AddSingleton(prompt);
 builder.Services.AddSingleton<IDotFitAssistant>(
-    _ => AssistantFactory.Create(options, agentic, aliases, prices: prices, prompt: prompt));
+    _ => AssistantFactory.Create(options, agentic, aliases, prices: prices, prompt: prompt, registry: registry));
 
 // Not optional and not configurable. With nothing gated, this log is the only
 // reconstruction of what an audience was shown (§8.3) — and it holds no

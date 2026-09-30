@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotFit.Assistant.Prompting;
 using DotFit.Assistant.Turn;
 using DotFit.Assistant;
 
@@ -67,7 +68,7 @@ internal static class Smoke
     }
 
     public static async Task<int> RunAsync(
-        IDotFitAssistant assistant, string setPath, string outDir, string? tier)
+        IDotFitAssistant assistant, string setPath, string outDir, string? tier, AssembledPrompt? prompt = null)
     {
         IReadOnlyList<SmokeItem> items = Load(setPath);
         if (tier is not null)
@@ -76,17 +77,24 @@ internal static class Smoke
             throw new CliUsageException($"no items matched tier '{tier}'");
 
         Directory.CreateDirectory(outDir);
-        string stamp = DateTime.Now.ToString("yyyy-MM-dd-HHmm");
-        string path = Path.Combine(outDir, $"smoke-{stamp}.md");
+        // Seconds and the tier in the name: two runs in the same minute must
+        // not overwrite each other.
+        string stamp = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
+        string path = Path.Combine(outDir, $"smoke-{stamp}{(tier is null ? "" : "-" + tier.ToLowerInvariant())}.md");
 
         // Written as it goes, not at the end. A 29-item live run is real Azure
         // spend, and one exception two thirds of the way through used to lose
         // the whole document and everything it cost.
         var header = new StringBuilder();
-        header.AppendLine($"# Agentic smoke run — {DateTime.Now:yyyy-MM-dd HH:mm}");
+        header.AppendLine($"# Smoke run — {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         header.AppendLine();
+        if (prompt is not null)
+        {
+            header.AppendLine($"Prompt variant `{prompt.Variant}`, version `{prompt.Version}`.");
+            header.AppendLine();
+        }
         header.AppendLine(
-            "Written conversational set (design §11.2). **There is no score.** Read each answer " +
+            "Written conversational set. **There is no score.** Read each answer " +
             "against *Looking for*, and check the three mechanical things first: first-delta time, " +
             "whether tools were called, and whether anything was cited.");
         header.AppendLine();

@@ -1,5 +1,7 @@
 using System.Text;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
+using DotFit.Assistant.Tools;
 
 namespace DotFit.Assistant.Prompting;
 
@@ -71,6 +73,34 @@ public static class SystemPrompt
         // AppendLine writes the platform newline; the prompt uses LF everywhere.
         return sb.ToString().Replace("\r\n", "\n", StringComparison.Ordinal).TrimEnd();
     }
+
+    /// <summary>
+    /// The <c>{{source-list}}</c> block: each searchable corpus, what it is,
+    /// and the claims tag its sources carry.
+    /// </summary>
+    public static string SourceList(SourceRegistry registry) => string.Join("\n",
+        registry.Corpora.Select(c => $"- {Capitalize(c.Name)}: {c.About}. {SourceLabels.ClaimsMarker(c.Authority)}."));
+
+    /// <summary>The <c>{{authority-by-domain}}</c> block: per topic, which source wins a disagreement.</summary>
+    public static string AuthorityByDomain(SourceRegistry registry) => string.Join("\n",
+        registry.Authority.Select(a =>
+            $"- {Capitalize(a.Topic)}: {string.Join(", then ", a.Ids.Select(registry.DisplayName))}."));
+
+    /// <summary>
+    /// The <c>{{reference-library}}</c> block: what read_reference can open,
+    /// when to open it, and its sections, so the model can read one section
+    /// instead of the whole document.
+    /// </summary>
+    public static string ReferenceLibrary(SourceRegistry registry) => string.Join("\n",
+        registry.References.Select(r =>
+            $"- {r.Id}: {r.Title}. Read it for {r.UseWhen}." +
+            (r.PolicyFigures ? " Its prices, fees and thresholds are fixed dotFIT policy and may be stated." : "") +
+            (r.Sections.Count > 0 ? $" Sections: {string.Join("; ", r.Sections)}." : "")));
+
+    private static string Capitalize(string text) =>
+        text.Length == 0 || text.StartsWith("dotFIT", StringComparison.Ordinal)
+            ? text
+            : char.ToUpperInvariant(text[0]) + text[1..];
 
     /// <summary>The <c>{{support-route}}</c> block: where the model routes someone who needs a person.</summary>
     public static string SupportRoute(string? supportContact) => supportContact is null

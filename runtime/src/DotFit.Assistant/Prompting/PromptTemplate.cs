@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 
 namespace DotFit.Assistant.Prompting;
 
@@ -33,9 +34,13 @@ public sealed partial class PromptTemplate
     public const string CurrencyFacts = "currency-facts";
     public const string SupportRoute = "support-route";
     public const string SupportTeam = "support-team";
+    public const string SourceList = "source-list";
+    public const string AuthorityByDomain = "authority-by-domain";
+    public const string ReferenceLibrary = "reference-library";
 
     /// <summary>Blocks built in code rather than read from a file.</summary>
-    public static readonly IReadOnlyList<string> GeneratedBlocks = [CurrencyFacts, SupportRoute, SupportTeam];
+    public static readonly IReadOnlyList<string> GeneratedBlocks =
+        [CurrencyFacts, SupportRoute, SupportTeam, SourceList, AuthorityByDomain, ReferenceLibrary];
 
     /// <summary>Parts every variant must include, however it is arranged.</summary>
     public static readonly IReadOnlyList<string> RequiredParts = ["escalation-list"];
@@ -86,15 +91,24 @@ public sealed partial class PromptTemplate
         return template;
     }
 
-    /// <summary>The assembled prompt.</summary>
-    public string Render(AliasTable aliases, string? supportContact) =>
+    /// <summary>
+    /// The assembled prompt. The source blocks need <paramref name="registry"/>;
+    /// a variant that uses one without it fails here rather than rendering a gap.
+    /// </summary>
+    public string Render(AliasTable aliases, string? supportContact, SourceRegistry? registry = null) =>
         Expand(_template, name => name switch
         {
             CurrencyFacts => SystemPrompt.CurrencyFacts(aliases),
             SupportRoute => SystemPrompt.SupportRoute(supportContact),
             SupportTeam => SystemPrompt.SupportTeam(supportContact),
+            SourceList => SystemPrompt.SourceList(RequireRegistry(registry, name)),
+            AuthorityByDomain => SystemPrompt.AuthorityByDomain(RequireRegistry(registry, name)),
+            ReferenceLibrary => SystemPrompt.ReferenceLibrary(RequireRegistry(registry, name)),
             _ => _parts[name],
         }, depth: 0, trail: []);
+
+    private static SourceRegistry RequireRegistry(SourceRegistry? registry, string block) =>
+        registry ?? throw new PromptException($"{{{{{block}}}}} needs the source registry");
 
     /// <summary>First 12 hex characters of the text's SHA-256, the same form the program guide's version takes.</summary>
     public static string Version(string renderedPrompt) =>
@@ -172,7 +186,8 @@ public sealed record AssembledPrompt(string Variant, string Text)
     public string Version { get; } = PromptTemplate.Version(Text);
 
     public static AssembledPrompt Load(
-        Config.RuntimeOptions options, Config.AssistantOptions assistant, AliasTable aliases) =>
+        Config.RuntimeOptions options, Config.AssistantOptions assistant, AliasTable aliases, SourceRegistry registry) =>
         new(assistant.PromptVariant,
-            PromptTemplate.Load(options.PromptDir, assistant.PromptVariant).Render(aliases, options.SupportContact));
+            PromptTemplate.Load(options.PromptDir, assistant.PromptVariant)
+                .Render(aliases, options.SupportContact, registry));
 }

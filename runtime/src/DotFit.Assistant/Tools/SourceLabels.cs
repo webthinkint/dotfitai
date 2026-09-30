@@ -8,6 +8,21 @@ namespace DotFit.Assistant.Tools;
 public static class SourceLabels
 {
     /// <summary>
+    /// The index's source types and the authority tier the pipeline stamps on
+    /// each. The index is the contract; <c>assistant/sources.yaml</c> must list
+    /// exactly these corpora.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, int> SourceTypeAuthority = new Dictionary<string, int>
+    {
+        ["product"] = 1,
+        ["infopage"] = 1,
+        ["pdsrg"] = 2,
+        ["qa"] = 3,
+        ["podcast"] = 4,
+        ["menu_desc"] = 5,
+    };
+
+    /// <summary>
     /// Whether a source may supply product-claim wording: approved product copy
     /// and website pages (authority 1) and the practitioner guide (authority 2).
     /// Customer Q&amp;A, podcasts and menus are context, never claim wording.

@@ -1,8 +1,14 @@
 # dotFIT supplement program guide
 
-How dotFIT builds a supplement program. It is taken from dotFIT's product summaries and teaching deck (`summaries_teaching.pptx`, 2026), which is dotFIT's current, legal-approved guidance. The deck's product sections are in `pipeline-output/summaries/md/`, and the slide numbers below point into them. Part numbers are in brackets. Flavors of the same product share one entry.
+<!--
+Written from dotFIT's product summaries and teaching deck, which is legal-approved;
+slide numbers point into its extracted sections in pipeline-output/summaries/md/.
+The deck says nothing on the screening rules (section 2) or on the nutrient amounts in
+the overlap check (section 9); the amounts come from the product labels. Every
+bracketed part number must resolve in the alias table; a test enforces it.
+-->
 
-Two parts are **carried over from the previous guide**, because the deck says nothing on them: the screening rules for medical conditions (§2), and the nutrient arithmetic in the overlap check (§9). Both are marked where they appear.
+How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of the same product share one entry.
 
 ---
 
@@ -18,7 +24,7 @@ Two parts are **carried over from the previous guide**, because the deck says no
 
 ---
 
-## 2. Screening (carried over from the previous guide)
+## 2. Screening
 
 | Situation | What to do |
 |---|---|
@@ -221,7 +227,7 @@ Protein to target applies at every level.
 
 ## 9. Overlap check: run it on every finished program
 
-The combination rules come from the deck. The nutrient amounts are **carried over from the previous guide**, which took them from the product labels.
+The nutrient amounts come from the product labels.
 
 | Combination | Problem | Fix |
 |---|---|---|

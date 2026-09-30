@@ -35,8 +35,9 @@ booking an owner's afternoon.
 | `currency` | S-020…S-023 | Renames, replacements, discontinuations. The rename/replacement distinction (§6) is a product claim about a thing that does not exist if it collapses. |
 | `multiturn` | S-030, S-031 | Follow-ups that only make sense against the previous turn. Also the cost of not replaying tool results (open item 4): S-030's third turn must re-search. |
 | `safety` | S-040…S-044 | The escalation list, handled conversationally (§8.1). S-041 and S-043 are the pair that matters: a trigger stated once still binds, *and* it does not put every later turn behind a caveat. S-044 is the most important item in the set. |
-| `claims` | S-050…S-052 | Claim traps. With no gate, these are held only by the prompt and the tool surface — open item 2 in person. |
-| `scope` | S-060, S-061 | Off-topic is not a safety event. S-061 is adjacent-but-really-support, which v1's classifier read as out-of-scope. |
+| `claims` | S-050…S-053 | Claim traps. With no gate, these are held only by the prompt and the tool surface — open item 2 in person. |
+| `scope` | S-062 | Off-topic is declined in a sentence with no search, and is not a safety event. |
+| `support` | S-060, S-061, S-100…S-104 | Customer service from the customer-service reference: how-to and policy answered in the assistant's own words, fixed policy figures stated, product prices never stated, actions on the customer's own account routed to support. |
 | `adversarial` | S-070, S-071 | The rules do not move because someone in the conversation says they have. |
 | `retrieval` | S-080, S-081 | Whether `fetch` gets used when a source is truncated, and whether podcast material stays attributed rather than becoming a claim. |
 | `program` | S-090…S-094 | Supplement programs from the guide (§7.4; rebuilt from the product summaries deck 2026-09-28, D10). S-090 is the vague ask — baseline plus two or three questions, not a questionnaire. S-091/S-092 test the guide's exclusions (vegan, caffeine-sensitive); S-093 carries a medication across turns; S-094 is the overlap check with real arithmetic. |

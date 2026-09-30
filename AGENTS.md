@@ -26,7 +26,7 @@ Steps, in order:
 5. (done) The system prompt moves from C# into `assistant/prompt/*.md` with
    `variants/`; the assembled text is byte-identical. Phrase-pinning prompt
    tests are replaced by structural tests over every variant.
-6. Source registry, `read_reference(id, section?)` in place of
+6. (done) Source registry, `read_reference(id, section?)` in place of
    `get_program_guide`, the customer-service FAQ, and the prompt changes ruled
    in rules 6, 14, 17, 18, 19 and 22. This is the only step that changes
    behaviour; smoke tiers are run live.

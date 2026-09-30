@@ -79,6 +79,8 @@ public sealed record RuntimeOptions
     public required string EnvFilePath { get; init; }
     /// <summary>The prompt folder (<c>assistant/prompt</c>) beside the .env, read at boot.</summary>
     public required string PromptDir { get; init; }
+    /// <summary>The source registry, <c>assistant/sources.yaml</c>, beside the prompt folder.</summary>
+    public string SourcesPath => Path.Combine(Path.GetDirectoryName(PromptDir) ?? ".", Sources.SourceRegistry.FileName);
 
     public Uri RequireSearchEndpoint() => SearchEndpoint ?? throw Missing(SearchEndpointVar);
     public string RequireSearchKey() => SearchKey ?? throw MissingEitherKey();

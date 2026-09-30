@@ -9,6 +9,7 @@ using DotFit.Assistant.Tools;
 using DotFit.Assistant.Turn;
 using DotFit.Assistant;
 using DotFit.Assistant.Aliases;
+using DotFit.Assistant.Sources;
 
 namespace DotFit.Assistant.Cli;
 
@@ -88,7 +89,8 @@ internal static class Program
 
         // Every verb but `search` runs on (or prints) the assembled prompt; a
         // broken variant fails here, before any model call.
-        AssembledPrompt? prompt = command.Verb == CliArgs.Search ? null : AssembledPrompt.Load(options, agentic, aliases);
+        SourceRegistry registry = SourceRegistry.Load(options.SourcesPath);
+        AssembledPrompt? prompt = command.Verb == CliArgs.Search ? null : AssembledPrompt.Load(options, agentic, aliases, registry);
 
         return command.Verb switch
         {
@@ -99,10 +101,10 @@ internal static class Program
             CliArgs.Ask => await AskAsync(options, aliases, agentic, prompt!, flags, command.Text).ConfigureAwait(false),
             CliArgs.Chat => await ChatAsync(options, aliases, agentic, prompt!, flags).ConfigureAwait(false),
             CliArgs.Smoke => await Smoke.RunAsync(
-                AssistantFactory.Create(options, agentic, aliases, prompt: prompt),
+                AssistantFactory.Create(options, agentic, aliases, prompt: prompt, registry: registry),
                 flags.SmokeSet ?? DefaultPath(options, "assistant", "smoke", "conversations.jsonl"),
                 flags.OutDir ?? DefaultPath(options, "assistant", "smoke", "runs"),
-                flags.Tier).ConfigureAwait(false),
+                flags.Tier, prompt).ConfigureAwait(false),
             _ => throw new CliUsageException($"unhandled verb '{command.Verb}'"),
         };
     }

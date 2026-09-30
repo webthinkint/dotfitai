@@ -8,7 +8,7 @@ Click the person icon at the top right of the dotFIT website and select “Forgo
 
 **How do I change my password?**
 
-Open the menu (☰), then go to My Account \> My Info. Update your password there.
+Open the menu (☰), then go to My Account > My Info. Update your password there.
 
 **I never received my welcome email. What should I do?**
 
@@ -22,25 +22,25 @@ Build Your Program to see products recommended in Your Dietary Support on the Su
 
 **When is standard shipping free?**
 
-One-time orders of \$80 or more and recurring orders of \$20 or more qualify for free standard shipping, according to the supplied shipping policy. Review the checkout total and shipping terms before placing your order.
+One-time orders of $80 or more and recurring orders of $20 or more qualify for free standard shipping, according to the supplied shipping policy. Review the checkout total and shipping terms before placing your order.
 
 **How does the Free Shipping Plan work?**
 
-The supplied plan offers free shipping on every order with no minimum in the continental United States for \$6.95 per month or \$69.95 per year. Review current terms before enrolling.
+The supplied plan offers free shipping on every order with no minimum in the continental United States for $6.95 per month or $69.95 per year. Review current terms before enrolling.
 
 ## Recurring orders and account profiles
 
 **How do I change a recurring order?**
 
-Log in and go to My Account \> Manage Recurring Orders. You can adjust quantities, shipping frequency or dates, and pause, reactivate, or cancel an order. Save changes before the order processes.
+Log in and go to My Account > Manage Recurring Orders. You can adjust quantities, shipping frequency or dates, and pause, reactivate, or cancel an order. Save changes before the order processes.
 
 **How do I manage my Free Shipping Plan?**
 
-Go to My Account \> Manage Subscriptions. Make and save changes before the subscription processes.
+Go to My Account > Manage Subscriptions. Make and save changes before the subscription processes.
 
 **How do I update my billing or shipping profile?**
 
-Go to My Account \> My Info, scroll to your existing billing or shipping profiles, edit the appropriate profile, and save.
+Go to My Account > My Info, scroll to your existing billing or shipping profiles, edit the appropriate profile, and save.
 
 **Will account changes affect an order that has already processed?**
 
@@ -54,7 +54,7 @@ Start Build Your Program and answer the intake questions about your goals. Your 
 
 **Can I change my goal?**
 
-On the Summary Overview, select the blue \+ button, then New Program. Your earlier information is saved as you update your goal.
+On the Summary Overview, select the blue + button, then New Program. Your earlier information is saved as you update your goal.
 
 **Can I use dotFIT without a Trainer?**
 
@@ -88,7 +88,7 @@ Email support@dotfit.com or visit the Member Onboarding page linked below.
 
 **How do I add a Member?**
 
-Sign in to your Trainer account, open the menu, select dotFIT Users, and choose \+ Add New Member. Enter their information and save. The Member should receive a welcome email; ask them to check spam or junk.
+Sign in to your Trainer account, open the menu, select dotFIT Users, and choose + Add New Member. Enter their information and save. The Member should receive a welcome email; ask them to check spam or junk.
 
 **Can I create my own program?**
 
@@ -118,11 +118,11 @@ An Org Admin oversees accounts and reporting across the organization. A Club Adm
 
 **How do I add a Trainer or Member?**
 
-Open the menu and select dotFIT Users. Choose \+ Add New Trainer or \+ Add New Member, enter the account details, verify club and Trainer assignments when applicable, and save.
+Open the menu and select dotFIT Users. Choose + Add New Trainer or + Add New Member, enter the account details, verify club and Trainer assignments when applicable, and save.
 
 **How do I add another Club Admin?**
 
-Open the menu, select Administration, and choose \+ Add New Location Admin. Enter their information, confirm the correct club, and save.
+Open the menu, select Administration, and choose + Add New Location Admin. Enter their information, confirm the correct club, and save.
 
 **Should an Admin also have a Trainer account?**
 
@@ -156,7 +156,7 @@ An unopened product may qualify for a refund of its purchase price, minus shippi
 
 **How do I mail a return?**
 
-Pack the item securely, preferably in its original packaging, and include the packing list. Without it, include the order number, order date, billing name, and address. Ship prepaid to dotFIT Returns, 900 Wilmeth Road, McKinney, TX 75069\. Keep your tracking number; C.O.D. shipments are not accepted.
+Pack the item securely, preferably in its original packaging, and include the packing list. Without it, include the order number, order date, billing name, and address. Ship prepaid to dotFIT Returns, 900 Wilmeth Road, McKinney, TX 75069. Keep your tracking number; C.O.D. shipments are not accepted.
 
 **When will I receive my refund?**
 
@@ -172,7 +172,7 @@ No. Contact the retailer where you purchased it and ask about its return policy.
 
 **Can I get a refund for an online subscription?**
 
-No. Online service subscriptions are nonrefundable. When you cancel an eligible monthly, quarterly, or annual subscription, it runs through the current billing cycle without a prorated refund. Prepaid subscriptions cannot be canceled. The return policy lists My Account \> Orders & Subscriptions \> Cancel; account menus may also show Manage Subscriptions.
+No. Online service subscriptions are nonrefundable. When you cancel an eligible monthly, quarterly, or annual subscription, it runs through the current billing cycle without a prorated refund. Prepaid subscriptions cannot be canceled. The return policy lists My Account > Orders & Subscriptions > Cancel; account menus may also show Manage Subscriptions.
 
 **Can I return a wholesale order?**
 
@@ -236,7 +236,7 @@ It teaches fitness professionals to use dotFIT tools for research-based nutritio
 
 **How much is certification?**
 
-The certification page lists a \$99.95 purchase with immediate platform access. Check the page for the current price when enrolling.
+The certification page lists a $99.95 purchase with immediate platform access. Check the page for the current price when enrolling.
 
 **Can I earn continuing education credit?**
 
@@ -249,7 +249,7 @@ Follow the rules for your profession and state. dotFIT specifically advises chec
 **Details and current terms:**
 [https://www.dotfit.com/become-dotFIT-certified](https://www.dotfit.com/become-dotFIT-certified)
 
-# Licensed Club Partnerships**
+# Licensed Club Partnerships
 
 **Who is the licensed partner program for?**
 
@@ -261,7 +261,7 @@ The traditional monthly license option describes unlimited client and member nut
 
 **Is there a minimum wholesale order?**
 
-The partnership page says there is no wholesale order minimum and lists free shipping on wholesale orders greater than \$300 under the traditional monthly license option.
+The partnership page says there is no wholesale order minimum and lists free shipping on wholesale orders greater than $300 under the traditional monthly license option.
 
 **Can staff earn commissions or discounts?**
 

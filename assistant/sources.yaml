@@ -1,0 +1,54 @@
+# Everything the assistant can read, and what each source is for.
+#
+# The runtime reads this file at boot. The system prompt's source list, its
+# per-topic authority order and its reference library are generated from it,
+# as is read_reference's list. Edit it here, restart, and the prompt follows;
+# `dotfit prompt` shows the result. A broken entry stops the boot.
+
+# Searchable corpora: the AI Search index, built by the pipeline. The model
+# reaches them with search, fetch and get_product, and every result is a
+# numbered source it cites. Ids are the index's source_type values; the
+# runtime refuses to start if this list and the index's types disagree.
+corpora:
+  product:
+    name: approved product copy
+    about: dotFIT's legal-approved product pages, by product
+  infopage:
+    name: dotFIT website pages
+    about: legal-approved site copy, including the published policies
+  pdsrg:
+    name: the practitioner guide
+    about: the Practitioner Dietary Supplement Reference Guide, dotFIT's scientific reference for mechanism, dosing and ingredient rationale
+  qa:
+    name: customer Q&A
+    about: answers dotFIT experts wrote to real customers; good guidance and phrasing, but historical
+  podcast:
+    name: the dotFIT podcast
+    about: expert discussion and opinion, attributed to the show
+  menu_desc:
+    name: menu descriptions
+    about: which dotFIT meal-plan menus exist
+
+# References: dotFIT's own guidance, read whole or by section with
+# read_reference. They are not numbered sources: the model uses them in its
+# own words and does not cite them. policy_figures: true means the prices,
+# fees and thresholds in it are fixed dotFIT policy the model may state.
+references:
+  program-guide:
+    file: references/program-guide.md
+    title: Supplement program guide
+    use_when: questions about what to take (a supplement program, a stack, what to add for a goal) and whether a combination someone takes or plans to take is okay
+  customer-service-faq:
+    file: references/customer-service-faq.md
+    title: Customer service FAQ
+    use_when: questions about how the dotFIT website and account work; ordering, shipping, recurring orders, returns and refunds; trainer and admin tools; certification; athlete sponsorship; club partnerships
+    policy_figures: true
+
+# When sources disagree, the first one listed for the topic wins. Ids are the
+# corpora and references above.
+authority:
+  product claims: [product, infopage]
+  science and dosing: [pdsrg, qa, podcast]
+  supplement programs: [program-guide]
+  policy and how-to: [customer-service-faq, infopage]
+  menus: [menu_desc]

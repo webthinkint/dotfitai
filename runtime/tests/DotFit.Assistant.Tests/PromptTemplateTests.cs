@@ -28,7 +28,7 @@ public class PromptTemplateTests
             PromptTemplate template = PromptTemplate.Load(dir, variant);
             foreach (string? contact in new[] { "support@example.com", null })
             {
-                string text = template.Render(aliases, contact);
+                string text = template.Render(aliases, contact, ReferenceTests.RepoRegistry());
                 Assert.False(string.IsNullOrWhiteSpace(text), variant);
                 Assert.DoesNotContain("{{", text, StringComparison.Ordinal);
                 Assert.DoesNotContain("}}", text, StringComparison.Ordinal);
@@ -46,7 +46,7 @@ public class PromptTemplateTests
         AliasTable aliases = Fixtures.Aliases();
         foreach (string variant in PromptTemplate.Variants(dir))
         {
-            string text = PromptTemplate.Load(dir, variant).Render(aliases, "support@example.com");
+            string text = PromptTemplate.Load(dir, variant).Render(aliases, "support@example.com", ReferenceTests.RepoRegistry());
             foreach (string required in PromptTemplate.RequiredParts)
             {
                 string part = PromptTemplate.Clean(File.ReadAllText(Path.Combine(dir, required + ".md")));
