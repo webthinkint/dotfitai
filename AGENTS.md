@@ -3,7 +3,7 @@
 dotFIT Assistant: a frontier model given dotFIT's nutrition and supplement
 material as tools, which decides for itself what to look up and what to say.
 
-## Read first
+## Documentation
 
 - `docs/architecture.md` — how it works: sources, the index, the loop, the
   tools, the prompt, the logs.
