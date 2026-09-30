@@ -5,7 +5,7 @@
 
 ```bash
 cd runtime
-dotnet run --project src/DotFit.Agentic.Cli -- smoke --out ../processed/agentic/smoke
+dotnet run --project src/DotFit.Assistant.Cli -- smoke --out ../processed/agentic/smoke
 ```
 
 ## What this is, and what it is not

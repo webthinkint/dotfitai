@@ -13,8 +13,8 @@ nothing in git history governs anything.
 Steps, in order:
 
 1. Rules inventory (done; it is the "Rules" section below)
-2. This interim file; `docs/` deleted
-3. Delete the v1 runtime (`DotFit.Agents*`, `runtime/deploy/`, the verdict log),
+2. (done) This interim file; `docs/` deleted
+3. (done) Delete the v1 runtime (`DotFit.Agents*`, `runtime/deploy/`, the verdict log),
    and move its shared code (aliases, retrieval, cost, config, support text)
    and that code's tests into the assistant project. Delete pipeline
    `golden`/`eval` and the retrieval probes. Rename projects to
@@ -47,7 +47,7 @@ Pipeline, from `pipeline/` (uv, Python 3.12): `uv sync`, `uv run pytest`,
 corpus filenames contain spaces, commas and `&`.
 
 Runtime (.NET 10), from `runtime/`: `dotnet build && dotnet test`, then
-`dotnet run --project src/DotFit.Agentic.Cli -- <config|prompt|search|ask|chat|smoke>`.
+`dotnet run --project src/DotFit.Assistant.Cli -- <config|prompt|search|ask|chat|smoke>`.
 `ask`, `chat` and `smoke` cost Azure calls; use `smoke --tier` first.
 
 ## Rules
