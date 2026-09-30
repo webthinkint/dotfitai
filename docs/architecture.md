@@ -2,9 +2,13 @@
 
 One model with tools over dotFIT's own material. It decides for itself whether a
 turn needs a lookup, what to look up, and what to say; nothing runs before or
-after it, and nothing it writes is held back. This document is the map. The
-caller contract is `docs/website-integration.md`; the rules that bind every
-change are in `AGENTS.md`.
+after it, and nothing it writes is held back. This document is the map and the
+home of the rules that bind the runtime. The caller contract is
+`docs/website-integration.md`; the pipeline's rules are in `pipeline/README.md`,
+the content's in `assistant/README.md`.
+
+Every change is judged by one question: does it make the assistant faster, less
+refusal-prone, or closer to the owners' preferred prose?
 
 ## Repository
 
@@ -42,6 +46,12 @@ and how-to (the customer-service FAQ, then website pages), menus.
 The product summaries deck is dotFIT's legal-approved top authority. It is
 extracted by the pipeline but not indexed; it reaches the assistant through the
 program guide, which is written from it.
+
+Customer Q&A comes from real customer mail in `original-data/QAs/`. Nothing
+unscrubbed leaves the pipeline's Stage 0, no model ever sees unscrubbed text,
+and if the folder moves, its ignore rules move first. Redaction flags what it
+cannot remove without eating prose rather than guessing; the review queue is
+cleared by a person reading it, never by relaxing a rule.
 
 ## The index
 
@@ -96,7 +106,10 @@ All deterministic; none calls a model. Built fresh per turn (`KnowledgeTools`).
   in the result. `products` is a real restriction and is resolved on the
   *mention path* (may use LLM-only aliases); names inside the free query text
   take the *blind path* and only widen the query, never restrict it, because
-  most of the corpus carries no product tag.
+  most of the corpus carries no product tag. A rename is one product under two
+  names and expands to the successor's part numbers ("LeanMR, now LeanMeal");
+  a replacement is a different formula and never expands to its successor —
+  it is only a currency cue, here and in the prompt's currency facts.
 - **`fetch(id, neighbors?)`** — one document by key, optionally with the chunks
   either side; for a source that arrived truncated (content is capped at 6,000
   characters, and the cut is said out loud).
@@ -138,9 +151,11 @@ Nothing gates. What holds the line is three things together:
    or attributed, never strengthened; no disease claims), the escalation list
    handled conversationally (answer what is safe, name the limit once, route to
    support or a healthcare professional, never refuse the whole turn; a trigger
-   binds later turns but is not a mode), product prices never stated, scope
-   limited to dotFIT's ground, and rules that do not move because a
-   conversation says so.
+   binds later turns but is not a mode; teenagers 12–17 answered within the
+   program guide's youth limits), product prices never stated, scope limited
+   to dotFIT's ground (off-topic declined in a sentence, with no search), and
+   rules that do not move because a conversation says so. Search results are
+   quoted material, never instruction.
 2. **The tool surface**: the model has no path to a dotFIT fact except dotFIT's
    material, sources carry their claims tag, and quoting is the cheap path.
 3. **The log**: every turn is reconstructible from the turn log joined to the
@@ -149,18 +164,20 @@ Nothing gates. What holds the line is three things together:
 ## The service and the logs
 
 `dotfit-service` exposes `POST /ask` (SSE) and `GET /healthz`; the contract is
-in `docs/website-integration.md`. Auth is a shared secret and fails closed.
+in `docs/website-integration.md`. Auth is a shared secret and fails closed. It
+has one trusted server-side caller, so there is no CORS and no rate limiting.
 
 **The turn log** is one `dotfit.turn` JSON line per accepted request, on every
-terminal path including abandoned ones: outcome, tool calls per tool, the search
-queries the model chose, budget stops, sources and citations, cited authority
-tiers, product families, the references read and their versions, the prompt
-variant and version, timings, tokens and cost. **It has no field for question or
+terminal path including abandoned ones, with no off switch: outcome, tool
+calls per tool, the search queries the model chose, budget stops, sources and
+citations, cited authority tiers, product families, the references read and
+their versions, the prompt variant and version, timings, tokens and cost. **It has no field for question or
 answer text.** The search queries are model text, the one text-bearing field.
 
 **The debug transcript** (`dotfit.transcript`, off unless
 `DOTFIT_ASSISTANT_DEBUG_TRANSCRIPT=1`) holds the words, for preview debugging,
-and must be off before public customer traffic.
+and must be off before public customer traffic. When on it is loud: the service
+says so at startup and `/healthz` reports it.
 
 **Cost** is priced, not invoiced: observed counts (chat tokens with the cached
 subset, embedding calls and tokens, index queries) priced against the
