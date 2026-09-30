@@ -32,6 +32,36 @@ public sealed record AskBody
     }
 }
 
+/// <summary>
+/// Reads the <c>POST /ask</c> body by hand rather than through parameter
+/// binding, so the endpoint checks auth before it parses anything and every
+/// rejection carries the contract's <c>{"error": "..."}</c> body.
+/// </summary>
+public static class AskBodyReader
+{
+    public static async Task<(AskBody? Body, int Status, string? Error)> ReadAsync(
+        HttpRequest request, CancellationToken ct)
+    {
+        if (!request.HasJsonContentType())
+            return (null, StatusCodes.Status415UnsupportedMediaType, "content type must be application/json");
+        try
+        {
+            AskBody? body = await request.ReadFromJsonAsync<AskBody>(AskStream.Json, ct).ConfigureAwait(false);
+            return body is null
+                ? (null, StatusCodes.Status400BadRequest, "body must be a JSON object")
+                : (body, StatusCodes.Status200OK, null);
+        }
+        catch (JsonException)
+        {
+            return (null, StatusCodes.Status400BadRequest, "body must be a JSON object matching the /ask contract");
+        }
+        catch (BadHttpRequestException e) when (e.StatusCode == StatusCodes.Status413PayloadTooLarge)
+        {
+            return (null, e.StatusCode, $"body must be {ServiceOptions.MaxRequestBytes / 1024} KB or smaller");
+        }
+    }
+}
+
 public interface ISseWriter
 {
     Task WriteAsync(string eventName, object payload, CancellationToken ct);
@@ -96,6 +126,10 @@ public static class AskStream
         TurnResult? result = null;
         var sources = new List<SourceRef>();
         var sourceIds = new List<string>();
+        // What the customer has read so far, for the service-timeout handoff:
+        // it appends to this rather than replacing it, as the loop's does.
+        var streamed = new System.Text.StringBuilder();
+        long firstDeltaMs = -1;
 
         try
         {
@@ -125,6 +159,9 @@ public static class AskStream
                         break;
 
                     case TurnDeltaEvent delta:
+                        if (firstDeltaMs < 0)
+                            firstDeltaMs = clock.ElapsedMilliseconds;
+                        streamed.Append(delta.Text);
                         await writer.WriteAsync(EventDelta, new { text = delta.Text }, ct).ConfigureAwait(false);
                         break;
 
@@ -154,6 +191,11 @@ public static class AskStream
             // The caller hung up. Nothing to write to, and nothing was read.
             outcome = TurnLog.OutcomeAbandoned;
         }
+        catch (OperationCanceledException) when (result is not null)
+        {
+            // The timeout landed after `result` was written: the turn is
+            // complete and a second terminal frame would break "result is last".
+        }
         catch (OperationCanceledException)
         {
             // Our own request timeout, not the caller's abort: the connection
@@ -170,7 +212,7 @@ public static class AskStream
             result = await FailAsync(
                 writer, requestId,
                 DotFit.Assistant.Prompting.SystemPrompt.HandoffMessage(options.SupportContact),
-                sources, clock.ElapsedMilliseconds, ct).ConfigureAwait(false);
+                streamed.ToString(), sources, firstDeltaMs, clock.ElapsedMilliseconds, ct).ConfigureAwait(false);
         }
         finally
         {
@@ -192,29 +234,37 @@ public static class AskStream
     /// The terminal pair for a failure the loop could not emit for itself:
     /// <c>error</c>, the handoff as a <c>delta</c>, then <c>result</c> — the
     /// same shape and the same order <see cref="IDotFitAssistant"/> uses, so a
-    /// client needs no second code path. Returns the result it wrote, or null
-    /// if the connection went away while writing it (in which case the turn was
-    /// abandoned after all, and the log says so).
+    /// client needs no second code path. Text already streamed stays in
+    /// <c>answer</c>, with the handoff appended after a paragraph break, so
+    /// <c>answer</c> is still the whole of what the customer saw. Returns the
+    /// result it wrote, or null if the connection went away while writing it
+    /// (in which case the turn was abandoned after all, and the log says so).
     /// </summary>
     private static async Task<TurnResult?> FailAsync(
         ISseWriter writer,
         string requestId,
         string handoff,
+        string streamed,
         IReadOnlyList<SourceRef> sources,
+        long firstDeltaMs,
         long elapsedMs,
         CancellationToken ct)
     {
+        string seen = streamed.Trim();
+        string handoffDelta = seen.Length > 0 ? "\n\n" + handoff : handoff;
+        string answer = seen + handoffDelta;
         var result = new TurnResult
         {
-            AnswerText = handoff,
+            AnswerText = answer,
             // What was numbered before the ceiling fired. The customer may have
             // seen citations to them, so they are part of the record.
             Sources = sources,
             ToolCalls = [],
-            FirstDeltaMs = elapsedMs,
+            FirstDeltaMs = firstDeltaMs >= 0 ? firstDeltaMs : elapsedMs,
             TotalMs = elapsedMs,
             BudgetExhausted = false,
-            CitedSources = [],
+            CitedSources = [.. sources.Select(s => s.N)
+                .Where(n => answer.Contains($"[{n}]", StringComparison.Ordinal)).Order()],
             Families = [],
         };
         try
@@ -224,7 +274,7 @@ public static class AskStream
             await writer.WriteAsync(EventError,
                 new { request_id = requestId, kind = "timeout", message = "the assistant failed" }, ct)
                 .ConfigureAwait(false);
-            await writer.WriteAsync(EventDelta, new { text = handoff }, ct).ConfigureAwait(false);
+            await writer.WriteAsync(EventDelta, new { text = handoffDelta }, ct).ConfigureAwait(false);
             await writer.WriteAsync(EventResult, Wire(result, requestId), ct).ConfigureAwait(false);
             await writer.FlushAsync(ct).ConfigureAwait(false);
             return result;

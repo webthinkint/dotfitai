@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using DotFit.Assistant.Cost;
 using DotFit.Assistant.Config;
 using DotFit.Assistant.Service;
@@ -434,6 +435,38 @@ public class AskStreamTests
         Assert.Equal("timeout", log.ErrorKind);
     }
 
+    /// <summary>Streams a cited sentence, then stalls like <see cref="StallingAssistant"/>.</summary>
+    private sealed class StallsMidAnswerAssistant : IDotFitAssistant
+    {
+        public async IAsyncEnumerable<TurnEvent> AskAsync(
+            AskRequest request,
+            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+        {
+            yield return new TurnSourceEvent(Result().Sources[0]);
+            yield return new TurnDeltaEvent("Take 5 g daily [1].");
+            await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
+        }
+    }
+
+    [Fact]
+    public async Task A_request_timeout_mid_answer_keeps_the_streamed_text_in_the_result()
+    {
+        // `answer` is the whole of what the customer saw: the handoff is
+        // appended to the text already streamed, never substituted for it.
+        var writer = new RecordingWriter();
+        ServiceOptions options = Options() with { RequestTimeout = TimeSpan.FromMilliseconds(50) };
+
+        await AskStream.RunAsync(
+            new StallsMidAnswerAssistant(), new AskBody { Question = "q" },
+            writer, options, new RecordingTurnSink(), NullTranscriptSink.Instance, CancellationToken.None);
+
+        string handoffDelta = writer.Frames[^2].Json;
+        string result = writer.Frames[^1].Json;
+        Assert.Contains("\\n\\n", handoffDelta, StringComparison.Ordinal);
+        Assert.Contains("\"answer\":\"Take 5 g daily [1].\\n\\n", result, StringComparison.Ordinal);
+        Assert.Contains("\"cited\":[1]", result, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task A_caller_that_hangs_up_is_still_abandoned_and_writes_nothing_back()
     {
@@ -462,5 +495,48 @@ public class AskStreamTests
         TurnLog log = Assert.Single(sink.Logs);
         Assert.Equal(TurnLog.OutcomeAnswered, log.Outcome);
         Assert.Equal(900, log.FirstDeltaMs);
+    }
+}
+
+public class AskBodyReaderTests
+{
+    private static HttpRequest Request(string body, string? contentType = "application/json")
+    {
+        var http = new DefaultHttpContext();
+        http.Request.ContentType = contentType;
+        http.Request.Body = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(body));
+        return http.Request;
+    }
+
+    [Fact]
+    public async Task A_valid_body_binds_its_snake_case_fields()
+    {
+        // conversation_id must bind: unbound, every turn reads as a new
+        // conversation and re-sends the disclosure.
+        (AskBody? body, _, _) = await AskBodyReader.ReadAsync(
+            Request("""{"question":"q","conversation_id":"c1","request_id":"r1"}"""), CancellationToken.None);
+
+        Assert.Equal("c1", body!.ConversationId);
+        Assert.Equal("r1", body.RequestId);
+    }
+
+    [Fact]
+    public async Task An_unreadable_body_is_a_status_code_with_an_error_body()
+    {
+        (AskBody? malformed, int status, string? error) = await AskBodyReader.ReadAsync(
+            Request("{not json"), CancellationToken.None);
+        Assert.Null(malformed);
+        Assert.Equal(StatusCodes.Status400BadRequest, status);
+        Assert.NotNull(error);
+
+        (AskBody? mistyped, status, _) = await AskBodyReader.ReadAsync(
+            Request("""{"question":"q","history":"earlier"}"""), CancellationToken.None);
+        Assert.Null(mistyped);
+        Assert.Equal(StatusCodes.Status400BadRequest, status);
+
+        (AskBody? plain, status, _) = await AskBodyReader.ReadAsync(
+            Request("question=q", "text/plain"), CancellationToken.None);
+        Assert.Null(plain);
+        Assert.Equal(StatusCodes.Status415UnsupportedMediaType, status);
     }
 }

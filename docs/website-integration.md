@@ -86,8 +86,12 @@ secret; without it you get `401` and no stream.
 
 **Every rejection is a status code, never an event.** All validation happens
 before the stream opens, because the first SSE frame commits the response to
-`200`. A `400`/`401` has a JSON body (`{"error": "..."}` for `400`) and no
-`event:` lines at all; once you see the first `event:`, the request was accepted.
+`200`. Auth is checked first, before the body is read, so a request without the
+secret is always `401`. After that: `415` if the content type is not
+`application/json`, `413` if the body is over 256 KB, and `400` for a body that
+is not valid JSON or breaks a rule below. A `401` has no body; the others carry
+`{"error": "..."}`. None has `event:` lines; once you see the first `event:`,
+the request was accepted.
 
 Response headers are `text/event-stream`, `no-cache`, `X-Accel-Buffering: no`.
 **Check whatever proxy sits in front of you**: a proxy that buffers the body
@@ -356,7 +360,7 @@ have two half-configured mechanisms.
 
 **Limits.** A question over **2,000 characters** is a `400`, not a truncation.
 `top` is 1–20. History needs no trimming on your side. The request body is
-capped at 256 KB.
+capped at 256 KB (`413` above that).
 
 **Timeouts and cancellation.** If the client hangs up, the stream is cancelled
 and the turn is abandoned. Our ceiling is **120 seconds** per request, reported

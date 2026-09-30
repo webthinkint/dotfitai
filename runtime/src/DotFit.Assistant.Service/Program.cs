@@ -68,10 +68,8 @@ else
     builder.Services.AddSingleton<ITranscriptSink>(_ => NullTranscriptSink.Instance);
 }
 
-// Request binding must use the same naming policy the responses do. It does
-// not by default, and the failure is silent: `conversation_id` binds to
-// nothing, so every turn looks like a new conversation and re-sends the
-// disclosure.
+// JSON responses outside the stream (/healthz, rejections) use the stream's
+// naming policy. The /ask body is read with AskStream.Json directly.
 builder.Services.ConfigureHttpJsonOptions(json =>
 {
     json.SerializerOptions.PropertyNamingPolicy = AskStream.Json.PropertyNamingPolicy;
@@ -119,7 +117,6 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
 }));
 
 app.MapPost("/ask", async (
-    AskBody request,
     IDotFitAssistant assistant,
     ServiceOptions service,
     ITurnSink turns,
@@ -132,6 +129,10 @@ app.MapPost("/ask", async (
     // detail — which header was wrong is information only a guesser wants.
     if (!service.IsAuthorized(http.Request.Headers.Authorization))
         return Results.Unauthorized();
+
+    (AskBody? request, int status, string? unreadable) = await AskBodyReader.ReadAsync(http.Request, ct);
+    if (request is null)
+        return Results.Json(new { error = unreadable }, statusCode: status);
 
     // Validate while a status code still means something: the first SSE frame
     // commits the response to 200.

@@ -61,6 +61,8 @@ public static class AssistantFactory
                     ChatOptions = new ChatOptions
                     {
                         Instructions = prompt.Text,
+                        // Responses API: reasoning deployments reject tools on Chat Completions.
+                        // Storage off: a stored response would keep the customer's question on Azure.
                         RawRepresentationFactory = _ => new CreateResponseOptions { StoredOutputEnabled = false },
                     },
                 },

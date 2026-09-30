@@ -56,11 +56,9 @@ public sealed record TurnCost
         ChatUsd + EmbeddingUsd + SearchUsd;
 
     /// <summary>
-    /// The wire shape both runtimes' SSE <c>result</c> projections emit, in one
-    /// place so the two services cannot drift: the website team A/Bs the
-    /// runtimes against one contract, and a cost block that differed by
-    /// runtime would be two contracts wearing one name. Field names here are
-    /// the contract — pinned by tests on both sides.
+    /// The wire shape of the SSE <c>result</c> event's <c>cost</c> block.
+    /// Field names here are the contract in
+    /// <c>docs/website-integration.md</c>, pinned by the service tests.
     /// </summary>
     public object ToWire() => new
     {

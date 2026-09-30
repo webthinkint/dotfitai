@@ -24,6 +24,13 @@ is closed; the commit message records why.
   delta. The cause is unattributed between the deployment's own
   time-to-first-token, prompt size and the search round trip. Program turns
   that look up several products run 12–17 s.
+- **Parallel tool calls run one at a time.** The Agent Framework's function
+  invocation does not run a round trip's calls concurrently unless
+  `AllowConcurrentInvocation` is set, and `AssistantFactory.CreateAgent` does
+  not set it. A program turn that looks up several products waits for each in
+  turn. The ledger, budget and meter are already safe for concurrent calls;
+  the comments in `SourceLedger` and `KnowledgeTools` say the calls do run
+  concurrently.
 - **The turn budgets are estimates** (8 tool calls, 60 s). Replace them with the
   distribution the turn log shows.
 - **Tool results are not replayed**, so a follow-up sometimes searches again.
