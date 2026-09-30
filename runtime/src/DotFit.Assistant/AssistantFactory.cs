@@ -49,14 +49,6 @@ public static class AssistantFactory
     /// The agent: the frontier deployment, carrying the assembled system
     /// prompt as its instructions. Tools are *not* bound here — they are
     /// turn-scoped (their ledger and budget are) and arrive as per-run options.
-    ///
-    /// Over the Responses API, not Chat Completions: reasoning deployments
-    /// (gpt-6-astra) reject function tools on /chat/completions at every
-    /// reasoning effort they accept, and a loop without tools is not this
-    /// assistant. Storage is off — the caller sends the whole history each
-    /// turn, so nothing needs a server-side conversation, and a stored response
-    /// would keep the customer's question on Azure, which the turn log refuses
-    /// to hold.
     /// </summary>
     // OPENAI001: the SDK still marks the Responses surface experimental.
 #pragma warning disable OPENAI001

@@ -74,10 +74,6 @@ four tools. The model may call tools any number of times, in any order, in
 parallel; results come back as numbered sources; then it writes the answer,
 which streams as it is generated.
 
-The loop runs over the Responses API, because reasoning deployments reject
-function tools on Chat Completions. Response storage is off: the history travels
-with each request, and nothing of the turn is kept on Azure.
-
 - **No pre-check, no rewrite, no post-check.** Small talk needs no special case:
   a greeting is a turn on which no tool is called.
 - **History** is normalized in code: the most recent 8 turns, the first 1,000
