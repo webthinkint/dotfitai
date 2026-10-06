@@ -46,27 +46,33 @@ two approved sources:
 | Product | Label (index id) | Deck = guide |
 |---|---|---|
 | Vitamin D-3 | one softgel (1,000 IU) daily, or as a health professional directs (`product-1018-supplement_facts`) | 1,000–2,000 IU, up to 4,000 IU (`15-vitamin-d3.md`; guide §3.3) |
-| Calcium Complex | females 1–2 tablets; males not more than 1 (`product-1004-supplement_facts`) | 2 tablets split across meals, no sex distinction (`17-calcium-complex.md`; guide §3.3) |
+| Calcium Complex | females 1–2 tablets; males not more than 1 (`product-1004-supplement_facts`) | 1 or 2 tablets by dietary calcium (2, split across meals, under 1 serving a day; 1 at about 1.5–2.5), no sex distinction (`17-calcium-complex.md`; guide §3.3) |
 | ThermAccel | the facts panel agrees with the deck (`product-1102-supplement_facts`); the description section gives 1–2 tablets up to twice daily and a different bedtime gap (`product-1102-new-and-improved-formula-with-sinetrol`) | 2 at breakfast and 2 at lunch (`43-thermaccel.md`; guide §5) |
+| Creatine Monohydrate | the facts panel gives 1 scoop (7 g) a day under 175 lb, 2 over (`product-1200-supplement_facts`); the description section gives a 5-day load, then ½–1 scoop twice daily with the step at 200 lb (`product-1200-description`); 1227 repeats both | 5 g a day under 175 lb, 10 g at 175 and over — the PDSRG's number too (`50-creatine-monohydrate.md`; guide §4) |
 
 So a prompt edit cannot settle which dose the assistant gives: the owners must
-first rule whether the deck or the label wins for dosing, and ThermAccel's own
-page needs reconciling. S-094 got the calcium sex distinction right because it
-called `get_product` for Calcium Complex.
+first rule whether the deck (and the PDSRG, where it gives a dose) or the label
+wins for dosing. ThermAccel and Creatine Monohydrate also disagree with
+themselves: 13 product pages carry directions in more than one section, and the
+ruling covers those pairs too. S-094 got the calcium sex distinction right
+because it called `get_product` for Calcium Complex.
 
 **Fix.**
 
 - **Route now:** narrow the guide's `use_when` to programs, stacks and overlap
-  checks. In `programs.md`, a question about one product — what it is, what it
-  is for, how much to take — is a `get_product` question; keep the budget
-  exemption, scoped to products named inside a program. In `tools.md`, add
-  dosing to "Before any product claim, call `get_product`." A `get_product`-only
-  turn is the fast path (S-011 2.6 s, S-012 2.4 s), so this is faster than the
-  guide path as well as cited.
+  checks. In `programs.md`, keep the budget exemption, scoped to products named
+  inside a program; a question about one product's dose is not a program
+  question. Leave `tools.md` as it is: it already says to search when the
+  answer depends on a dose, and the registry's "science and dosing" order puts
+  `pdsrg` first, which is what S-004 cited. Do **not** route dosing to
+  `get_product` before the ruling: for creatine it would hand the model a page
+  carrying two direction blocks, neither of which is the PDSRG dose. A one-search
+  turn is fast enough (S-053 and S-081 3.7 s), and it is cited.
 - **Rule next:** a pipeline script beside `pipeline/scripts/stage2_queue_triage.py`
-  writes a worksheet putting each family's deck dosing paragraph beside its
-  indexed label directions, for the owners to read and rule on. Side by side,
-  not a computed diff: the doses are free text.
+  writes a worksheet putting, for each family, the deck dosing paragraph, the
+  PDSRG dosing chunk where there is one, and every indexed section of the page
+  that carries directions, side by side for the owners to read and rule on. Not
+  a computed diff: the doses are free text.
 - **Then the deck item in `docs/open.md`.** Its "should `get_product` return the
   deck's section" question has two constraints to add: until the ruling, it
   would hand the model two conflicting approved doses in one result; and the
@@ -79,9 +85,9 @@ called `get_product` for Calcium Complex.
 
 | # | Bug | Evidence | Fix | Cost |
 |---|---|---|---|---|
-| F-1 | Triggers scroll out of the history window | `Conversation.cs` keeps the newest 8 turns, each head-cut at 1,000 chars; `website-integration.md:332` says "the most recent 8 turns" and `:334` says "the whole conversation reaches the model" | Keep every user turn, with the answer that followed it, inside one total history budget shared with F-2; user-turn cap = question cap | small |
-| F-2 | History truncation cuts the tail of long answers | 2 of 50 smoke answers exceed 1,000 chars: S-031 1,178, S-091 1,300; the longest answer in the run is 1,300 | Raise the assistant-turn cap to ~2,500; the bound is F-1's total, not the cap | trivial |
-| F-3 | One document reaches the model more than once in a turn (F-4 is the same bug) | `read_reference` re-reads the guide (S-041 ×2, S-092 ×3) against a prompt rule that says once, 18.1k chars ≈ 4.5k tokens re-sent every later round trip; `get_product` returns every page of a family at once (SuperBlend 39.6k, WheySmooth 19.9k over 7 pages) and `ProductSectionCap` caps sections, not size | One per-turn "you already have this document" mechanism in `KnowledgeTools` covering both tools: a pointer instead of a repeat read, one page complete and the rest listed | small–medium |
+| F-1 | Triggers scroll out of the history window | `Conversation.cs` keeps the newest 8 turns, each head-cut at 1,000 chars; `website-integration.md:332` says "the most recent 8 turns" and `:334` says "the whole conversation reaches the model" | Newest 8 turns at the role caps; older exchanges kept as the user turn plus a short head of the answer; one total history budget, oldest exchanges dropped first; user-turn cap = question cap | small |
+| F-2 | History truncation would cut the tail of long answers | 2 of 50 smoke answers exceed 1,000 chars: S-031 1,178, S-091 1,300; the longest answer in the run is 1,300 | Raise the assistant-turn cap to ~2,500; the bound is F-1's total, not the cap | trivial |
+| F-3 | One document reaches the model more than once in a turn (F-4 is the same bug) | `read_reference` re-reads the guide (S-041 ×2, S-092 ×3) against a prompt rule that says once, 18.1k chars ≈ 4.5k tokens re-sent every later round trip; `get_product` returns every page of a family at once (SuperBlend 39.6k, WheySmooth 19.9k over 7 pages) and `ProductSectionCap` caps sections, not size | One per-turn "you already have this document" mechanism in `KnowledgeTools` covering both tools: a pointer instead of a repeat read, one page complete and the rest listed; the page chosen by matching the mention against page titles, since names resolve family-wide | small–medium |
 | F-5 | `fetch(neighbors: true)` probes a non-chunked id | `ChunkIdRegex` matches `infopage-41951-…-purchase-of-99-95` | Probe neighbours only for `pdsrg` and `podcast` | one line |
 | F-6 | Citations in `[1, 2]` form are invisible | `SourceLedger.CitedIn` uses `Contains("[n]")`; latent, not yet seen in a run | Regex over bracketed number lists in `CitedIn`, and a prompt line asking for `[1][2]` | small |
 | F-7 | Azure's content filter ends a turn invisibly | S-070: HTTP 400 `content_filter`, `kind: ClientResultException`, customer reads "Something went wrong on my end"; an output-side filter or length finish ends as `answered` with cut text | Distinct `kind`s from the exception and from `FinishReason`, two handoffs (filter, cut-off), a rule edit in `architecture.md` and `AGENTS.md`, a doc paragraph, a Foundry decision | small + two decisions |
@@ -91,7 +97,8 @@ called `get_product` for Calcium Complex.
 | F-12 | `dotfit ask --log` reports a failed turn as answered | `Program.cs` passes `TurnLog.OutcomeAnswered` unconditionally; the service sets it correctly | Set `error` and `error_kind` from the `TurnErrorEvent`, as `AskStream` does | trivial |
 | F-13 | `history_turns` is the caller's count, not what the model saw | `AskStream` and the CLI log `request.History.Count`, before `ConversationHistory.Normalize` | Log the kept count (or both), so trimming is visible | trivial |
 | F-14 | History's citation markers resolve to nothing | `Conversation.cs` replays earlier answers verbatim, `[13]` included; `SourceLedger.CitedIn` counts only numbers the ledger assigned, so a copied marker is dropped — unless that number is assigned to another document this turn, and then it cites the wrong one. Not seen in the run | Strip bracketed markers from history text in `Normalize` | trivial |
-| F-15 | The smoke set cannot show F-1 | The longest smoke conversation is 3 turns (S-093); no item crosses the 8-turn window | Add a >8-turn item: a trigger stated early, filler turns, a final question that needs it | trivial |
+| F-15 | The smoke set cannot show F-1 | The longest smoke conversations are 3 questions (S-030, S-043, S-093), so at most 4 history turns; no item crosses the 8-turn window | Add an item of at least 6 questions: a trigger stated in the first, filler between, a final question that needs it | trivial |
+| F-16 | `fetch` cannot return the rest of a truncated source | `fetch` renders through the same `MaxSourceChars` (6,000) cut as `search`, so it returns the identical truncated text and the same "call fetch for the rest" note; 76 QA records exceed 6,000 chars (longest 20,061) | `fetch` renders its document uncapped (the index's longest record is ~5k tokens) | small |
 
 ---
 
@@ -106,34 +113,41 @@ reaches the model … something the customer stated earlier still applies", and
 tells the caller to put any trigger it holds into a history turn.
 
 A trigger can sit in any user turn that falls out of the window, not only the
-first, so keep **every user turn**, inside a total budget, plus the newest 8
-turns whole. User turns are short; the budget bounds a relay that sends a long
-transcript. Separately, user turns are head-cut at 1,000 characters while a
-question may be 2,000, so a trigger in the second half of a long earlier
-question is cut: give user turns the question cap. Pin both in `HistoryTests`;
-the history row and the paragraph under it in `website-integration.md` change in
-the same commit.
+first, and the runtime cannot tell which turn holds one without a model call. So
+every user turn is kept, inside a total budget. User turns are short; the budget
+bounds a relay that sends a long transcript. Separately, user turns are head-cut
+at 1,000 characters while a question may be 2,000, so a trigger in the second
+half of a long earlier question is cut: give user turns the question cap. The
+question cap is a service option (`MaxQuestionChars`, configurable), while
+`Normalize` lives in the core library, so the cap is passed in or pinned to the
+default. Pin both in `HistoryTests`; the history row and the paragraph under it
+in `website-integration.md` change in the same commit.
 
 A kept user turn whose answer is dropped changes what the conversation *says*:
 the model reads "I'm pregnant" followed by an unrelated later question with
-nothing answered between, and guesses at what it already replied. Keep an
-out-of-window trigger as its user turn **plus the answer that followed it**, and
-say so in the `Normalize` comment.
+nothing answered between, and guesses at what it already replied. Keeping every
+answer whole defeats the budget, so the tiers are: the newest 8 turns at the role
+caps; every older exchange as its user turn plus the head of the answer that
+followed it (a few hundred characters, elided with "…"). Say so in the
+`Normalize` comment.
 
 **F-1 and F-2 are one decision.** The per-turn caps do not bound the history;
-the total does. A 30-turn conversation at 2,000 characters per kept user turn and
-2,500 per kept assistant turn is ~50k chars ≈ 12.5k tokens, re-sent on every
-round trip of a three-round-trip program turn. So: role-specific caps first
-(user turns = the question cap, assistant turns = the F-2 cap), then one
-`ConversationHistory.MaxHistoryChars` total, oldest turns dropped to fit it. The
+the total does. A conversation of 15 exchanges at the full caps — 2,000
+characters per user turn and 2,500 per assistant turn — is ~67k chars ≈ 17k
+tokens, re-sent on every round trip of a three-round-trip program turn; with
+older answers cut to their head it is about half that. So: role-specific caps
+first (user turns = the question cap, assistant turns = the F-2 cap), the tiers
+above, then one `ConversationHistory.MaxHistoryChars` total, oldest exchanges
+dropped whole to fit it, so a user turn never survives without its answer. The
 total is the number `website-integration.md` states; the caps are ours.
 
 ## F-2 · History truncation cuts the tail of long answers
 
 `MaxTurnChars = 1000`, head-truncated. Two of the 50 smoke answers are longer:
-S-031's program answer (1,178 characters) loses its last ~180 and S-091's (1,300)
-its last ~300 — the end of a product list, which is what a "which of those could
-I drop" follow-up is about.
+replayed as history, S-031's program answer (1,178 characters) would lose its
+last ~180 and S-091's (1,300) its last ~300 — the end of a product list, which
+is what a "which of those could I drop" follow-up is about. Neither was followed
+up in the run, so the cut did not happen there.
 
 Raise the cap for assistant turns to about 2,500 characters: the longest answer
 the run produces is 1,300, so that is ~2× headroom over the smoke set. Eight
@@ -178,15 +192,22 @@ whole reference has been read. A round trip's calls run concurrently, so the
 record is claimed under a lock: of two whole reads in one round trip, one gets
 the text. `ReferenceTests` pins both tools.
 
-For a product family the first answer is one page complete — the page of the
-variant the name or part number resolves to, else the family's canonical page —
-and every other page listed by title and section ids, so the model can `fetch`
-what it needs. The listing states plainly that the other pages are **variants
-with their own directions**, not flavour duplicates: All Natural, BULK and High
-Protein WheySmooth each carry their own facts panel (serving sizes 34–42 g,
-different ingredients). A BULK customer answered from the canonical page is the
-F-0 defect again — a right number from the wrong source — so the warning is part
-of the fix, not decoration.
+For a product family the first answer is one page complete and every other
+page listed by title and section ids, so the model can `fetch` what it needs.
+Which page comes complete cannot come from the alias table: it resolves names
+family-wide — "All Natural WheySmooth" expands to all seven WheySmooth part
+numbers — so only a bare part number names a variant. Pick the page whose title
+best matches the mention (normalised, as the alias table normalises), else the
+family's canonical page. The listing states plainly that each other page has
+**its own facts panel and directions**: All Natural, BULK and High Protein
+WheySmooth differ in ingredients and serving size (34–42 g), and even the flavour
+pages differ by a gram or two. A BULK customer answered from the canonical page is
+the F-0 defect again — a right number from the wrong source — so the warning is
+part of the fix, not decoration. The saving is uneven: SuperBlend's canonical
+page alone is 24.6k of its 39.6k.
+
+The pointer must not cover a `fetch` of a source that arrived truncated (F-16):
+that call is asking for the part it does not have.
 
 The mechanism saves tokens, not calls or round trips, and it trades in both
 directions: a WheySmooth turn stops re-sending ~16k characters twice and may add
@@ -212,7 +233,8 @@ renders only the cited sources, so the source list disappears.
 
 Two halves. In `CitedIn`, match bracketed number lists and ranges with one regex
 and still intersect with the numbers the ledger assigned, which keeps a
-bracketed part number or amount from counting. In `tools.md`, ask for one number
+bracketed part number or amount from counting. F-14's strip uses the same regex,
+so the two cannot disagree about what a marker is. In `tools.md`, ask for one number
 per bracket (`[1][2]`): `website-integration.md` tells the client that numbers
 appear as `[1]`, `[2]`, and the client resolves markers itself, so a list form
 would break its rendering even with `cited` right.
@@ -235,9 +257,12 @@ nothing blocks, withholds or retracts an answer. Six parts:
    deployment's filter can end a turn. This is a rule change, so it is its own
    commit with the reason in the message, and it wants the owners' agreement
    before the code does.
-2. Map the prompt-filter exception to `kind: content_filter` — a string match on
-   the exception, no model call, so it is not a post-check.
-3. Read `FinishReason` on each update: `ContentFilter` and `Length` end the turn
+2. Map the prompt-filter exception to `kind: content_filter` — read from the
+   `ClientResultException`'s status (400) and the error code in its response
+   body, not from the message text, which is not a contract. No model call, so
+   it is not a post-check.
+3. Read `FinishReason` on each update (`AgentResponseUpdate` exposes it):
+   `ContentFilter` and `Length` end the turn
    as an error with their own `kind`, and the handoff is appended to the text
    already streamed, as for any mid-answer failure.
 4. Two handoffs, not one. The filter kind says "I can't answer that one here",
@@ -304,9 +329,9 @@ calls run concurrently and per-call times do not add up to round-trip time. Bump
 `TurnLog.SchemaVersion` (now `1.3.0`), and add a column to the smoke
 transcript. `website-integration.md` describes the turn log to the caller in
 prose ("the timings"), so new fields contradict nothing there, but that paragraph
-is the caller's picture of the log: give it one sentence with the bump. Until
-then the budget numbers in `docs/open.md` stay estimates that cannot be replaced
-with a distribution.
+is the caller's picture of the log: give it one sentence with the bump. This
+closes the latency item; the turn-budget item in `docs/open.md` does not wait
+for it — `tool_calls`, `budget_exhausted` and `total_ms` are already logged.
 
 ## F-12 · `dotfit ask --log` reports a failed turn as answered
 
@@ -342,26 +367,45 @@ while the line is neither.
 
 ## F-15 · The smoke set cannot show F-1
 
-The longest smoke conversation is three turns (S-093), so no item crosses the
-8-turn window and nothing shows a trigger falling out of it. F-1's fix is pinned
+The longest smoke conversations are three questions (S-030, S-043, S-093): the
+third question carries four history turns, so no item crosses the 8-turn window
+and nothing shows a trigger falling out of it. F-1's fix is pinned
 by `HistoryTests`, which proves the trim; the behavioural claim — a trigger
 stated ten turns back still binds — has no item that tests it.
 
-Add an item with more than eight turns: an early turn stating a trigger (a
-pregnancy, an age, a medication), filler turns between, and a final question the
-right answer needs that trigger for. Its *Looking for* is the trigger visible in
+Add an item of at least six questions — the sixth is the first whose history
+holds more than eight turns: the first question stating a trigger (a pregnancy,
+an age, a medication), filler questions between, and a final question the right
+answer needs that trigger for. Its *Looking for* is the trigger visible in
 the last answer, and it exercises F-13's kept-count logging at the same time.
+
+## F-16 · `fetch` cannot return the rest of a truncated source
+
+`AssistantOptions.MaxSourceChars` (6,000) says "a truncated source says so, and
+`fetch` is how the model gets the rest", and the cut tells the model to call
+`fetch(id)` "for the rest of this section". But `fetch` renders through the same
+`SourceLedger.Render` and the same cap: it returns the identical truncated text,
+now headed "already given to you this turn", with the same instruction to fetch
+again. The call is spent and the tail is unreachable. 76 QA records exceed the
+cap (the longest is 20,061 characters); nothing else in the index does — the
+longest PDSRG chunk is 4,283 — so today this hits customer-Q&A sources only. Not
+seen in the 2026-09-30 run.
+
+Let `fetch` render its document uncapped: the model asked for that one record by
+id, and the longest is ~5k tokens, about one guide read. Keep the cap on
+`search` and `get_product`, where it protects the other results. Pin it in
+`ToolLayerTests` beside the truncation test.
 
 ---
 
 ## Order of work
 
-1. **Measure first:** F-0's routing edits (`use_when`, `programs.md`,
-   `tools.md`) and a smoke rerun. S-010's *Looking for* already asks for a cited
+1. **Measure first:** F-0's routing edits (`use_when`, `programs.md`) and a
+   smoke rerun. S-010's *Looking for* already asks for a cited
    dose, so the rerun is the test; the same run settles F-3's repeat reads and
    F-7's model-behaviour question, and F-15's long item belongs in the set that
    rerun uses.
-2. **Free, no contract change:** F-5, F-6, F-12, F-13, F-14 as one cleanup
+2. **Free, no contract change:** F-5, F-6, F-12, F-13, F-14, F-16 as one cleanup
    commit; then F-3 as one mechanism for both tools; then F-10.
 3. **Contract changes, docs in the same commit:** F-1 and F-2 together (one
    history budget, both caps inside it), F-8, F-9.
