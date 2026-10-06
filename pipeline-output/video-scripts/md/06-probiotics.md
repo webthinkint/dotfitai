@@ -1,6 +1,6 @@
 # Probiotics
 
-- source: `2026 Website Product Videos.docx`, "Probiotics"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Probiotics"; facts and label: `products.json`
 - products: Probiotics
 - part numbers: 1017
 
@@ -52,3 +52,21 @@ Servings Per Container: 30
 \* % Daily Value not established.
 
 ‡ Colony Forming Units
+
+## Label, as printed on the product
+
+### Probiotics
+
+**DIRECTIONS:**
+
+As a dietary supplement, adults take one (1) vegetarian capsule daily during meals or as directed by a health professional.
+
+**Other Ingredients:** Cellulose, vegetarian capsule (modified cellulose, water), silica, magnesium stearate and calcium silicate.
+
+**Contains No** salt, dairy, wheat, gluten, preservatives, artificial colors or flavors.
+
+Store in a cool, dry place away from direct sunlight. Keep out of the reach of children.
+
+No refrigeration required
+
+\*\*FiberAid® is a registered trademark of Lonza Group, Ltd Switzerland.

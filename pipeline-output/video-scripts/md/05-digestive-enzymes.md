@@ -1,6 +1,6 @@
 # DigestiveEnzymes
 
-- source: `2026 Website Product Videos.docx`, "Digestive Enzymes"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Digestive Enzymes"; facts and label: `products.json`
 - products: Digestive Enzymes
 - part numbers: 1019
 
@@ -42,3 +42,17 @@ Servings Per Container: 90
 | Cellulase (55 CU), Lactase (200 ALU), Lipase (10 FIP) | \* |  |
 
 \* Daily Value not established.
+
+## Label, as printed on the product
+
+### Digestive Enzymes
+
+**SUGGESTED USE:** As a dietary supplement, adults should take 1 capsule, 3 times daily, with or after main meals. Consume with 8 oz. of your favorite beverage.
+
+**Other ingredients:** Microcrystalline Cellulose, Hypromellose, Silicon Dioxide, Stearic Acid
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements
+
+Store in a cool, dry place away from direct sunlight. Keep out of the reach of children.
+
+Digezyme® is the registered trademark of Sabinsa Corporation

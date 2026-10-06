@@ -1,6 +1,6 @@
 # CarbRepel
 
-- source: `2026 Website Product Videos.docx`, "CarbRepel"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "CarbRepel"; facts and label: `products.json`
 - products: CarbRepel
 - part numbers: 1101
 
@@ -45,3 +45,19 @@ Servings Per Container: 60
 \* Daily Value (DV) not established.
 
 † The trademark Phase 2 Starch Neutralizer® is being used under license.
+
+## Label, as printed on the product
+
+### CarbRepel
+
+DIRECTIONS: As as dietary supplement, take 2 tablets, twice daily approximately 30 minutes before your 2 largest meals with 8 oz. of water.
+Use in combination with a sensible diet and exercise program.
+
+**Other Ingredients:** Di-calcium phosphate, Cellulose, Cellulose gum, Stearic acid, Magnesium Stearate, Silica and Food Glaze.
+
+**Contains No:** Dairy, Fish, Crustacean shellfish, Tree nuts, Peanuts, Soy or Gluten.
+No Sugar, Salt, Starch, Artificial Coloring, Flavoring or Preservatives added.
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+Store at 15-30°C (59-86°F). Protect from heat, light and moisture.

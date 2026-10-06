@@ -1,6 +1,6 @@
 # Creatine Monohydrate
 
-- source: `2026 Website Product Videos.docx`, "Creatine Monohydrate"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Creatine Monohydrate"; facts and label: `products.json`
 - products: Creatine Monohydrate
 - part numbers: 1200, 1227
 
@@ -57,3 +57,57 @@ Servings Per Container: 60
 \* Percent Daily Values are based on a 2,000 calorie diet. \*\* % Daily Value not established.
 
 \*\* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Creatine Monohydrate - Raspberry Lemonade Drink Mix
+
+**DIRECTIONS:**
+If < 175 lbs.: Take 1 scoop daily with 8 oz. of beverage of choice.
+- On training days, take 1 scoop with beverage of choice 30 min before workout.
+- On non-training days, take 1 scoop with beverage of choice at any time.
+If > 175 lbs.: Take 2 scoops daily with 8 oz. of beverage of choice.
+- On training days, take 1 scoop with beverage of choice 30 min before workout
+and 1 scoop with beverage of choice at any time.
+- On non-training days take 2 scoops with beverage of choice at different times
+throughout the day.
+**Note:**
+- Studies show that CM is absorbed better when taken with carbs or protein.
+- Consult with your fitness professional when taking custom dosages or stacking.
+
+**Other Ingredients:** Maltodextrin, Citric Acid, Natural & Artificial Flavors, Calcium Silicate, Sucralose, Red Beet Juice Powder (for Color)
+
+**Allergen Warning:** This product was produced in a facility that may also process ingredients containing Milk, Egg, and Soy (from soy lecithin).
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+**KEEP OUT OF REACH OF CHILDREN.**
+
+Made in the USA with domestic and international ingredients
+
+Contains bioengineered food ingredients. For more information, please visithttp://www.dotfit.com/be
+
+### Creatine Monohydrate - Unflavored
+
+**DIRECTIONS:**
+If < 175 lbs.: Take 1 scoop daily with 8 oz. of beverage of choice.
+- On training days, take 1 scoop with beverage of choice 30 min before workout.
+- On non-training days, take 1 scoop with beverage of choice at any time.
+If > 175 lbs.: Take 2 scoops daily with 8 oz. of beverage of choice.
+- On training days, take 1 scoop with beverage of choice 30 min before workout
+and 1 scoop with beverage of choice at any time.
+- On non-training days take 2 scoops with beverage of choice at different times
+throughout the day.
+**Note:**
+- Studies show that CM is absorbed better when taken with carbs or protein.
+- Consult with your fitness professional when taking custom dosages or stacking.
+
+**Allergen Warning:** This product was produced in a facility that may also process ingredients containing Milk, Egg, and Soy (from soy lecithin).
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+**KEEP OUT OF REACH OF CHILDREN.**
+
+Made in the USA with domestic and international ingredients
+
+Contains bioengineered food ingredients. For more information, please visithttp://www.dotfit.com/be

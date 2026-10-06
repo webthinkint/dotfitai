@@ -1,6 +1,6 @@
 # All Natural WheySmooth
 
-- source: `2026 Website Product Videos.docx`, "All Natural WheySmooth"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "All Natural WheySmooth"; facts and label: `products.json`
 - products: WheySmooth
 - part numbers: 1374, 1375
 
@@ -85,3 +85,54 @@ Serving Size: 1 Scoop (34 g)
 \*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
 
 \*\* Daily Value not established.
+
+## Label, as printed on the product
+
+### All Natural WheySmooth - Chocolate
+
+**Suggested Use:**
+
+Adults add 1 (one) scoop (35 g) in 8 oz. of water, milk or juice and stir vigorously.
+
+**INGREDIENTS:** Protein Blend (Whey Protein Concentrate, Whey Protein Isolate), Cocoa processed with alkali, Reb M (Stevia), Natural Flavors, Xanthan Gum, Soy and/or Sunflower Lecithin, Monk Fruit Extract, Silicon Dioxide.
+
+**Contains:** Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+This product has been formulated with only the highest quality low glycemic sweeteners
+and doesn’t contain any fructose, glucose, glucose polymers, maltodextrin or artificial sugars such as aspartame, acesulfame-K, sucralose, or polydextrose.
+
+Made in the USA with domestic and international ingredients.
+
+Store in a cool, dry place and away from direct light.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### All Natural WheySmooth - Vanilla
+
+**DIRECTIONS:**
+
+Adults add 1 (one) scoop (34 g) in at least 8 oz. of water or fluid of choice and mix well.
+
+Store in a cool, dry place and away from direct light.
+
+**INGREDIENTS:** Protein Blend (Whey Protein Concentrate, Whey Protein Isolate), Natural Flavors, Reb M (Stevia), Soy and/or Sunflower Lecithin, Monk Fruit Extract, Silicon Dioxide.
+
+**CONTAINS:** Milk, Soy (from soy lecithin)
+
+**ALLERGEN WARNING:** Produced in a facility that processes ingredients containing milk, soy, and egg.
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+This product has been formulated with only the highest quality low glycemic sweeteners
+and doesn’t contain any fructose, glucose, glucose polymers, maltodextrin or artificial sugars such as aspartame, acesulfame-K, sucralose, or polydextrose.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

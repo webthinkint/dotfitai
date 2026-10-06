@@ -1,6 +1,6 @@
 # ActiveMV
 
-- source: `2026 Website Product Videos.docx`, "ActiveMV — Multivitamin & Mineral Formula"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "ActiveMV — Multivitamin & Mineral Formula"; facts and label: `products.json`
 - products: Active MV
 - part numbers: 1005
 
@@ -59,3 +59,21 @@ Servings Per Container: 60
 | Chromium (from chromium picolinate) | 50 mcg | 143% |
 
 \* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Active MV - Multivitamin & Mineral Formula
+
+**Suggested Use:** As a dietary supplement, athletes or individuals involved in intense physical activity should take 1 tablet, twice daily, with or after main meals. Individuals between the ages of 12-17 years of age and those who do not follow a regular exercise program should use 1 tablet daily with a main meal. Consume with 8 oz. of your favorite beverage.
+
+For optimal results use daily with dotFIT Super Calcium+™
+
+**Other Ingredients:** Hydroxypropyl methylcellulose, cellulose, dicalcium phosphate, stearic acid, magnesium stearate, silica, polyethylene glycol and natural flavor.
+
+**Contains:** Soy
+
+This product contains a premium lecithin for Vitamin E content. It is derived from SOY. This product has been tested and contains NO SOY trypsin inhibitor or other soy proteins.
+
+**Contains No:** Sugar, Salt, Yeast, Wheat, Gluten, Preservatives, Artificial Colors or Flavors
+
+**Allergen Warning**: Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg

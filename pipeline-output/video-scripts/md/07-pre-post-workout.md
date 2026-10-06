@@ -1,6 +1,6 @@
 # Pre & Post Workout Formula
 
-- source: `2026 Website Product Videos.docx`, "Pre/Post Workout"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Pre/Post Workout"; facts and label: `products.json`
 - products: Pre & Post Workout Formula
 - part numbers: 1367, 1368
 
@@ -81,3 +81,50 @@ Servings Per Container: 20
 | Potassium | 138 mg | 2% |
 
 \*Daily Values not established
+
+## Label, as printed on the product
+
+### Pre & Post Workout Formula - Chocolate
+
+**DIRECTIONS:**
+
+**For higher calorie intake:** For pre-workout (30-45 minutes) add two (2) scoops (64 g) of powder to at least one cup (8 fl. oz.) of cold water or liquid of your choice. To maximize recovery after workouts or competition (within 45 minutes) use two (2) additional scoops (64 g) post-workout.
+
+**For lower calorie intake:** For pre-workout (30-45 minutes) add one (1) scoop (32 g) of powder to at least one cup (8 fl. oz.) of cold water or liquid of your choice. To maximize recovery after workouts or competition (within 45 minutes) use one (1) additional scoop (32 g) post-workout.
+
+**Can also be used as a meal replacement or snack.** Increase or decrease the amount of liquid to achieve desired consistency. Shake, stir or blend until dissolved. Add crushed ice, frozen yogurt, or your favorite fruit to increase calories for a thicker, tastier shake.
+
+**Contains:** Milk and Soy (from soy lecithin)
+
+**Allergen Warning**: Processed in a facility that processes ingredients containing Milk, Soy and Egg
+**Contains No:** Fish, Crustacean shellfish, Tree nuts, Peanuts, or Gluten.
+
+No Starch, Artificial coloring or Preservatives added.
+
+Made in the USA with domestic and international ingredients
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Pre & Post Workout Formula - Vanilla
+
+**DIRECTIONS:**
+**For higher calorie intake:** For pre-workout (30-45 minutes) add two (2) scoops (61 g) of powder to at least one cup (8 fl. oz.) of cold water or liquid of your choice. To maximize recovery after workouts or competition (within 45 minutes) use two (2) additional scoops (61 g) post-workout.
+
+**For lower calorie intake:** For pre-workout (30-45 minutes) add one (1) scoop (30.5 g) of powder to at least one cup (8 fl. oz.) of cold water or liquid of your choice. To maximize recovery after workouts or competition (within 45 minutes) use one (1) additional scoop (30.5 g) post-workout.
+
+**Can also be used as a meal replacement or snack.** Increase or decrease the amount of liquid to achieve desired consistency. Shake, stir or blend until dissolved. Add crushed ice, frozen yogurt, or your favorite fruit to increase calories for a thicker, tastier shake.
+
+This % Daily Values tells you how much a nutrient in a serving of food contributes to a daily diet.‑ 2,000 calories a day is used for general nutrition advice.
+
+**INGREDIENTS:** Maltodextrin, Protein Blend (Whey Protein Concentrate, Whey Protein Isolate, Micellar Casein, Calcium Caseinate), Coconut Creamer (Coconut Oil, Maltodextrin, Food
+Starch, Mono- & Diglycerides, Tricalcium Phosphate), Natural & Artificial Flavors, Salt, Soy and/or Sunflower Lecithin, Sucralose, Acesulfame Potassium, Xanthan Gum, MCT Oil Powder (Maltodextrin, Medium Chain Triglycerides), Safflower Oil Powder (Conjugated Linoleic Acid Triglycerides, Corn Syrup Solids, Sodium Caseinate, Dipotassium Phosphate, Antioxidants).
+
+**Contains:** Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** This product was produced in a facility that may also process ingredients containing milk, egg, fish, shellfish, wheat, and soybeans.
+
+**Contains No:** Fish, Crustacean shellfish, Tree nuts, Peanuts, or Gluten. No Starch, Artificial coloring or Preservatives added.

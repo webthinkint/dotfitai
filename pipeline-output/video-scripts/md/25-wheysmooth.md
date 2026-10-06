@@ -1,6 +1,6 @@
 # WheySmooth
 
-- source: `2026 Website Product Videos.docx`, "WheySmooth"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "WheySmooth"; facts and label: `products.json`
 - products: WheySmooth
 - part numbers: 1369, 1370, 1391, 1392, 1399
 
@@ -154,3 +154,95 @@ Servings Per Container: 28
 \*The % Daily Value tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
 
 \*\*Daily Value not established.
+
+## Label, as printed on the product
+
+### WheySmooth - High Protein - Chocolate
+
+**DIRECTIONS:**
+Add one (1) scoop (42 g) of powder to one cup (8 fl oz.) of cold water or liquid of your choice as a protein supplement (increase or decrease the amount of liquid to achieve desired consistency). Shake, stir or blend until dissolved. Add your favorite carbohydrates as needed. Add crushed ice and/or your favorite fruit for a thicker, tastier shake.
+
+**Ingredients:** Protein Blend (Whey Protein Concentrate, Calcium Caseinate, Whey Protein Isolate, Micellar Casein), Maltodextrin, Cocoa processed with alkali, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate), Natural & Artificial Flavors, GuarGum, Silicon Dioxide, Xanthan Gum, Salt, Soy and/or Sunflower
+Lecithin, Sucralose, Acesulfame Potassium.
+
+**Contains:** Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** Processed in a facility that processes ingredients
+containing Milk, Soy and Egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### WheySmooth - High Protein - Vanilla
+
+**DIRECTIONS:**
+Add one (1) scoop (41 g) of powder to one cup (8 fl oz.) of cold water or liquid of your choice as a protein supplement (increase or decrease the amount of liquid to achieve desired consistency). Shake, stir or blend until dissolved. Add your favorite carbohydrates as needed. Add crushed ice and/or your favorite fruit for a thicker, tastier shake.
+
+**Ingredients:** Protein Blend (Whey Protein Concentrate, Calcium Caseinate, Whey Protein Isolate, Micellar Casein), Maltodextrin, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate), Xanthan Gum, Natural & Artificial Flavors, Potassium Citrate, Salt, Soy and/or Sunflower Lecithin, Sucralose, Acesulfame Potassium.
+
+**Contains:** Milk, Soy (from soy lecithin)
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### BULK - Whey Smooth - Chocolate
+
+**Ingredients:** Protein Blend (Whey Protein Concentrate, Calcium Caseinate, Whey Protein Isolate, Micellar Casein), Maltodextrin, Cocoa processed with alkali, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate), Natural & Artificial Flavors, GuarGum, Silicon Dioxide, Xanthan Gum, Salt, Soy and/or Sunflower
+Lecithin, Sucralose, Acesulfame Potassium.
+
+**Contains:** Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** Processed in a facility that processes ingredients
+containing Milk, Soy and Egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### BULK - Whey Smooth - Vanilla
+
+**Ingredients:** Protein Blend (Whey Protein Concentrate, Calcium Caseinate, Whey Protein Isolate, Micellar Casein), Maltodextrin, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate), Xanthan Gum, Natural & Artificial Flavors, Potassium Citrate, Salt, Soy and/or Sunflower Lecithin, Sucralose, Acesulfame Potassium.
+
+**Contains:** Milk, Soy (from soy lecithin)
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### WheySmooth - High Protein - Strawberry
+
+**DIRECTIONS:**
+Add one (1) scoop (40g) of powder to one cup (8 fl oz.) of cold water or liquid of your choice as a protein supplement (increase or decrease the amount of liquid to achieve desired consistency). Shake, stir or blend until dissolved. Add your favorite carbohydrates as needed. Add crushed ice and/or your favorite fruit for a thicker, tastier shake.
+
+**INGREDIENTS:** Whey Protein Concentrate, Calcium Caseinate, Whey Protein Isolate, Micellar Casein, Maltodextrin, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy/Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate), Natural Flavors, Potassium Citrate, Salt, Soy and/or Sunflower Lecithin, Xanthan Gum, Red Beet Powder (Color), Sucralose, Acesulfame Potassium.
+
+**Contains:** Milk, soy (from soy lecithin)
+**Allergen Warning:** Processed in a facility that processes ingredients containing milk, soy, and egg
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

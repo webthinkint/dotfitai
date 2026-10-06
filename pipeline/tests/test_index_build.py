@@ -87,6 +87,42 @@ def test_product_documents_missing_canonical_raises():
                                       "part_nos": [9999], "n_variants": 1}])
 
 
+def _script_page(part_nos):
+    return {"slug": "leanmeal", "title": "LeanMeal", "families": ["LeanMeal Nutrition Shake"],
+            "part_nos": part_nos, "citation_part_no": 1333,
+            "sections": [
+                {"slug": "01-overview", "kind": "script", "locator": None,
+                 "content": "Overview\n\nA shake."},
+                {"slug": "07-facts-1", "kind": "facts", "locator": "Chocolate / Vanilla",
+                 "content": "Nutrition Facts: Chocolate / Vanilla\n\n| a | b |"},
+                {"slug": "08-label-1", "kind": "label", "locator": "Chocolate",
+                 "content": "Label, as printed on the product: Chocolate\n\nMix 2 scoops."},
+            ]}
+
+
+def test_product_documents_script_pages_replace_covered_families():
+    other = {"family": "Other", "canonical_part_no": 1400, "part_nos": [1400], "n_variants": 1}
+    products = PRODUCTS + [_product(1400, "Other", CANON, url="https://www.dotfit.com/o")]
+    docs = product_documents(products, FAMILIES + [other], [_script_page([1333, 1334, 1335])])
+    ids = sorted(d["id"] for d in docs)
+    # the covered family is the script page alone, its sections in reading order
+    assert [i for i in ids if i.startswith("product-133")] == [
+        "product-1333-01-overview", "product-1333-07-facts-1", "product-1333-08-label-1"]
+    # an uncovered family keeps its products.json copy
+    assert "product-1400-description" in ids
+    page = [d for d in docs if d["id"].startswith("product-1333-")]
+    assert {d["citation_url"] for d in page} == {"https://www.dotfit.com/x"}   # one source
+    assert all(d["products"] == ["1333", "1334", "1335"] for d in page)
+    assert all(d["topics"] == ["LeanMeal Nutrition Shake"] and d["authority"] == 1
+               and d["is_current"] is True for d in page)
+    assert next(d for d in page if d["id"].endswith("08-label-1"))["locator"] == "Chocolate"
+
+
+def test_product_documents_partly_covered_family_raises():
+    with pytest.raises(ValueError, match="the scripts cover"):
+        product_documents(PRODUCTS, FAMILIES, [_script_page([1333, 1334])])
+
+
 # --- pdsrg / menu documents -------------------------------------------------
 
 

@@ -1,6 +1,6 @@
 # AminoFormula
 
-- source: `2026 Website Product Videos.docx`, "AminoFormula"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "AminoFormula"; facts and label: `products.json`
 - products: AminoFormula
 - part numbers: 1213, 1216, 1220
 
@@ -77,3 +77,86 @@ Servings Per Container: 37
 \*Percent Daily Values are based on a 2,000 calorie diet.
 
 \*\*% Daily Value not established.
+
+## Label, as printed on the product
+
+### AminoFormula - Blue Raspberry
+
+Mix with 8-12 oz. of cold water according to your personal taste.
+
+AminoFormula (AF) Dosing :
+Exercisers
+
+• < 150 lbs: Use 1/2 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+• >150 lbs: Use 3/4 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+Non-exercisers >30 years of age
+
+• Use 1/2 scoop, three times daily, between meals with one of the doses before bedtime.\*
+
+Athletes Maximizing MPS (protein stacking)
+
+• Consume pre-workout complete protein formula ~40 min. before workout; 1 dose AF 10 min. before/during workout and repeat dose immediately after workout; take post workout complete protein 30-40 min. after AF post workout dose.
+
+\*or follow your sports/health professional’s recommendations
+
+**Other Ingredients:** Citric Acid, Natural & Artificial Flavors, Sucralose, Acesulfame Potassium, Spirulina Powder (Color), Silicon Dioxide, Calcium Silicate.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg.
+
+Made in the USA with domestic and international ingredients.
+
+### AminoFormula - Lemonade
+
+Mix with 8-12 oz. of cold water according to your personal taste.
+
+AminoFormula (AF) Dosing :
+Exercisers
+
+• < 150 lbs: Use 1/2 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+• >150 lbs: Use 3/4 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+Non-exercisers >30 years of age
+
+• Use 1/2 scoop, three times daily, between meals with one of the doses before bedtime.\*
+
+Athletes Maximizing MPS (protein stacking)
+
+• Consume pre-workout complete protein formula ~40 min. before workout; 1 dose AF 10 min. before/during workout and repeat dose immediately after workout; take post workout complete protein 30-40 min. after AF post workout dose.
+
+\*or follow your sports/health professional’s recommendations
+
+**OTHER INGREDIENTS**: citric acid, natural & artificial flavors, sucralose, silicon dioxide, calcium silicate.
+
+**ALLERGEN WARNING:** Produced in a facility that processes ingredients containing milk, soy, and egg.
+
+Made in the USA with domestic and international ingredients.
+
+### AminoFormula - Watermelon
+
+Mix with 8-12 oz. of cold water according to your personal taste.
+
+AminoFormula (AF) Dosing :
+Exercisers
+
+• < 150 lbs: Use 1/2 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+• >150 lbs: Use 3/4 scoop, 10 min. before workout & may continue to consume throughout workout; repeat dose immediately after.\*
+
+Non-exercisers >30 years of age
+
+• Use 1/2 scoop, three times daily, between meals with one of the doses before bedtime.\*
+
+Athletes Maximizing MPS (protein stacking)
+
+• Consume pre-workout complete protein formula ~40 min. before workout; 1 dose AF 10 min. before/during workout and repeat dose immediately after workout; take post workout complete protein 30-40 min. after AF post workout dose.
+
+\*or follow your sports/health professional’s recommendations
+
+**Other Ingredients:** Malic Acid, Natural & Artificial Flavors, Citric Acid, Sucralose, Salt, Calcium Silicate, Acesulfame Potassium, Red Beet Powder.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg.
+
+Made in the USA with domestic and international ingredients.

@@ -33,7 +33,7 @@ namespace DotFit.Assistant.Tools;
 /// </summary>
 public sealed partial class KnowledgeTools
 {
-    /// <summary>Headroom over the largest product family's section count (52 today).</summary>
+    /// <summary>Headroom over the largest product family's section count (26 today).</summary>
     internal const int ProductSectionCap = 200;
 
     private readonly IKnowledgeSearch _search;
@@ -388,7 +388,7 @@ public sealed partial class KnowledgeTools
         try
         {
             // This tool returns the whole record or it has not done its job.
-            // A family is not "a handful": SuperBlend is 52 sections across two
+            // A family is not "a handful": WheySmooth is 26 sections across two
             // pages. The cap is headroom over the largest family; reaching it is
             // said out loud below, never a silent cut.
             sections = await _store.FilterAsync(filter, top: ProductSectionCap, ct).ConfigureAwait(false);

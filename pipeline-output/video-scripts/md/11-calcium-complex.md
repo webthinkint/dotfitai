@@ -1,6 +1,6 @@
 # CalciumComplex
 
-- source: `2026 Website Product Videos.docx`, "CalciumComplex"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "CalciumComplex"; facts and label: `products.json`
 - products: Calcium Complex
 - part numbers: 1004
 
@@ -46,3 +46,21 @@ Servings Per Container: 60 to 120
 \* Percent Daily Values are are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your calorie needs. \*\* % Daily Value not established.
 
 \*\* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Calcium Complex
+
+**DIRECTIONS:** As a dietary supplement, take with a meal and 8 oz. of water. Use if you do not meet the daily requirements of calcium (~1000-1200 mgs) from food intake.
+
+**Females:** Take 1 or 2 tablet(s) daily, as needed with meals; if you need to take 2 tablets, take 1 tablet with the AM meal and the second tablet with the PM meal.
+
+**Males:** If needed, do not exceed 1 tablet daily.
+
+**Other Ingredients**: Cellulose, vegetable stearin, food glaze.
+
+**Contains No:** Dairy, Fish, Crustacean Shellfish, Tree Nuts, Peanuts, Soy or Gluten. No Sugar, Salt, Starch, Artificial coloring, Flavoring or Preservatives added.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

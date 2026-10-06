@@ -1,6 +1,6 @@
 # dotBARs & dotWAFERs
 
-- source: `2026 Website Product Videos.docx`, "Protein Bars"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Protein Bars"; facts and label: `products.json`
 - products: dotBAR, Vanilla dotWAFER
 - part numbers: 1456, 1457, 1462, 1466, 1470, 1471, 1480, 1482
 
@@ -215,3 +215,109 @@ Servings Per Container: 12
 | Calcium | 70mg | 6% |
 | Iron | 2.8mg | 15% |
 | Potassium | 80mg | 2% |
+
+## Label, as printed on the product
+
+### Chocolate Fudge Crisp dotBAR
+
+INGREDIENTS: Protein Blend [soy crisps (soy protein isolate, tapioca starch, rice flour, sea salt), soy protein isolate, hydrolyzed collagen, whey protein isolate] Maltitol, Dark Chocolate Flavored Coating [maltitol, fractionated palm kernel oil, whey protein isolate, cocoa powder, cocoa powder processed with alkali, soy lecithin] Glycerin, Polydextrose, Cocoa Powder (processed with alkali), Unsweetened Chocolate, Canola Oil, Gum Arabic, Natural and Artificial Flavors, Soy Lecithin, Salt, Water, Sucralose, Mixed Tocopherols.
+
+**Contains:** Soybeans and Milk
+
+This product is manufactured in a facility that also uses wheat, eggs, peanuts and tree nuts.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Peanut Butter Crisp dotBAR
+
+Protein Blend [soy crisps (soy protein isolate, tapioca starch, salt), soy protein isolate, whey protein concentrate], Maltitol, Peanut Flavored Coating (cane sugar, palm kernel oil, partially defatted peanut flour, nonfat dry milk, peanut oil, salt, soy lecithin), Polydextrose, Peanut Butter, Glycerin, Peanut Flour, High Fructose Corn Syrup, Caramel Filling [maltitol syrup, nonfat dry milk, fractionated palm kernel oil, water, salted butter, cream (cream, milk, cellulose gel, milk solids, carrageenan, cellulose gum), disodium phosphate, salt, glycerin, natural flavor, soy lecithin, carrageenan], Gum Arabic, Peanut Oil, Fractionated Palm Kernel Oil, Natural Flavors, Roasted Peanuts, Soy Lecithin, Salt, Water, Monoglycerides, Mixed Tocopherols, Sucralose.
+
+**Contains:** Milk, Soybeans and Peanuts
+
+This product is manufactured in a facility that also uses wheat, eggs and tree nuts.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### PB&J Bar (Peanut Butter & Jelly) dotBAR
+
+**Ingredients:**
+
+Soy Crisps (soy protein isolate, rice flour), peanut flavored coating (sugar, fractionated palm kernel oil, peanut flour, nonfat dry milk solids, peanut oil, salt, soy lecithin), Oligofructose syrup, Strawberry Layer (Fructooligosaccharides, Erythritol, Water, Glycerin, Strawberries, Strawberry Juice Concentrate, Canola Oil, Apple Powder, Corn Starch, Modified Palm Kernel Oil, Citric Acid, Pectin, Natural Flavor, Sunflower Lecithin, Sodium Citrate, Carrot and Blackcurrant Juice, Salt), Hydrolyzed Gelatin, Isolated Soy Protein, Agave Syrup, Glycerin, Peanut Butter (Peanuts, Salt), Whey Protein Isolate, Peanut Flour Oil, Natural Flavors, Fractionated Palm Kernel Oil, Sunflower Lecithin, Salt, Stevia, (Stevial Glycosides), Mixed tocopherols, soybean oil.
+
+**Contains:** Peanuts, Milk, Soybeans.
+This product is manufactured in a facility that uses Tree Nuts and Egg.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Vanilla dotWAFER
+
+**Ingredients :**
+White Chocolate Coating (modified palm oil, whey protein isolate, erythritol, inulin, sugar cane, natural flavors, sunflower lecithin, steviol glycosides), Protein Blend (milk protein isolate, whey protein concentrate, hydrolyzed gelatin), Vegetable Oil Shortening (canola oil, modified palm and palm kernel oils), Canola Oil, Water, Icing Sugar, Enriched Flour (wheat flour, niacin, iron, thiamine mononitrate, riboflavin, folic acid), Natural Flavors, Tapioca Starch, Sunflower Lecithin, Steviol Glycosides, Salt, Baking Powder, Ammonium Bicarbonate, Mixed Tocopherols.
+
+**Contains:** Milk, wheat.
+Manufactured in a facility that also use soy, peanut, tree nuts, and eggs.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Chocolate Raspberry Crisp dotBAR
+
+**Nutrition Facts**
+
+**Ingredients:**
+
+Protein Blend [soy protein crisps (soy protein isolate, tapioca starch, sea salt), hydrolyzed collagen, soy protein isolate], Chicory Root Fiber, Dark Chocolate Flavored Coating (maltitol, palm kernel oil, whey protein concentrate, alkalized cocoa, sunflower lecithin, vanilla extract), Polydextrose, Glycerin, Almond Butter, Dried Cranberries (cranberries, cane sugar, cranberry powder, sunflower oil), Acacia Gum, Canola Oil, Natural Flavors, Soy Lecithin, Citric Acid, Salt, Water, Mixed Tocopherols, Sucralose.
+
+**Contains: Soybeans, Milk, and Almonds.**
+
+**This product is manufactured in a facility that also uses wheat, eggs, sesame, peanuts, tree nuts, and fish.**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Mint Fudge dotBAR
+
+**Nutrition Facts**
+
+**Ingredients:**
+
+Protein Blend [soy protein isolate, hydrolyzed collagen, soy protein crisps (soy protein isolate, tapioca starch, sea salt), whey protein concentrate, whey protein isolate], Chocolate Flavored Coating (fractionated palm kernel oil, whey protein concentrate, maltitol, cocoa powder, sunflower lecithin, natural vanilla extract), Chicory Root Fiber, Organic Agave Syrup, Brown Rice Syrup, Glycerin,Almond Butter, Canola Oil, Natural Flavors, Caramel Color, Acacia Gum, Alkalized Cocoa Powder, Sunflower Lecithin, Organic Stevia Leaf Extract, Mixed Tocopherols.
+
+**Contains: Soybeans, Milk, and Almonds.**
+
+**This product is manufactured in a facility that also uses wheat, eggs, sesame, peanuts, tree nuts, and fish.**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Trail Mix dotBAR
+
+**Ingredients**: Soy Nuggets (Isolated Soy Protein, Rice Starch), Corn Syrup, Milk Chocolate Flavored Coating (sugar, vegetable oils (palm kernel, palm), cocoa (processed with alkali), non fat milk, whole milk, sunflower lecithin, vanilla (milk)), Peanuts, Polydextrose, Chicory Root Fiber, Almonds, Raisins (raisins, sunflower seed oil), Raw Cashew Nut, Organic Cane Sugar, Pretzels (unbleached enriched wheat flour (flour, niacin, reduced iron, thiamine mononitrate-B1, riboflavin-B2, folic acid), malt, salt, soybean oil), Maltitol Syrup, Honey, High Oleic Sunflower Oil, Sea Salt, Natural Flavor, Monk Fruit Extract.
+
+**Contains**: Milk, Peanut, Soy, Tree Nuts, Wheat. May also contain: Egg, Sesame, Other Tree Nuts.
+
+Contains Bioengineered Food Ingredients. For more information, please visit [www.dotfit.com/be](https://dotfit.com/be)
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Fudge Graham dotBAR
+
+Ingredients: Soy Nuggets (Isolated Soy Protein, Rice Starch), Milk Chocolate Flavored Coating (sugar, vegetable oils (palm kernel, palm), cocoa (processed with alkali), non fat milk, whole milk, sunflower lecithin, vanilla (milk)), Soy Protein Isolate, Soluble Corn Fiber, Semi-Sweet Chocolate Chips (sugar, unsweetened chocolate, cocoa butter, soy lecithin, natural vanilla extract), Rolled Oats, Caramel (fructose, corn syrup solids, cream, water, dextrose, modified food starch, sugar, non fat dry milk powder, natural flavors, salt, cellulose gel and cellulose gum, dipotassium phosphate), Chicory Root Fiber, Corn Syrup, Glycerin, High Oleic Sunflower Oil, Sugar, Butter, Natural Flavor, Cocoa Powder (cocoa processed with alkali), Soy Lecithin, Monk Fruit Extract.
+
+**Contains:** Milk, Soy. May also contain Egg, Peanut, Sesame, Tree Nuts, Wheat.
+Contains Bioengineered Food Ingredients. For more information, please visit [www.dotfit.com/be](https://dotfit.com/be)
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

@@ -1,6 +1,6 @@
 # Sleep Aid
 
-- source: `2026 Website Product Videos.docx`, "Sleep Aid (Takeaway only or All if not in blue longsleeve shi"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Sleep Aid (Takeaway only or All if not in blue longsleeve shi"; facts and label: `products.json`
 - products: SleepAid
 - part numbers: 1048
 
@@ -41,3 +41,19 @@ Servings Per Container: 60
 | Melatonin (Extended Release) | 2.5 mg | \* |
 
 \* % Daily Value not established.
+
+## Label, as printed on the product
+
+### SleepAid
+
+**SUGGESTED USE**: As a dietary supplement, adults should take 1-2 capsules, 30 minutes before bedtime. Consume with 8 oz. of your favorite beverage.
+
+Other Ingredients: Hypromellose, Rice Flour.
+
+**Contains No:** Sugar, salt, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg.
+
+**WARNING:** Consult your physician if you are taking any over-the-counter or prescription medications and if you are pregnant, nursing, or contemplating pregnancy. Do not use if safety seal under cap is broken or missing. Store in a dry place.
+
+**KEEP OUT OF REACH OF CHILDREN UNDER THE AGE OF 12.**

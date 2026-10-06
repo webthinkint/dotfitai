@@ -1,6 +1,6 @@
 # LeanMeal
 
-- source: `2026 Website Product Videos.docx`, "LeanMeal"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "LeanMeal"; facts and label: `products.json`
 - products: LeanMeal Nutrition Shake
 - part numbers: 1333, 1334
 
@@ -84,3 +84,49 @@ Servings Per Container: 20
 \*Daily Value Not Established
 
 \*This % Daily Values tells you how much a nutrient in a serving offood contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+
+## Label, as printed on the product
+
+### LeanMeal Nutrition Shake - Chocolate (formerly LeanMR)
+
+**DIRECTIONS:**
+
+Adults add 2 (two) scoops (51 g) in at least 8 oz of water of fluid of choiceand mix well.
+
+To maintain freshness, store in a dry, cool place out of direct sunlight.
+
+**INGREDIENTS:** Whey Protein Isolate, Cocoa processed with alkali, Natural & Artificial Flavors, Calcium Carbonate, Sodium Chloride, Soy and/or Sunflower Lecithin, Sucralose, Acesulfame Potassium, Xanthan Gum.
+
+**CONTAINS:** Milk, Soy (from soy lecithin)
+
+**ALLERGEN WARNING:** Produced in a facility that processes ingredients containing milk, soy, and egg.
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+**WARNING:** It is not recommended that more than one-third of your total calories be substituted in the form of meal replacement drinks unless medically supervised. Consult your physician before starting any diet. Do not use if safety seal under cap is broken or missing. **KEEP OUT OF REACH OF CHILDREN 13 AND UNDER.**
+
+Made in the USA with domestic and international ingredients
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### LeanMeal Nutrition Shake - Vanilla (formerly LeanMR)
+
+**DIRECTIONS:**
+
+Add two (2) scoops (50 g) of powder to at least one cup of more (8-12 oz.) of cold water or liquid of your choice as a meal replacement (increase or decrease that amount of liquid to achieve desired consistency). Shake, stir or blend until dissolved. Add crushed ice and/or your favorite fruit (count your calories) for a thicker, tastier shake.
+
+Meal replacements such as the LeanMR™ have demonstrated positive results in weight control studies when used to replace one or two meals a day, allowing freedom of choice for the remaining allotted calories.†
+
+**OTHER INGREDIENTS:** Whey Protein Isolate, Natural & Artificial Flavors, Potassium Citrate, Calcium Carbonate, Sodium Chloride, Soy and/or Sunflower Lecithin, Sucralose, Acesulfame Potassium, Xanthan Gum.
+
+**CONTAINS:** Milk, Soy (from soy lecithin)
+
+**ALLERGEN WARNING:** Produced in a facility that processes ingredients containing milk, soy, and egg.
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+**WARNING:** It is not recommended that more than one-third of your total calories be substituted in the form of meal replacement drinks unless medically supervised. Consult your physician before starting any diet. Do not use if safety seal under cap is broken or missing. **KEEP OUT OF REACH OF CHILDREN 13 AND UNDER.**
+
+Made in the USA with domestic and international ingredients

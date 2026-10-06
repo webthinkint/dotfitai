@@ -1,6 +1,6 @@
 # Electrolytes
 
-- source: `2026 Website Product Videos.docx`, "Electrolytes"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Electrolytes"; facts and label: `products.json`
 - products: Electrolytes
 - part numbers: 1225
 
@@ -46,3 +46,15 @@ Servings Per Container: 30
 | Potassium (from potassium citrate) | 300 mg | 6% |
 
 \* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Electrolytes - Tropical Splash - 30 Pack
+
+**Suggested Use:** as a dietary supplement, mix one (1) stick pack (7g) to 16 ounces of water and mix thoroughly before drinking.
+
+**Other Ingredients**: Tapioca maltodextrin, natural flavors, citric acid, beta carotene, stevia leaf extract (Reb M), silica
+
+**Contains No**: Sugar, dairy, yeast, wheat, gluten, eggs, soy, peanuts, tree nuts, fish, shellfish, sesame, preservatives, artificial colors and flavors
+
+**KEEP OUT OF REACH OF CHILDREN.**

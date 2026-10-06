@@ -1,6 +1,6 @@
 # Over50MV
 
-- source: `2026 Website Product Videos.docx`, "Over50MV"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Over50MV"; facts and label: `products.json`
 - products: Over 50 MV
 - part numbers: 1009
 
@@ -61,3 +61,17 @@ Servings Per Container: 60
 | Chromium (from chromium polynicotinate) | 100 mcg | 286% |
 
 \* Percent Daily Values are are based on a 2,000 calorie diet.
+
+## Label, as printed on the product
+
+### Over 50 MV - Multivitamin & Mineral Formula
+
+**DIRECTIONS:** As a dietary supplement, take 2 tablets daily with a main meal. Consume with 8 oz. of your favorite beverage.
+
+For optimal results use daily with dotFIT Super Calcium+™
+
+**Other Ingredients:** Cellulose, vegetable stearin, hydroxypropylmethylcellulose, dicalcium phosphate, magnesium stearate, silica, natural flavor.
+
+**Contains No:**Sugar, salt, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, soy, preservatives, artificial colors or flavors.
+
+Storage Conditions: Store in a cool, dry place.

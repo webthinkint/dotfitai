@@ -1,6 +1,6 @@
 # Vitamin D3
 
-- source: `2026 Website Product Videos.docx`, "Vitamin D3"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Vitamin D3"; facts and label: `products.json`
 - products: Vitamin D-3
 - part numbers: 1018
 
@@ -40,3 +40,15 @@ Servings Per Container: 100
 | Vitamin D-3 (as cholecalciferol) | 25 mcg (1000 IU) | 125%\* |
 
 \* % Daily Values are based on a 2,000 calorie diet.
+
+## Label, as printed on the product
+
+### Vitamin D-3
+
+**DIRECTIONS:**
+
+As a dietary supplement, adults take one (1) softgel capsule daily with food or as directed by a health professional.
+
+**Other Ingredients:** Safflower oil, and softgel (gelatin, glycerin and water).
+
+**Contains No:** Sugar, Dairy, Yeast, Wheat, Gluten, Soy, Preservatives, Artificial Colors or Flavors.

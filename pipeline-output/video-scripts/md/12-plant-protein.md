@@ -1,6 +1,6 @@
 # PlantProtein
 
-- source: `2026 Website Product Videos.docx`, "PlantProtein"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "PlantProtein"; facts and label: `products.json`
 - products: Plant Protein
 - part numbers: 1300, 1301
 
@@ -129,3 +129,29 @@ Servings Per Container: 30
 \* Percent Daily Values are based on a 2,000 calorie diet.
 
 \*\* Daily value not established.
+
+## Label, as printed on the product
+
+### Plant Protein - Vanilla
+
+**Suggested Use:** Add one (1) level scoop to 9-12 oz. chilled water or preferred beverage in a shaker cup or blender and mix for about 5 seconds. Drink and enjoy a shake each day.
+
+**Other Ingredients:** Inulin, Natural Flavors, Stevia Leaf Extract (Reb A), Silica, Xanthan Gum, Glycine.
+
+**Contains No:** Soy, dairy, gluten, preservatives, artificial colors or flavors.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Plant Protein - Chocolate
+
+**Suggested Use:** Add one (1) level scoop to 9-12 oz. chilled water or preferred beverage in a shaker cup or blender and mix for about 5 seconds. Drink and enjoy a shake each day.
+
+**Other Ingredients:** Inulin, Natural Flavors, Cocoa Powder, Stevia Leaf Extract (Reb A), Silica, Glycine, Xanthan Gum.
+
+**Contains No**: Soy, dairy, gluten, preservatives, artificial colors or flavors.
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

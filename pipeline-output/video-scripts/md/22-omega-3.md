@@ -1,6 +1,6 @@
 # Omega3
 
-- source: `2026 Website Product Videos.docx`, "Omega3"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Omega3"; facts and label: `products.json`
 - products: Omega-3 Fish Oil
 - part numbers: 1020
 
@@ -48,3 +48,19 @@ Servings Per Container: 60
 \* Percent Daily Values are based on a 2,000 calorie diet.
 
 \*\* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Omega-3 Fish Oil
+
+**DIRECTIONS:** As a dietary supplement, take 1 softgel, daily with a meal
+
+**Other Ingredients:** Gelatin, glycerin, purified water, mixed tocopherols.
+
+**Contains No:** Dairy, Crustacean shellfish, Tree nuts, Peanuts.
+
+No Sugar, Salt, Starch, Yeast, Artificial flavors, Coloring or Preservatives added.
+
+No Allergens from Soy.
+
+AlaskOmega® is a registered trademark of Organic Technologies.

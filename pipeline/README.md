@@ -82,7 +82,10 @@ always quote paths.
   segment's start second; an episode missing from `PODCAST_VIDEO_IDS` raises.
 - **Index** — shapes every source into index documents, embeds
   `title + content` (`text-embedding-3-large`, 3072-dim) and uploads. Product
-  copy is section-split per family; info pages reuse the same splitter (an
+  copy is the product-video script pages, one document per section, for every
+  family they cover (a family covered in part raises); the families they do
+  not cover keep `products.json` copy, section-split per family. Info pages
+  reuse the same splitter (an
   unknown page raises); menus are one description document per menu type; QA
   records over the embedding cap split at paragraph boundaries, never truncated.
   Superseded documents are pruned from the service, not just skipped.
@@ -115,7 +118,8 @@ always quote paths.
 
 A new export arrives whenever an update is known. Run, in order: `products_diff.py`
 (old against new — the claims report for the owner), `aliases`, `stage2`
-(cached; product tags re-resolve), `stage4`, `index` (embed, upload, prune), and
+(cached; product tags re-resolve), `stage4`, `scripts/video_scripts_docx_md.py`
+(the facts and labels come from the export), `index` (embed, upload, prune), and
 `scripts/search_ping.py`. A new flavor of an existing family joins it in
 `CURATED_FAMILIES` in `alias.py`.
 
@@ -135,8 +139,12 @@ back. The sections are not indexed; the assistant's program guide
 scripts (`original-data/Product Video Scripts/`) into one file per product
 in `pipeline-output/video-scripts/md/`: an overview and five fixed sections
 (what it is, what it does, who it is for, how to use it, what makes it
-different), then the product's Supplement or Nutrition Facts panels from
-`products.json`, one per flavor. The document's heading styles are
+different), then from `products.json` the product's Supplement or Nutrition
+Facts panels and the rest of its label as printed (directions, ingredients,
+allergens, warnings, storage), one per distinct flavor. The same pages go to
+`products.jsonl`, which `index` reads as the product copy. The label's
+directions can differ from the script's "How do you use it?"; the prompt
+gives the script's and names the label's difference. The document's heading styles are
 unreliable, so the split is a hand-curated product list and the section
 labels the document uses, inline or standalone; the run fails on a missing
 title, a paragraph outside a section, a missing section not listed as
@@ -144,7 +152,7 @@ missing, a product tag that is not an alias-table family, or a part with no
 facts table. The wording changes only through the script's `CORRECTIONS`
 (approved typo fixes, each matching exactly once) and the protein bars'
 protein minimum, filled from the bars' facts. Prices are masked to
-`[price]`. The files are not indexed yet.
+`[price]`.
 
 ## Review queues
 

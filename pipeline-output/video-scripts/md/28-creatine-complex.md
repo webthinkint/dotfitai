@@ -1,6 +1,6 @@
 # CreatineComplex
 
-- source: `2026 Website Product Videos.docx`, "CreatineComplex"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "CreatineComplex"; facts and label: `products.json`
 - products: Creatine Complex
 - part numbers: 1207
 
@@ -46,3 +46,33 @@ Servings Per Container: 58
 | Careflow® Mango Fruit Powder (Mangifera indica L.) | 100 mg | \* | 200 mg | \* | 300 mg | \* |
 
 \* Daily Value not established.
+
+## Label, as printed on the product
+
+### Creatine Complex - Raspberry Lemonade
+
+**DIRECTIONS:** As a dietary supplement, mix two (2) to three (3) scoops daily with 8 ounces of water, as directed below:
+
+**On training days**, take one (1) scoop before training and one (1) scoop after. You may take along with your pre and post workout shake or meal containing protein and/or carbohydrate.
+
+For those users >150 lbs. and seeking to maximize performance such as strength, speed and power activities, add a third scoop any other time of the day with a meal or shake.
+
+**On non-training days**, take one (1) scoop with morning meal or shake and one (1) scoop with evening meal or shake.
+
+If using three (3) scoops, spread each scoop throughout the day with meals/shake – i.e. morning, afternoon and early evening.
+
+Other Ingredients: Citric acid, natural & artificial flavors, sucralose, calcium silicate, red beet powder (color), acesulfame potassium.
+
+**Allergen Warning:** Produced in a facility that processes ingredients containing milk, egg, and soy.
+
+**Careflow® is the property of Vital Solutions GmbH**
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnent, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing. **KEEP OUT OF REACH OF CHILDREN.**
+
+Made in the USA with domestic and international ingredients
+
+Contains bioengineered food ingredients. For more information, please visithttp://www.dotfit.com/be
+
+**WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.**

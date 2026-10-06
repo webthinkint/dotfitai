@@ -1,6 +1,6 @@
 # FirstString
 
-- source: `2026 Website Product Videos.docx`, "FirstString"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "FirstString"; facts and label: `products.json`
 - products: First String
 - part numbers: 1371, 1372
 
@@ -84,3 +84,67 @@ Servings Per Container: 32
 \*The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
 
 \*\*Daily Value not established
+
+## Label, as printed on the product
+
+### First String - Chocolate
+
+**DIRECTIONS:**
+
+**FIRST SERVING:**
+
+30-40 MINUTES PRE-WORKOUT: Add/mix 2 scoops (one serving) of First String™ with 16-20 fl. Oz. of cold water/fluid and mix vigorously for 30 seconds in a shaker or blender. In a blender, add ice and/or your favorite fruit for a rich milkshake effect.
+
+**SECOND SERVING:**
+
+POST –WORKOUTS or IMMEDIATELY FOLLOWING TRAINING: Add/mix 2 scoops (one serving) of First String™ with 16-20 fl. Oz. of cold water/fluid and mix vigorously for 30 seconds in a shaker or blender.
+
+**INGREDIENTS:** Maltodextrin, Whey Protein Concentrate, Whey Protein Isolate, Cocoa processed with alkali, Sunflower Oil (High Oleic Sunflower Oil, Maltodextrin, Modified Corn Starch), Vitamin and Mineral Blend (Potassium Citrate, Calcium Carbonate, Calcium Lactate Gluconate, Beta Carotene, Ferrous Sulfate, Cholecalciferol), Potassium Citrate, Soy and/or Sunflower Lecithin, Natural and Artificial Flavors, Salt, Calcium Carbonate, Cellulose Gum, Silicon Dioxide, Sucralose, Acesulfame Potassium, Xanthan Gum, Calcium Caseinate, Micellar Casein, Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy and/or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate).
+
+Contains Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg.
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+Contains Bioengineered Food Ingredients. For more information, please visit www.dotfit.com/be
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### First String - Vanilla
+
+**DIRECTIONS:**
+
+**FIRST SERVING:**
+
+30-40 MINUTES PRE-WORKOUT: Add/mix 2 scoops (one serving) of First String™ with 16-20 fl. Oz. of cold water/fluid and mix vigorously for 30 seconds in a shaker or blender. In a blender, add ice and/or your favorite fruit for a rich milkshake effect.
+
+**SECOND SERVING:**
+
+POST –WORKOUTS or IMMEDIATELY FOLLOWING TRAINING: Add/mix 2 scoops (one serving) of First String™ with 16-20 fl. Oz. of cold water/fluid and mix vigorously for 30 seconds in a shaker or blender.
+
+**INGREDIENTS:**
+
+Maltodextrin, Whey Protein Concentrate, Whey Protein Isolate, Sunflower Oil (High Oleic Sunflower Oil, Maltodextrin, Modified Corn Starch), Vitamin and Mineral Blend (Potassium Citrate, Calcium Carbonate, Calcium Lactate Gluconate, Beta Carotene, Ferrous Sulfate, Cholecalciferol), Potassium Citrate, Soy and/or Sunflower Lecithin, Natural & Artificial Flavors, Salt, Calcium Carbonate, Cellulose Gum, Silicon Dioxide, Sucralose, Acesulfame Potassium, Xanthan Gum, Calcium Caseinate, Micellar Casein, MCT Oil Powder (Maltodextrin, Medium Chain Triglycerides, Silicon Dioxide), Sunflower Creamer (Sunflower Oil, Maltodextrin, Micellar Casein, Soy and/or Sunflower Lecithin, Sodium Citrate, Tricalcium Phosphate).
+
+Contains Milk, Soy (from soy lecithin)
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy and Egg.
+
+**NOTE:** Pregnant or lactating women, diabetics, hypoglycemics, and people with known medical conditions should consult with a physician prior to taking supplements.
+
+Made in the USA with domestic and international ingredients.
+
+Contains Bioengineered Food Ingredients. For more information, please visit www.dotfit.com/be
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+Made in the USA with domestic and international ingredients.
+
+Contains Bioengineered Food Ingredients. For more information, please visit www.dotfit.com/be

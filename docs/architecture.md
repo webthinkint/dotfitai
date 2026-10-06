@@ -29,6 +29,10 @@ Two kinds of source, both listed in `assistant/sources.yaml`:
   approved product copy (`product`), dotFIT website pages (`infopage`), the
   Practitioner Dietary Supplement Reference Guide (`pdsrg`), customer Q&A
   (`qa`), the dotFIT podcast (`podcast`) and menu descriptions (`menu_desc`).
+  A product's copy is its 2026 product-page script (what it is, what it does,
+  who it is for, how to use it, what makes it different) with its facts panel
+  and label as printed from the website export; a product with no script
+  keeps the export's copy.
 - **References**, dotFIT's own guidance read whole or by section and never
   cited: the supplement program guide and the customer-service FAQ.
 

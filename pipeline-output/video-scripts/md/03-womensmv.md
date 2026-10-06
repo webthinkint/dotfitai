@@ -1,6 +1,6 @@
 # Women'sMV
 
-- source: `2026 Website Product Videos.docx`, "Women'sMV"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Women'sMV"; facts and label: `products.json`
 - products: Women's MV
 - part numbers: 1007
 
@@ -62,3 +62,15 @@ Servings Per Container: 60
 | Boron (from boron citrate) | 1 mg | \* |
 
 \* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Women's MV - Multivitamin & Mineral Formula
+
+**DIRECTIONS:** As a dietary supplement, females between 18 and 50 years of age take 1 tablet daily with a main meal. Consume with your favorite beverage.
+
+For optimal results use daily with dotFIT Super Calcium+™
+
+**Other Ingredients:** Modified **c**ellulose, vegetable stearin, coating (modified cellulose, cellulose, vegetable stearin), dicalcium phosphate, silica, magnesium stearate.
+
+**Contains No:** Sugar, Dairy, Yeast, Wheat, Gluten, Preservatives, Artificial Colors or Flavors

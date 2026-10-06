@@ -1,6 +1,6 @@
 # Advanced Brain Health
 
-- source: `2026 Website Product Videos.docx`, "Advanced Brain Health"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Advanced Brain Health"; facts and label: `products.json`
 - products: Brain Health
 - part numbers: 1001
 
@@ -45,3 +45,28 @@ Servings Per Container: 60
 \* Percent Daily Values are are based on a 2,000 calorie diet.
 
 \*\* % Daily Value not established.
+
+## Label, as printed on the product
+
+### Brain Health
+
+**DIRECTIONS:** As a dietary supplement, take 1 serving daily with 8 oz. of water or according to to age recommendations below:
+
+For individuals 45-55 years of age, take 1 serving per day.
+
+For individuals over 55 years of age, take 2 servings per day.
+
+**Other Ingredients:** Microcrystalline cellulose, Dicalcium phosphate, Stearic acid, Silicon dioxide, Croscarmellose sodium, Modified cellulose, and Magnesium stearate.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg
+
+**Contains No:** Sugar, salt, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Contains Soy**
+
+This product contains a premium lecithin for phosphatidyl serine content. It is derived from SOY. This product has been tested and contains NO SOY trypsin inhibitor or other soy proteins.
+
+**WARNING:** Consult your physician if you are taking any over-the-counter or prescription medications and if you are pregnant, nursing or contemplating pregnancy. Do not use if safety seal under cap is broken or missing.
+Store in a cool dry place.
+
+**KEEP OUT OF REACH OF CHILDREN UNDER THE AGE OF 12.**

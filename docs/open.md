@@ -45,13 +45,13 @@ is closed; the commit message records why.
   new `source_type` and an owner go-ahead for the index rebuild. Also open:
   whether `get_product` should return the deck's section for the product, and
   whether the held-back trainer scripts become a trainer-facing tool.
-- **The product-video scripts are extracted but not used.** The owners want
-  them to replace the current product information (`products.json` copy in
-  the index and `get_product`). Each file carries its facts panels; the
-  export's label directions, ingredients, allergens and warnings are not
-  carried, so open is whether those stay from the export. EnergyAid is in
-  the document but skipped until it is on the website, and Sleep Aid's
-  overview is not written yet.
+- **Script and label dosing disagree for nine products.** The product copy
+  carries both the script's "How do you use it?" and the label's directions;
+  the prompt gives the script's and names the label's difference. The script
+  authors are confirming each row of `docs/video-script-discrepancies.md`;
+  their answers go into the script's `CORRECTIONS` or a new document, and the
+  prompt rule goes once none remain. EnergyAid is in the document but skipped
+  until it is on the website, and Sleep Aid's overview is not written yet.
 - **Pre-tool narration streams to the customer.** If the model writes before
   calling a tool, that text streams. Decide from real transcripts whether it
   reads as conversation or noise.

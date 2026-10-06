@@ -1,6 +1,6 @@
 # Alln1 SuperBlend
 
-- source: `2026 Website Product Videos.docx`, "Alln1 SuperBlend"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Alln1 SuperBlend"; facts and label: `products.json`
 - products: Alln1 SuperBlend
 - part numbers: 8001, 8016
 
@@ -174,3 +174,77 @@ Servings Per Container: 30
 \*The % Daily Value (DV) established based on a 2,000 calories a day diet.
 
 \*\*Daily Values not established.
+
+## Label, as printed on the product
+
+### Alln1 SuperBlend - Orange Burst
+
+**DIRECTIONS:**
+
+**Adults 18 years and over**, take one serving (2 scoops) daily with ~12 oz of fluid (May divide as desired such as 1 scoop in the morning and 1 scoop in the evening)
+
+**Children 12-17 years** take ½ serving daily (1 scoop) with ~6 oz of fluid
+
+Drink it anytime with or without food.
+
+Add to a smoothie or protein shake mix.
+
+Recipes available at www.alln1superblend.com/recipes
+
+**NO REFRIGERATION NEEDED**
+
+**Other Ingredients:** Citric acid, natural flavors, stevia (leaf) extract, and pink himalayan salt.
+
+**Contains No:** Added sugar, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Allergen Warning:**
+
+Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg
+
+Contains: Soy
+
+This product contains a premium lecithin for Vitamin E content. It is derived from SOY. This product has been tested and contains NO SOY trypsin inhibitor or other soy proteins.
+
+**WARNING:** Children, pregnant or nursing women should consult with a qualified health professional prior to taking this or any dietary supplements. Do not use if safety seal under cap is broken or missing. Store at room temperature, in a dry place.
+
+**KEEP OUT OF REACH OF CHILDREN**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### Alln1 SuperBlend - Pineapple Swirl
+
+**DIRECTIONS:**
+
+**Adults 18 years and over**, take one serving (2 scoops) daily with ~12 oz of fluid (May divide as desired such as 1 scoop in the morning and 1 scoop in the evening)
+
+**Children 12-17 years** take ½ serving daily (1 scoop) with ~6 oz of fluid
+
+Drink it anytime with or without food.
+
+Add to a smoothie or protein shake mix.
+
+Recipes available at www.alln1superblend.com/recipes
+
+**NO REFRIGERATION NEEDED**
+
+**Other Ingredients:** Natural flavors, citric acid, stevia (leaf) extract, and pink himalayan salt.
+
+**Contains No:** Added sugar, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Allergen Warning:**
+
+Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg
+
+Contains: Soy
+
+This product contains a premium lecithin for Vitamin E content. It is derived from SOY. This product has been tested and contains NO SOY trypsin inhibitor or other soy proteins.
+
+**WARNING:** Children, pregnant or nursing women should consult with a qualified health professional prior to taking this or any dietary supplements. Do not use if safety seal under cap is broken or missing. Store at room temperature, in a dry place.
+
+**KEEP OUT OF REACH OF CHILDREN**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

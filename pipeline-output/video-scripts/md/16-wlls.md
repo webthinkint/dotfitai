@@ -1,6 +1,6 @@
 # WeightLoss & LiverSupport
 
-- source: `2026 Website Product Videos.docx`, "WeightLoss & LiverSupport"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "WeightLoss & LiverSupport"; facts and label: `products.json`
 - products: WeightLoss & LiverSupport
 - part numbers: 1100
 
@@ -47,3 +47,19 @@ Servings Per Container: 90
 | Irvingia Gabonensis Seed Extract | 150 mg | \* |
 
 \* Daily Value not established.
+
+## Label, as printed on the product
+
+### WeightLoss & LiverSupport
+
+**DIRECTIONS:** As a dietary supplement, take 1 tablet, 3 times daily approximately 30 minutes before meals with 8 oz. of water. Use in combination with a sensible diet and exercise program.
+
+**Other Ingredients:** Cellulose, cellulose gum, stearic acid, croscarmellose sodium, silica, dicalcium phosphate, hydroxypropyl methylcellulose, calcium carbonate, magnesium stearate and food glaze.
+
+**Contains No:** Sugar, salt, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+Store at 15-30°C (59-86°F). Protect from heat, light and moisture.

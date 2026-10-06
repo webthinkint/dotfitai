@@ -7,7 +7,12 @@ to AI Search (manual indexing — chunking is source-specific, per the index des
 - **PDSRG chunks** — already index-stamped (id/authority/products/
   locator/citation_url/is_current/product_status); pass-through plus
   string-normalized ``part_no``s.
-- **products.json** — section-split per family: the canonical SKU's
+- **product-video script pages** (``pipeline-output/video-scripts/
+  products.jsonl``) — the product copy for every family they cover: one
+  document per section (the script's six, then the facts panels and the
+  label as printed, per flavor), one product page per script.
+- **products.json** — for the families the scripts do not cover,
+  section-split per family: the canonical SKU's
   sections are the family documents; variants contribute only genuinely
   distinct sections (whitespace-normalized text diff against the canonical's
   same-named section). ``faq_item`` split is data-driven: no FAQ-shaped
@@ -109,10 +114,51 @@ def split_sections(searchcontent: str) -> list[tuple[str, str]]:
     return out
 
 
-def product_documents(products: list[dict], families: list[dict]) -> list[dict]:
-    """Family-grouped product documents from products.json."""
+def script_product_documents(pages: list[dict], products: list[dict]) -> list[dict]:
+    """Product documents from the product-video script pages
+    (``pipeline-output/video-scripts/products.jsonl``): one document per page
+    section, all citing the page's product URL so a page is one source. The
+    section slugs sort in reading order, which is the order get_product serves."""
     by_pn = {str(p["part_no"]): p for p in products}
     docs: list[dict] = []
+    for page in pages:
+        cite = str(page["citation_part_no"])
+        if cite not in by_pn:
+            raise ValueError(f"script page {page['slug']!r}: part {cite} missing from products.json")
+        for sec in page["sections"]:
+            docs.append({
+                "id": f"product-{cite}-{sec['slug']}",
+                "source_type": "product",
+                "authority": 1,                     # the owners' product copy and the label
+                "title": page["title"],
+                "content": sec["content"],
+                "citation_url": by_pn[cite].get("URL"),
+                "locator": sec["locator"],
+                "products": [str(n) for n in page["part_nos"]],
+                "topics": list(page["families"]),
+                "date": None,
+                "is_current": True,
+                "product_status": None,
+            })
+    return docs
+
+
+def product_documents(products: list[dict], families: list[dict],
+                      script_pages: list[dict] | None = None) -> list[dict]:
+    """Product documents: the script pages for every family they cover, and
+    family-grouped products.json copy for the families they do not. A family
+    the scripts cover only in part raises — half a family on each copy would
+    serve get_product two descriptions of one product."""
+    script_pages = script_pages or []
+    covered = {str(n) for page in script_pages for n in page["part_nos"]}
+    by_pn = {str(p["part_no"]): p for p in products}
+    docs: list[dict] = script_product_documents(script_pages, products)
+    for fam in families:
+        pns = {str(x) for x in fam["part_nos"]}
+        if pns & covered and not pns <= covered:
+            raise ValueError(f"family {fam['family']!r}: the scripts cover "
+                             f"{sorted(pns & covered)} but not {sorted(pns - covered)}")
+    families = [f for f in families if not {str(x) for x in f["part_nos"]} <= covered]
 
     def base_doc(pn: str, section: str, title: str, part_nos: list[str]) -> dict:
         p = by_pn[pn]
@@ -473,10 +519,11 @@ def build_documents(chunks: list[dict], products: list[dict],
                     podcast_segments: list[dict] | None = None,
                     qa_records: list[dict] | None = None,
                     podcast_video_ids: dict[str, str] | None = None,
-                    infopages: list[dict] | None = None) -> list[dict]:
+                    infopages: list[dict] | None = None,
+                    script_pages: list[dict] | None = None) -> list[dict]:
     """All index documents, sorted by id (documents.jsonl is byte-stable)."""
     docs = (pdsrg_documents(chunks)
-            + product_documents(products, families)
+            + product_documents(products, families, script_pages)
             + menu_documents(menu_rows)
             + podcast_documents(podcast_segments or [], podcast_video_ids)
             + qa_documents(qa_records or [])

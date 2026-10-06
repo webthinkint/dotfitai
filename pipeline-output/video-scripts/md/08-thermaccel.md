@@ -1,6 +1,6 @@
 # ThermAccel
 
-- source: `2026 Website Product Videos.docx`, "ThermAccel"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "ThermAccel"; facts and label: `products.json`
 - products: ThermAccel
 - part numbers: 1102
 
@@ -46,3 +46,26 @@ Servings Per Container: 60
 | L-Theanine | 100 mg | \* |  |
 
 \* % Daily Value not established. Other Ingredients: Calcium Phosphate, Microcrystalline Cellulose, Stearic Acid, Magnesium Stearate, Croscarmellose Sodium, Magnesium Stearate, Silicon Dioxide
+
+## Label, as printed on the product
+
+### ThermAccel
+
+**DIRECTIONS:** As a dietary supplement, take four (4) tablets daily; two (2) tablets before
+a morning meal and two (2) tablets before an afternoon meal, with at least eight (8)
+ounces of fluid.
+If sensitive to caffeine, start with two (2) tablets daily in one (1) tablet doses and move to a
+maximum dose of two (2) tablets, twice daily, if comfortable.
+**Do not consume within 5 hours of bedtime.**
+Use in combination with a sensible diet and exercise program.
+
+Sinetrol® is the property of Fytexia
+**WARNING:**
+
+Not intended for individuals under the age of 18. Consult your physician if you are taking any over-the-counter or prescription medications and if you are pregnant, nursing, or contemplating pregnancy. Don not use if safety seal under cap is broken or missing. Store in a dry place.
+
+**KEEP OUT OF REACH OF CHILDREN UNDER THE AGE OF 12.**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.

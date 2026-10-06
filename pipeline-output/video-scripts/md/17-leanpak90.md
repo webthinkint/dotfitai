@@ -1,6 +1,6 @@
 # LeanPak90
 
-- source: `2026 Website Product Videos.docx`, "LeanPak90"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "LeanPak90"; facts and label: `products.json`
 - products: LeanPak90
 - part numbers: 1600
 
@@ -80,3 +80,54 @@ Servings Per Container: 60
 \* Daily Value (DV) not established.
 
 † The trademark Phase 2 Starch Neutralizer® is being used under license.
+
+## Label, as printed on the product
+
+### WeightLoss & LiverSupport
+
+**DIRECTIONS:** As a dietary supplement, take 1 tablet, 3 times daily approximately 30 minutes before meals with 8 oz. of water. Use in combination with a sensible diet and exercise program.
+
+**Other Ingredients:** Cellulose, cellulose gum, stearic acid, croscarmellose sodium, silica, dicalcium phosphate, hydroxypropyl methylcellulose, calcium carbonate, magnesium stearate and food glaze.
+
+**Contains No:** Sugar, salt, dairy, gluten, yeast, fish, crustacean shellfish, treenuts, peanuts, preservatives, artificial colors or flavors.
+
+**Allergen Warning:** Processed in a facility that processes ingredients containing Milk, Soy, Fish, Shellfish, Wheat, and Egg
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+Store at 15-30°C (59-86°F). Protect from heat, light and moisture.
+
+### ThermAccel
+
+**DIRECTIONS:** As a dietary supplement, take four (4) tablets daily; two (2) tablets before
+a morning meal and two (2) tablets before an afternoon meal, with at least eight (8)
+ounces of fluid.
+If sensitive to caffeine, start with two (2) tablets daily in one (1) tablet doses and move to a
+maximum dose of two (2) tablets, twice daily, if comfortable.
+**Do not consume within 5 hours of bedtime.**
+Use in combination with a sensible diet and exercise program.
+
+Sinetrol® is the property of Fytexia
+**WARNING:**
+
+Not intended for individuals under the age of 18. Consult your physician if you are taking any over-the-counter or prescription medications and if you are pregnant, nursing, or contemplating pregnancy. Don not use if safety seal under cap is broken or missing. Store in a dry place.
+
+**KEEP OUT OF REACH OF CHILDREN UNDER THE AGE OF 12.**
+
+WARNING FOR CALIFORNIA RESIDENTS ONLY: This product can expose you to chemicals including lead, which is known to the state of California to cause cancer and birth defects or other reproductive harm.
+
+For more information go to http://www.p65warnings.ca.gov/food.
+
+### CarbRepel
+
+DIRECTIONS: As as dietary supplement, take 2 tablets, twice daily approximately 30 minutes before your 2 largest meals with 8 oz. of water.
+Use in combination with a sensible diet and exercise program.
+
+**Other Ingredients:** Di-calcium phosphate, Cellulose, Cellulose gum, Stearic acid, Magnesium Stearate, Silica and Food Glaze.
+
+**Contains No:** Dairy, Fish, Crustacean shellfish, Tree nuts, Peanuts, Soy or Gluten.
+No Sugar, Salt, Starch, Artificial Coloring, Flavoring or Preservatives added.
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing.
+
+Store at 15-30°C (59-86°F). Protect from heat, light and moisture.

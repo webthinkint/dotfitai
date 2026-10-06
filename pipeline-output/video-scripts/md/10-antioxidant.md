@@ -1,6 +1,6 @@
 # Antioxidant
 
-- source: `2026 Website Product Videos.docx`, "Antioxidant"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "Antioxidant"; facts and label: `products.json`
 - products: Antioxidant
 - part numbers: 1000
 
@@ -44,3 +44,17 @@ Servings per Container: 30
 | Astaxanthin (as AstaReal ®) | 4 mg | \* |
 | Zeaxanthin | 4 mg | \* |
 | \* Daily Value (DV) not established |  |  |
+
+## Label, as printed on the product
+
+### Antioxidant
+
+DIRECTIONS: As a dietary supplement, take 2 vegetarian capsules, daily with a main meal. Consume with your favorite beverage.
+
+**Other Ingredients:** Vegetarian capsule (modified cellulose, water), cellulose, magnesium stearate, silica.
+
+**Contains No:** Dairy, Wheat, Gluten, Soy, Preservatives, Artificial Colors or Flavors
+
+**Allergen Statement:** Produced in a facility that processes ingredients containing milk, soy, fish, shellfish, wheat, and egg.
+
+AstaReal® is a registered trademark of Fuji Chemical Industries Co., Ltd.

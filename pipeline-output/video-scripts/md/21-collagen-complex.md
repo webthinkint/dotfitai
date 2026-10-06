@@ -1,6 +1,6 @@
 # CollagenComplex
 
-- source: `2026 Website Product Videos.docx`, "CollagenComplex"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "CollagenComplex"; facts and label: `products.json`
 - products: CollagenComplex
 - part numbers: 1003
 
@@ -45,3 +45,19 @@ Servings Per Container: 30
 \*Percent Daily Values are based on a 2,000 calorie diet.
 
 \*\* % Daily Value not established
+
+## Label, as printed on the product
+
+### CollagenComplex
+
+**SUGGESTED USE:** As a dietary supplement, for skin health, take two (2) capsules daily , preferably one (1) in the morning and one (1) at night, before a meal. For optimal joint health, take two (2) capsules in the morning and two (2) capsules at night, before a meal or as directed by your health-care professional.
+
+**Other Ingredients:** Gelatin, Cellulose, Magnesium Stearate
+
+**Contains No:** Shellfish (crustacean), Fish, Dairy, Tree nuts, Peanuts, Soy or Gluten. No Salt, Artificial colors, Flavoring, Sulphites, MSG (monosodium glutamate) or Preservatives added. Free of Titanium dioxide.
+
+BioCell Collagen II® is a registered trademark of BioCell Technologies LLC, Anaheim, California, USA (US Patents 6,025,327; 6,740,841; other US and foreign patents pending.
+
+**Warning:** Do not use this product if you are pregnant, nursing, or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Do not use if safety seal under cap is broken or missing. Store in a cool, dry place.
+
+KEEP OUT OF REACH OF CHILDREN.

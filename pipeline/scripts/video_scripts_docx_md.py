@@ -40,12 +40,17 @@ fixed order with the takeaway first, as "Overview" — the document's own
 direction for the product page.
 
 The facts panels keep the export's serving lines, the table (columns empty
-in every row dropped) and its Daily Value and symbol footnotes; label
-directions, ingredients and warnings are not part of the panel. A part with
-no facts table fails the run.
+in every row dropped) and its Daily Value and symbol footnotes. The rest of
+the export's label — directions, ingredients, allergens, warnings, storage —
+follows as printed, under ``LABEL_HEADING``: the label's directions can
+differ from the script's, and the heading keeps them apart. Identical
+panels and labels across flavors are written once. A part with no facts
+table fails the run.
 
-Output: pipeline-output/video-scripts/md/NN-<slug>.md + summary.json (sorted,
-no timestamps — reruns are byte-identical, the pipeline determinism rule).
+Output: pipeline-output/video-scripts/md/NN-<slug>.md, products.jsonl (one
+page per product, its sections in reading order — the index builder's input
+for product copy) and summary.json (sorted, no timestamps — reruns are
+byte-identical, the pipeline determinism rule).
 
 Usage (from pipeline/): uv run scripts/video_scripts_docx_md.py
 """
@@ -65,6 +70,10 @@ from summaries_pptx_md import PRICE, mask_prices
 
 DOC_NAME = "2026 Website Product Videos.docx"
 EXPORT_NAME = "products.json"
+
+# The label's own directions can differ from the script's "How do you use
+# it?"; the heading keeps the two apart wherever a section is read alone.
+LABEL_HEADING = "Label, as printed on the product"
 
 # (key, heading written to the md). Output order.
 SECTIONS: list[tuple[str, str]] = [
@@ -382,20 +391,29 @@ def _cells(line: str) -> list[str]:
     return [c.strip() for c in line.strip().strip("|").split("|")]
 
 
-def facts_panel(entry: dict) -> dict:
-    """The export's facts panel for one part: title, serving lines, table, footnotes."""
+def read_label(entry: dict) -> tuple[dict, str]:
+    """The export's label for one part: the facts panel, and the rest as printed.
+
+    The rest is every other line of the Specifications section — directions,
+    ingredients, allergens, warnings, storage — kept as written; only the
+    export's layout debris (empty or nested headings, empty links, rules) is
+    tidied.
+    """
     text = html.unescape(entry["searchcontent"].replace("\r\n", "\n"))
     m = re.search(r"^### Specifications[ \t]*\n(.*?)(?=^### |\Z)", text, re.M | re.S)
     if not m:
         raise ValueError(f"{entry['part_no']}: no Specifications section")
-    lines = [ln.rstrip() for ln in m.group(1).split("\n")]
+    raw = m.group(1).split("\n")
+    lines = [ln.rstrip() for ln in raw]
+    used: set[int] = set()
     tables: list[list[str]] = []
     in_table = False
-    for ln in lines:
+    for i, ln in enumerate(lines):
         if ln.startswith("|"):
             if not in_table:
                 tables.append([])
             tables[-1].append(ln)
+            used.add(i)
         in_table = ln.startswith("|")
     if len(tables) != 1:
         raise ValueError(f"{entry['part_no']}: {len(tables)} facts tables, expected 1")
@@ -409,18 +427,40 @@ def facts_panel(entry: dict) -> dict:
         title = heading.group(1)
     else:
         title = "Nutrition Facts" if any(r[0] == "Calories" for r in rows) else "Supplement Facts"
-    serving = [ln.split("**")[0].strip() for ln in lines
-               if re.search(r"serving size|servings per container", ln, re.I)]
-    raw = m.group(1).split("\n")
+    serving = []
+    rest: dict[int, str] = {}   # a serving line's glued-on remainder belongs to the label
+    for i, ln in enumerate(lines):
+        if re.search(r"serving size|servings per container", ln, re.I):
+            head, sep, tail = ln.partition("**")
+            serving.append(head.strip())
+            used.add(i)
+            if sep:
+                rest[i] = sep + tail
     notes = []
     for i, ln in enumerate(lines):
         if ln.startswith(("‡", "†")) or (ln.startswith("\\*") and "daily value" in ln.lower()):
+            used.add(i)
             # a markdown hard break ("  ") continues the footnote on the next line
             while raw[i].endswith("  ") and i + 1 < len(lines) and lines[i + 1]:
                 i += 1
+                used.add(i)
                 ln += " " + lines[i].strip()
             notes.append(ln.strip())
-    return {"title": title, "serving": serving, "rows": rows, "notes": notes}
+    label: list[str] = []
+    for i, ln in enumerate(lines):
+        ln = rest.get(i, "" if i in used else ln).strip()
+        if re.fullmatch(r"#+|-{3,}|\[\]\([^)]*\)", ln) or re.fullmatch(r"#+ .*Facts", ln):
+            ln = ""
+        elif ln.startswith("#"):
+            ln = "**" + ln.lstrip("#").strip() + "**"
+        if ln or (label and label[-1]):
+            label.append(mask_prices(ln))
+    panel = {"title": title, "serving": serving, "rows": rows, "notes": notes}
+    return panel, "\n".join(label).strip()
+
+
+def facts_panel(entry: dict) -> dict:
+    return read_label(entry)[0]
 
 
 def protein_grams(panel: dict) -> float:
@@ -444,23 +484,52 @@ def panel_md(panel: dict) -> list[str]:
     return [mask_prices(ln) for ln in out]
 
 
-def facts_md(parts: list[int], export: dict[int, dict]) -> list[str]:
-    """One subsection per distinct panel, named by every part that carries it."""
-    groups: list[tuple[list[str], dict]] = []
+def grouped(parts: list[int], export: dict[int, dict], pick) -> list[tuple[str, object]]:
+    """Distinct values of ``pick(part)`` in part order, each named by every part carrying it."""
+    groups: list[tuple[list[str], object]] = []
     for no in parts:
-        panel = facts_panel(export[no])
+        value = pick(export[no])
+        name = re.sub(r"\s+", " ", export[no]["longname"]).strip()
         for names, seen in groups:
-            if seen == panel:
-                names.append(export[no]["longname"])
+            if seen == value:
+                names.append(name)
                 break
         else:
-            groups.append(([export[no]["longname"]], panel))
-    nutrition = all(panel["title"] == "Nutrition Facts" for _n, panel in groups)
-    out = [f"## {'Nutrition Facts' if nutrition else 'Supplement Facts'}", ""]
-    for names, panel in groups:
-        sub = " / ".join(re.sub(r"\s+", " ", n).strip() for n in names)
-        out += [f"### {sub}", ""] + panel_md(panel)
-    return out
+            groups.append(([name], value))
+    return [(" / ".join(names), value) for names, value in groups]
+
+
+def page_sections(product, sections: dict[str, list[dict]], families: dict[str, list[int]],
+                  export: dict[int, dict]) -> list[dict]:
+    """The product page in reading order: the script's sections, then per
+    distinct panel the facts, then per distinct label the label as printed.
+    ``slug`` sorts in that order (the index serves a page's sections by id)."""
+    slug, _title, _doc_title, fams, part_nos = product
+    page = []
+    for n, (key, heading) in enumerate(SECTIONS, 1):
+        paras = sections.get(key)
+        if not paras:
+            continue
+        body = []
+        for i, p in enumerate(paras):
+            body.append(("- " if p["list"] else "") + p["text"])
+            nxt = paras[i + 1] if i + 1 < len(paras) else None
+            if not (p["list"] and nxt and nxt["list"]):
+                body.append("")
+        page.append({"slug": f"{n:02d}-{key}", "kind": "script", "heading": heading,
+                     "names": None, "body": "\n".join(body).strip()})
+    parts = facts_parts(slug, fams, part_nos, families)
+    panels = grouped(parts, export, facts_panel)
+    nutrition = all(panel["title"] == "Nutrition Facts" for _n, panel in panels)
+    facts_heading = "Nutrition Facts" if nutrition else "Supplement Facts"
+    for k, (names, panel) in enumerate(panels, 1):
+        page.append({"slug": f"07-facts-{k}", "kind": "facts", "heading": facts_heading,
+                     "names": names, "body": "\n".join(panel_md(panel)).strip()})
+    for k, (names, label) in enumerate(grouped(parts, export, lambda e: read_label(e)[1]), 1):
+        if label:
+            page.append({"slug": f"08-label-{k}", "kind": "label", "heading": LABEL_HEADING,
+                         "names": names, "body": label})
+    return page
 
 
 def validate(products: dict[str, dict[str, list[dict]]],
@@ -511,28 +580,49 @@ def facts_parts(slug: str, fams: list[str], part_nos: list[int] | None,
     return FACTS_PARTS.get(slug) or part_numbers(fams, part_nos, families)
 
 
-def render(product, sections: dict[str, list[dict]], families: dict[str, list[int]],
-           export: dict[int, dict], notes: list[str]) -> str:
-    slug, title, doc_title, fams, part_nos = product
+def citation_part(fams: list[str], parts: list[int], canonical: dict[str, int]) -> int:
+    """The part whose product page the whole page cites: a family's canonical
+    part when the product carries one, else its lowest part number."""
+    canon = [canonical[f] for f in fams if canonical[f] in parts]
+    return canon[0] if canon else parts[0]
+
+
+def render(product, page: list[dict], families: dict[str, list[int]], notes: list[str]) -> str:
+    _slug, title, doc_title, fams, part_nos = product
     nos = ", ".join(map(str, part_numbers(fams, part_nos, families)))
     out = [f"# {title}", "",
-           f"- source: `{DOC_NAME}`, \"{doc_title}\"; facts: `{EXPORT_NAME}`",
+           f"- source: `{DOC_NAME}`, \"{doc_title}\"; facts and label: `{EXPORT_NAME}`",
            f"- products: {', '.join(fams)}",
            f"- part numbers: {nos}", ""]
     for note in notes:
         out += [f"_Note (annotation, not script text): {note}_", ""]
-    for key, heading in SECTIONS:
-        paras = sections.get(key)
-        if not paras:
-            continue
-        out += [f"## {heading}", ""]
-        for i, p in enumerate(paras):
-            out.append(("- " if p["list"] else "") + p["text"])
-            nxt = paras[i + 1] if i + 1 < len(paras) else None
-            if not (p["list"] and nxt and nxt["list"]):
-                out.append("")
-    out += facts_md(facts_parts(slug, fams, part_nos, families), export)
+    last = None
+    for sec in page:
+        if sec["names"] is None:
+            out += [f"## {sec['heading']}", ""]
+        else:
+            if sec["kind"] != last:
+                out += [f"## {sec['heading']}", ""]
+            out += [f"### {sec['names']}", ""]
+        out += [sec["body"], ""]
+        last = sec["kind"]
     return "\n".join(out).rstrip() + "\n"
+
+
+def index_record(product, page: list[dict], families: dict[str, list[int]],
+                 canonical: dict[str, int]) -> dict:
+    """One product page for the index builder: each section's content opens
+    with its heading, so a section read alone still says what it is."""
+    slug, title, _doc_title, fams, part_nos = product
+    parts = part_numbers(fams, part_nos, families)
+    return {
+        "slug": slug, "title": title, "families": fams, "part_nos": parts,
+        "citation_part_no": citation_part(fams, parts, canonical),
+        "sections": [{"slug": sec["slug"], "kind": sec["kind"], "locator": sec["names"],
+                      "content": (f"{sec['heading']}: {sec['names']}" if sec["names"]
+                                  else sec["heading"]) + "\n\n" + sec["body"]}
+                     for sec in page],
+    }
 
 
 def main() -> int:
@@ -546,6 +636,7 @@ def main() -> int:
         return 2
     table = json.loads(alias_path().read_text(encoding="utf-8"))
     families = {f["family"]: f["part_nos"] for f in table["families"]}
+    canonical = {f["family"]: f["canonical_part_no"] for f in table["families"]}
     export = {int(e["part_no"]): e
               for e in json.loads(export_path().read_text(encoding="utf-8"))}
 
@@ -575,19 +666,26 @@ def main() -> int:
     for stale in md_dir.glob("*.md"):
         stale.unlink()
     meta = []
+    records = []
     masked = 0
     for i, product in enumerate(PRODUCTS, 1):
         slug, title, _doc_title, fams, part_nos = product
         name = f"{i:02d}-{slug}.md"
-        text = render(product, products[slug], families, export, notes.get(slug, []))
+        page = page_sections(product, products[slug], families, export)
+        text = render(product, page, families, notes.get(slug, []))
         masked += text.count(PRICE)
         (md_dir / name).write_text(text, encoding="utf-8", newline="\n")
+        records.append(index_record(product, page, families, canonical))
         meta.append({"file": name, "slug": slug, "title": title, "products": fams,
                      "part_nos": part_numbers(fams, part_nos, families),
                      "facts_parts": facts_parts(slug, fams, part_nos, families),
                      "missing": MISSING.get(slug, []),
                      "corrections": len(CORRECTIONS.get(slug, [])),
+                     "sections": len(page),
                      "chars": sum(len(p["text"]) for ps in products[slug].values() for p in ps)})
+    with (od / "products.jsonl").open("w", encoding="utf-8", newline="\n") as f:
+        for rec in records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     summary = {"document": DOC_NAME, "export": EXPORT_NAME, "n_products": len(meta),
                "paragraphs_rejoined": joined,
                "corrections": sum(len(v) for v in CORRECTIONS.values()),

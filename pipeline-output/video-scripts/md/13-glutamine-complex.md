@@ -1,6 +1,6 @@
 # GlutamineComplex
 
-- source: `2026 Website Product Videos.docx`, "GlutamineComplex"; facts: `products.json`
+- source: `2026 Website Product Videos.docx`, "GlutamineComplex"; facts and label: `products.json`
 - products: GlutamineComplex
 - part numbers: 1205
 
@@ -44,3 +44,17 @@ Servings Per Container: 70
 \* Daily Value (DV) not established.
 
 ‡ Magnesium Bisglycinate Chelate and Chromium Nicotinate Glycinate Chelate are covered by Albion International Inc.
+
+## Label, as printed on the product
+
+### GlutamineComplex (formerly Muscle Defender L-Glutamine)
+
+**DIRECTIONS**: Mix 1 level scoop (5.27 g) with 8 to 10 ounces of water or favorite beverage and mix vigorously for 30 seconds in a shaker or blender. On training days, use 1 level scoop (5.27 g) within one hour, after your workout. For maximum results, use one additional scoop 15-30 minutes prior to bedtime.
+
+**Other Ingredients:** None
+
+**Contains No:** sugar, salt, dairy, yeast, wheat, gluten, soy, preservatives, artificial colors or flavors.
+
+Manufactured in a facility and equipment that handles: Eggs, Wheat, Milk, Tree Nuts, Peanuts, Soybeans, Crustacean Shellfish and Fish.
+
+**WARNING:** Not intended for individuals under the age of 18. Do not use this product if you are pregnant, nursing or contemplating pregnancy. Consult your physician if you are taking any over-the-counter or prescription medications. Seek the advice of a health-care professional before beginning any supplement or exercise program. Do not use if safety seal under cap is broken or missing. Store in a cool dry place. **KEEP OUT OF REACH OF CHILDREN.**

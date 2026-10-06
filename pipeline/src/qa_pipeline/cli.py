@@ -782,8 +782,10 @@ def cmd_index(args: argparse.Namespace) -> int:
     products_path = Path(args.products).resolve()
     menus_path = Path(args.menus).resolve()
     infopages_path = Path(args.infopages).resolve()
+    scripts_path = Path(args.video_scripts).resolve()
     for path, flag in ((chunks_path, "--chunks"), (products_path, "--products"),
-                       (menus_path, "--menus"), (infopages_path, "--infopages")):
+                       (menus_path, "--menus"), (infopages_path, "--infopages"),
+                       (scripts_path, "--video-scripts")):
         if not path.is_file():
             print(f"error: {flag} not found: {path}", file=sys.stderr)
             return 2
@@ -793,6 +795,7 @@ def cmd_index(args: argparse.Namespace) -> int:
     chunks = read_jsonl(chunks_path)
     products = json.loads(products_path.read_text(encoding="utf-8"))
     infopages = read_json(infopages_path)
+    script_pages = read_jsonl(scripts_path)
     families = build_alias_table(products)["families"]
     menu_rows = read_menu_rows(menus_path)
     segments_path = Path(args.podcast_segments).resolve()
@@ -811,7 +814,7 @@ def cmd_index(args: argparse.Namespace) -> int:
               f"shaping without the QA source")
     docs = build_documents(chunks, products, families, menu_rows,
                            podcast_segments, qa_records,
-                           infopages=infopages)
+                           infopages=infopages, script_pages=script_pages)
 
     docs_path = out_dir / "documents.jsonl"
     with docs_path.open("w", encoding="utf-8", newline="\n") as f:
@@ -912,6 +915,7 @@ def cmd_index(args: argparse.Namespace) -> int:
                    "products": sha256_file(products_path),
                    "menus": sha256_file(menus_path),
                    "infopages": sha256_file(infopages_path),
+                   "video_scripts": sha256_file(scripts_path),
                    "podcast_segments": (sha256_file(segments_path)
                                           if segments_path.is_file()
                                           else None),
@@ -1085,8 +1089,8 @@ def build_parser() -> argparse.ArgumentParser:
     ix = sub.add_parser(
         "index",
         help="shape + embed + upload the kb-main index "
-             "(pdsrg chunks + products.json + infopages.json + menu "
-             "descriptions)")
+             "(pdsrg chunks + video-script pages + products.json + "
+             "infopages.json + menu descriptions)")
     ix.add_argument("--chunks", default="pipeline-output/pdsrg/chunks/chunks.jsonl",
                     help="PDSRG chunks.jsonl")
     ix.add_argument("--products", default="original-data/Product Data/products.json",
@@ -1097,6 +1101,10 @@ def build_parser() -> argparse.ArgumentParser:
     ix.add_argument("--infopages",
                     default="original-data/Product Data/infopages.json",
                     help="infopages.json (dotFIT.com info pages, authority 1)")
+    ix.add_argument("--video-scripts",
+                    default="pipeline-output/video-scripts/products.jsonl",
+                    help="product-video script pages (the product copy for the "
+                         "families they cover)")
     ix.add_argument("--podcast-segments",
                     default="pipeline-output/podcasts/segments/segments.jsonl",
                     help="podcast segments.jsonl (missing file shapes without "
