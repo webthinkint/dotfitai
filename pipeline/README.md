@@ -19,8 +19,8 @@ that are cached (LLM structuring, embeddings) and the upload.
 
 Standalone scripts in `scripts/` cover what is not a stage: ASR
 (`asr_pilot.py --all`, `masterclass_transcribe.py`), the product summaries deck
-(`summaries_pptx_md.py`), a new-export diff (`products_diff.py`), the Stage 2
-review-queue triage (`stage2_queue_triage.py`), and Azure smoke checks.
+(`summaries_pptx_md.py`), the product-video scripts (`video_scripts_docx_md.py`),
+a new-export diff (`products_diff.py`), the Stage 2 review-queue triage (`stage2_queue_triage.py`), and Azure smoke checks.
 
 ## Tooling
 
@@ -128,6 +128,23 @@ fails if a slide is in no section and not listed as dropped, or if a product tag
 is not an alias-table family. Trainer scripts, taglines and flyer copy are held
 back. The sections are not indexed; the assistant's program guide
 (`assistant/references/program-guide.md`) is written from them by hand.
+
+## The product-video scripts
+
+`scripts/video_scripts_docx_md.py` reads the 2026 website product-video
+scripts (`original-data/Product Video Scripts/`) into one file per product
+in `pipeline-output/video-scripts/md/`: an overview and five fixed sections
+(what it is, what it does, who it is for, how to use it, what makes it
+different), then the product's Supplement or Nutrition Facts panels from
+`products.json`, one per flavor. The document's heading styles are
+unreliable, so the split is a hand-curated product list and the section
+labels the document uses, inline or standalone; the run fails on a missing
+title, a paragraph outside a section, a missing section not listed as
+missing, a product tag that is not an alias-table family, or a part with no
+facts table. The wording changes only through the script's `CORRECTIONS`
+(approved typo fixes, each matching exactly once) and the protein bars'
+protein minimum, filled from the bars' facts. Prices are masked to
+`[price]`. The files are not indexed yet.
 
 ## Review queues
 

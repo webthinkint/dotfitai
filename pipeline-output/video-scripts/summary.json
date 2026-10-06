@@ -1,0 +1,576 @@
+{
+  "document": "2026 Website Product Videos.docx",
+  "export": "products.json",
+  "n_products": 30,
+  "paragraphs_rejoined": 1,
+  "corrections": 48,
+  "prices_masked": 0,
+  "skipped": {
+    "Energy Aid": "not on the website yet"
+  },
+  "dropped": {
+    "Total Remaining Videos to Film": "production status line",
+    "WheySmooth": "repeated product title under the WheySmooth heading"
+  },
+  "products": [
+    {
+      "file": "01-over50mv.md",
+      "slug": "over50mv",
+      "title": "Over50MV",
+      "products": [
+        "Over 50 MV"
+      ],
+      "part_nos": [
+        1009
+      ],
+      "facts_parts": [
+        1009
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 4003
+    },
+    {
+      "file": "02-vitamin-d3.md",
+      "slug": "vitamin-d3",
+      "title": "Vitamin D3",
+      "products": [
+        "Vitamin D-3"
+      ],
+      "part_nos": [
+        1018
+      ],
+      "facts_parts": [
+        1018
+      ],
+      "missing": [],
+      "corrections": 5,
+      "chars": 3710
+    },
+    {
+      "file": "03-womensmv.md",
+      "slug": "womensmv",
+      "title": "Women'sMV",
+      "products": [
+        "Women's MV"
+      ],
+      "part_nos": [
+        1007
+      ],
+      "facts_parts": [
+        1007
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 4306
+    },
+    {
+      "file": "04-leanmeal.md",
+      "slug": "leanmeal",
+      "title": "LeanMeal",
+      "products": [
+        "LeanMeal Nutrition Shake"
+      ],
+      "part_nos": [
+        1333,
+        1334
+      ],
+      "facts_parts": [
+        1333,
+        1334
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3676
+    },
+    {
+      "file": "05-digestive-enzymes.md",
+      "slug": "digestive-enzymes",
+      "title": "DigestiveEnzymes",
+      "products": [
+        "Digestive Enzymes"
+      ],
+      "part_nos": [
+        1019
+      ],
+      "facts_parts": [
+        1019
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3315
+    },
+    {
+      "file": "06-probiotics.md",
+      "slug": "probiotics",
+      "title": "Probiotics",
+      "products": [
+        "Probiotics"
+      ],
+      "part_nos": [
+        1017
+      ],
+      "facts_parts": [
+        1017
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3086
+    },
+    {
+      "file": "07-pre-post-workout.md",
+      "slug": "pre-post-workout",
+      "title": "Pre & Post Workout Formula",
+      "products": [
+        "Pre & Post Workout Formula"
+      ],
+      "part_nos": [
+        1367,
+        1368
+      ],
+      "facts_parts": [
+        1367,
+        1368
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3222
+    },
+    {
+      "file": "08-thermaccel.md",
+      "slug": "thermaccel",
+      "title": "ThermAccel",
+      "products": [
+        "ThermAccel"
+      ],
+      "part_nos": [
+        1102
+      ],
+      "facts_parts": [
+        1102
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3471
+    },
+    {
+      "file": "09-alln1-superblend.md",
+      "slug": "alln1-superblend",
+      "title": "Alln1 SuperBlend",
+      "products": [
+        "Alln1 SuperBlend"
+      ],
+      "part_nos": [
+        8001,
+        8016
+      ],
+      "facts_parts": [
+        8001,
+        8016
+      ],
+      "missing": [],
+      "corrections": 5,
+      "chars": 4034
+    },
+    {
+      "file": "10-antioxidant.md",
+      "slug": "antioxidant",
+      "title": "Antioxidant",
+      "products": [
+        "Antioxidant"
+      ],
+      "part_nos": [
+        1000
+      ],
+      "facts_parts": [
+        1000
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3382
+    },
+    {
+      "file": "11-calcium-complex.md",
+      "slug": "calcium-complex",
+      "title": "CalciumComplex",
+      "products": [
+        "Calcium Complex"
+      ],
+      "part_nos": [
+        1004
+      ],
+      "facts_parts": [
+        1004
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3509
+    },
+    {
+      "file": "12-plant-protein.md",
+      "slug": "plant-protein",
+      "title": "PlantProtein",
+      "products": [
+        "Plant Protein"
+      ],
+      "part_nos": [
+        1300,
+        1301
+      ],
+      "facts_parts": [
+        1300,
+        1301
+      ],
+      "missing": [],
+      "corrections": 2,
+      "chars": 3200
+    },
+    {
+      "file": "13-glutamine-complex.md",
+      "slug": "glutamine-complex",
+      "title": "GlutamineComplex",
+      "products": [
+        "GlutamineComplex"
+      ],
+      "part_nos": [
+        1205
+      ],
+      "facts_parts": [
+        1205
+      ],
+      "missing": [],
+      "corrections": 4,
+      "chars": 3662
+    },
+    {
+      "file": "14-electrolytes.md",
+      "slug": "electrolytes",
+      "title": "Electrolytes",
+      "products": [
+        "Electrolytes"
+      ],
+      "part_nos": [
+        1225
+      ],
+      "facts_parts": [
+        1225
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3486
+    },
+    {
+      "file": "15-carbrepel.md",
+      "slug": "carbrepel",
+      "title": "CarbRepel",
+      "products": [
+        "CarbRepel"
+      ],
+      "part_nos": [
+        1101
+      ],
+      "facts_parts": [
+        1101
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3334
+    },
+    {
+      "file": "16-wlls.md",
+      "slug": "wlls",
+      "title": "WeightLoss & LiverSupport",
+      "products": [
+        "WeightLoss & LiverSupport"
+      ],
+      "part_nos": [
+        1100
+      ],
+      "facts_parts": [
+        1100
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3486
+    },
+    {
+      "file": "17-leanpak90.md",
+      "slug": "leanpak90",
+      "title": "LeanPak90",
+      "products": [
+        "LeanPak90"
+      ],
+      "part_nos": [
+        1600
+      ],
+      "facts_parts": [
+        1100,
+        1102,
+        1101
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3349
+    },
+    {
+      "file": "18-protein-bars.md",
+      "slug": "protein-bars",
+      "title": "dotBARs & dotWAFERs",
+      "products": [
+        "dotBAR",
+        "Vanilla dotWAFER"
+      ],
+      "part_nos": [
+        1456,
+        1457,
+        1462,
+        1466,
+        1470,
+        1471,
+        1480,
+        1482
+      ],
+      "facts_parts": [
+        1456,
+        1457,
+        1462,
+        1466,
+        1470,
+        1471,
+        1480,
+        1482
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 3082
+    },
+    {
+      "file": "19-activemv.md",
+      "slug": "activemv",
+      "title": "ActiveMV",
+      "products": [
+        "Active MV"
+      ],
+      "part_nos": [
+        1005
+      ],
+      "facts_parts": [
+        1005
+      ],
+      "missing": [],
+      "corrections": 2,
+      "chars": 2646
+    },
+    {
+      "file": "20-brain-health.md",
+      "slug": "brain-health",
+      "title": "Advanced Brain Health",
+      "products": [
+        "Brain Health"
+      ],
+      "part_nos": [
+        1001
+      ],
+      "facts_parts": [
+        1001
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 2622
+    },
+    {
+      "file": "21-collagen-complex.md",
+      "slug": "collagen-complex",
+      "title": "CollagenComplex",
+      "products": [
+        "CollagenComplex"
+      ],
+      "part_nos": [
+        1003
+      ],
+      "facts_parts": [
+        1003
+      ],
+      "missing": [],
+      "corrections": 0,
+      "chars": 2637
+    },
+    {
+      "file": "22-omega-3.md",
+      "slug": "omega-3",
+      "title": "Omega3",
+      "products": [
+        "Omega-3 Fish Oil"
+      ],
+      "part_nos": [
+        1020
+      ],
+      "facts_parts": [
+        1020
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 2406
+    },
+    {
+      "file": "23-sleep-aid.md",
+      "slug": "sleep-aid",
+      "title": "Sleep Aid",
+      "products": [
+        "SleepAid"
+      ],
+      "part_nos": [
+        1048
+      ],
+      "facts_parts": [
+        1048
+      ],
+      "missing": [
+        "overview"
+      ],
+      "corrections": 0,
+      "chars": 2217
+    },
+    {
+      "file": "24-all-natural-wheysmooth.md",
+      "slug": "all-natural-wheysmooth",
+      "title": "All Natural WheySmooth",
+      "products": [
+        "WheySmooth"
+      ],
+      "part_nos": [
+        1374,
+        1375
+      ],
+      "facts_parts": [
+        1374,
+        1375
+      ],
+      "missing": [],
+      "corrections": 3,
+      "chars": 2921
+    },
+    {
+      "file": "25-wheysmooth.md",
+      "slug": "wheysmooth",
+      "title": "WheySmooth",
+      "products": [
+        "WheySmooth"
+      ],
+      "part_nos": [
+        1369,
+        1370,
+        1391,
+        1392,
+        1399
+      ],
+      "facts_parts": [
+        1369,
+        1370,
+        1391,
+        1392,
+        1399
+      ],
+      "missing": [],
+      "corrections": 2,
+      "chars": 3249
+    },
+    {
+      "file": "26-firststring.md",
+      "slug": "firststring",
+      "title": "FirstString",
+      "products": [
+        "First String"
+      ],
+      "part_nos": [
+        1371,
+        1372
+      ],
+      "facts_parts": [
+        1371,
+        1372
+      ],
+      "missing": [],
+      "corrections": 1,
+      "chars": 3121
+    },
+    {
+      "file": "27-creatine-monohydrate.md",
+      "slug": "creatine-monohydrate",
+      "title": "Creatine Monohydrate",
+      "products": [
+        "Creatine Monohydrate"
+      ],
+      "part_nos": [
+        1200,
+        1227
+      ],
+      "facts_parts": [
+        1200,
+        1227
+      ],
+      "missing": [],
+      "corrections": 2,
+      "chars": 3207
+    },
+    {
+      "file": "28-creatine-complex.md",
+      "slug": "creatine-complex",
+      "title": "CreatineComplex",
+      "products": [
+        "Creatine Complex"
+      ],
+      "part_nos": [
+        1207
+      ],
+      "facts_parts": [
+        1207
+      ],
+      "missing": [],
+      "corrections": 2,
+      "chars": 3618
+    },
+    {
+      "file": "29-aminoformula.md",
+      "slug": "aminoformula",
+      "title": "AminoFormula",
+      "products": [
+        "AminoFormula"
+      ],
+      "part_nos": [
+        1213,
+        1216,
+        1220
+      ],
+      "facts_parts": [
+        1213,
+        1216,
+        1220
+      ],
+      "missing": [],
+      "corrections": 9,
+      "chars": 3758
+    },
+    {
+      "file": "30-no7-preworkout.md",
+      "slug": "no7-preworkout",
+      "title": "NO7 Preworkout",
+      "products": [
+        "NO7 PreWorkout"
+      ],
+      "part_nos": [
+        1214,
+        1215,
+        1217
+      ],
+      "facts_parts": [
+        1214,
+        1215,
+        1217
+      ],
+      "missing": [],
+      "corrections": 3,
+      "chars": 2996
+    }
+  ]
+}
