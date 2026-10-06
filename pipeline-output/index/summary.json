@@ -3,7 +3,7 @@
  "options": {
   "index_name": "kb-main-v2",
   "limit": null,
-  "no_embed": true,
+  "no_embed": false,
   "no_upload": false,
   "reset": false
  },
@@ -71,6 +71,24 @@
   "8001",
   "8016"
  ],
- "embedding": null,
- "upload": null
+ "embedding": {
+  "deployment": "text-embedding-3-large",
+  "api_version": "2025-04-01-preview",
+  "n_docs": 4229,
+  "n_cache_hits": 3758,
+  "n_api_calls": 30,
+  "dims": 3072
+ },
+ "upload": {
+  "index": "kb-main-v2",
+  "index_status": "exists",
+  "n_uploaded": 4229,
+  "n_selected": 4229,
+  "errors": []
+ },
+ "prune": {
+  "n_present": 4408,
+  "n_deleted": 179,
+  "errors": []
+ }
 }
