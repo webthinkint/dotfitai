@@ -93,6 +93,8 @@ Under 12 → no dotFIT multi (section 7)
 | One powder for several jobs: pre/post workout, meal replacement, gain | **Pre & Post Workout Formula** [1367/1368] | 21 g protein, 33–35 g carbs, about 250 kcal. Take 30–40 min before training and again after. |
 | Fat loss, meal replacement | **LeanMeal** [1333/1334] (section 5) | 21 g protein, 7 g fiber, about 170–180 kcal |
 
+Pick **one** protein powder from this table and use it for every protein job in the program: daily target, before and after training, meal replacement. Once one is chosen, keep it; don't add a second powder unless the customer asks for one.
+
 - **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (section 4).
 - **dotBAR** [1456/1457/1462/1470/1471/1480/1482] and **Vanilla dotWAFER** [1466] are convenient protein snacks.
 
@@ -142,7 +144,7 @@ Add omega-3 as needed. Stop the fat-loss aids at the goal.
 | **LeanPak90** [1600] | A 90-day kit with a planner. Month 1: WeightLoss & LiverSupport. Month 2: CarbRepel. Month 3: ThermAccel. When time matters, all three can be taken together as directed, because they work through different mechanisms. Best for adults with elevated body fat. |
 
 **On GLP-1 drugs** (slides 55, 260, 263):
-- The foundation and high protein are essential to limit lean-mass loss. Use LeanMeal, SuperBlend or Active MV, and a dotFIT protein, alongside resistance training.
+- The foundation and high protein are essential to limit lean-mass loss. Use SuperBlend or Active MV and one dotFIT protein (LeanMeal or another from section 3.4), alongside resistance training.
 - The drug itself is the doctor's decision.
 
 ---
@@ -232,6 +234,7 @@ The nutrient amounts come from the product labels.
 | Combination | Problem | Fix |
 |---|---|---|
 | SuperBlend + another multi | Two multis | Drop one |
+| More than one protein powder (section 3.4 table) | One powder covers every protein job | Keep the one already chosen, unless the customer asked for a second |
 | SuperBlend + Antioxidant or Probiotics | SuperBlend already contains both | Leave them out of the SuperBlend version (section 6.1). Add them only as a deliberate extra. |
 | More than one creatine source (Creatine Monohydrate, Creatine Complex 2.5 g a scoop, NO7 PreWorkout 2.5 g a scoop) | The deck allows combining them at the competitor level, but creatine adds up | Count the total creatine and state it |
 | NO7 PreWorkout + ThermAccel | Both contain caffeine, and ThermAccel is not used with other stimulants | Never together |
