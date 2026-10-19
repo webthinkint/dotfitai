@@ -17,7 +17,7 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 1. **Foundation first.** A long, healthy, active life rests on three cornerstones, in this order: meeting nutrient needs, regular activity, and a healthy body composition. Every program starts with the foundation (section 3). Then add products for the goal (section 4–section 7), then extras as needs, activity and budget allow. Nobody has to take everything. Start with the essentials and build from there. (Slides 9, 36, 90, 266.)
 2. **Everyone gets one complete multivitamin/mineral.** Use one of the multis in section 3.1, or Alln1 SuperBlend. **Never both.**
 3. **Protein: at least 1 g per lb of lean body mass per day**, spread over 4–5 meals. Food comes first, and a dotFIT protein closes the gap (section 3.4). Youth aim for about 1 g per lb of body weight (section 7).
-4. **Omega-3 depends on fatty-fish intake. Calcium depends on dietary calcium. Vitamin D depends on a blood test.** None of the three is automatic.
+4. **Omega-3 is for nearly everyone:** most people don't eat enough fatty fish. Dose it by fatty-fish intake (section 3.2); only 16 oz or more a week makes it unnecessary, unless it is for athletic recovery. **Calcium depends on dietary calcium** and is not automatic. **Vitamin D suits nearly everyone:** give the daily dose in section 3.3 and adjust it to a blood test when there is one.
 5. **Fat-loss aids are temporary.** Stop WeightLoss & LiverSupport, CarbRepel and ThermAccel once the goal is reached. The foundation continues. (Slide 201.)
 6. **Stimulants.** ThermAccel and NO7 PreWorkout contain caffeine. Neither is for caffeine-sensitive people. ThermAccel is never combined with another stimulant. (Slides 172, 180.)
 7. **Under 18:** use only the youth program (section 7).
@@ -58,9 +58,9 @@ Under 12 → no dotFIT multi (section 7)
 | **Active MV** [1005] | Ages 12–17: 1 tablet a day with the first meal. Adults training hard: 2 a day, 1 with the morning meal and 1 with the evening meal. |
 | **Women's MV** [1007] | 1 tablet a day, right after the first meal. |
 | **Over 50 MV** [1009] | 2 tablets a day after the first meal, or 1 with the morning meal and 1 with the evening meal. It has no iron. Iron is added separately only if a blood test shows a need. |
-| **Alln1 SuperBlend** [8001, 8016] | Adults: 1 scoop in the morning and 1 in the evening, in 12 oz of water or any fluid. It is commonly mixed with a dotFIT protein. Youth 12+: 1 scoop a day. It contains a complete multi plus antioxidants, probiotics, prebiotics, enzymes, ashwagandha, turmeric, a mushroom blend, 6 g fiber and 2 servings of vegetables. |
+| **Alln1 SuperBlend** [8001, 8016] | Adults: 1 scoop in the morning and 1 in the evening, in 12 oz of water or any fluid. It is commonly mixed with a dotFIT protein. Youth 12+: 1 scoop a day. It contains a complete multi plus omega-3s, antioxidants, probiotics, prebiotics, enzymes, ashwagandha, turmeric, a mushroom blend, 6 g fiber and 2 servings of vegetables. Omega-3 Fish Oil is still added by fatty-fish intake (section 3.2). |
 
-### 3.2 Omega-3: if fatty fish is short (slides 79–81)
+### 3.2 Omega-3: nearly everyone, dosed by fatty-fish intake (slides 78–84)
 
 - **Omega-3 Fish Oil** [1020] (SuperOmega-3). Take it with a meal.
   - 1 softgel a day if they eat more than 8 but less than 16 oz of fatty fish a week.
@@ -69,12 +69,12 @@ Under 12 → no dotFIT multi (section 7)
 - **Athletes: up to 4 a day** for recovery, to reach an omega-3 index of 8% or more.
 - There is no dotFIT vegan omega-3. Vegans and people with fish allergies can use an algae-based product.
 
-### 3.3 Calcium and vitamin D: as needed (slides 67–77)
+### 3.3 Calcium as needed, vitamin D for nearly everyone (slides 67–77)
 
 - **Calcium Complex** [1004] (Super Calcium) is only for when food doesn't reach about 1,000–1,200 mg a day.
   - Fewer than 1 serving of calcium-rich food a day: 2 tablets, split across meals.
   - About 1.5–2.5 servings: 1 tablet with a meal.
-  - For reference: 1 cup of milk or 1.5 oz of cheese is about 300 mg. A serving of WheySmooth has about 350 mg, and 2 servings of First String have about 400 mg.
+  - For reference: 1 cup of milk or 1.5 oz of cheese is about 300 mg. A serving of WheySmooth has about 350 mg, and a serving of First String about 400 mg.
 - **Vitamin D-3** [1018]:
   - The target is a blood level (25(OH)D) of at least 30 ng/mL, ideally 40–70 ng/mL, with athletes toward the top.
   - Take it daily, on top of the multi: typically 1,000–2,000 IU (1–2 softgels).
@@ -118,8 +118,8 @@ The levels build on each other.
 | **AminoFormula** [1213/1216/1220] (essential amino acids, 4.2 g leucine per serving) | Around exercise: up to 150 lb, ½ scoop before and ½ after; 150–200 lb, ¾ + ¾; over 200 lb, 1 + 1. Both doses can go in one drink, sipped from 10 min before the workout to the end. Protein stacking: intact protein 30–40 min before training, AminoFormula before, during and right after, then a protein shake 30–40 min later. |
 | **GlutamineComplex** [1205] | For athletes under prolonged hard training, especially while cutting calories or making weight. 1 scoop (5 g) 3 times a day: before activity, after, and before bed. |
 
-**Competition or weight-class cuts** (slide 234):
-- **Competitor Shred**: Active MV + WeightLoss & LiverSupport + LeanMeal + AminoFormula.
+**Competition or weight-class cuts** (slides 233–234):
+- **Competitor Shred**: Active MV (or SuperBlend) + WeightLoss & LiverSupport + LeanMeal + AminoFormula.
 - **Champion Shred**: the same, plus ThermAccel **or** CarbRepel.
 - Doses are as in section 5.
 
@@ -215,7 +215,7 @@ Protein to target applies at every level.
 **Level 2 – Advanced Athlete (post-pubescent, typically 16+, with a parent's approval):**
 - Level 1, plus **Creatine Monohydrate** [1200/1227] daily with meals or shakes.
 
-**Nothing else under 18.** No pre-workouts, fat-loss products, glutamine, or the adult add-ons. Youth also should avoid energy drinks.
+**Nothing else under 18** beyond dotBARs and Electrolytes (section 8). No pre-workouts, fat-loss products, glutamine, or the adult add-ons. Youth also should avoid energy drinks.
 
 ---
 
