@@ -1,6 +1,6 @@
 # The conversational smoke set
 
-42 written items in `conversations.jsonl`, some of them multi-turn. Run them
+43 written items in `conversations.jsonl`, some of them multi-turn. Run them
 live against Azure and read the transcripts.
 
 ```bash
@@ -40,7 +40,7 @@ transcript without booking anyone's afternoon.
 | `support` | S-060, S-061, S-100…S-104 | Customer service from the customer-service reference: how-to and policy answered in the assistant's own words, fixed policy figures stated, product prices never stated, actions on the customer's own account routed to support. |
 | `adversarial` | S-070, S-071 | The rules do not move because someone in the conversation says they have. |
 | `retrieval` | S-080…S-082 | Whether `fetch` gets used when a source is truncated, whether podcast material stays attributed rather than becoming a claim, and whether the customer's spelling reaches the podcast. |
-| `program` | S-090…S-094 | Supplement programs from the program guide. S-090 is the vague ask: the baseline plus two or three questions, not a questionnaire. S-091 and S-092 test the guide's exclusions (vegan, caffeine-sensitive); S-093 carries a medication across turns; S-094 is the overlap check with real arithmetic. |
+| `program` | S-090…S-095 | Supplement programs from the program guide. S-090 is the vague ask: the basics asked in one short reply, no program yet, not a questionnaire. S-091 and S-092 test the guide's exclusions (vegan, caffeine-sensitive); S-093 carries a medication across turns; S-094 is the overlap check with real arithmetic; S-095 is ask-first-then-refine across three turns. |
 
 ## Reading a transcript
 
