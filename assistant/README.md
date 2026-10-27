@@ -59,8 +59,8 @@ is reading the smoke transcripts and using it.
 ## References
 
 A reference is dotFIT's own guidance that the assistant reads with
-`read_reference`, whole or one section: today the supplement program guide and
-the customer-service FAQ. The assistant uses a reference **in its own words and
+`read_reference`, whole or one section: today the supplement program guide, the
+menu guide and the customer-service FAQ. The assistant uses a reference **in its own words and
 never cites it**; it is not a numbered source.
 
 **To add one** (for example a dotFIT program FAQ):

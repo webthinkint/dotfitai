@@ -347,6 +347,23 @@ public class AskStreamTests
     }
 
     [Fact]
+    public async Task The_result_frame_carries_the_linked_products_and_an_empty_list_without_them()
+    {
+        // One entry per product, every SKU it sells under, so the website
+        // renders one card; always present, like part_nos.
+        TurnResult linked = Result("Try [ExampleFormula](dotfit:product/9001).") with
+        {
+            Products = [new ProductRef("ExampleFormula", ["9001", "9002"])],
+        };
+        (RecordingWriter withLinks, _) = await RunAsync(new FakeAssistant(new TurnResultEvent(linked)), new AskBody { Question = "q" });
+        (RecordingWriter without, _) = await RunAsync(new FakeAssistant(new TurnResultEvent(Result())), new AskBody { Question = "q" });
+
+        Assert.Contains("\"products\":[{\"family\":\"ExampleFormula\",\"part_nos\":[\"9001\",\"9002\"]}]",
+            withLinks.Frames[^1].Json, StringComparison.Ordinal);
+        Assert.Contains("\"products\":[]", without.Frames[^1].Json, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task An_error_frame_keeps_the_kind_and_hides_the_message()
     {
         // The message can carry a deployment name or an Azure error body.

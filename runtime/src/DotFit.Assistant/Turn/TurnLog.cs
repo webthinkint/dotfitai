@@ -87,6 +87,15 @@ public sealed record TurnLog
     [JsonPropertyName("families")] public required IReadOnlyList<string> Families { get; init; }
 
     /// <summary>
+    /// The families the answer linked as products it recommends, in order, and
+    /// the links that resolved to no current product: together, whether the
+    /// model writes its product links and gets the part numbers right.
+    /// </summary>
+    [JsonPropertyName("products")] public IReadOnlyList<string> Products { get; init; } = [];
+
+    [JsonPropertyName("product_links_unresolved")] public int UnresolvedProductLinks { get; init; }
+
+    /// <summary>
     /// Reference id to version, for every reference the turn read; absent when
     /// it read none. References are uncited, so this is the only record of which
     /// revision of dotFIT's guidance shaped an answer.
@@ -170,6 +179,8 @@ public sealed record TurnLog
             CitedCount = result.CitedSources.Count,
             CitedAuthorities = [.. citedAuthorities],
             Families = result.Families,
+            Products = [.. result.Products.Select(p => p.Family)],
+            UnresolvedProductLinks = result.UnresolvedProductLinks,
             References = ReferencesRead(result.ToolCalls),
             PromptVariant = prompt?.Variant,
             PromptVersion = prompt?.Version,

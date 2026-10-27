@@ -1,6 +1,6 @@
 # The conversational smoke set
 
-43 written items in `conversations.jsonl`, some of them multi-turn. Run them
+52 written items in `conversations.jsonl`, some of them multi-turn. Run them
 live against Azure and read the transcripts.
 
 ```bash
@@ -41,6 +41,7 @@ transcript without booking anyone's afternoon.
 | `adversarial` | S-070, S-071 | The rules do not move because someone in the conversation says they have. |
 | `retrieval` | S-080…S-082 | Whether `fetch` gets used when a source is truncated, whether podcast material stays attributed rather than becoming a claim, and whether the customer's spelling reaches the podcast. |
 | `program` | S-090…S-095 | Supplement programs from the program guide. S-090 is the vague ask: the basics asked in one short reply, no program yet, not a questionnaire. S-091 and S-092 test the guide's exclusions (vegan, caffeine-sensitive); S-093 carries a medication across turns; S-094 is the overlap check with real arithmetic; S-095 is ask-first-then-refine across three turns. |
+| `menu` | S-110…S-118 | Menus the assistant builds from the menu guide. S-110 is the vague ask; S-111 is the full case with the calorie arithmetic to check; S-112 refines a menu across turns, through the history; S-113 is vegan; S-114 (an extreme target), S-115 (a teenager) and S-116 (pregnancy) are the guide's limits; S-117 is a menu and a program in one turn; S-118 is a given target and a week. Check the product links in the smoke line: every recommended product linked, nothing excluded linked, no unresolved links. |
 
 ## Reading a transcript
 

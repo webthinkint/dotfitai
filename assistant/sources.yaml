@@ -43,6 +43,10 @@ references:
     title: Customer service FAQ
     use_when: questions about how the dotFIT website and account work; ordering, shipping, recurring orders, returns and refunds; trainer and admin tools; certification; athlete sponsorship; club partnerships
     policy_figures: true
+  menu-guide:
+    file: references/menu-guide.md
+    title: Menu guide
+    use_when: requests for a meal plan, a menu, a day of eating, a calorie target or macros for a goal, and changes to a menu already given
 
 # When sources disagree, the first one listed for the topic wins. Ids are the
 # corpora and references above.
@@ -51,4 +55,4 @@ authority:
   science and dosing: [pdsrg, qa, podcast]
   supplement programs: [program-guide]
   policy and how-to: [customer-service-faq, infopage]
-  menus: [menu_desc]
+  menus: [menu-guide, menu_desc]

@@ -34,7 +34,8 @@ Two kinds of source, both listed in `assistant/sources.yaml`:
   and label as printed from the website export; a product with no script
   keeps the export's copy.
 - **References**, dotFIT's own guidance read whole or by section and never
-  cited: the supplement program guide and the customer-service FAQ.
+  cited: the supplement program guide, the menu guide and the customer-service
+  FAQ.
 
 Each numbered source carries an authority tier (1 product copy and website
 pages, 2 PDSRG, 3 customer Q&A, 4 podcast, 5 menus), and tiers 1–2 are tagged
@@ -149,6 +150,14 @@ number queues a `source` event, and the loop drains the queue before yielding
 any text, so a client always holds `[3]` before text citing it arrives. A
 tool's stage event is drained while the tool is still running, so "looking up
 X" reaches the caller during the lookup.
+
+**Product links** (`ProductLinks`): the model links a product it recommends,
+or that the answer is about, as `[Name](dotfit:product/<part no>)`, and leaves
+one it excludes unlinked, since a scan for names cannot tell "take X" from
+"leave out X". The links are read off the finished answer, which is never
+changed; each part number resolves through the alias table to its current
+family, and the result's `products` lists those families with their part
+numbers. A link to no current product is counted in the turn log, not listed.
 
 ## The system prompt
 

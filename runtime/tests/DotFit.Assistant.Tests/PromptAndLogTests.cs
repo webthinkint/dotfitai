@@ -115,6 +115,18 @@ public class TurnLogTests
     }
 
     [Fact]
+    public void Linked_products_are_logged_as_families_with_the_unresolved_count()
+    {
+        TurnLog log = TurnLog.From(
+            Result() with { Products = [new ProductRef("ExampleFormula", ["9001", "9002"])], UnresolvedProductLinks = 1 },
+            TurnLog.OutcomeAnswered);
+        string line = log.ToJsonLine();
+
+        Assert.Contains("\"products\":[\"ExampleFormula\"]", line, StringComparison.Ordinal);
+        Assert.Contains("\"product_links_unresolved\":1", line, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void The_line_carries_the_cost_block_with_its_sheet()
     {
         // The money is only interpretable against the prices that produced it,

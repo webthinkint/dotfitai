@@ -304,6 +304,7 @@ public sealed class DotFitAssistant : IDotFitAssistant
         // closing text is what ends this loop.
         TurnCost cost = meter.Cost(_prices);
         bool chatReported = meter.ChatReported;
+        (IReadOnlyList<ProductRef> products, int unresolvedLinks) = ProductLinks.In(answerText, _aliases);
 
         yield return new TurnResultEvent(new TurnResult
         {
@@ -317,6 +318,8 @@ public sealed class DotFitAssistant : IDotFitAssistant
             OutputTokens = chatReported ? cost.ChatOutputTokens : null,
             CitedSources = ledger.CitedIn(answerText),
             Families = tools.Families,
+            Products = products,
+            UnresolvedProductLinks = unresolvedLinks,
             Cost = cost,
         });
     }

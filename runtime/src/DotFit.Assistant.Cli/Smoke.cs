@@ -217,7 +217,10 @@ internal static class Smoke
             }
             doc.AppendLine(
                 $"*{result.ToolCalls.Count} tool calls, {result.Sources.Count} sources, " +
-                $"{result.CitedSources.Count} cited, first delta {result.FirstDeltaMs} ms, " +
+                $"{result.CitedSources.Count} cited, " +
+                $"{(result.Products.Count > 0 ? $"products {string.Join(", ", result.Products.Select(p => p.Family))}, " : "")}" +
+                $"{(result.UnresolvedProductLinks > 0 ? $"**{result.UnresolvedProductLinks} unresolved product links**, " : "")}" +
+                $"first delta {result.FirstDeltaMs} ms, " +
                 $"total {result.TotalMs} ms" +
                 $"{(result.BudgetExhausted ? ", **budget exhausted**" : "")}*");
             doc.AppendLine();

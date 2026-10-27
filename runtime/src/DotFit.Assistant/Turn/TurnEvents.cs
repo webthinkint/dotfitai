@@ -57,8 +57,8 @@ public sealed record SourceRef
     /// the wire is one the corpus attests. It is an over-approximation of
     /// "products the answer mentioned" — a cited document may carry tags the
     /// answer never discussed, and untagged documents (some infopage, menu)
-    /// carry none. The caller unions over <c>cited</c> if it wants the turn's
-    /// products; we send no turn-level union by decision.
+    /// carry none. The products the answer recommends are
+    /// <see cref="TurnResult.Products"/>, read off its product links.
     /// </summary>
     public IReadOnlyList<string> PartNos { get; init; } = [];
 }
@@ -102,6 +102,15 @@ public sealed record TurnResult
     /// not the customer's, which is what makes it safe to log.
     /// </summary>
     public required IReadOnlyList<string> Families { get; init; }
+
+    /// <summary>
+    /// The products the answer links (<see cref="ProductLinks"/>), in order.
+    /// Empty when it links none, and on the service's own-timeout handoff.
+    /// </summary>
+    public IReadOnlyList<ProductRef> Products { get; init; } = [];
+
+    /// <summary>Product links whose part number resolved to no current product.</summary>
+    public int UnresolvedProductLinks { get; init; }
 
     /// <summary>
     /// What the turn cost, counts and money together, priced against the

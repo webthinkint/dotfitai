@@ -120,7 +120,7 @@ Event names are the contract. Key on them; do not parse the prose.
 | `search` | Searching dotFIT's material. | The query text the assistant chose. |
 | `fetch` | Reading the rest of a document. | A document id. |
 | `product` | Reading a product's approved copy. | The product name it asked for. |
-| `guide` | Reading dotFIT's own guidance: the supplement program guide or the customer-service FAQ. Produces no `source`. | The guidance's title, e.g. `Customer service FAQ`. |
+| `guide` | Reading dotFIT's own guidance: the supplement program guide, the menu guide or the customer-service FAQ. Produces no `source`. | The guidance's title, e.g. `Customer service FAQ`. |
 | `answer` | The answer has started streaming. | — |
 
 `detail` is the conversational texture that replaces a progress bar. For
@@ -161,15 +161,45 @@ copy differently from one to a podcast.
 source with — empty for sources with no product tag (some website pages,
 menus). It is index metadata, not something the model wrote, so a SKU on the
 wire is one the catalog attests. Read it as "this source is about these SKUs",
-a mild over-approximation of "the answer discussed them". If you want "the
-products this answer leaned on", union `part_nos` over the sources listed in
-`cited`; we deliberately do not send that union.
+a mild over-approximation of "the answer discussed them". For the products the
+answer recommends, use `result.products` (below), not a union over `cited`.
 
 **Answers from dotFIT's own guidance carry no number.** When the assistant
-answers from the program guide or the customer-service FAQ (a `guide` stage),
-it uses that guidance in its own words and cites nothing for it. An answer about
-returns or a supplement program can therefore arrive with an empty `cited` list;
-that is correct.
+answers from the program guide, the menu guide or the customer-service FAQ (a
+`guide` stage), it uses that guidance in its own words and cites nothing for it.
+An answer about returns, a supplement program or a menu can therefore arrive
+with an empty `cited` list; that is correct.
+
+### Product links, and `products`
+
+When the assistant recommends a dotFIT product, or the answer is about one, it
+links the product's name the first time it names it: a Markdown link whose
+target is `dotfit:product/` and one of the product's part numbers.
+
+```
+Add [WheySmooth](dotfit:product/1369) after training.
+```
+
+A product it advises against or leaves out ("leave out ThermAccel, it contains
+caffeine") is named without a link, so a link means "recommended here", not
+"mentioned". This is what lets a program or a menu show cards: those answers
+often cite nothing, because their product choices come from dotFIT's own
+guidance.
+
+`result.products` lists the linked products, one entry per product in the order
+of its first link, with every part number it sells under:
+
+```json
+"products": [{"family": "WheySmooth", "part_nos": ["1369", "1370", "1374", "1375", "1391", "1392", "1399"]}]
+```
+
+Every link is checked against the current catalog. A link whose number is no
+current product stays in the text but gets no entry, so **key your cards on
+`products`**: render a link whose part number is in an entry's `part_nos` as that
+product's card or page link, and any other `dotfit:product/` link as its plain
+name. A Markdown renderer that strips unknown link schemes leaves the plain name
+too, which reads fine but shows no card. `products` is always present: empty
+when the answer links nothing, and on the timeout handoff.
 
 ### The `result` payload
 
@@ -183,6 +213,9 @@ that is correct.
      "part_nos": ["2101", "2102"]}
   ],
   "cited": [1],
+  "products": [
+    {"family": "Creatine Monohydrate", "part_nos": ["1200", "1227"]}
+  ],
   "tool_calls": 1,
   "budget_exhausted": false,
   "first_delta_ms": 4850,
@@ -255,6 +288,11 @@ Shapes that are ordinary answers, not separate outcomes:
   order or subscription, a billing problem — the assistant cannot act on an
   account. It says so in a sentence, says where in My Account the customer can
   do it themselves when that applies, and points them at dotFIT support.
+- **A menu or meal plan.** A day of meals the assistant builds for the
+  customer, sized to a calorie target it estimates from what they said (or the
+  one they gave) and refined over the next turns. It usually cites nothing; the
+  dotFIT products in it arrive as product links. Before the first menu it may
+  ask for the customer's goal and weight, in one short reply.
 - **A product price.** The assistant never states what a product costs, because
   pricing is per customer; it points the customer to the price shown on the
   website or in their account.

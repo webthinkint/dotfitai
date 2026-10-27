@@ -55,6 +55,21 @@ public class LoopTests
     }
 
     [Fact]
+    public async Task The_result_carries_the_products_the_answer_links()
+    {
+        var client = new ScriptedChatClient(ScriptedChatClient.Text(
+            "Try [ExampleFormula](dotfit:product/9001) and skip [Gone](dotfit:product/4242)."));
+        DotFitAssistant assistant = Build(client, out _);
+
+        List<TurnEvent> events = await RunAsync(assistant, new AskRequest { Question = "what should I take?" });
+        TurnResult result = events.OfType<TurnResultEvent>().Single().Result;
+
+        Assert.Equal(["ExampleFormula"], result.Products.Select(p => p.Family));
+        Assert.Equal(1, result.UnresolvedProductLinks);
+        Assert.Contains("(dotfit:product/9001)", result.AnswerText, StringComparison.Ordinal);   // text untouched
+    }
+
+    [Fact]
     public async Task Every_source_is_published_before_any_delta_that_could_cite_it()
     {
         // The ordering contract, and the reason [n] survives live streaming.

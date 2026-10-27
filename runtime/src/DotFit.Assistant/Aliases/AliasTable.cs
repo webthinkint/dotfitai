@@ -73,6 +73,7 @@ public sealed class AliasTable
     public IReadOnlyList<Discontinued> DiscontinuedProducts { get; }
 
     private readonly Dictionary<string, AliasFamily> _familiesByNorm = new(StringComparer.Ordinal);
+    private readonly Dictionary<int, AliasFamily> _familiesByPartNo = [];
     private readonly Dictionary<string, AliasEntry> _deterministicByNorm = new(StringComparer.Ordinal);
     private readonly Dictionary<string, AliasEntry> _llmOnlyByNorm = new(StringComparer.Ordinal);
     private readonly Dictionary<string, LegacyRename> _renamesByNorm = new(StringComparer.Ordinal);
@@ -91,6 +92,8 @@ public sealed class AliasTable
         DiscontinuedProducts = dto.Discontinued ?? [];
 
         foreach (var f in Families) _familiesByNorm[Norm(f.Family)] = f;
+        foreach (var f in Families)
+            foreach (int pn in f.PartNos) _familiesByPartNo[pn] = f;
         foreach (var a in DeterministicAliases) _deterministicByNorm[Norm(a.Token)] = a;
         foreach (var a in LlmOnlyAliases) _llmOnlyByNorm[Norm(a.Token)] = a;
         foreach (var r in LegacyRenames) _renamesByNorm[Norm(r.Deprecated)] = r;
@@ -128,6 +131,12 @@ public sealed class AliasTable
         }
         return sb.ToString();
     }
+
+    /// <summary>
+    /// The current product family a part number belongs to, or null. Families
+    /// are the current catalog, so a discontinued or mistyped part number has none.
+    /// </summary>
+    public AliasFamily? FamilyOfPartNo(int partNo) => _familiesByPartNo.GetValueOrDefault(partNo);
 
     public static AliasTable Load(string path)
     {

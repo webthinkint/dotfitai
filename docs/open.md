@@ -64,6 +64,13 @@ is closed; the commit message records why.
   their answers go into the script's `CORRECTIONS` or a new document, and the
   prompt rule goes once none remain. EnergyAid is in the document but skipped
   until it is on the website, and Sleep Aid's overview is not written yet.
+- **The menu guide awaits the owners.** Its calorie formula, floors, youth and
+  medical rules, shake limit and the gluten- and lactose-free product question
+  are proposals; `docs/menu-guide-review.md` lists each.
+- **Product links are unmeasured.** Whether the model links every product it
+  recommends, only those, and with a real part number is unread in any smoke
+  run. The turn log's `products` and `product_links_unresolved`, and the smoke
+  table's product list, show it.
 - **Pre-tool narration streams to the customer.** If the model writes before
   calling a tool, that text streams. Decide from real transcripts whether it
   reads as conversation or noise.

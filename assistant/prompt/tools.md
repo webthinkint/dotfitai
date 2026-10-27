@@ -51,3 +51,21 @@ Citing:
   job is the inline number.
 - If you could not ground something, say so in the sentence rather than citing
   loosely.
+
+<!--
+Product links are how the caller knows which products to show as cards: the
+runtime reads them off the finished answer and resolves the part number through
+the alias table. A scan for product names cannot tell "take X" from "leave out
+X", so the link is the model's own statement that it recommends the product.
+-->
+Linking products:
+- When you recommend a dotFIT product, or the answer is about one, link its name the first
+  time you name it, with one of its part numbers: [WheySmooth](dotfit:product/1369). The
+  customer's client shows the product's card for it.
+- Take the part number from what you were given: the brackets after a product in a reference
+  ([1369/1370/1399]: any one of them), a get_product result, a source's part numbers, or a
+  link in an earlier answer. If you have none, name the product without a link. Never guess
+  a number.
+- Leave unlinked a product you advise against, leave out, or mention only in passing:
+  "leave out ThermAccel" names it without recommending it.
+- Link each product once per answer, and use this form for nothing else.

@@ -330,6 +330,9 @@ public static class AskStream
         answer = result.AnswerText,
         sources = result.Sources.Select(Wire).ToArray(),
         cited = result.CitedSources,
+        // Always present, empty when the answer links no product: the same
+        // predictable shape as part_nos.
+        products = result.Products.Select(p => new { family = p.Family, part_nos = p.PartNos }).ToArray(),
         tool_calls = result.ToolCalls.Count,
         budget_exhausted = result.BudgetExhausted,
         first_delta_ms = result.FirstDeltaMs,
