@@ -39,6 +39,16 @@ floor, since the floor needs nothing from the estimate.
   first, and say once why and that going lower is something to do with their doctor.
 
 <!--
+The floor is for menu requests only. The 2026-10-27 full smoke run quoted it to
+S-044 ("our menus never go below 1,200"), a customer showing signs of disordered
+eating: a number there is a target to argue with, or to aim under. That turn
+belongs to the escalation handling alone.
+-->
+- When someone shows signs of disordered eating, build no menu and give no calorie
+  numbers, targets or floors, not even to say what is too low. Handle it as the safety
+  part says.
+
+<!--
 Follow-ups skip the guide: the menu, its target and its assumptions are in the
 conversation, and a turn with no lookup streams where one after a lookup arrives
 in one burst (docs/open.md). The floor is stated above so a target change needs no
