@@ -66,7 +66,8 @@ internal static class Smoke
     }
 
     public static async Task<int> RunAsync(
-        IDotFitAssistant assistant, string setPath, string outDir, string? tier, AssembledPrompt? prompt = null)
+        IDotFitAssistant assistant, string setPath, string outDir, string? tier, AssembledPrompt? prompt = null,
+        string? effort = null)
     {
         IReadOnlyList<SmokeItem> items = Load(setPath);
         if (tier is not null)
@@ -87,7 +88,10 @@ internal static class Smoke
         header.AppendLine();
         if (prompt is not null)
         {
-            header.AppendLine($"Prompt variant `{prompt.Variant}`, version `{prompt.Version}`.");
+            // The effort is in the header so two runs that differ only in it
+            // can be told apart.
+            header.AppendLine($"Prompt variant `{prompt.Variant}`, version `{prompt.Version}`, " +
+                              $"effort `{effort ?? "model default"}`.");
             header.AppendLine();
         }
         header.AppendLine(

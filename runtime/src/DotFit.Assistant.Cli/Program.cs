@@ -103,7 +103,7 @@ internal static class Program
                 AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt, registry: registry),
                 flags.SmokeSet ?? DefaultPath(options, "assistant", "smoke", "conversations.jsonl"),
                 flags.OutDir ?? DefaultPath(options, "assistant", "smoke", "runs"),
-                flags.Tier, prompt).ConfigureAwait(false),
+                flags.Tier, prompt, assistantOptions.Effort).ConfigureAwait(false),
             _ => throw new CliUsageException($"unhandled verb '{command.Verb}'"),
         };
     }

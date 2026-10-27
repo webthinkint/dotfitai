@@ -36,6 +36,7 @@ Returns `200` with the service's configuration, hardening posture and budgets:
   "max_tool_calls": 8,
   "turn_timeout_seconds": 60,
   "default_top": 6,
+  "effort": null,
   "price_sheet": "builtin-2026-09",
   "price_currency": "USD",
   "price_chat_usd_per_1m": {"input": 1.25, "cached_input": 0.125, "output": 10},
@@ -47,7 +48,9 @@ Returns `200` with the service's configuration, hardening posture and budgets:
 
 `prompt_variant` and `prompt_version` name the exact system prompt the service
 is running; the version changes whenever its text does. If you report an odd
-answer to us, the `prompt_version` at the time is useful.
+answer to us, the `prompt_version` at the time is useful. `effort` is how hard
+the model is set to think before it writes (`low` to `max`); `null` means the
+deployment's own default.
 
 The `price_*` fields are the sheet behind `result.cost` (see below), exposed so
 anyone can check what a turn is priced against. `price_search_usd_per_1k` is a

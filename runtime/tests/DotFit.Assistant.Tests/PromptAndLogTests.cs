@@ -247,6 +247,29 @@ public class AssistantOptionsTests
     }
 
     [Fact]
+    public void Effort_is_read_from_the_env_and_unset_leaves_the_model_default()
+    {
+        Assert.Null(AssistantOptions.FromValues(new Dictionary<string, string>()).Effort);
+        Assert.Equal("medium", AssistantOptions.FromValues(new Dictionary<string, string>
+        {
+            [AssistantOptions.EffortVar] = " Medium ",
+        }).Effort);
+        Assert.Throws<EnvFile.EnvFileException>(() => AssistantOptions.FromValues(new Dictionary<string, string>
+        {
+            [AssistantOptions.EffortVar] = "turbo",
+        }));
+    }
+
+    [Fact]
+    public void Every_effort_level_maps_to_an_sdk_value()
+    {
+        // A level the parser accepts but the SDK mapping lacks would throw on
+        // the first Claude turn, not at boot.
+        foreach (string level in AssistantOptions.EffortLevels)
+            AssistantFactory.ClaudeEffort(level);
+    }
+
+    [Fact]
     public void A_bad_override_names_the_variable_and_not_the_value()
     {
         EnvFile.EnvFileException error = Assert.Throws<EnvFile.EnvFileException>(() =>

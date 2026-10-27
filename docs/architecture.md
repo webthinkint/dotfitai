@@ -95,7 +95,8 @@ any other through the Responses API. The Responses API holds a Claude answer
 back and releases it in one burst; Messages streams it. Messages caches only
 what is marked, so a Claude request marks the system prompt (every turn reads
 the tools and prompt from cache) and its last block (a turn's later round trips
-read its earlier ones).
+read its earlier ones). `DOTFIT_ASSISTANT_EFFORT` sets a Claude request's
+effort; unset leaves the deployment's default.
 
 - **No pre-check, no rewrite, no post-check.** Small talk needs no special case:
   a greeting is a turn on which no tool is called.

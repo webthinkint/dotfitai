@@ -21,6 +21,10 @@ public sealed record AssistantOptions
     public const string TurnTimeoutVar = "DOTFIT_ASSISTANT_TURN_TIMEOUT_SECONDS";
     public const string DefaultTopVar = "DOTFIT_ASSISTANT_DEFAULT_TOP";
     public const string PromptVariantVar = "DOTFIT_ASSISTANT_PROMPT_VARIANT";
+    public const string EffortVar = "DOTFIT_ASSISTANT_EFFORT";
+
+    /// <summary>The effort levels a Claude deployment accepts, lowest first.</summary>
+    public static readonly IReadOnlyList<string> EffortLevels = ["low", "medium", "high", "xhigh", "max"];
 
     /// <summary>
     /// Tool calls allowed in one turn. On exhaustion the model is not cut
@@ -96,6 +100,15 @@ public sealed record AssistantOptions
     /// </summary>
     public string PromptVariant { get; init; } = Prompting.PromptTemplate.DefaultVariant;
 
+    /// <summary>
+    /// How hard a Claude deployment thinks before it writes, one of
+    /// <see cref="EffortLevels"/>; null leaves the model's own default. Lower
+    /// effort trades depth for time to the first word, which is why it is an
+    /// option to compare on the smoke set rather than a constant. The Responses
+    /// path ignores it.
+    /// </summary>
+    public string? Effort { get; init; }
+
     /// <summary>Read the optional overrides out of an already-parsed .env.</summary>
     public static AssistantOptions FromValues(IReadOnlyDictionary<string, string> values)
     {
@@ -123,11 +136,23 @@ public sealed record AssistantOptions
             PromptVariant = values.TryGetValue(PromptVariantVar, out string? variant) && variant.Trim().Length > 0
                 ? variant.Trim()
                 : defaults.PromptVariant,
+            Effort = EffortValue(values),
         };
         if (options.DefaultTop > options.MaxTop)
             throw new EnvFile.EnvFileException(
                 $"{EnvFile.FileName}: {DefaultTopVar} must not exceed {options.MaxTop}");
         return options;
+    }
+
+    private static string? EffortValue(IReadOnlyDictionary<string, string> values)
+    {
+        if (!values.TryGetValue(EffortVar, out string? raw) || raw.Trim().Length == 0)
+            return null;
+        string effort = raw.Trim().ToLowerInvariant();
+        if (!EffortLevels.Contains(effort))
+            throw new EnvFile.EnvFileException(
+                $"{EnvFile.FileName}: {EffortVar} must be one of {string.Join(", ", EffortLevels)}");
+        return effort;
     }
 
     /// <summary>Load beside the <c>.env</c> the rest of the runtime reads.</summary>
@@ -136,5 +161,6 @@ public sealed record AssistantOptions
 
     public override string ToString() =>
         $"AssistantOptions(max_tool_calls={MaxToolCalls}, turn_timeout={TurnTimeout.TotalSeconds:0}s, " +
-        $"default_top={DefaultTop}, max_top={MaxTop}, max_source_chars={MaxSourceChars}, prompt_variant={PromptVariant})";
+        $"default_top={DefaultTop}, max_top={MaxTop}, max_source_chars={MaxSourceChars}, prompt_variant={PromptVariant}, " +
+        $"effort={Effort ?? "model default"})";
 }

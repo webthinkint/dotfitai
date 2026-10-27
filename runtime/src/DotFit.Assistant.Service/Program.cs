@@ -98,6 +98,8 @@ app.MapGet("/healthz", (RuntimeOptions opts, ServiceOptions svc, AssistantOption
     max_tool_calls = agent.MaxToolCalls,
     turn_timeout_seconds = (int)agent.TurnTimeout.TotalSeconds,
     default_top = agent.DefaultTop,
+    // Null when unset: the deployment's own default.
+    effort = agent.Effort,
     // The prices behind `result.cost`, said out loud so an operator can check
     // what a turn is being priced against without asking anyone. The search
     // rate is a placeholder until real billing data replaces it — the sheet

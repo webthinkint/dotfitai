@@ -62,11 +62,12 @@ public static class AssistantFactory
     /// </summary>
     // OPENAI001: the SDK still marks the Responses surface experimental.
 #pragma warning disable OPENAI001
-    public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt)
+    public static AIAgent CreateAgent(
+        RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt, string? effort = null)
     {
         string deployment = options.RequireChatDeployment();
         if (IsClaude(deployment))
-            return CreateClaudeClient(options).AsIChatClient(deployment).AsAIAgent(ClaudeAgentOptions(prompt.Text, deployment));
+            return CreateClaudeClient(options).AsIChatClient(deployment).AsAIAgent(ClaudeAgentOptions(prompt.Text, deployment, effort));
         return client.GetResponsesClient().AsAIAgent(AgentOptions(prompt.Text), model: deployment);
     }
 
@@ -117,7 +118,7 @@ public static class AssistantFactory
     /// sends unmarked. Thinking is left at the model's default, as on the
     /// Responses path. Messages stores nothing, so there is no storage switch.
     /// </summary>
-    public static ChatClientAgentOptions ClaudeAgentOptions(string instructions, string deployment) =>
+    public static ChatClientAgentOptions ClaudeAgentOptions(string instructions, string deployment, string? effort = null) =>
         BaseAgentOptions(null, _ => new MessageCreateParams
         {
             Model = deployment,
@@ -128,7 +129,19 @@ public static class AssistantFactory
                 new() { Text = instructions, CacheControl = new CacheControlEphemeral() },
             },
             CacheControl = new CacheControlEphemeral(),
+            OutputConfig = effort is null ? null : new OutputConfig { Effort = ClaudeEffort(effort) },
         });
+
+    /// <summary>An <see cref="AssistantOptions.EffortLevels"/> name as the SDK spells it.</summary>
+    public static Effort ClaudeEffort(string effort) => effort switch
+    {
+        "low" => Effort.Low,
+        "medium" => Effort.Medium,
+        "high" => Effort.High,
+        "xhigh" => Effort.Xhigh,
+        "max" => Effort.Max,
+        _ => throw new ArgumentOutOfRangeException(nameof(effort), effort, "not an effort level"),
+    };
 
     private static ChatClientAgentOptions BaseAgentOptions(
         string? instructions, Func<IChatClient, object?> rawRepresentation) => new()
@@ -173,7 +186,7 @@ public static class AssistantFactory
         SearchClient searchClient = AssistantFactory.CreateSearchClient(options);
 
         return new DotFitAssistant(
-            agent: CreateAgent(options, openAi, prompt),
+            agent: CreateAgent(options, openAi, prompt, assistantOptions.Effort),
             search: new AzureKnowledgeSearch(
                 openAi, options.RequireEmbeddingDeployment(), searchClient, settings),
             store: new AzureDocumentStore(searchClient, settings),
