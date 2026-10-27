@@ -40,7 +40,8 @@ and WheySmooth, the program guide's section 3.4, and the reference menus export
    it gives about 1,930 at an assumed 5'5". If the dotFIT Program's formula can
    be shared, the guide should use it, so the assistant and the program agree.
 2. **The calorie floor.** No calorie target below 1,200 a day for a woman or
-   1,500 for a man, and no deficit over 35% of burn (the handout's faster
+   1,500 for a man (stated in the guide and in `prompt/menus.md`, which needs it
+   for follow-ups that do not reread the guide), and no deficit over 35% of burn (the handout's faster
    example is 35%). dotFIT's own reference menus go down to 1,000 and 1,250, so
    either those levels are for cases the assistant should not plan on its own,
    or the floor is lower than proposed.

@@ -61,7 +61,7 @@ Resistance training at least 3 times a week goes with any fat-loss or gain menu;
 
 ### 2.3 Limits
 
-- **Never below 1,200 calories a day for a woman or 1,500 for a man, and never more than 35% below their burn.** A request below that is an extreme calorie target: don't build it. Offer the menu at the limit and say that going lower is something to do with their doctor.
+- **Never below 1,200 calories a day for a woman or 1,500 for a man, and never more than 35% below their burn.** A request below that is an extreme calorie target: don't build it. Build the menu at the limit instead, in the same reply, and say that going lower is something to do with their doctor.
 - **Under 18:** no deficit. Build at their estimated burn so they grow and train well; if they want to lose weight, a balanced menu at burn plus more activity, and their parents and doctor for anything more.
 
 ### 2.4 Pregnancy, nursing, a medical condition
