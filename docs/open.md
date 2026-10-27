@@ -31,12 +31,18 @@ is closed; the commit message records why.
   unattributed is each round trip's share between the deployment's own
   time-to-first-token, reasoning and prompt size; neither the turn log nor
   the smoke table records per-round-trip timing.
-- **Answers don't stream on the Claude deployment.** On `claude-sonnet-5-5`
-  through the Responses API, the whole answer arrives in one burst: median 20 ms
-  from first to last delta across the 2026-10-27 smoke run, against 662 ms on
-  `gpt-6-sol`. The loop forwards each update as it arrives, so the buffering is
-  upstream. The candidate fix is calling Claude through Foundry's
-  `/anthropic/v1/messages` endpoint.
+- **A Claude answer written after a tool result arrives in one burst.** On
+  `claude-sonnet-5-5` an answer the model writes without a lookup streams
+  (first text ~1 s on the Messages endpoint, against ~6 s through the Responses
+  API, which buffers every Claude answer). An answer written after a tool result
+  arrives in one burst on both endpoints: all deltas within ~40 ms, first text
+  ~5.5 s after the round trip starts. Probed on 2026-10-27 against the bare
+  endpoints, so it is upstream of the loop; `thinking.display` `updates` or
+  `summarized`, `between_tools` and low effort all left it unchanged. The likely
+  cause is Sonnet 5.5 returning text between tool calls as progress-update
+  thinking blocks, which needs the text finished before it can be classified.
+  Unconfirmed whether Foundry or the model holds it; a first-party API key
+  would settle that.
 - **The turn budgets are estimates** (8 tool calls, 60 s). Replace them with the
   distribution the turn log shows.
 - **Tool results are not replayed**, so a follow-up sometimes searches again.

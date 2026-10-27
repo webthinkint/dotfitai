@@ -88,6 +88,14 @@ four tools. The model may call tools any number of times, in any order, in
 parallel, and a round trip's calls run concurrently; results come back as
 numbered sources; then it writes the answer, which streams as it is generated.
 
+The deployment's name picks the wire: a `claude*` deployment is called through
+the Foundry resource's Anthropic Messages endpoint (`/anthropic/v1/messages`),
+any other through the Responses API. The Responses API holds a Claude answer
+back and releases it in one burst; Messages streams it. Messages caches only
+what is marked, so a Claude request marks the system prompt (every turn reads
+the tools and prompt from cache) and its last block (a turn's later round trips
+read its earlier ones).
+
 - **No pre-check, no rewrite, no post-check.** Small talk needs no special case:
   a greeting is a turn on which no tool is called.
 - **History** is normalized in code: the most recent 8 turns, the first 1,000
@@ -189,7 +197,8 @@ says so at startup and `/healthz` reports it.
 subset, embedding calls and tokens, index queries) priced against the
 `DOTFIT_PRICE_*` sheet in `.env`. Every cost figure names its sheet id; when a
 price changes, the sheet id changes in the same edit. The search rate is a
-placeholder.
+placeholder. A Claude deployment's cache writes are priced as plain input,
+though Anthropic bills them above it.
 
 ## Configuration
 

@@ -1,4 +1,6 @@
 using System.ClientModel;
+using Anthropic.Foundry;
+using Anthropic.Models.Messages;
 using Azure;
 using DotFit.Assistant.Cost;
 using Azure.AI.OpenAI;
@@ -23,6 +25,14 @@ namespace DotFit.Assistant;
 /// One chat deployment runs the loop (<c>AZURE_OPENAI_CHAT_DEPLOYMENT</c>) and
 /// <c>AZURE_OPENAI_EMBEDDING_DEPLOYMENT</c> embeds queries; nothing else calls
 /// a model.
+///
+/// The chat deployment's name picks the wire. A <c>claude*</c> deployment is
+/// called through the resource's Anthropic Messages endpoint
+/// (<c>/anthropic/v1/messages</c>); every other deployment through the
+/// Responses API. Measured on <c>claude-sonnet-5-5</c>: the Responses API
+/// holds a Claude answer back and releases it in one burst, so a turn with no
+/// lookup showed its first word after ~6 s instead of ~1 s; on Messages it
+/// streams. Both surfaces take the same key and the same resource.
 /// </summary>
 public static class AssistantFactory
 {
@@ -52,14 +62,76 @@ public static class AssistantFactory
     /// </summary>
     // OPENAI001: the SDK still marks the Responses surface experimental.
 #pragma warning disable OPENAI001
-    public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt) =>
-        client.GetResponsesClient().AsAIAgent(AgentOptions(prompt.Text), model: options.RequireChatDeployment());
+    public static AIAgent CreateAgent(RuntimeOptions options, AzureOpenAIClient client, AssembledPrompt prompt)
+    {
+        string deployment = options.RequireChatDeployment();
+        if (IsClaude(deployment))
+            return CreateClaudeClient(options).AsIChatClient(deployment).AsAIAgent(ClaudeAgentOptions(prompt.Text, deployment));
+        return client.GetResponsesClient().AsAIAgent(AgentOptions(prompt.Text), model: deployment);
+    }
+
+    /// <summary>Whether a deployment is called through the Anthropic Messages endpoint.</summary>
+    public static bool IsClaude(string deployment) =>
+        deployment.StartsWith("claude", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The Foundry client for the Messages endpoint. It addresses the resource
+    /// by name, so the name is read off <c>AZURE_OPENAI_ENDPOINT</c>; a classic
+    /// <c>*.openai.azure.com</c> endpoint serves no Claude and fails the boot.
+    /// </summary>
+    public static AnthropicFoundryClient CreateClaudeClient(RuntimeOptions options)
+    {
+        Uri endpoint = options.RequireOpenAiEndpoint();
+        const string suffix = ".services.ai.azure.com";
+        if (!endpoint.Host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(
+                $"{RuntimeOptions.OpenAiEndpointVar} must be a Foundry resource (https://<name>{suffix}) " +
+                "to call a claude deployment.");
+        string resource = endpoint.Host[..^suffix.Length];
+        return new AnthropicFoundryClient(new AnthropicFoundryApiKeyCredentials(options.RequireOpenAiApiKey(), resource));
+    }
 
     /// <summary>
     /// The agent's options, apart from the client, so the loop tests run the
     /// same configuration production does.
     /// </summary>
-    public static ChatClientAgentOptions AgentOptions(string instructions) => new()
+    public static ChatClientAgentOptions AgentOptions(string instructions) => BaseAgentOptions(instructions,
+        // Responses API: reasoning deployments reject tools on Chat Completions.
+        // Storage off: a stored response would keep the customer's question on Azure.
+        _ => new CreateResponseOptions { StoredOutputEnabled = false });
+
+    /// <summary>
+    /// The output cap for a Claude round trip. Messages requires one, and
+    /// thinking counts against it; this is room for both, not a target.
+    /// </summary>
+    public const int ClaudeMaxOutputTokens = 32_000;
+
+    /// <summary>
+    /// <see cref="AgentOptions"/> for the Messages endpoint, which caches
+    /// nothing unless asked, where the Responses API caches by itself. Two
+    /// cache markers: one on the system prompt, so every turn reads the tools
+    /// and the prompt from cache whatever the question, and the top-level one,
+    /// which caches through the last block, so a turn's later round trips read
+    /// its earlier ones. The prompt therefore travels here as a marked system
+    /// block, not as <see cref="ChatOptions.Instructions"/>, which the adapter
+    /// sends unmarked. Thinking is left at the model's default, as on the
+    /// Responses path. Messages stores nothing, so there is no storage switch.
+    /// </summary>
+    public static ChatClientAgentOptions ClaudeAgentOptions(string instructions, string deployment) =>
+        BaseAgentOptions(null, _ => new MessageCreateParams
+        {
+            Model = deployment,
+            MaxTokens = ClaudeMaxOutputTokens,
+            Messages = [],
+            System = new List<TextBlockParam>
+            {
+                new() { Text = instructions, CacheControl = new CacheControlEphemeral() },
+            },
+            CacheControl = new CacheControlEphemeral(),
+        });
+
+    private static ChatClientAgentOptions BaseAgentOptions(
+        string? instructions, Func<IChatClient, object?> rawRepresentation) => new()
     {
         Name = "dotfit",
         // A round trip's calls run concurrently, so a program turn that looks
@@ -69,9 +141,7 @@ public static class AssistantFactory
         ChatOptions = new ChatOptions
         {
             Instructions = instructions,
-            // Responses API: reasoning deployments reject tools on Chat Completions.
-            // Storage off: a stored response would keep the customer's question on Azure.
-            RawRepresentationFactory = _ => new CreateResponseOptions { StoredOutputEnabled = false },
+            RawRepresentationFactory = rawRepresentation,
         },
     };
 #pragma warning restore OPENAI001
