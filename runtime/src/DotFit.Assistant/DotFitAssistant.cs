@@ -339,7 +339,9 @@ public sealed class DotFitAssistant : IDotFitAssistant
                 turn.Role == ConversationRole.Assistant ? ChatRole.Assistant : ChatRole.User,
                 turn.Text));
         }
-        messages.Add(new ChatMessage(ChatRole.User, request.Question));
+        // Trimmed as history trims it, so next turn's history repeats this
+        // message byte for byte and reads it from the prompt cache.
+        messages.Add(new ChatMessage(ChatRole.User, request.Question.Trim()));
         return messages;
     }
 }

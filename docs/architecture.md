@@ -98,9 +98,16 @@ read its earlier ones).
 
 - **No pre-check, no rewrite, no post-check.** Small talk needs no special case:
   a greeting is a turn on which no tool is called.
-- **History** is normalized in code: the most recent 8 turns, the first 1,000
-  characters of each, a trailing echo of the question dropped. Tool results are
-  not replayed, so a follow-up may search again.
+- **History** is normalized in code: a trailing echo of the question dropped,
+  each turn's first 3,000 tokens, and a budget of 16,000 tokens (both estimated
+  at four characters a token). Over budget, the oldest exchanges are shortened
+  to the customer's turn and the head of the answer, cut back to half the
+  budget in one go, and dropped whole only if that is not enough; every
+  customer turn survives shortening, because a trigger can sit in any of them.
+  The cuts are replayed exchange by exchange, so they move in jumps and
+  consecutive turns share their history byte for byte: a Claude turn reads the
+  earlier conversation from cache. Tool results are not replayed, so a
+  follow-up may search again.
 - **Budgets**: 8 tool calls and 60 seconds of research per turn. On exhaustion
   the next tool returns a result telling the model to answer with what it has,
   so the turn ends in prose. A hard ceiling (twice the research budget, at most

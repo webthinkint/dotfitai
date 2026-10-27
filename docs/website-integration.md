@@ -329,11 +329,17 @@ stores nothing between requests.
 | `role` | `user` or `assistant`, case-insensitive. Anything else is a `400` — we reject rather than skip, because a transcript with a hole in it resolves follow-ups wrongly. |
 | `text` | The turn as the customer saw it. For an assistant turn use the delivered `answer` from that turn's `result`. |
 | Do **not** include | The question you are asking now. If you do, we drop the duplicate rather than read it as the customer asking twice. |
-| How many | Send what you have. We keep the most recent **8 turns** and the first **1,000 characters** of each; anything past that is trimmed on our side. |
+| How many | Send the whole conversation, every time, and the same text for each turn every time. We keep up to about **16,000 tokens** of it, and each turn's first **3,000 tokens** (estimated at four characters a token); anything past that is trimmed on our side. |
 
 The whole conversation reaches the model, so it can refer back to what it said
 earlier, and something the customer stated earlier (an age, a pregnancy) still
-applies. It cannot cite a source from an earlier turn — numbers are turn-scoped
+applies. A long conversation is shortened from its oldest end: every customer
+turn is kept, an older answer is cut to its opening lines, and only if that is
+not enough are the oldest exchanges dropped. The trimming changes in jumps
+rather than on every turn, so consecutive requests share their history and the
+model reads it from cache; sending a turn's text differently from one request to
+the next, or only the most recent turns, defeats that and makes each turn slower
+and dearer. It cannot cite a source from an earlier turn — numbers are turn-scoped
 and it no longer holds that material — so a follow-up may search again and take
 as long as the original question.
 

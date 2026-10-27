@@ -85,8 +85,6 @@ because it called `get_product` for Calcium Complex.
 
 | # | Bug | Evidence | Fix | Cost |
 |---|---|---|---|---|
-| F-1 | Triggers scroll out of the history window | `Conversation.cs` keeps the newest 8 turns, each head-cut at 1,000 chars; `website-integration.md:332` says "the most recent 8 turns" and `:334` says "the whole conversation reaches the model" | Newest 8 turns at the role caps; older exchanges kept as the user turn plus a short head of the answer; one total history budget, oldest exchanges dropped first; user-turn cap = question cap | small |
-| F-2 | History truncation would cut the tail of long answers | 2 of 50 smoke answers exceed 1,000 chars: S-031 1,178, S-091 1,300; the longest answer in the run is 1,300 | Raise the assistant-turn cap to ~2,500; the bound is F-1's total, not the cap | trivial |
 | F-3 | One document reaches the model more than once in a turn (F-4 is the same bug) | `read_reference` re-reads the guide (S-041 ×2, S-092 ×3) against a prompt rule that says once, 18.1k chars ≈ 4.5k tokens re-sent every later round trip; `get_product` returns every page of a family at once (SuperBlend 39.6k, WheySmooth 19.9k over 7 pages) and `ProductSectionCap` caps sections, not size | One per-turn "you already have this document" mechanism in `KnowledgeTools` covering both tools: a pointer instead of a repeat read, one page complete and the rest listed; the page chosen by matching the mention against page titles, since names resolve family-wide | small–medium |
 | F-5 | `fetch(neighbors: true)` probes a non-chunked id | `ChunkIdRegex` matches `infopage-41951-…-purchase-of-99-95` | Probe neighbours only for `pdsrg` and `podcast` | one line |
 | F-6 | Citations in `[1, 2]` form are invisible | `SourceLedger.CitedIn` uses `Contains("[n]")`; latent, not yet seen in a run | Regex over bracketed number lists in `CitedIn`, and a prompt line asking for `[1][2]` | small |
@@ -97,65 +95,10 @@ because it called `get_product` for Calcium Complex.
 | F-12 | `dotfit ask --log` reports a failed turn as answered | `Program.cs` passes `TurnLog.OutcomeAnswered` unconditionally; the service sets it correctly | Set `error` and `error_kind` from the `TurnErrorEvent`, as `AskStream` does | trivial |
 | F-13 | `history_turns` is the caller's count, not what the model saw | `AskStream` and the CLI log `request.History.Count`, before `ConversationHistory.Normalize` | Log the kept count (or both), so trimming is visible | trivial |
 | F-14 | History's citation markers resolve to nothing | `Conversation.cs` replays earlier answers verbatim, `[13]` included; `SourceLedger.CitedIn` counts only numbers the ledger assigned, so a copied marker is dropped — unless that number is assigned to another document this turn, and then it cites the wrong one. Not seen in the run | Strip bracketed markers from history text in `Normalize` | trivial |
-| F-15 | The smoke set cannot show F-1 | The longest smoke conversations are 3 questions (S-030, S-043, S-093), so at most 4 history turns; no item crosses the 8-turn window | Add an item of at least 6 questions: a trigger stated in the first, filler between, a final question that needs it | trivial |
+| F-15 | The smoke set cannot show an early trigger binding late | The longest smoke conversations are 3 questions (S-030, S-043, S-093), so at most 4 history turns | Add an item of at least 6 questions: a trigger stated in the first, filler between, a final question that needs it | trivial |
 | F-16 | `fetch` cannot return the rest of a truncated source | `fetch` renders through the same `MaxSourceChars` (6,000) cut as `search`, so it returns the identical truncated text and the same "call fetch for the rest" note; 76 QA records exceed 6,000 chars (longest 20,061) | `fetch` renders its document uncapped (the index's longest record is ~5k tokens) | small |
 
 ---
-
-## F-1 · Triggers scroll out of the history window
-
-`ConversationHistory.MaxTurns` is 8, four exchanges. `safety.md`'s example —
-"'I'm pregnant' three turns ago" — is inside that window, but nothing longer is:
-in a ten-turn conversation the turn where the customer said it is gone.
-`website-integration.md` contradicts itself here: its table says "we keep the
-most recent 8 turns", and the paragraph under it says "the whole conversation
-reaches the model … something the customer stated earlier still applies", and
-tells the caller to put any trigger it holds into a history turn.
-
-A trigger can sit in any user turn that falls out of the window, not only the
-first, and the runtime cannot tell which turn holds one without a model call. So
-every user turn is kept, inside a total budget. User turns are short; the budget
-bounds a relay that sends a long transcript. Separately, user turns are head-cut
-at 1,000 characters while a question may be 2,000, so a trigger in the second
-half of a long earlier question is cut: give user turns the question cap. The
-question cap is a service option (`MaxQuestionChars`, configurable), while
-`Normalize` lives in the core library, so the cap is passed in or pinned to the
-default. Pin both in `HistoryTests`; the history row and the paragraph under it
-in `website-integration.md` change in the same commit.
-
-A kept user turn whose answer is dropped changes what the conversation *says*:
-the model reads "I'm pregnant" followed by an unrelated later question with
-nothing answered between, and guesses at what it already replied. Keeping every
-answer whole defeats the budget, so the tiers are: the newest 8 turns at the role
-caps; every older exchange as its user turn plus the head of the answer that
-followed it (a few hundred characters, elided with "…"). Say so in the
-`Normalize` comment.
-
-**F-1 and F-2 are one decision.** The per-turn caps do not bound the history;
-the total does. A conversation of 15 exchanges at the full caps — 2,000
-characters per user turn and 2,500 per assistant turn — is ~67k chars ≈ 17k
-tokens, re-sent on every round trip of a three-round-trip program turn; with
-older answers cut to their head it is about half that. So: role-specific caps
-first (user turns = the question cap, assistant turns = the F-2 cap), the tiers
-above, then one `ConversationHistory.MaxHistoryChars` total, oldest exchanges
-dropped whole to fit it, so a user turn never survives without its answer. The
-total is the number `website-integration.md` states; the caps are ours.
-
-## F-2 · History truncation cuts the tail of long answers
-
-`MaxTurnChars = 1000`, head-truncated. Two of the 50 smoke answers are longer:
-replayed as history, S-031's program answer (1,178 characters) would lose its
-last ~180 and S-091's (1,300) its last ~300 — the end of a product list, which
-is what a "which of those could I drop" follow-up is about. Neither was followed
-up in the run, so the cut did not happen there.
-
-Raise the cap for assistant turns to about 2,500 characters: the longest answer
-the run produces is 1,300, so that is ~2× headroom over the smoke set. Eight
-turns at that cap is ~5k tokens, the size of one guide read — but that is only
-the window, not the bound; see F-1's total, which the two caps sit inside.
-Head + tail elision would cut the middle of a list, which is no better for a
-follow-up. Pin it in `HistoryTests`; the character count in
-`website-integration.md` changes in the same commit, together with F-1's.
 
 ## F-3 · One document reaches the model more than once in a turn
 
@@ -345,8 +288,8 @@ its kind, as `AskStream` does.
 
 `AskStream` and the CLI log `request.History.Count`, the turns the caller sent,
 before `ConversationHistory.Normalize` drops blanks and echoes and trims to the
-window. The log therefore cannot show F-1 or F-2 happening. Log the kept count,
-or both counts.
+budget. The log therefore cannot show history being shortened. Log the kept
+count, or both counts.
 
 ## F-14 · History's citation markers resolve to nothing
 
@@ -365,16 +308,14 @@ nothing the model can act on, and history is text, not sources. Pin it in
 the prompt-shaped alternative; prefer the trim, which is deterministic and tested
 while the line is neither.
 
-## F-15 · The smoke set cannot show F-1
+## F-15 · The smoke set cannot show an early trigger binding late
 
 The longest smoke conversations are three questions (S-030, S-043, S-093): the
-third question carries four history turns, so no item crosses the 8-turn window
-and nothing shows a trigger falling out of it. F-1's fix is pinned
-by `HistoryTests`, which proves the trim; the behavioural claim — a trigger
-stated ten turns back still binds — has no item that tests it.
+third question carries four history turns. The history budget is pinned by
+`HistoryTests`, which proves the trim; the behavioural claim — a trigger stated
+ten turns back still binds — has no item that tests it.
 
-Add an item of at least six questions — the sixth is the first whose history
-holds more than eight turns: the first question stating a trigger (a pregnancy,
+Add an item of at least six questions: the first question stating a trigger (a pregnancy,
 an age, a medication), filler questions between, and a final question the right
 answer needs that trigger for. Its *Looking for* is the trigger visible in
 the last answer, and it exercises F-13's kept-count logging at the same time.
@@ -407,8 +348,7 @@ id, and the longest is ~5k tokens, about one guide read. Keep the cap on
    rerun uses.
 2. **Free, no contract change:** F-5, F-6, F-12, F-13, F-14, F-16 as one cleanup
    commit; then F-3 as one mechanism for both tools; then F-10.
-3. **Contract changes, docs in the same commit:** F-1 and F-2 together (one
-   history budget, both caps inside it), F-8, F-9.
+3. **Contract changes, docs in the same commit:** F-8, F-9.
 4. **Needs an owner ruling first:** the deck-versus-label dose worksheet, then
    the ruling, then the deck item in `docs/open.md`.
 5. **Needs an owner and an Azure decision first:** F-7 — the rule edit in
