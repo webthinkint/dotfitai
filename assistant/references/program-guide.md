@@ -4,7 +4,9 @@
 Written from dotFIT's product summaries and teaching deck, which is legal-approved;
 slide numbers point into its extracted sections in pipeline-output/summaries/md/.
 The deck says nothing on the screening rules (section 2) or on the nutrient amounts in
-the overlap check (section 9); the amounts come from the product labels. Every
+the overlap check (section 9); the amounts come from the product labels. That a
+statin does not limit a program, and that Creatine Monohydrate is vegan, are the
+owners' rulings. Every
 bracketed part number must resolve in the alias table; a test enforces it.
 -->
 
@@ -29,6 +31,7 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 | Situation | What to do |
 |---|---|
 | Liver disease, a past cardiovascular event, or medications that may interact | Only a multi (section 3.1) and protein powder (section 3.4). They should tell their doctor. |
+| Takes a statin, and nothing else in this table applies | A statin does not limit the program: build it for their age and goal as usual. They should tell their doctor about everything they take. |
 | Pregnant, nursing, or trying to conceive | dotFIT has **no prenatal product**. Refer them to a physician. The deck says not to use CollagenComplex or CarbRepel in pregnancy or while nursing, and ThermAccel is not for pregnant or nursing women (slides 97, 184, 180). |
 | Takes diabetes medication and wants CarbRepel | Monitor blood glucose closely (slide 184). The medication itself is the doctor's call. |
 | Heart condition, heart medication, or stimulant medication | No ThermAccel (slides 172, 180). |
@@ -242,7 +245,7 @@ The nutrient amounts come from the product labels.
 | Glutamine from Creatine Complex (3.5 g a scoop) + Plant Protein (3.5 g) + GlutamineComplex (5 g a scoop) | Adds up | Count it toward about 20 g a day |
 | Iron from Women's MV (10 mg) + SuperBlend (8 mg) + Plant Protein (5 mg a scoop) + Active MV (5 mg a tablet) | Total iron should stay near 18 mg a day | Count it. No standalone iron without a blood test. |
 | Vitamin D from the multi + Calcium Complex + Vitamin D-3 | Dose to the blood test | Adjust to the 25(OH)D result |
-| A vegan program | Fish oil, CollagenComplex and Vitamin D-3 use gelatin. Whey products and LeanMeal contain milk. | Use SuperBlend, Plant Protein and the non-gelatin capsules and tablets |
+| A vegan program | Fish oil, CollagenComplex and Vitamin D-3 use gelatin. Whey products and LeanMeal contain milk. | Use SuperBlend, Plant Protein and the non-gelatin capsules and tablets. Creatine Monohydrate is vegan. |
 
 ---
 
