@@ -16,6 +16,7 @@ refusal-prone, or closer to the owners' preferred prose?
   and the prompt part itself (`assistant/prompt/`).
 - The pipeline and the index → `pipeline/README.md`, "Rules the pipeline keeps".
 - Running and deploying the runtime → `runtime/README.md`.
+- The Google Doc copy of the prompt and references → `prompt-doc/README.md`.
 - Before calling anything "next" → `docs/open.md`.
 - Code comments state each contract where it is enforced: read the file you are
   about to change.
@@ -25,6 +26,7 @@ refusal-prone, or closer to the owners' preferred prose?
 ```bash
 cd pipeline && uv sync && uv run pytest     # Python 3.12, uv only
 cd runtime && dotnet build && dotnet test   # .NET 10
+cd prompt-doc && uv sync && uv run pytest   # the Google Doc export/import
 ```
 
 `ask`, `chat` and `smoke` in the `dotfit` CLI cost Azure calls. Corpus filenames
@@ -44,8 +46,9 @@ contain spaces, commas and `&`, so always quote paths.
   reaches the caller before any text cites it.
 - `pipeline-output/` is derived: regenerate it, never hand-edit it. Pipeline
   reruns are byte-identical.
-- Azure credentials live only in the gitignored root `.env`; `.env.example` is
-  the committed contract.
+- Azure and Google credentials live only in the gitignored root `.env` (or, for
+  the Google key file, a path it names outside the repo); `.env.example` is the
+  committed contract.
 
 ## Working
 

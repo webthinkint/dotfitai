@@ -31,6 +31,13 @@ the service from starting. It never reaches a customer half-applied.
 On the preview server, an edit takes effect after `git pull` and a restart of
 `dotfit-service`. Every turn logs the prompt version it ran on.
 
+## Editing from Google Docs
+
+`prompt/*.md` and `references/*.md` can also be edited by someone without git, in
+a Google Doc with one tab per file. A developer exports the files there with
+`prompt-doc`, imports the edits back, and checks them as above before committing.
+See `prompt-doc/README.md`.
+
 ## The prompt
 
 `prompt/*.md` are the parts: `posture` (who it is, scope, tone), `authority`
