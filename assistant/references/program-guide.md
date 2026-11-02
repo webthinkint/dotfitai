@@ -6,7 +6,8 @@ slide numbers point into its extracted sections in pipeline-output/summaries/md/
 The deck says nothing on the screening rules (section 2) or on the nutrient amounts in
 the overlap check (section 9); the amounts come from the product labels. That a
 statin does not limit a program, and that Creatine Monohydrate is vegan, are the
-owners' rulings. Every
+owners' rulings. Leaving Vitamin D-3 out of the standard program is the team's ruling;
+the deck lists it as needed at Essentials. Every
 bracketed part number must resolve in the alias table; a test enforces it.
 -->
 
@@ -19,7 +20,7 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 1. **Foundation first.** A long, healthy, active life rests on three cornerstones, in this order: meeting nutrient needs, regular activity, and a healthy body composition. Every program starts with the foundation (section 3). Then add products for the goal (section 4–section 7), then extras as needs, activity and budget allow. Nobody has to take everything. Start with the essentials and build from there. (Slides 9, 36, 90, 266.)
 2. **Everyone gets one complete multivitamin/mineral.** Use one of the multis in section 3.1, or Alln1 SuperBlend. **Never both.**
 3. **Protein: at least 1 g per lb of lean body mass per day**, spread over 4–5 meals. Food comes first, and a dotFIT protein closes the gap (section 3.4). Youth aim for about 1 g per lb of body weight (section 7).
-4. **Omega-3 is for nearly everyone:** most people don't eat enough fatty fish. Dose it by fatty-fish intake (section 3.2); only 16 oz or more a week makes it unnecessary, unless it is for athletic recovery. **Calcium depends on dietary calcium** and is not automatic. **Vitamin D suits nearly everyone:** give the daily dose in section 3.3 and adjust it to a blood test when there is one.
+4. **Omega-3 is for nearly everyone:** most people don't eat enough fatty fish. Dose it by fatty-fish intake (section 3.2); only 16 oz or more a week makes it unnecessary, unless it is for athletic recovery. **Calcium depends on dietary calcium** and is not automatic. **Vitamin D-3 is not part of the standard program:** the multi or SuperBlend already provides vitamin D. Add it only if a blood test shows a low level or they ask about it (section 3.3). The brain and mental health program is the one exception (section 6.3).
 5. **Fat-loss aids are temporary.** Stop WeightLoss & LiverSupport, CarbRepel and ThermAccel once the goal is reached. The foundation continues. (Slide 201.)
 6. **Stimulants.** ThermAccel and NO7 PreWorkout contain caffeine. Neither is for caffeine-sensitive people. ThermAccel is never combined with another stimulant. (Slides 172, 180.)
 7. **Under 18:** use only the youth program (section 7).
@@ -72,17 +73,17 @@ Under 12 → no dotFIT multi (section 7)
 - **Athletes: up to 4 a day** for recovery, to reach an omega-3 index of 8% or more.
 - There is no dotFIT vegan omega-3. Vegans and people with fish allergies can use an algae-based product.
 
-### 3.3 Calcium as needed, vitamin D for nearly everyone (slides 67–77)
+### 3.3 Calcium and vitamin D: as needed (slides 67–77)
 
 - **Calcium Complex** [1004] (Super Calcium) is only for when food doesn't reach about 1,000–1,200 mg a day.
   - Fewer than 1 serving of calcium-rich food a day: 2 tablets, split across meals.
   - About 1.5–2.5 servings: 1 tablet with a meal.
   - For reference: 1 cup of milk or 1.5 oz of cheese is about 300 mg. A serving of WheySmooth has about 350 mg, and a serving of First String about 400 mg.
-- **Vitamin D-3** [1018]:
+- **Vitamin D-3** [1018] is only for when a blood test shows a low level or they ask about it, athletes included (rule 4). When it is added:
   - The target is a blood level (25(OH)D) of at least 30 ng/mL, ideally 40–70 ng/mL, with athletes toward the top.
   - Take it daily, on top of the multi: typically 1,000–2,000 IU (1–2 softgels).
   - Athletes, overweight people, or people with low levels may need up to 4,000 IU a day.
-  - Everyone adds 1–2 softgels in high-risk periods, such as flu season or intense training. Athletes add 1–2 year-round.
+  - Someone already taking it can add 1–2 softgels in high-risk periods, such as flu season or intense training. Athletes already taking it can add 1–2 year-round.
   - Take it with food and adjust to the blood test.
 
 ### 3.4 Protein: to reach the daily target (slides 131–161)
@@ -158,7 +159,7 @@ Add omega-3 as needed. Stop the fat-loss aids at the goal.
 
 | Level | Pill version | SuperBlend version |
 |---|---|---|
-| 1 – Essentials | Multi (section 3.1) + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed | SuperBlend + Calcium Complex as needed + Omega-3; Vitamin D-3 as needed |
+| 1 – Essentials | Multi (section 3.1) + Calcium Complex as needed + Omega-3 | SuperBlend + Calcium Complex as needed + Omega-3 |
 | 2 – Living Stronger | + **Antioxidant** [1000] | (already in SuperBlend) |
 | 3 – Stronger & Healthier | + **Probiotics** [1017] | (already in SuperBlend) |
 | 4 – Looking, Moving & Staying Younger | + **CollagenComplex** [1003] | + CollagenComplex |
@@ -172,7 +173,7 @@ Protein to target applies at every level.
 
 ### 6.2 Seniors, 50+ (slides 7–13)
 
-1. **Foundation:** Over 50 MV or SuperBlend, protein (All Natural WheySmooth), omega-3, and calcium and vitamin D as needed.
+1. **Foundation:** Over 50 MV or SuperBlend, protein (All Natural WheySmooth), omega-3, and calcium as needed.
 2. **Health + Performance:** add **Creatine Monohydrate**, about 5 g a day.
 3. **Longevity / Lifelong Performance:** add **AminoFormula** (older adults and non-exercisers: see section 6.4). The deck's text for this level also names joint and brain support, which means CollagenComplex and Brain Health from section 6.1.
 

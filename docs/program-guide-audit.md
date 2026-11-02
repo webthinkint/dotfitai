@@ -10,7 +10,7 @@ exists in the extraction.
 The items below need a decision from the team. Items in A are places where the
 guide contradicts itself; items in B are places where the deck contradicts
 itself and the guide follows one side; items in C are places where the guide
-says more than the deck.
+says more than the deck. Items in D are settled: the team ruled against the deck.
 
 Deck wording is paraphrased, not pasted.
 
@@ -22,10 +22,6 @@ These followed directly from the deck and are applied:
   product slides (141–142, 161) give about 390–400 mg per serving. The guide now
   says per serving. The youth slide that says 2 servings supply 400 mg is B-1
   below.
-- **Vitamin D.** Rule 4 said vitamin D depends on a blood test and is not
-  automatic. The deck recommends it for nearly everyone (slides 67–74), so rule
-  4 now says to give the daily dose and adjust it to a blood test when there is
-  one.
 - **Omega-3.** Rule 4 framed omega-3 as conditional and not automatic. The deck
   says most people fall short and the product is for nearly everyone who doesn't
   eat fatty fish regularly (slides 78–84, 123, 257–259, 266–268), while keeping
@@ -103,3 +99,12 @@ remove it.
 **C-3 · Over 50 MV: "iron added only if a blood test shows a need"** (guide 3.1, 9, 10)
 The deck says the product has no iron and why, but gives no rule about adding
 it. It is conservative and probably fine; it only needs a source.
+
+## D. The guide departs from the deck by ruling
+
+**D-1 · Vitamin D-3 is not in the standard program** (guide 1.4, 3.3, 6.1, 6.2)
+The deck recommends vitamin D for nearly everyone (slides 67–74) and lists it as
+needed at Essentials (slides 128–129) and in the senior foundation (slides 7, 9). The
+team's ruling is that it stays out of programs built on a multi or SuperBlend, so
+the guide adds it only for a low blood test or when the customer asks. The brain
+and mental health level keeps it (guide 6.3).
