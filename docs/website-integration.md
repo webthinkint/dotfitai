@@ -327,6 +327,10 @@ Within that:
   medication or pregnant can still be given dotFIT's restricted program baseline
   (a multivitamin and protein, and to tell their doctor) and general menu and
   recipe guidance. Anything individualized beyond that is routed.
+- **Physician line.** The first reply in a conversation that recommends
+  supplements ends by telling the customer to consult their physician if they
+  take any over-the-counter or prescription medications. Later replies leave it
+  out, which relies on the `history` you send (see Multi-turn).
 
 **There is no machine-readable escalation flag.** Safety handling is a strong
 tendency of the assistant, not a hard guarantee, and it is not visible to your
