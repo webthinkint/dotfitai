@@ -12,12 +12,6 @@ public sealed record AskBody
 {
     public string Question { get; init; } = "";
 
-    /// <summary>
-    /// Absent means "new conversation", which is what controls the disclosure.
-    /// The service holds no state either way — this is a flag, not a handle.
-    /// </summary>
-    public string? ConversationId { get; init; }
-
     /// <summary>The caller's id for this turn. Echoed on <c>result</c> and <c>error</c>.</summary>
     public string? RequestId { get; init; }
 
@@ -92,7 +86,6 @@ public static class AskStream
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    public const string EventDisclosure = "disclosure";
     public const string EventStage = "stage";
     public const string EventSource = "source";
     public const string EventDelta = "delta";
@@ -133,16 +126,6 @@ public static class AskStream
 
         try
         {
-            // Once, and only for a conversation the caller did not give an id
-            // for. Rendered before any answer text.
-            if (Trim(body.ConversationId) is null)
-            {
-                await writer.WriteAsync(EventDisclosure,
-                    new { text = DotFit.Assistant.Prompting.SystemPrompt.ConversationDisclosure() }, ct)
-                    .ConfigureAwait(false);
-                await writer.FlushAsync(ct).ConfigureAwait(false);
-            }
-
             await foreach (TurnEvent turnEvent in assistant.AskAsync(request, timeout.Token).ConfigureAwait(false))
             {
                 switch (turnEvent)

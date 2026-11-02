@@ -130,8 +130,6 @@ internal static class Program
         string question)
     {
         var assistant = AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt);
-        Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
-        Console.Out.WriteLine();
         await RenderTurnAsync(assistant, new AskRequest { Question = question }, flags, prompt).ConfigureAwait(false);
         return 0;
     }
@@ -144,8 +142,6 @@ internal static class Program
         var assistant = AssistantFactory.Create(options, assistantOptions, aliases, prompt: prompt);
         var history = new List<ConversationTurn>();
 
-        Console.Out.WriteLine(SystemPrompt.ConversationDisclosure());
-        Console.Out.WriteLine();
         Console.Out.WriteLine("`reset` clears the conversation, `exit` quits.");
         Console.Out.WriteLine();
 

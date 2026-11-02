@@ -9,8 +9,8 @@ namespace DotFit.Assistant.Prompting;
 /// The parts of the system prompt that are generated rather than written:
 /// product-currency facts from the alias table and the support route from
 /// configuration. The written parts live in <c>assistant/prompt/</c> and are
-/// assembled by <see cref="PromptTemplate"/>. Also the two fixed texts the
-/// caller shows without a model call: the AI disclosure and the handoff.
+/// assembled by <see cref="PromptTemplate"/>. Also the fixed text the caller
+/// shows without a model call: the handoff.
 /// </summary>
 public static class SystemPrompt
 {
@@ -111,15 +111,6 @@ public static class SystemPrompt
     public static string SupportTeam(string? supportContact) => supportContact is null
         ? "dotFIT support"
         : $"dotFIT support ({supportContact})";
-
-    /// <summary>What the caller renders before the first answer of a conversation.</summary>
-    public static string ConversationDisclosure() =>
-        "I'm an AI assistant — nutrition guidance, not medical advice. " +
-        "I answer from dotFIT's website pages and approved product copy, the " +
-        "practitioner reference guide, customer Q&A and podcasts, and I cite " +
-        "my sources. " +
-        "For anything medical, I'll hand you to the dotFIT support team or a " +
-        "healthcare professional.";
 
     /// <summary>
     /// What the customer gets when the turn threw. Templated, not generated:

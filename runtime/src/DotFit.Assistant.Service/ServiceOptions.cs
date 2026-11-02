@@ -164,8 +164,6 @@ public sealed record ServiceOptions
             return $"question must be {MaxQuestionChars} characters or fewer";
         if (request.Top is int top && (top < 1 || top > MaxTop))
             return $"top must be between 1 and {MaxTop}";
-        if (request.ConversationId is { Length: > MaxIdChars })
-            return $"conversation_id must be {MaxIdChars} characters or fewer";
         if (request.RequestId is { Length: > MaxIdChars })
             return $"request_id must be {MaxIdChars} characters or fewer";
         foreach (AskBody.Turn turn in request.History ?? [])

@@ -235,19 +235,6 @@ public class AskStreamTests
     }
 
     [Fact]
-    public async Task The_disclosure_is_sent_once_and_only_for_a_new_conversation()
-    {
-        var assistant = new FakeAssistant(new TurnResultEvent(Result()));
-
-        (RecordingWriter first, _) = await RunAsync(assistant, new AskBody { Question = "hi" });
-        Assert.Equal(AskStream.EventDisclosure, first.Frames[0].Event);
-
-        (RecordingWriter later, _) = await RunAsync(
-            assistant, new AskBody { Question = "hi", ConversationId = "abc" });
-        Assert.DoesNotContain(later.Frames, f => f.Event == AskStream.EventDisclosure);
-    }
-
-    [Fact]
     public async Task The_result_frame_carries_the_turns_cost()
     {
         // The cost block is on `result`, always last, so the owners can
@@ -309,8 +296,7 @@ public class AskStreamTests
 
         Assert.DoesNotContain(writer.Frames, f => f.Event == "retraction");
         Assert.Equal(
-            [AskStream.EventDisclosure, AskStream.EventStage, AskStream.EventSource,
-             AskStream.EventDelta, AskStream.EventResult],
+            [AskStream.EventStage, AskStream.EventSource, AskStream.EventDelta, AskStream.EventResult],
             writer.Frames.Select(f => f.Event));
     }
 
@@ -528,13 +514,10 @@ public class AskBodyReaderTests
     [Fact]
     public async Task A_valid_body_binds_its_snake_case_fields()
     {
-        // conversation_id must bind: unbound, every turn reads as a new
-        // conversation and re-sends the disclosure.
         (AskBody? body, _, _) = await AskBodyReader.ReadAsync(
-            Request("""{"question":"q","conversation_id":"c1","request_id":"r1"}"""), CancellationToken.None);
+            Request("""{"question":"q","request_id":"r1"}"""), CancellationToken.None);
 
-        Assert.Equal("c1", body!.ConversationId);
-        Assert.Equal("r1", body.RequestId);
+        Assert.Equal("r1", body!.RequestId);
     }
 
     [Fact]

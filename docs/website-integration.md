@@ -69,7 +69,6 @@ secret; without it you get `401` and no stream.
 ```json
 {
   "question": "How much creatine should I take?",
-  "conversation_id": "1b9f...",
   "request_id": "turn-8c2e...",
   "history": [
     {"role": "user", "text": "is LeanMeal good for weight loss?"},
@@ -82,7 +81,6 @@ secret; without it you get `401` and no stream.
 | Field | Required | Meaning |
 |---|---|---|
 | `question` | yes | The customer's question, verbatim. Empty or whitespace gets `400`, and so does anything over **2,000 characters**. |
-| `conversation_id` | no | **Absent means "new conversation"**, which is what controls the disclosure. Send a stable id for every turn after the first. Maximum 64 characters. |
 | `request_id` | no | Your id for this one turn. We echo it on `result` and `error` and key our turn log on it. If you leave it out we mint one and echo that. Maximum 64 characters. |
 | `history` | no | Earlier turns, oldest first, **not including** `question`. See Multi-turn. |
 | `top` | no | Sources returned per search. Default 6, maximum 20 (outside that is a `400`). Leave it unset unless we ask. It is *per search*, and the assistant may search several times, so a turn can end with more sources than `top`. |
@@ -106,9 +104,12 @@ turns live streaming back into one lump at the end.
 
 Event names are the contract. Key on them; do not parse the prose.
 
+The stream carries no AI or medical notice. **Your interface shows that
+disclaimer, in a popup, before the customer starts**; the assistant's prompt
+relies on it being there.
+
 | Event | Payload | Notes |
 |---|---|---|
-| `disclosure` | `{text}` | AI-identity notice. Emitted **once**, only when the request had no `conversation_id`. Render it before any answer text. |
 | `stage` | `{stage, detail}` | What the assistant is doing. `stage` is one of `thinking`, `search`, `fetch`, `product`, `guide`, `answer`. **Stages repeat** — three searches emit three `search` events. |
 | `source` | `{n, source_type, authority, title, citation_url, locator, quotable, part_nos}` | A numbered source, emitted when it is assigned its number and before any delta cites it. |
 | `delta` | `{text}` | A fragment of answer text, live. Concatenate in arrival order. |
@@ -356,7 +357,6 @@ stores nothing between requests.
 ```json
 {
   "question": "what about the chocolate one?",
-  "conversation_id": "1b9f...",
   "history": [
     {"role": "user", "text": "is LeanMeal good for weight loss?"},
     {"role": "assistant", "text": "..."}
