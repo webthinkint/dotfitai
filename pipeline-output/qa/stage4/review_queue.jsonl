@@ -1,2 +1,14 @@
-{"id": "847268ffe0fe1c20", "source_file": "2023/Gelatin in wafer bar hydrolized source manufacturer, Chad.docx", "cluster_id": "847268ffe0fe1c20", "reasons": ["cluster_audit"]}
-{"id": "996290243c1ad682", "source_file": "2024/Gelatin in wafer bar hydrolized source manufacturer, Chad.docx", "cluster_id": "847268ffe0fe1c20", "reasons": ["cluster_audit"]}
+{"id": "ab2ac4348d27d40e", "source_file": "2023/Creatine flavor extensions, full note, other products.docx", "cluster_id": "96de5715f2553b35", "reasons": ["cluster_uncovered"]}
+{"id": "96de5715f2553b35", "source_file": "2023/Flavor extensions, niche products FAQ, Full note CM, ECM, mix in Pre-Post, etc..docx", "cluster_id": "96de5715f2553b35", "reasons": ["cluster_uncovered"]}
+{"id": "5e221cd5de2080e7", "source_file": "2023/GMO full info including product list, almost list also.docx", "cluster_id": null, "reasons": ["currency_low_confidence"]}
+{"id": "ea46b9cff26f51b8", "source_file": "2023/Unflavored protein, flavor packs no more -cost effective.docx", "cluster_id": "6e8c32a023b97364", "reasons": ["cluster_uncovered"]}
+{"id": "79c663016afc2345", "source_file": "2024/Creatine and first string in baseline - muscle gain note.docx", "cluster_id": "79c663016afc2345", "reasons": ["cluster_conflict"]}
+{"id": "8be45e86eb76c09f", "source_file": "2024/First string in baseline, screener, note on best protein usage.docx", "cluster_id": "79c663016afc2345", "reasons": ["cluster_conflict"]}
+{"id": "cbeb1addc207c467", "source_file": "2024/Gluten free links and store link.docx", "cluster_id": "710f8a41294c64df", "reasons": ["cluster_uncovered"]}
+{"id": "be9ffd9717093276", "source_file": "2024/Set up club for ordering, samples, etc..docx", "cluster_id": "5a4c0bb52b827521", "reasons": ["cluster_uncovered"]}
+{"id": "5a4c0bb52b827521", "source_file": "2024/Travel containers dF store, all sizes, shakers, environment.docx", "cluster_id": "5a4c0bb52b827521", "reasons": ["cluster_uncovered"]}
+{"id": "6e8c32a023b97364", "source_file": "2024/Unflavored protein, flavor packs no more -cost effective.docx", "cluster_id": "6e8c32a023b97364", "reasons": ["cluster_uncovered"]}
+{"id": "710f8a41294c64df", "source_file": "2024/Vegan AminoForula discontiued  - full FAQ with calorie explanation.docx", "cluster_id": "710f8a41294c64df", "reasons": ["cluster_uncovered"]}
+{"id": "ce07bc6a35530951", "source_file": "2024/dotFIT program link &11yr info, berlinda.docx", "cluster_id": null, "reasons": ["currency_low_confidence"]}
+{"id": "296e54128f0b7da4", "source_file": "2025/Clear protein brand, practitioner products vs not, full paragraph, dotFIT link.docx", "cluster_id": "296e54128f0b7da4", "reasons": ["cluster_uncovered"]}
+{"id": "5954c3bd7a84dc86", "source_file": "2025/Clear proteins, dotFIT proteins, Slide, PDSRG, full note.docx", "cluster_id": "296e54128f0b7da4", "reasons": ["cluster_uncovered"]}
