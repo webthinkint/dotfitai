@@ -62,14 +62,19 @@ always quote paths.
   strict JSON schema; a `claude*` name takes the Messages endpoint): `question_canonical`, a cleaned `answer` (transcription,
   never generation — a containment diff checks no content was invented),
   `products[]` resolved to part numbers through the alias table, `topics[]`,
-  `audience_flags`, `currency_cues`, `residual_pii_flag`, `confidence`.
+  `audience_flags`, `currency_cues`, `residual_pii_flag`, `confidence`. The model
+  lists the people named in the filename and only those spans become `[NAME]`, so
+  the rest of it still serves as the `locator` and a question-less note's title.
+  `answer_coverage` and `answer_in_expert` hold the answer to the expert text.
   Responses cache in the gitignored `runs/stage2_cache.jsonl`; `--no-llm` runs
   the rule-based fallback with no Azure calls.
 - **Stage 4** — deduplication and currency. Near-duplicate questions cluster at
   cosine ≥ 0.88 (a scan-locked threshold) within shared product/topic buckets;
   the newest current member wins. Non-nested part-number sets mark a conflict:
   the cluster is queued, never auto-picked, and curated dispositions pin their
-  exact membership (a reshaped cluster raises). **Renames never supersede.**
+  exact membership (a reshaped cluster raises). A duplicate whose answer the
+  newest repeats less than half of stays current and queues the cluster
+  (`cluster_uncovered`). **Renames never supersede.**
   Replacement and discontinued cues supersede only when the answer depends on
   the formulation (a cached LLM judgment; no usable judgment means superseded).
   Outputs `documents.jsonl` with `is_current`, `clusters.jsonl` (the review
@@ -171,6 +176,8 @@ protein minimum, filled from the bars' facts. Prices are masked to
 - `no_quotable_structure` — `doc_type: other`; confirmed in Stage 2.
 - `filename_redacted` — the filename held an email, phone or similar; the served
   `locator` carries the placeholder, and a person confirms nothing else leaked.
-- Stage 2 adds low confidence, residual PII, containment failures, LLM errors
-  and a deterministic 5% audit sample. The queue does not gate: a flagged record
+- Stage 2 adds low confidence, residual PII, containment failures, low coverage
+  (`low_coverage`: expert text left out), `answer_outside_expert` (text in the
+  answer from outside it), `filename_name_unmatched` (a listed name not found in
+  the filename), LLM errors and a deterministic 5% audit sample. The queue does not gate: a flagged record
   is already redacted. `scripts/stage2_queue_triage.py` groups it for sign-off.

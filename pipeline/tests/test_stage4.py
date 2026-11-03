@@ -622,26 +622,9 @@ class TestClusterDispositions:
     def test_disposition_for_is_none_when_unruled(self):
         assert disposition_for("z" * 16, [_s2rec("z" * 16, "z.docx")]) is None
 
-    def test_shipped_rulings_are_the_owner_splits(self):
-        """Pins the owner rulings themselves, not just the mechanism."""
-        assert list(CURATED_CLUSTER_DISPOSITIONS) == [
-            "79c663016afc2345",   # FirstString
-            "3d361242df468533",   # LeanMR + creatine thread
-            "8e5f29ded9aad54a",   # Lean Pack 90
-        ]
-        for cluster_id, members, ruling_date in [
-            ("79c663016afc2345",
-             ["79c663016afc2345", "8be45e86eb76c09f"], "2026-09-08"),
-            ("3d361242df468533",
-             ["3d361242df468533", "8d9c6bc18836b209"], "2026-09-10"),
-            ("8e5f29ded9aad54a",
-             ["8e5f29ded9aad54a", "b135886d94b5b7c3"], "2026-09-10"),
-        ]:
-            entry = CURATED_CLUSTER_DISPOSITIONS[cluster_id]
-            assert entry["disposition"] == DISPOSITION_SPLIT
-            assert entry["members"] == members == sorted(members)
-            assert entry["members"][0] == cluster_id  # cluster_id = min id
-            assert ruling_date in entry["source"]
+    def test_no_rulings_ship(self):
+        """A new ruling is a deliberate edit: it pins its exact membership."""
+        assert CURATED_CLUSTER_DISPOSITIONS == {}
 
 
 # --- summarize -------------------------------------------------------------------
@@ -670,3 +653,26 @@ class TestSummarize:
         assert out["n_audit_clusters"] == 1
         assert out["n_conflict_clusters"] == 1
         assert out["n_dispositioned_clusters"] == 1
+
+
+class TestMergeKeepsUncoveredAnswers:
+    QUESTION = "How can I lose belly fat?"
+
+    def _run(self, older, newer):
+        recs = [_s2rec("a" * 16, "a.docx", self.QUESTION, older, thread_date="2024-01-01"),
+                _s2rec("b" * 16, "b.docx", self.QUESTION, newer, thread_date="2025-01-01")]
+        out, sheet, _, _ = run_stage4(recs, {"entries": []}, lambda t: [[1.0, 0.0] for _ in t],
+                                      None, "m")
+        return {r["id"][0]: r for r in out}, sheet
+
+    def test_a_repeated_answer_retires(self):
+        out, sheet = self._run("one two three four", "one two three four five")
+        assert out["a"]["stage4_status"] == STATUS_SUPERSEDED_DUP
+        assert sheet[0]["uncovered"] is False
+
+    def test_an_answer_the_newest_does_not_repeat_stays_current_and_queues(self):
+        out, sheet = self._run("one two three four five six seven eight", "one nine")
+        assert out["a"]["stage4_status"] == STATUS_CURRENT and out["a"]["is_current"]
+        assert out["b"]["is_current"]
+        assert "cluster_uncovered" in out["a"]["stage4_review_reasons"]
+        assert sheet[0]["uncovered"] is True

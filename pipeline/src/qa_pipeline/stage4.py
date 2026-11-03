@@ -35,6 +35,11 @@ Owner rulings baked in:
   and a wrong merge silently removes a distinct answer from the index while a
   wrong miss only leaves a harmless duplicate retrievable.
 
+Same question does not mean same answer: a duplicate retires only when the
+newest answer repeats at least :data:`MERGE_COVERAGE_MIN` of its words. Below
+that the newest would take content out of search, so the member stays current
+and the cluster is queued. A kept duplicate is harmless; a lost answer is not.
+
 Conflict routing: a cluster whose members' part_no sets are
 non-nested "materially disagree" by proxy — deterministic code cannot judge
 prose — so the cluster is routed to the review queue *instead of auto-picking*
@@ -67,14 +72,16 @@ import hashlib
 import math
 from typing import Any, Callable
 
-from .stage2 import is_audit_sample
+from .stage2 import containment_score, is_audit_sample
 
 # --- tunables -----------------------------------------------------------------
 
 SIMILARITY_THRESHOLD = 0.88  # scan-locked (see module docstring)
+# Share of a duplicate's answer the newest answer must repeat for it to retire.
+MERGE_COVERAGE_MIN = 0.5
 MIN_JUDGE_CONFIDENCE_DEFAULT = 0.7  # below -> superseded (default) + review
 AUDIT_RATE = 0.05  # deterministic audit sample of auto-resolved clusters
-CURRENCY_PROMPT_VERSION = "1.0.0"  # part of the cache key
+CURRENCY_PROMPT_VERSION = "1.1.0"  # part of the cache key
 STATUS_CURRENT = "current"
 STATUS_SUPERSEDED_DUP = "superseded_dup"
 STATUS_SUPERSEDED_CURRENCY = "superseded_currency"
@@ -157,7 +164,11 @@ CURRENCY_SYSTEM_PROMPT = (
     "true when the answer's guidance depends on that specific product — it "
     "recommends taking it, doses it, describes its formula/macros/effects/"
     "flavors, says where to get it, or explains in product-specific terms "
-    "what to use instead. It is false when the mention is incidental (the "
+    "what to use instead. A line telling any reader to take the product is a "
+    "recommendation, so it is true, even when that reader is a narrow group "
+    "such as vegans, the line is one item in a longer list or program, and the "
+    "rest of the answer stands without it. It is false when the mention is "
+    "incidental and the answer never tells anyone to use the product (the "
     "customer name-drops it; the expert answers the general question with "
     "guidance that stands without the product — diet, training, timing, "
     "third-party options). evidence quotes or precisely references the "
@@ -292,53 +303,7 @@ DISPOSITION_SPLIT = "split"
 # by ``cluster_id`` (= min member id); ``members`` pins the exact membership
 # the ruling was made on, so a corpus change that reshapes the cluster raises
 # rather than silently re-applying a ruling nobody made for it.
-CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {
-    # Two consecutive turns of ONE email thread: 8be45e86 is the
-    # webform enquiry (why FirstString, 1 g protein per lb LBM, whether the
-    # pre-workout serving is mandatory), and 79c66301 is the same customer's
-    # follow-up ("what else with FirstString") answered with creatine + the
-    # Level 1 plan, quoting the whole prior reply beneath it. Stage 1 keeps
-    # only the *new* expert reply as the answer, so the newer record is a
-    # delta, not a superset: superseding the older one would drop the only
-    # direct answer to the pre-workout half while leaving that clause standing
-    # in the newer record's canonical question. The non-nested part_nos are an
-    # artifact of the two boilerplate blocks (the older enumerates MVs by
-    # demographic, hence 1007 Women's MV; the newer names ActiveMV) — the
-    # answers never contradict each other. Split: both stay retrievable,
-    # neither supersedes the other.
-    "79c663016afc2345": {
-        "disposition": DISPOSITION_SPLIT,
-        "members": ["79c663016afc2345", "8be45e86eb76c09f"],
-        "source": "owner ruling 2026-09-08 (Stage 4 queue, open item 7)",
-    },
-    # Two turns of ONE email thread, thirteen days apart: 8d9c6bc1 is the
-    # enquiry (LeanMR + creatine monohydrate, and whether the daily creatine
-    # drink goes before or after a workout), 3d361242 is the follow-up whose
-    # question is a superset (LeanMR + creatine + AminoFormula)
-    # and whose reply adds the new guidance not to mix LeanMR with
-    # AminoFormula — a meal replacement and an amino-acid formula serve
-    # different slots in the day. The same shape as the cluster above (second
-    # turn a delta, not a superset): split — both stay retrievable, neither
-    # supersedes the other. Both members are superseded_currency on their own
-    # cues; the disposition governs only the intra-cluster dedup.
-    "3d361242df468533": {
-        "disposition": DISPOSITION_SPLIT,
-        "members": ["3d361242df468533", "8d9c6bc18836b209"],
-        "source": "owner ruling 2026-09-10 (Stage 4 queue, open item 7)",
-    },
-    # The same Lean Pack 90 question a year and a half apart. b135886d asks
-    # whether the pack's products go all at once or individually across the
-    # 90 days, reply quoting the FAQ: either way. 8e5f29de asks it again and
-    # the answers agree (all at once on a tight timeline, as directed
-    # otherwise) — a textbook supersede candidate, except the older record
-    # carries the fuller FAQ text. Split: retiring the older record would drop
-    # the fuller wording from search, so both stay retrievable.
-    "8e5f29ded9aad54a": {
-        "disposition": DISPOSITION_SPLIT,
-        "members": ["8e5f29ded9aad54a", "b135886d94b5b7c3"],
-        "source": "owner ruling 2026-09-10 (Stage 4 queue, open item 7)",
-    },
-}
+CURATED_CLUSTER_DISPOSITIONS: dict[str, dict[str, Any]] = {}
 
 
 def disposition_for(cluster_id: str,
@@ -478,18 +443,26 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
         for m in members:
             m["cluster_id"] = cluster_id
         canonical = None
+        uncovered = False
         if not conflict and disposition != DISPOSITION_SPLIT:
             candidates = [m for m in members
                           if m["stage4_status"] == STATUS_CURRENT]
             if candidates:
                 canonical = pick_canonical(candidates)
                 for m in candidates:
-                    if m["id"] != canonical["id"]:
-                        m["stage4_status"] = STATUS_SUPERSEDED_DUP
-                        m["superseded_by"] = canonical["id"]
+                    if m["id"] == canonical["id"]:
+                        continue
+                    if (containment_score(m.get("answer") or "",
+                                          canonical.get("answer") or "")
+                            < MERGE_COVERAGE_MIN):
+                        uncovered = True
+                        continue
+                    m["stage4_status"] = STATUS_SUPERSEDED_DUP
+                    m["superseded_by"] = canonical["id"]
         reasons = (["cluster_conflict"]
                    if conflict and disposition is None else []) + \
-                  (["cluster_audit"] if audit else [])
+                  (["cluster_audit"] if audit else []) + \
+                  (["cluster_uncovered"] if uncovered else [])
         if reasons:
             for m in members:
                 m["stage4_review_reasons"] = sorted(
@@ -499,6 +472,7 @@ def run_stage4(records: list[dict[str, Any]], alias_table: dict[str, Any],
             "size": len(members),
             "conflict": conflict,
             "audit": audit,
+            "uncovered": uncovered,
             "disposition": disposition,
             "canonical": ({"id": canonical["id"],
                            "source_file": canonical["source_file"],

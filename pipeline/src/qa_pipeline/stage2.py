@@ -59,9 +59,13 @@ from .scrub import ACCEPTED_HONORIFIC_NAMES
 # --- tunables -----------------------------------------------------------------
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
-PROMPT_VERSION = "1.4.0"  # part of the cache key: a prompt edit must miss cache
+PROMPT_VERSION = "1.5.0"  # part of the cache key: a prompt edit must miss cache
 MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue
 CONTAINMENT_THRESHOLD = 0.85  # answer word-recall against source, below -> review
+# Containment only sees added words and counts the customer section as source, so
+# two more checks hold the answer to the expert text, each way, below -> review.
+COVERAGE_THRESHOLD = 0.8  # expert-text word-recall against the answer: nothing dropped
+ANSWER_IN_EXPERT_THRESHOLD = 0.8  # answer word-recall against the expert text: nothing copied in
 AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample
 MAX_SOURCE_CHARS = 80_000  # combined source sections; above -> fallback, never truncated
 MAX_RETRIES = 6
@@ -137,6 +141,12 @@ STAGE2_SCHEMA: dict[str, Any] = {
             "required": list(AUDIENCE_KEYS),
             "additionalProperties": False,
         },
+        "filename_names": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Each person's name in the filename, exactly as "
+                           "written there. Empty when there is none.",
+        },
         "residual_pii_flag": {
             "type": "boolean",
             "description": "True when a real person name (or other PII) was "
@@ -152,7 +162,8 @@ STAGE2_SCHEMA: dict[str, Any] = {
         },
     },
     "required": ["question_canonical", "answer", "products_mentioned", "topics",
-                 "audience_flags", "residual_pii_flag", "residual_pii_evidence",
+                 "audience_flags", "filename_names", "residual_pii_flag",
+                 "residual_pii_evidence",
                  "confidence"],
     "additionalProperties": False,
 }
@@ -169,9 +180,13 @@ SYSTEM_PROMPT = (
     "null when the document has no customer question (expert note). answer cleans "
     "the expert's reply (typos, formatting) without changing content, adding claims, "
     "or inventing advice — every answer sentence must be traceable to the source "
-    "expert text. For expert notes with no customer question, transcribe the FULL "
-    "expert text (cleaned only) — never summarize or shorten; a one-line summary "
-    "is a failure. Preserve placeholders verbatim ([EMAIL] [PHONE] [CUSTOMER] [NAME] "
+    "expert text. Transcribe the FULL \"Expert answer\" text in every document, "
+    "cleaned only: the reply, and every note, FAQ, list, table or earlier reply "
+    "pasted in that section. Never summarize, shorten or leave out a part because "
+    "it repeats, looks like boilerplate or goes beyond the question; a shortened "
+    "answer is a failure. The answer comes only from the \"Expert answer\" section: "
+    "never copy the customer section into it, even when the expert answer is very "
+    "short. Preserve placeholders verbatim ([EMAIL] [PHONE] [CUSTOMER] [NAME] "
     "[SIGNATURE] [ADDRESS] [PROFILE-URL]); never restore names or contact details. "
     "Check every part of the source for personal data before you answer: the "
     "filename, the customer section (older messages quoted or forwarded under the newest one, "
@@ -193,6 +208,9 @@ SYSTEM_PROMPT = (
     "address, phone number, street address, social handle, birth date, account or "
     "order number): set the flag the same way, and use the matching placeholder in "
     "your output, or leave the detail out when none fits. "
+    "filename_names lists each person's name in the filename exactly as written "
+    "there, staff names included, public figures from (2) and product names not; "
+    "the flag follows the rules above. "
     "products_mentioned lists supplement product names/abbreviations as written in the "
     "source (AF, SB, FS, WLLS, MVM, PP, FirstString, LeanMR...), every product mentioned "
     "in question or answer, empty when none — never part numbers. When the document "
@@ -252,6 +270,9 @@ def validate_llm_output(obj: Any) -> dict[str, Any]:
         raise ValueError(f"audience_flags must have exactly keys {list(AUDIENCE_KEYS)}")
     if not all(isinstance(af[k], bool) for k in AUDIENCE_KEYS):
         raise ValueError("audience_flags values must be booleans")
+    if (not isinstance(obj["filename_names"], list)
+            or not all(isinstance(n, str) for n in obj["filename_names"])):
+        raise ValueError("filename_names must be a list of strings")
     if not isinstance(obj["residual_pii_flag"], bool):
         raise ValueError("residual_pii_flag must be a boolean")
     ev = obj["residual_pii_evidence"]
@@ -456,6 +477,29 @@ def _source_text(rec: dict[str, Any]) -> str:
                                  rec.get("expert_section") or "") if t)
 
 
+def redact_filename_names(filename: str, names: list[str]) -> tuple[str, bool]:
+    """Replace the LLM's filename names with [NAME]; -> (filename, any unmatched).
+
+    Only the named spans change, so the rest of the topic summary stays exactly
+    as written and the model cannot rewrite the filename. Longest first, so a
+    full name goes before a part of it. A whole word matches in any case; filenames
+    also glue words together (``formulaCasey``, ``MarkBaseline``), so the name's
+    exact capitalized form matches inside a word too, unless a lowercase letter
+    follows, which keeps ``Market`` safe from ``Mark``.
+    """
+    unmatched = False
+    scrubbed = filename
+    for name in sorted({n.strip() for n in names if n.strip()}, key=len, reverse=True):
+        escaped = re.escape(name)
+        patterns = [re.compile(rf"(?<!\w){escaped}(?!\w)", re.IGNORECASE)]
+        if name[0].isupper():
+            patterns.append(re.compile(rf"(?<![A-Z]){escaped}(?![a-z])"))
+        unmatched = unmatched or not any(p.search(filename) for p in patterns)
+        for pattern in patterns:
+            scrubbed = pattern.sub("[NAME]", scrubbed)
+    return scrubbed, unmatched
+
+
 def build_record(rec: dict[str, Any], llm: dict[str, Any],
                  alias_table: dict[str, Any], lookup: dict[str, Any],
                  families: list[str], model: str,
@@ -474,6 +518,9 @@ def build_record(rec: dict[str, Any], llm: dict[str, Any],
     topics = merge_topics(llm["topics"], rec.get("topic_subfolder"), unresolved_mvm)
     score = containment_score(llm["answer"], source)
     residual = bool(rec.get("residual_pii_flag")) or bool(llm["residual_pii_flag"])
+    expert = rec.get("expert_section") or ""
+    filename, name_unmatched = redact_filename_names(rec.get("filename") or "",
+                                                     llm["filename_names"])
     return {
         "id": rec["id"],
         "source_file": rec["source_file"],
@@ -481,7 +528,8 @@ def build_record(rec: dict[str, Any], llm: dict[str, Any],
         "doc_type": rec.get("doc_type"),
         "thread_date": rec.get("thread_date"),
         "topic_subfolder": rec.get("topic_subfolder"),
-        "filename": rec.get("filename"),
+        "filename": filename,
+        "filename_name_unmatched": name_unmatched,
         "question_original": rec.get("question"),
         "question_canonical": llm["question_canonical"],
         "answer": llm["answer"],
@@ -493,6 +541,8 @@ def build_record(rec: dict[str, Any], llm: dict[str, Any],
         "residual_pii_flag": residual,
         "confidence": float(llm["confidence"]),
         "containment_score": round(score, 4),
+        "answer_coverage": round(containment_score(expert, llm["answer"]), 4),
+        "answer_in_expert": round(containment_score(llm["answer"], expert), 4),
         "needs_review": False,  # set by mark_review(); kept here for the audit trail
         "llm_error": None,
         "model": model,
@@ -520,6 +570,7 @@ def fallback_record(rec: dict[str, Any], alias_table: dict[str, Any],
         "thread_date": rec.get("thread_date"),
         "topic_subfolder": rec.get("topic_subfolder"),
         "filename": rec.get("filename"),
+        "filename_name_unmatched": False,
         "question_original": rec.get("question"),
         "question_canonical": (rec.get("question").strip()
                                if rec.get("question") else None),
@@ -532,6 +583,8 @@ def fallback_record(rec: dict[str, Any], alias_table: dict[str, Any],
         "residual_pii_flag": bool(rec.get("residual_pii_flag")),
         "confidence": 0.0,
         "containment_score": 1.0 if (rec.get("expert_section") or "").strip() else 0.0,
+        "answer_coverage": 1.0,
+        "answer_in_expert": 1.0,
         "needs_review": True,
         "llm_error": error,
         "model": model,
@@ -556,6 +609,12 @@ def review_reasons(rec2: dict[str, Any],
         reasons.append("residual_pii_flag")
     if float(rec2.get("containment_score", 1.0)) < CONTAINMENT_THRESHOLD:
         reasons.append("containment_fail")
+    if float(rec2.get("answer_coverage", 1.0)) < COVERAGE_THRESHOLD:
+        reasons.append("low_coverage")
+    if float(rec2.get("answer_in_expert", 1.0)) < ANSWER_IN_EXPERT_THRESHOLD:
+        reasons.append("answer_outside_expert")
+    if rec2.get("filename_name_unmatched"):
+        reasons.append("filename_name_unmatched")
     if float(rec2.get("confidence", 0.0)) < min_confidence:
         reasons.append("low_confidence")
     if not reasons and is_audit_sample(rec2["id"]):

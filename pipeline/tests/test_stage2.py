@@ -23,6 +23,7 @@ from qa_pipeline.stage2 import (
     mark_review,
     merge_topics,
     normalize_products,
+    redact_filename_names,
     review_reasons,
     run_stage2,
     summarize,
@@ -107,6 +108,7 @@ def _llm(**kw):
         "products_mentioned": ["AF"],
         "topics": ["creatine", "stacking"],
         "audience_flags": {k: False for k in AUDIENCE_KEYS},
+        "filename_names": [],
         "residual_pii_flag": False,
         "residual_pii_evidence": None,
         "confidence": 0.95,
@@ -540,11 +542,11 @@ class TestPromptContract:
     def test_evidence_span_only_and_transcribe(self):
         from qa_pipeline.stage2 import SYSTEM_PROMPT
         assert "ONLY the name span" in SYSTEM_PROMPT
-        assert "never summarize or shorten" in SYSTEM_PROMPT
+        assert "Never summarize, shorten" in SYSTEM_PROMPT
 
     def test_prompt_version_bumped(self):
         from qa_pipeline.stage2 import PROMPT_VERSION
-        assert PROMPT_VERSION == "1.4.0"
+        assert PROMPT_VERSION == "1.5.0"
 
 
 class TestMessages:
@@ -624,3 +626,52 @@ class TestExtractorWire:
     def test_claude_needs_a_foundry_endpoint(self):
         with pytest.raises(ValueError, match="Foundry"):
             self._extractor("claude-x", None, "https://r.openai.azure.com")(self.MESSAGES)
+
+
+class TestFilenameNames:
+    @pytest.mark.parametrize("filename,names,want", [
+        ("Marlowe Testerby note, LeanMR", ["Marlowe Testerby"], "[NAME] note, LeanMR"),
+        ("Marlowe note, marlowe's program", ["Marlowe"], "[NAME] note, [NAME]'s program"),
+        ("LeanMR note -Marlowe Testerby", ["Marlowe", "Marlowe Testerby"], "LeanMR note -[NAME]"),
+        ("LeanMR timing", [], "LeanMR timing"),
+        ("calories in LBM formulaMarlowe", ["Marlowe"], "calories in LBM formula[NAME]"),
+        ("Muscle,MarloweBaseline program", ["Marlowe"], "Muscle,[NAME]Baseline program"),
+    ])
+    def test_only_the_named_spans_change(self, filename, names, want):
+        assert redact_filename_names(filename, names) == (want, False)
+
+    def test_part_of_a_word_is_left_alone(self):
+        assert redact_filename_names("Calcium note", ["Cal"]) == ("Calcium note", True)
+        assert redact_filename_names("Market note", ["Mark"]) == ("Market note", True)
+
+    def test_build_record_redacts_and_queues_an_unmatched_name(self):
+        lookup = build_product_lookup(build_alias_table(PRODUCTS))
+        table = build_alias_table(PRODUCTS)
+        rec = _rec(filename="Marlowe note")
+        ok = build_record(rec, _llm(filename_names=["Marlowe"]), table, lookup, [], "m")
+        assert ok["filename"] == "[NAME] note"
+        assert "filename_name_unmatched" not in review_reasons(ok)
+        off = build_record(rec, _llm(filename_names=["Tamsin"]), table, lookup, [], "m")
+        assert off["filename"] == "Marlowe note"
+        assert "filename_name_unmatched" in review_reasons(off)
+
+
+class TestAnswerHeldToExpertText:
+    def _record(self, expert, answer, customer="Message: a question about something else entirely"):
+        table = build_alias_table(PRODUCTS)
+        return build_record(_rec(expert_section=expert, customer_section=customer),
+                            _llm(answer=answer), table, build_product_lookup(table), [], "m")
+
+    def test_faithful_answer_is_not_queued_on_either(self):
+        reasons = review_reasons(self._record("one two three four five", "one two three four five"))
+        assert "low_coverage" not in reasons and "answer_outside_expert" not in reasons
+
+    def test_dropped_expert_text_is_queued(self):
+        reasons = review_reasons(self._record("one two three four five six", "one two"))
+        assert "low_coverage" in reasons and "answer_outside_expert" not in reasons
+
+    def test_copied_customer_text_is_queued(self):
+        record = self._record("one two", "one two a question about something else entirely")
+        # containment counts the customer section as source, so it cannot see this
+        assert record["containment_score"] == 1.0
+        assert "answer_outside_expert" in review_reasons(record)

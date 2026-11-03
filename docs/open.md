@@ -5,13 +5,13 @@ is closed; the commit message records why.
 
 ## Before public customer traffic
 
-- **Residual PII in the Q&A corpus.** 20 records to read, one ruling covering
-  153 more, 2 records that name a third party inside a customer's sentence, and
-  121 committed Stage 0 text files that still carry flagged spans (not served,
-  but in git). `pipeline/scripts/stage2_queue_triage.py` groups the queue.
-  Stage 1 pattern-scrubs filenames, but committed paths (`source_file`, the
-  Stage 0 tree) keep the raw name, and a person's name in a filename is only
-  caught by the Stage 2 flag.
+- **Residual PII in the Q&A corpus.** 252 records carry the flag, and
+  `pipeline/scripts/stage2_queue_triage.py` groups them: 30 with the flagged span
+  still in a committed record, 6 of those in a served answer or question (article
+  authors and one stray letter), and 195 with it only in committed Stage 0 text
+  (not served, but in git). Filenames are scrubbed for what is served, but committed
+  paths (`source_file`, the Stage 0 tree) keep the raw name. A name the model never
+  noticed is unmeasured, so a person reads what is new.
 - **Real customer text in git history.** Comments and a test fixture quoted a
   customer's name and a street fragment from the corpus; the files are clean
   now, but the history still holds them. Decide whether that is acceptable for
@@ -56,6 +56,16 @@ is closed; the commit message records why.
 
 ## Content and behaviour
 
+- **The Stage 4 threshold predates the Claude small model.** 0.88 was scanned on
+  the previous model's question wording, and `stage4_cluster_scan.py` has not been
+  rerun on Haiku's. Its questions match more often, and the merge coverage rule
+  limits what a wrong merge can remove.
+- **The low-confidence cutoff.** Haiku scores itself lower than the previous model:
+  55 records fall below 0.7, with the same fidelity as the rest. Decide whether the
+  queue reason still earns a read at 0.7.
+- **Two current answers still recommend VeganMV**, which is discontinued. The
+  currency judge called the line incidental despite the prompt rule (the previous
+  model also left two). A disposition or a rerun would settle them.
 - **The product summaries deck is extracted but not indexed.** Indexing needs a
   new `source_type` and an owner go-ahead for the index rebuild. Also open:
   whether `get_product` should return the deck's section for the product, and

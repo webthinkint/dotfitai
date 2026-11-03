@@ -111,7 +111,7 @@ relies on it being there.
 | Event | Payload | Notes |
 |---|---|---|
 | `stage` | `{stage, detail}` | What the assistant is doing. `stage` is one of `thinking`, `search`, `fetch`, `product`, `guide`, `answer`. **Stages repeat** — three searches emit three `search` events. |
-| `source` | `{n, source_type, authority, title, citation_url, locator, quotable, part_nos}` | A numbered source, emitted when it is assigned its number and before any delta cites it. |
+| `source` | `{n, source_type, authority, title, citation_url, locator, quotable, part_nos}` | A numbered source, emitted when it is assigned its number and before any delta cites it. A customer Q&A source's `title` and `locator` can carry placeholders such as `[NAME]`. |
 | `delta` | `{text}` | A fragment of answer text, live. Concatenate in arrival order. |
 | `result` | see below | Final, assembled. **Always last**, including after an `error`. |
 | `error` | `{request_id, kind, message}` | The turn failed. Followed by `delta`s carrying a handoff message, then `result`. |
