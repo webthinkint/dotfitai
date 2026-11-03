@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import pytest
 
 from qa_pipeline.alias import build_alias_table
 from qa_pipeline.stage2 import (
     AUDIENCE_KEYS,
+    Extractor,
     build_messages,
     build_product_lookup,
     build_record,
@@ -542,7 +544,7 @@ class TestPromptContract:
 
     def test_prompt_version_bumped(self):
         from qa_pipeline.stage2 import PROMPT_VERSION
-        assert PROMPT_VERSION == "1.2.0"
+        assert PROMPT_VERSION == "1.3.0"
 
 
 class TestMessages:
@@ -559,3 +561,66 @@ class TestMessages:
         assert cache_key("d", "v", r) == cache_key("d", "v", dict(r))
         assert cache_key("d", "v", r) != cache_key("d", "v", other)
         assert cache_key("d", "v", r) != cache_key("other", "v", r)
+
+
+class _FakeMessages:
+    """The Messages endpoint's streaming shape, returning one fixed response."""
+
+    def __init__(self, message):
+        self.message = message
+        self.kwargs = {}
+
+    def stream(self, **kwargs):
+        self.kwargs = kwargs
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def get_final_message(self):
+        return self.message
+
+
+def _claude_message(*blocks, stop_reason="end_turn"):
+    return SimpleNamespace(stop_reason=stop_reason, content=list(blocks))
+
+
+def _block(type_, text=""):
+    return SimpleNamespace(type=type_, text=text)
+
+
+class TestExtractorWire:
+    MESSAGES = [{"role": "system", "content": "sys"},
+                {"role": "user", "content": "usr"}]
+
+    def _extractor(self, deployment, client, endpoint="https://r.services.ai.azure.com"):
+        return Extractor(endpoint, "key", deployment, "v", max_retries=0,
+                         client=client, schema={"type": "object"})
+
+    def test_claude_takes_messages_and_skips_thinking(self):
+        client = _FakeMessages(_claude_message(
+            _block("thinking"), _block("text", '{"ok": true}')))
+        assert self._extractor("claude-x", client)(self.MESSAGES) == {"ok": True}
+        assert client.kwargs["system"] == "sys"
+        assert client.kwargs["messages"] == [{"role": "user", "content": "usr"}]
+        assert client.kwargs["output_config"]["format"]["schema"] == {"type": "object"}
+
+    @pytest.mark.parametrize("stop_reason", ["refusal", "max_tokens"])
+    def test_claude_incomplete_response_raises(self, stop_reason):
+        client = _FakeMessages(_claude_message(
+            _block("text", '{"ok": true}'), stop_reason=stop_reason))
+        with pytest.raises(ValueError, match=stop_reason):
+            self._extractor("claude-x", client)(self.MESSAGES)
+
+    def test_other_deployments_stay_on_chat_completions(self):
+        response = SimpleNamespace(choices=[SimpleNamespace(
+            message=SimpleNamespace(content='{"ok": true}'))])
+        client = SimpleNamespace(create=lambda **kw: response)
+        assert self._extractor("gpt-x", client)(self.MESSAGES) == {"ok": True}
+
+    def test_claude_needs_a_foundry_endpoint(self):
+        with pytest.raises(ValueError, match="Foundry"):
+            self._extractor("claude-x", None, "https://r.openai.azure.com")(self.MESSAGES)

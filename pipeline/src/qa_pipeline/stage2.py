@@ -20,16 +20,16 @@ document:
 - ``currency_cues[]`` — deprecated/discontinued names found by tolerant
   deterministic scan (renames, replacements, discontinued)
 - ``residual_pii_flag`` — Stage 1 flag OR LLM flag (the LLM redacts what it
-  flags, to [NAME]; owner-confirmed staff names redact silently without
+  flags, to a placeholder; owner-confirmed staff names redact silently without
   flagging, public-figure surnames are quoted verbatim); ``confidence`` — LLM
   self-assessed extraction quality, below threshold goes to review
 
 The LLM output is **transcription + structuring, never generation**: a
 source-containment diff pass (word-recall of the answer against the source
 sections) verifies no invented content; failures go to the review queue,
-never silently dropped. Small Azure OpenAI deployment, strict JSON-schema
-outputs, GPT-5-family default (no temperature knob — determinism comes from
-the strict schema plus the containment pass, not temperature 0).
+never silently dropped. Small Foundry deployment, strict JSON-schema outputs
+(no temperature knob — determinism comes from the strict schema plus the
+containment pass, not temperature 0).
 
 Determinism: records carry no timestamps and are sorted by ``source_file``;
 reruns with the same LLM responses (same-machine cache hit or ``--no-llm``)
@@ -50,6 +50,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Protocol
+from urllib.parse import urlparse
 
 from .alias import _tolerant_pattern as _alias_tolerant_pattern
 from .alias import build_alias_table, norm as _norm
@@ -58,12 +59,16 @@ from .scrub import ACCEPTED_HONORIFIC_NAMES
 # --- tunables -----------------------------------------------------------------
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
-PROMPT_VERSION = "1.2.0"  # part of the cache key: a prompt edit must miss cache
+PROMPT_VERSION = "1.3.0"  # part of the cache key: a prompt edit must miss cache
 MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue
 CONTAINMENT_THRESHOLD = 0.85  # answer word-recall against source, below -> review
 AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample
 MAX_SOURCE_CHARS = 80_000  # combined source sections; above -> fallback, never truncated
 MAX_RETRIES = 6
+# Room for the longest source transcribed in full, plus thinking; streamed, so a
+# long record does not hit the SDK's non-streaming timeout.
+CLAUDE_MAX_TOKENS = 64_000
+FOUNDRY_HOST_SUFFIX = ".services.ai.azure.com"
 
 AUDIENCE_KEYS = (
     "minor",
@@ -95,7 +100,8 @@ SILENT_STAFF_NAMES = frozenset({
 })
 
 _RETRYABLE = {"RateLimitError", "APIConnectionError", "APITimeoutError",
-              "InternalServerError"}
+              "InternalServerError", "OverloadedError",
+              "ServiceUnavailableError", "DeadlineExceededError"}
 
 
 # --- LLM contract -------------------------------------------------------------
@@ -155,7 +161,9 @@ _PUBLIC_FIGURES = ", ".join(sorted(ACCEPTED_HONORIFIC_NAMES))
 _STAFF_NAMES = ", ".join(sorted(SILENT_STAFF_NAMES))
 
 SYSTEM_PROMPT = (
-    "You structure scrubbed customer nutrition Q&A documents for retrieval. "
+    "You structure customer nutrition Q&A documents for retrieval. An automatic "
+    "scrub has already run over them, but it misses things, so expect real names "
+    "and contact details to remain. "
     "Return JSON only via the schema. Rules: transcription, never generation. "
     "question_canonical rephrases the customer's question as standalone phrasing; "
     "null when the document has no customer question (expert note). answer cleans "
@@ -165,15 +173,26 @@ SYSTEM_PROMPT = (
     "expert text (cleaned only) — never summarize or shorten; a one-line summary "
     "is a failure. Preserve placeholders verbatim ([EMAIL] [PHONE] [CUSTOMER] [NAME] "
     "[SIGNATURE] [ADDRESS] [PROFILE-URL]); never restore names or contact details. "
+    "Check every part of the source for personal data before you answer: the "
+    "customer section (older messages quoted or forwarded under the newest one, "
+    "message bodies, sign-offs, headers), the customer question, and the expert "
+    "answer (greetings, sign-offs, people mentioned in passing). A lone first name "
+    "closing a message is the commonest miss. "
     "Person names need care. (1) These dotFIT staff names appear routinely as CCs "
     "and referrals — redact them to [NAME] SILENTLY (residual_pii_flag stays "
     f"false, evidence null): {_STAFF_NAMES}. "
     "(2) These widely-cited public figures (study authors, clinicians quoted in "
     "pasted articles) — quote them verbatim, never flag, never redact: "
     f"{_PUBLIC_FIGURES}. "
-    "(3) Any other real person name: replace it with [NAME] in the answer and set "
-    "residual_pii_flag true, with ONLY the name span (no surrounding words) in "
-    "residual_pii_evidence. "
+    "(3) Any other real person name, anywhere in the source, including a part you "
+    "do not copy into your output: set residual_pii_flag true, with ONLY the name "
+    "span (no surrounding words) in residual_pii_evidence (the first one, if there "
+    "are several), and replace it with [NAME] in answer and question_canonical. "
+    "question_canonical never contains a person's name. "
+    "(4) Any other personal detail the scrub missed, written in any form (email "
+    "address, phone number, street address, social handle, birth date, account or "
+    "order number): set the flag the same way, and use the matching placeholder in "
+    "your output, or leave the detail out when none fits. "
     "products_mentioned lists supplement product names/abbreviations as written in the "
     "source (AF, SB, FS, WLLS, MVM, PP, FirstString, LeanMR...), every product mentioned "
     "in question or answer, empty when none — never part numbers. When the document "
@@ -591,16 +610,42 @@ class _ChatAPI(Protocol):
                response_format: dict[str, Any]) -> Any: ...
 
 
+class _MessagesAPI(Protocol):
+    def stream(self, *, model: str, max_tokens: int, system: str,
+               messages: list[dict], output_config: dict[str, Any]) -> Any: ...
+
+
+def is_claude(deployment: str) -> bool:
+    """A ``claude*`` deployment takes the Messages endpoint (the runtime's rule);
+    the resource answers 404 ``api_not_supported`` for it on Chat Completions."""
+    return deployment.lower().startswith("claude")
+
+
+def claude_json(message: Any) -> dict[str, Any]:
+    """The schema-constrained JSON from a Messages response.
+
+    Thinking blocks can precede the text. A refusal or a cut-off carries no
+    usable JSON, so it raises and the record takes the LLM-error path.
+    """
+    if message.stop_reason != "end_turn":
+        raise ValueError(f"Claude stopped with {message.stop_reason!r}")
+    for block in message.content:
+        if block.type == "text":
+            return json.loads(block.text)
+    raise ValueError("Claude returned no text block")
+
+
 class Extractor:
     """Small-chat JSON-schema client with retries. Never echoes key material.
 
     *schema*/*schema_name* default to the Stage 2 contract; Stage 4's
     currency judge injects its own (same wire format, different schema).
+    The deployment's name picks the wire: see :func:`is_claude`.
     """
 
     def __init__(self, endpoint: str, api_key: str, deployment: str,
                  api_version: str, max_retries: int = MAX_RETRIES,
-                 client: _ChatAPI | None = None,
+                 client: _ChatAPI | _MessagesAPI | None = None,
                  schema: dict[str, Any] | None = None,
                  schema_name: str = "qa_stage2"):
         self.endpoint = endpoint
@@ -618,6 +663,8 @@ class Extractor:
         delay = 1.0
         for attempt in range(self.max_retries + 1):
             try:
+                if is_claude(self.deployment):
+                    return self._call_claude(client, messages)
                 resp = client.create(
                     model=self.deployment,
                     messages=messages,
@@ -637,7 +684,34 @@ class Extractor:
                 delay = min(delay * 2, 30.0)
         raise AssertionError("unreachable")
 
-    def _make_client(self) -> _ChatAPI:
+    def _call_claude(self, client: _MessagesAPI,
+                     messages: list[dict[str, str]]) -> dict[str, Any]:
+        system = "\n\n".join(m["content"] for m in messages
+                             if m["role"] == "system")
+        with client.stream(
+            model=self.deployment,
+            max_tokens=CLAUDE_MAX_TOKENS,
+            system=system,
+            messages=[m for m in messages if m["role"] != "system"],
+            output_config={"format": {"type": "json_schema",
+                                      "schema": self.schema}},
+        ) as stream:
+            message = stream.get_final_message()
+        self.n_api_calls += 1
+        return claude_json(message)
+
+    def _make_client(self) -> _ChatAPI | _MessagesAPI:
+        if is_claude(self.deployment):
+            from anthropic import AnthropicFoundry
+            host = urlparse(self.endpoint).hostname or ""
+            if not host.endswith(FOUNDRY_HOST_SUFFIX):
+                raise ValueError(
+                    "a claude deployment needs a Foundry endpoint "
+                    f"(https://<name>{FOUNDRY_HOST_SUFFIX})")
+            return AnthropicFoundry(  # type: ignore[return-value]
+                api_key=self.api_key,
+                resource=host.removesuffix(FOUNDRY_HOST_SUFFIX),
+            ).messages
         from openai import AzureOpenAI
         return AzureOpenAI(  # type: ignore[return-value]
             azure_endpoint=self.endpoint, api_key=self.api_key,

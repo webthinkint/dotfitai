@@ -27,8 +27,8 @@ a new-export diff (`products_diff.py`), the Stage 2 review-queue triage (`stage2
 - [uv](https://docs.astral.sh/uv/) is the only prerequisite; Python **3.12** is
   pinned in `.python-version` and `uv.lock` is committed.
 - Runtime dependencies: `python-docx`, `pdfplumber`, `python-pptx` (corpora);
-  `openai`, `azure-search-documents` (Azure). Credentials live only in the
-  gitignored root `.env`, read by `azure_config.py`.
+  `openai`, `anthropic`, `azure-search-documents` (Azure). Credentials live only
+  in the gitignored root `.env`, read by `azure_config.py`.
 - Tests use synthetic fixtures only; real corpus text never appears in them.
 
 ```bash
@@ -56,7 +56,7 @@ always quote paths.
   `thread_date` from the enquiry's `Sent:` header, question text). Documents
   with no expert answer are excluded and tallied, not queued.
 - **Stage 2** — LLM structuring on scrubbed text only (small chat deployment,
-  strict JSON schema): `question_canonical`, a cleaned `answer` (transcription,
+  strict JSON schema; a `claude*` name takes the Messages endpoint): `question_canonical`, a cleaned `answer` (transcription,
   never generation — a containment diff checks no content was invented),
   `products[]` resolved to part numbers through the alias table, `topics[]`,
   `audience_flags`, `currency_cues`, `residual_pii_flag`, `confidence`.
