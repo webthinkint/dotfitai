@@ -626,6 +626,17 @@ def _pattern_scrub(text: str, rep: ScrubReport) -> str:
     return text
 
 
+def scrub_filename(name: str) -> tuple[str, bool]:
+    """Pattern-scrub a document's filename; -> (scrubbed, whether it changed).
+
+    The filename reaches the caller as a Q&A source's ``locator``. Only the
+    patterns apply: a person's name in a filename cannot be told from a topic by
+    rule, so it is left to the Stage 2 flag and the reader.
+    """
+    scrubbed = _pattern_scrub(name, ScrubReport(ok=True))
+    return scrubbed, scrubbed != name
+
+
 def _first_nonblank(lines: list[str], stop: int | None) -> int | None:
     """Index of the first non-blank line before *stop* (the expert region)."""
     for i, line in enumerate(lines[:stop] if stop is not None else lines):

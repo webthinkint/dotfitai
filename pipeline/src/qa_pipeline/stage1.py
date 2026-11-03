@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .io_utils import doc_id, read_json
+from .scrub import scrub_filename
 from .structure import (
     QA_QUESTION_LABELS,
     find_customer_header,
@@ -118,7 +119,7 @@ def classify_and_parse(
     rel_parts = source_file.split("/")
     year = int(rel_parts[0]) if len(rel_parts) > 1 and rel_parts[0].isdigit() else None
     topic = "/".join(rel_parts[1:-1]) if len(rel_parts) > 2 else ""
-    filename = rel_parts[-1].removesuffix(".docx")
+    filename, filename_redacted = scrub_filename(rel_parts[-1].removesuffix(".docx"))
 
     header_idx = find_customer_header(lines)
     if header_idx == 0 and (fwd := find_forwarded_split(lines)) is not None:
@@ -182,6 +183,9 @@ def classify_and_parse(
     flags = list((scrub_report or {}).get("flags", []))
     residual_pii = bool((scrub_report or {}).get("residual_pii_flag", False))
     if residual_pii:
+        needs_review = True
+    if filename_redacted:
+        flags.append("filename_redacted")
         needs_review = True
     # a document with no answer/body text is not indexable — the CLI excludes
     # it from documents.jsonl; the flag stays

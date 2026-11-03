@@ -53,8 +53,11 @@ always quote paths.
 - **Stage 1** — parse and classify: split the expert answer from the quoted
   customer message (three document shapes), classify (`qa_email` /
   `expert_note` / `other`), extract metadata (year, topic subfolder,
-  `thread_date` from the enquiry's `Sent:` header, question text). Documents
-  with no expert answer are excluded and tallied, not queued.
+  `thread_date` from the enquiry's `Sent:` header, question text). The filename
+  gets the pattern redaction, because it reaches the caller as a source's
+  `locator`; paths in `source_file` and the Stage 0 tree stay raw, because
+  document ids hash them. Documents with no expert answer are excluded and
+  tallied, not queued.
 - **Stage 2** — LLM structuring on scrubbed text only (small chat deployment,
   strict JSON schema; a `claude*` name takes the Messages endpoint): `question_canonical`, a cleaned `answer` (transcription,
   never generation — a containment diff checks no content was invented),
@@ -166,6 +169,8 @@ protein minimum, filled from the bars' facts. Prices are masked to
   in the corpus-attested `GREETING_NAME_TOKENS`; redacting it automatically
   would corrupt prose.
 - `no_quotable_structure` — `doc_type: other`; confirmed in Stage 2.
+- `filename_redacted` — the filename held an email, phone or similar; the served
+  `locator` carries the placeholder, and a person confirms nothing else leaked.
 - Stage 2 adds low confidence, residual PII, containment failures, LLM errors
   and a deterministic 5% audit sample. The queue does not gate: a flagged record
   is already redacted. `scripts/stage2_queue_triage.py` groups it for sign-off.

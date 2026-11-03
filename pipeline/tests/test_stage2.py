@@ -544,7 +544,7 @@ class TestPromptContract:
 
     def test_prompt_version_bumped(self):
         from qa_pipeline.stage2 import PROMPT_VERSION
-        assert PROMPT_VERSION == "1.3.0"
+        assert PROMPT_VERSION == "1.4.0"
 
 
 class TestMessages:

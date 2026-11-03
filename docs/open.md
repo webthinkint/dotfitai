@@ -9,6 +9,9 @@ is closed; the commit message records why.
   153 more, 2 records that name a third party inside a customer's sentence, and
   121 committed Stage 0 text files that still carry flagged spans (not served,
   but in git). `pipeline/scripts/stage2_queue_triage.py` groups the queue.
+  Stage 1 pattern-scrubs filenames, but committed paths (`source_file`, the
+  Stage 0 tree) keep the raw name, and a person's name in a filename is only
+  caught by the Stage 2 flag.
 - **Real customer text in git history.** Comments and a test fixture quoted a
   customer's name and a street fragment from the corpus; the files are clean
   now, but the history still holds them. Decide whether that is acceptable for

@@ -212,3 +212,19 @@ class TestDateLocaleIndependence:
     def test_invalid_calendar_dates_are_rejected(self):
         assert parse_sent_date("2/30/2023") is None
         assert parse_sent_date("Febtember 3, 2024") is None
+
+
+class TestFilenameScrub:
+    def test_contact_detail_in_filename_is_redacted_and_queued(self):
+        rec = classify_and_parse(["Some expert text."],
+                                 "2026/Topic/someone@example.com.docx")
+        assert rec["filename"] == "[EMAIL]"
+        assert rec["needs_review"] is True
+        assert "filename_redacted" in review_reasons(rec)
+        # the id hashes the raw path, so a scrubbed name leaves ids stable
+        assert rec["source_file"] == "2026/Topic/someone@example.com.docx"
+
+    def test_topic_filename_is_untouched(self):
+        rec = classify_and_parse(["Some expert text."], "2026/Topic/Creatine timing, 2 scoops.docx")
+        assert rec["filename"] == "Creatine timing, 2 scoops"
+        assert "filename_redacted" not in rec["scrub_flags"]

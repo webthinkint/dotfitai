@@ -59,7 +59,7 @@ from .scrub import ACCEPTED_HONORIFIC_NAMES
 # --- tunables -----------------------------------------------------------------
 
 CHAT_API_VERSION = "2025-04-01-preview"  # verified live (scripts/chat_smoke.py)
-PROMPT_VERSION = "1.3.0"  # part of the cache key: a prompt edit must miss cache
+PROMPT_VERSION = "1.4.0"  # part of the cache key: a prompt edit must miss cache
 MIN_CONFIDENCE_DEFAULT = 0.7  # below -> Stage 3 review queue
 CONTAINMENT_THRESHOLD = 0.85  # answer word-recall against source, below -> review
 AUDIT_RATE = 0.05  # deterministic 5% high-confidence audit sample
@@ -174,7 +174,7 @@ SYSTEM_PROMPT = (
     "is a failure. Preserve placeholders verbatim ([EMAIL] [PHONE] [CUSTOMER] [NAME] "
     "[SIGNATURE] [ADDRESS] [PROFILE-URL]); never restore names or contact details. "
     "Check every part of the source for personal data before you answer: the "
-    "customer section (older messages quoted or forwarded under the newest one, "
+    "filename, the customer section (older messages quoted or forwarded under the newest one, "
     "message bodies, sign-offs, headers), the customer question, and the expert "
     "answer (greetings, sign-offs, people mentioned in passing). A lone first name "
     "closing a message is the commonest miss. "
