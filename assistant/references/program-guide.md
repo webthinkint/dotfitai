@@ -6,8 +6,10 @@ slide numbers point into its extracted sections in pipeline-output/summaries/md/
 The deck says nothing on the screening rules (section 2) or on the nutrient amounts in
 the overlap check (section 9); the amounts come from the product labels. That a
 statin does not limit a program, and that Creatine Monohydrate is vegan, are the
-owners' rulings. Leaving Vitamin D-3 out of the standard program is the team's ruling;
-the deck lists it as needed at Essentials. Every
+owners' rulings. So are the protein target's 3–5 meals (the deck says 4–5), and using
+the powder as needed with one serving before and one after a workout, without asking
+what the customer gets from food. Leaving Vitamin D-3 out of the standard program is
+the team's ruling; the deck lists it as needed at Essentials. Every
 bracketed part number must resolve in the alias table; a test enforces it.
 -->
 
@@ -19,7 +21,7 @@ How dotFIT builds a supplement program. Part numbers are in brackets. Flavors of
 
 1. **Foundation first.** A long, healthy, active life rests on three cornerstones, in this order: meeting nutrient needs, regular activity, and a healthy body composition. Every program starts with the foundation (section 3). Then add products for the goal (section 4–section 7), then extras as needs, activity and budget allow. Nobody has to take everything. Start with the essentials and build from there. (Slides 9, 36, 90, 266.)
 2. **Everyone gets one complete multivitamin/mineral.** Use one of the multis in section 3.1, or Alln1 SuperBlend. **Never both.**
-3. **Protein: at least 1 g per lb of lean body mass per day**, spread over 4–5 meals. Food comes first, and a dotFIT protein closes the gap (section 3.4). Youth aim for about 1 g per lb of body weight (section 7).
+3. **Protein: about 1 g per lb of lean body mass per day (or of body weight if not overweight)**, from all sources including food, spread over 3–5 meals. Use a dotFIT protein as needed to reach that number (section 3.4). Youth aim for about 1 g per lb of body weight (section 7).
 4. **Omega-3 is for nearly everyone:** most people don't eat enough fatty fish. Dose it by fatty-fish intake (section 3.2); only 16 oz or more a week makes it unnecessary, unless it is for athletic recovery. **Calcium depends on dietary calcium** and is not automatic. **Vitamin D-3 is not part of the standard program:** the multi or SuperBlend already provides vitamin D. Add it only if a blood test shows a low level or they ask about it (section 3.3). The brain and mental health program is the one exception (section 6.3).
 5. **Fat-loss aids are temporary.** Stop WeightLoss & LiverSupport, CarbRepel and ThermAccel once the goal is reached. The foundation continues. (Slide 201.)
 6. **Stimulants.** ThermAccel and NO7 PreWorkout contain caffeine. Neither is for caffeine-sensitive people. ThermAccel is never combined with another stimulant. (Slides 172, 180.)
@@ -98,6 +100,8 @@ Under 12 → no dotFIT multi (section 7)
 | Fat loss, meal replacement | **LeanMeal** [1333/1334] (section 5) | 21 g protein, 7 g fiber, about 170–180 kcal |
 
 Pick **one** protein powder from this table and use it for every protein job in the program: daily target, before and after training, meal replacement. Once one is chosen, keep it; don't add a second powder unless the customer asks for one.
+
+On workout days, take 1 serving 30–40 min before and 1 right after; both count toward the daily target. Otherwise use it as needed to reach the target, with a meal or on its own. On LeanMeal, the two daily servings double as these.
 
 - **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (section 4).
 - **dotBAR** [1456/1457/1462/1470/1471/1480/1482] and **Vanilla dotWAFER** [1466] are convenient protein snacks.

@@ -108,3 +108,9 @@ needed at Essentials (slides 128–129) and in the senior foundation (slides 7, 
 team's ruling is that it stays out of programs built on a multi or SuperBlend, so
 the guide adds it only for a low blood test or when the customer asks. The brain
 and mental health level keeps it (guide 6.3).
+
+**D-2 · Protein is spread over 3–5 meals** (guide 1.3)
+The deck says 4–5 meals. The owner's ruling is 3–5,
+with the powder used as needed to reach the target and one serving before and one
+after a workout. The deck says nothing on LeanMeal around workouts; the guide has
+its two daily servings double as those two, so a fat-loss program gains no calories.
