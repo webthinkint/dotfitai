@@ -36,8 +36,9 @@ contain spaces, commas and `&`, so always quote paths.
 
 - No model call outside the loop: no pre-check, rewrite or post-check. Nothing
   blocks, withholds or retracts an answer.
-- `original-data/` is read-only. `QAs/` is real customer mail: real corpus text
-  never goes in code, tests, comments, docs or commit messages. Use synthetic text.
+- `original-data/` is read-only, except that the weekly fetch adds and updates
+  files in `QAs/`. `QAs/` is real customer mail: real corpus text never goes in
+  code, tests, comments, docs or commit messages. Use synthetic text.
 - A product claim is quoted from approved copy or attributed, never strengthened.
   No product diagnoses, treats, cures or prevents a disease. A product's price
   is never stated.
@@ -46,7 +47,7 @@ contain spaces, commas and `&`, so always quote paths.
   reaches the caller before any text cites it.
 - `pipeline-output/` is derived: regenerate it, never hand-edit it. Pipeline
   reruns are byte-identical.
-- Azure and Google credentials live only in the gitignored root `.env` (or, for
+- Azure, Google and Dropbox credentials live only in the gitignored root `.env` (or, for
   the Google key file, a path it names outside the repo); `.env.example` is the
   committed contract.
 

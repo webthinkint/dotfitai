@@ -26,6 +26,7 @@ packages = ["src/qa_pipeline"]
 
 [project.scripts]
 qa-pipeline = "qa_pipeline.cli:main"
+qa-weekly = "qa_pipeline.weekly:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

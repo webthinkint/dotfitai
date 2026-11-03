@@ -1,0 +1,10 @@
+# dotfit-qa-monday — systemd *user* unit: fetch, process and report the week's Q&A.
+# install-weekly.sh installs it with the uv path substituted.
+[Unit]
+Description=dotFIT weekly Q&A fetch and report
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/.local/share/dotfit/qa-job
+ExecStart=/home/kovach/.local/bin/uv run --project pipeline qa-weekly monday

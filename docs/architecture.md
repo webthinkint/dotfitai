@@ -14,7 +14,7 @@ refusal-prone, or closer to the owners' preferred prose?
 
 | Folder | What it is | Who edits it |
 |---|---|---|
-| `original-data/` | The corpora as dotFIT supplied them. `QAs/` is real customer mail and is gitignored. | Nobody: read-only |
+| `original-data/` | The corpora as dotFIT supplied them. `QAs/` is real customer mail and is gitignored. | Nobody: read-only, except the weekly fetch adding to `QAs/` |
 | `pipeline/` | Python: corpora → `pipeline-output/` → the search index. See `pipeline/README.md`. | Engineers |
 | `pipeline-output/` | Committed, derived pipeline outputs, including the alias table the runtime loads. | The pipeline only |
 | `assistant/` | The prompt, references, source registry and smoke set. See `assistant/README.md`. | Staff and engineers |

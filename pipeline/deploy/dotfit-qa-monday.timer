@@ -1,0 +1,9 @@
+[Unit]
+Description=Monday morning: fetch and report the week's Q&A
+
+[Timer]
+OnCalendar=Mon 07:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

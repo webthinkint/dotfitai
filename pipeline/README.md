@@ -20,7 +20,7 @@ that are cached (LLM structuring, embeddings) and the upload.
 Standalone scripts in `scripts/` cover what is not a stage: ASR
 (`asr_pilot.py --all`, `masterclass_transcribe.py`), the product summaries deck
 (`summaries_pptx_md.py`), the product-video scripts (`video_scripts_docx_md.py`),
-a new-export diff (`products_diff.py`), the Stage 2 review-queue triage (`stage2_queue_triage.py`), and Azure smoke checks.
+a new-export diff (`products_diff.py`), the Stage 2 review-queue triage (`stage2_queue_triage.py`), the Dropbox authorization (`dropbox_auth.py`), and Azure smoke checks.
 
 ## Tooling
 
@@ -102,8 +102,9 @@ always quote paths.
 
 ## Rules the pipeline keeps
 
-- `original-data/QAs/` is read-only and holds real customer mail; it is
-  gitignored and nothing unscrubbed leaves Stage 0.
+- `original-data/QAs/` holds real customer mail; it is gitignored, nothing
+  unscrubbed leaves Stage 0, and the weekly fetch is the only thing that writes
+  to it.
 - **Aliases tag and expand; they never rewrite corpus text.** A rename is one
   product under two names and expands to the successor's part numbers; a
   replacement is a different formula and is a currency cue only. Every alias is
@@ -121,6 +122,34 @@ always quote paths.
   document ids, sorted iteration, no timestamps in per-file outputs. Run
   manifests in `runs/` carry timestamps and input hashes and are never compared.
 - `pipeline-output/` is derived: regenerate it, never hand-edit it.
+
+## The weekly Q&A refresh
+
+`qa-weekly` (`src/qa_pipeline/weekly.py`) keeps the Q&A corpus current from the
+Dropbox folders in `QA_FOLDERS`. It runs in its own clone, set up by
+`deploy/install-weekly.sh`, whose `.env`, `original-data/QAs` and run caches are
+links back to the main checkout. HEAD there is what was last published, so what a
+run would publish is always the working tree against HEAD.
+
+- **Monday 07:00**: fetch, run Stages 0, 1, 2 and 4, write
+  `pipeline-output/qa/runs/weekly-report-<date>.md` and mail its counts to
+  `EMAIL_TO`. That person reads the flagged records, and what is not ok is fixed in
+  the pipeline and pushed to master before Thursday. A PII flag whose text is
+  provably not served leaves the reading list and is only counted: the text is
+  still in the Stage 0 and Stage 1 files, which publishing commits.
+- **Thursday 12:00**: take master, rerun the stages from cache with no fetch,
+  index, commit and push. A model error stops the run, since Stage 4 treats a
+  failed judgment as superseded. So do more than 20 answers leaving search
+  (`--allow-retires` overrides it). Failures are mailed.
+- **To skip a week**, `touch` `pipeline-output/qa/runs/skip-thursday`; the run
+  removes it. Next Monday's report includes everything still waiting.
+
+The fetch never deletes, because Stage 0 and the index prune what has no input. An
+updated file replaces the old version at its path. Content already held at another
+path is skipped. Mail is plain SMTP, so it carries counts and a path and no record
+text; the report stays on the machine. Nothing holds a flagged record back. A new
+year's folder is reported until it joins `QA_FOLDERS`, and a fix through a Stage 2
+prompt change misses the cache for the whole corpus, so it is a separate run.
 
 ## When `products.json` changes
 

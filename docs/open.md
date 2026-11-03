@@ -10,8 +10,13 @@ is closed; the commit message records why.
   still in a committed record, 6 of those in a served answer or question (article
   authors and one stray letter), and 195 with it only in committed Stage 0 text
   (not served, but in git). Filenames are scrubbed for what is served, but committed
-  paths (`source_file`, the Stage 0 tree) keep the raw name. A name the model never
-  noticed is unmeasured, so a person reads what is new.
+  paths (`source_file`, the Stage 0 tree) keep the raw name. A person reads the
+  flagged records among what is new each week; a name the model never noticed is
+  unmeasured, goes unread and can reach customers.
+- **The first weekly Q&A batch is unpublished and the timers are off.** It waits in
+  the job clone for its flagged records to be read. Publish it with
+  `qa-weekly thursday`, then start the timers with
+  `pipeline/deploy/install-weekly.sh --enable`.
 - **Real customer text in git history.** Comments and a test fixture quoted a
   customer's name and a street fragment from the corpus; the files are clean
   now, but the history still holds them. Decide whether that is acceptable for

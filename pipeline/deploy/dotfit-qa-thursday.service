@@ -1,0 +1,10 @@
+# dotfit-qa-thursday — systemd *user* unit: publish what Monday fetched.
+# install-weekly.sh installs it with the uv path substituted.
+[Unit]
+Description=dotFIT weekly Q&A publish
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/.local/share/dotfit/qa-job
+ExecStart=/home/kovach/.local/bin/uv run --project pipeline qa-weekly thursday
