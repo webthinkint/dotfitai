@@ -1,6 +1,11 @@
 {
  "pipeline_version": "0.1.0",
  "filtered": false,
- "n_errors": 0,
- "files": []
+ "n_errors": 1,
+ "files": [
+  {
+   "source_file": "2026/.docx",
+   "error": "BadZipFile: File is not a zip file"
+  }
+ ]
 }

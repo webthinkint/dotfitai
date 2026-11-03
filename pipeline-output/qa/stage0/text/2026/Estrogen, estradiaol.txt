@@ -1,0 +1,12 @@
+At age 56, the expected estrogen/estradiol level depends much more on menopausal status and whether she is using hormone-replacement therapy (HRT) than on age itself.
+For a 56-year-old woman who is naturally postmenopausal and not taking estrogen, a typical serum estradiol (E2) level is roughly <10–30 pg/mL, with many healthy postmenopausal women below 20 pg/mL. Some laboratories use a postmenopausal reference range extending to ~30–35 pg/mL, so the lab's own range matters.
+A useful framework is:
+| Situation | Estradiol (E2), approximate |
+| Premenopausal, early follicular phase | ~20–80 pg/mL |
+| Premenopausal, around ovulation | ~100–400+ pg/mL |
+| Premenopausal, luteal phase | ~30–200 pg/mL |
+| Postmenopausal, no HRT | usually <10–30 pg/mL |
+| Postmenopausal on estrogen therapy | Highly variable; often ~30–100+ pg/mL, depending on formulation/dose |
+One important distinction: “estrogen” and “estradiol” aren't interchangeable lab values. Estradiol (E2) is the primary biologically active estrogen measured clinically. A test labeled “total estrogens” may include estradiol, estrone (E1), and sometimes other estrogenic compounds, so its numerical range is different and shouldn't be compared directly with an estradiol result.
+If you give me her estradiol result, total estrogen result (if measured), FSH, progesterone, and whether she is on HRT, I can interpret the numbers specifically for a 56-year-old woman and tell you whether they look consistent with pre-, peri-, or postmenopausal physiology.
+

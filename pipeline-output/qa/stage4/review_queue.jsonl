@@ -10,5 +10,9 @@
 {"id": "6e8c32a023b97364", "source_file": "2024/Unflavored protein, flavor packs no more -cost effective.docx", "cluster_id": "6e8c32a023b97364", "reasons": ["cluster_uncovered"]}
 {"id": "710f8a41294c64df", "source_file": "2024/Vegan AminoForula discontiued  - full FAQ with calorie explanation.docx", "cluster_id": "710f8a41294c64df", "reasons": ["cluster_uncovered"]}
 {"id": "ce07bc6a35530951", "source_file": "2024/dotFIT program link &11yr info, berlinda.docx", "cluster_id": null, "reasons": ["currency_low_confidence"]}
+{"id": "bb231520998fb3cd", "source_file": "2025/All natural wheysmooth and WS difference .docx", "cluster_id": "bb231520998fb3cd", "reasons": ["cluster_uncovered"]}
 {"id": "296e54128f0b7da4", "source_file": "2025/Clear protein brand, practitioner products vs not, full paragraph, dotFIT link.docx", "cluster_id": "296e54128f0b7da4", "reasons": ["cluster_uncovered"]}
 {"id": "5954c3bd7a84dc86", "source_file": "2025/Clear proteins, dotFIT proteins, Slide, PDSRG, full note.docx", "cluster_id": "296e54128f0b7da4", "reasons": ["cluster_uncovered"]}
+{"id": "8c4af78e005b3f18", "source_file": "2026/Baseline Over50 with SB option, full note with screener .docx", "cluster_id": "6fbbababfb9f33d8", "reasons": ["cluster_conflict"]}
+{"id": "6fbbababfb9f33d8", "source_file": "2026/Creatine AminoFormula No stacking in basleline SB option,power lift.docx", "cluster_id": "6fbbababfb9f33d8", "reasons": ["cluster_conflict"]}
+{"id": "fa0c8c0dbc305ee1", "source_file": "2026/WheySmooth and Al-Natural wheySmooth.docx", "cluster_id": "bb231520998fb3cd", "reasons": ["cluster_uncovered"]}

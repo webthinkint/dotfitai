@@ -1,9 +1,9 @@
 {
  "pipeline_version": "0.1.0",
- "n_documents": 1041,
+ "n_documents": 1074,
  "n_excluded": {
   "no_expert_answer": 6,
-  "empty_document": 4
+  "empty_document": 5
  },
  "excluded_files": [
   {
@@ -45,19 +45,23 @@
   {
    "source_file": "2025/David Becham IM8 supp.docx",
    "reason": "empty_document"
+  },
+  {
+   "source_file": "2026/Beef calories - 100gm.docx",
+   "reason": "empty_document"
   }
  ],
  "by_doc_type": {
-  "qa_email": 777,
-  "expert_note": 264
+  "qa_email": 805,
+  "expert_note": 269
  },
  "by_year": {
   "2023": 363,
   "2024": 317,
   "2025": 101,
-  "2026": 260
+  "2026": 293
  },
- "n_review_queue": 1,
- "with_question_extracted": 711,
- "with_thread_date": 766
+ "n_review_queue": 3,
+ "with_question_extracted": 733,
+ "with_thread_date": 793
 }
