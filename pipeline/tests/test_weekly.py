@@ -122,6 +122,8 @@ def test_a_pii_flag_leaves_the_reading_list_only_when_provably_unserved(tmp_path
     # a span the source does not contain may be a paraphrase, so it stays flagged
     assert not pii_flag_is_unserved("the customer's employer", rec, source_text)
     assert not pii_flag_is_unserved("J.", rec, "J. asked.")
+    # letters inside an ordinary word are not the name
+    assert pii_flag_is_unserved("Ann", record("c", answer="An annual check."), "Ann asked.")
 
     text = tmp_path / "2026" / "a.txt"
     text.parent.mkdir()

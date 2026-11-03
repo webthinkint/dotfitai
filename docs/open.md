@@ -13,6 +13,11 @@ is closed; the commit message records why.
   paths (`source_file`, the Stage 0 tree) keep the raw name. A person reads the
   flagged records among what is new each week; a name the model never noticed is
   unmeasured, goes unread and can reach customers.
+- **Nobody has read the live Q&A corpus for records that do not belong in it.** The
+  first weekly batch's review ruled out 11 of 48 new or changed records for what they
+  are, not for PII: pasted AI output, internal notes, a private person's results. No
+  flag looks for that. The older corpus has 273 live records with no question and 6
+  with 20 or more placeholders, and has had no such read.
 - **The first weekly Q&A batch is unpublished and the timers are off.** It waits in
   the job clone for its flagged records to be read. Publish it with
   `qa-weekly thursday`, then start the timers with

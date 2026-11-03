@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 
+import pytest
+
 from qa_pipeline.cli import (
-    _errors_path, _prune_orphans, _read_stage0_errors, cmd_stage1,
+    _errors_path, _prune_orphans, _read_stage0_errors, cmd_stage1, drop_excluded,
 )
+from qa_pipeline.io_utils import doc_id
 
 
 def _write_errors(root, payload):
@@ -103,3 +106,20 @@ class TestStage1ExcludesUnanswerableDocs:
         queue = (tmp_path / "stage1" / "review_queue.jsonl").read_text(
             encoding="utf-8").splitlines()
         assert queue == []
+
+
+class TestDropExcluded:
+    def test_skips_a_ruled_document(self, tmp_path):
+        kept, ruled = tmp_path / "2026" / "a.docx", tmp_path / "2026" / "b.docx"
+        ruling = {doc_id("2026/b.docx"): "synthetic reason"}
+        assert drop_excluded([kept, ruled], tmp_path, whole_corpus=True,
+                             excluded=ruling) == [kept]
+
+    def test_a_ruling_with_no_file_raises_on_a_whole_corpus_run(self, tmp_path):
+        ruling = {doc_id("2026/gone.docx"): "synthetic reason"}
+        with pytest.raises(ValueError, match="not in the corpus"):
+            drop_excluded([], tmp_path, whole_corpus=True, excluded=ruling)
+
+    def test_a_filtered_run_cannot_prove_a_ruling_stale(self, tmp_path):
+        ruling = {doc_id("2026/gone.docx"): "synthetic reason"}
+        assert drop_excluded([], tmp_path, whole_corpus=False, excluded=ruling) == []

@@ -47,6 +47,7 @@ from .io_utils import (
     configure_stdio, doc_id, iter_docx, read_json, read_jsonl, rel_posix,
     write_json, write_text,
 )
+from .scrub import EXCLUDED_DOCUMENTS
 
 # Year folder under original-data/QAs/ -> the shared folder that feeds it. The
 # token can read everything the account can, so the fetch reads these alone.
@@ -224,13 +225,13 @@ def pii_flag_is_unserved(span: str, rec: dict[str, Any], stage0_text: str) -> bo
     The model flags what it notices in the source, and the source's customer
     section is not served, so a flag can name text no answer carries. That text is
     still there: only the reader's question changes, not what git receives. Anything
-    uncertain stays flagged: one word of the span in served text (it may have been
-    reworded), or a span that cannot be found in the source (it may be a paraphrase).
+    uncertain stays flagged: one word of the span standing alone in served text (it
+    may have been reworded), or a span the source lacks (it may be a paraphrase).
     """
     served = " ".join(str(rec.get(f) or "") for f in SERVED_FIELDS).casefold()
     words = [w.strip(".,;:!?()'\"").casefold() for w in span.split()]
     words = [w for w in words if len(w) >= 3]
-    if not words or any(w in served for w in words):
+    if not words or any(re.search(rf"\b{re.escape(w)}\b", served) for w in words):
         return False
     return span.casefold() in (stage0_text + " " + rec["source_file"]).casefold()
 
@@ -495,7 +496,8 @@ def report() -> None:
     fetched = read_json(fetch_path) if fetch_path.is_file() else {}
     after = read_jsonl(_qa_root() / "stage4" / "documents.jsonl")
     ids = {r["id"] for r in after}
-    fetched["no_record"] = [rel for rel in fetched.get("new", []) if doc_id(rel) not in ids]
+    fetched["no_record"] = [rel for rel in fetched.get("new", [])
+                            if doc_id(rel) not in ids and doc_id(rel) not in EXCLUDED_DOCUMENTS]
     reasons = load_reasons(_qa_root())
     evidence = load_evidence(_qa_root() / "stage2" / "runs" / "stage2_cache.jsonl", after)
     reasons, fetched["pii_not_served"] = split_unserved_pii(

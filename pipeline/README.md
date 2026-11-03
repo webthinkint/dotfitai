@@ -49,7 +49,9 @@ always quote paths.
   footers), greeting de-naming, pattern redaction (emails, phones, postal
   addresses, SSNs, cards, social-profile URLs), per-file scrub reports. No model,
   no network. What cannot be redacted without risking prose is **flagged for
-  review, never guessed at**. Nothing unscrubbed leaves this stage.
+  review, never guessed at**. Nothing unscrubbed leaves this stage. Documents an
+  owner has ruled out of the corpus (`EXCLUDED_DOCUMENTS` in `scrub.py`) are skipped
+  here, so they reach neither git nor the index; a ruling whose file is gone raises.
 - **Stage 1** — parse and classify: split the expert answer from the quoted
   customer message (three document shapes), classify (`qa_email` /
   `expert_note` / `other`), extract metadata (year, topic subfolder,
@@ -136,7 +138,8 @@ run would publish is always the working tree against HEAD.
   `EMAIL_TO`. That person reads the flagged records, and what is not ok is fixed in
   the pipeline and pushed to master before Thursday. A PII flag whose text is
   provably not served leaves the reading list and is only counted: the text is
-  still in the Stage 0 and Stage 1 files, which publishing commits.
+  still in the Stage 0 and Stage 1 files, which publishing commits. A record that
+  does not belong in the corpus at all joins `EXCLUDED_DOCUMENTS`.
 - **Thursday 12:00**: take master, rerun the stages from cache with no fetch,
   index, commit and push. A model error stops the run, since Stage 4 treats a
   failed judgment as superseded. So do more than 20 answers leaving search

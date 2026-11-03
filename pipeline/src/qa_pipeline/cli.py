@@ -34,7 +34,7 @@ import platform
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import docx as docx_pkg
 
@@ -59,7 +59,7 @@ from .pdsrg import chunk_pdf, chunk_records, review_outline
 from .podcast import (
     clean_title, resolve_titles, segment_episode, summarize as summarize_podcast,
 )
-from .scrub import scrub_docx
+from .scrub import EXCLUDED_DOCUMENTS, scrub_docx
 from .stage1 import classify_and_parse, load_scrub_report, review_reasons
 from .stage2 import (
     CHAT_API_VERSION, MIN_CONFIDENCE_DEFAULT, PROMPT_VERSION, Extractor,
@@ -153,20 +153,33 @@ def _prune_orphans(root: Path, expected: set[Path]) -> int:
     return removed
 
 
+def drop_excluded(files: list[Path], input_root: Path, *, whole_corpus: bool,
+                  excluded: Mapping[str, str] = EXCLUDED_DOCUMENTS) -> list[Path]:
+    """*files* without the owner-excluded documents. Only a whole-corpus run can
+    prove a ruling stale, and a stale one raises rather than lingering unread."""
+    ids = {path: doc_id(rel_posix(path, input_root)) for path in files}
+    stale = sorted(set(excluded) - set(ids.values())) if whole_corpus else []
+    if stale:
+        raise ValueError(f"excluded document(s) not in the corpus: {', '.join(stale)}; "
+                         "re-read the ruling rather than deleting it silently")
+    return [path for path in files if ids[path] not in excluded]
+
+
 def cmd_stage0(args: argparse.Namespace) -> int:
     input_root = Path(args.input).resolve()
     out_root = Path(args.out).resolve()
     if not input_root.is_dir():
         print(f"error: input dir not found: {input_root}", file=sys.stderr)
         return 2
-    files = _select_files(input_root, args.include, args.limit)
+    filtered = bool(args.include or args.limit is not None)
+    files = drop_excluded(_select_files(input_root, args.include, args.limit),
+                          input_root, whole_corpus=not filtered)
 
     text_dir = out_root / "stage0" / "text"
     reports_dir = out_root / "stage0" / "reports"
     errors: list[dict] = []
     totals: dict[str, int] = {}
     n_ok = n_err = 0
-    filtered = bool(args.include or args.limit is not None)
     expected_text: set[Path] = set()
     expected_reports: set[Path] = set()
 

@@ -271,6 +271,24 @@ ACCEPTED_HONORIFIC_NAMES = frozenset({
     # Stage 2 prompt's do-not-flag list, which shares this vocabulary.
     "Feldkamp",
 })
+
+# Owner rulings on documents that do not belong in the corpus, keyed by document
+# id with what is wrong in general terms: no corpus text here. Stage 0 skips them,
+# so they reach neither git nor the index. A ruling whose file is gone raises on a
+# whole-corpus run, like a cluster ruling that no longer forms.
+EXCLUDED_DOCUMENTS = {
+    "8c5a9643531da154": "a private person's imaging results and a pasted AI reading",
+    "53dba332e70504e0": "health details specific enough to recognise the person",
+    "45f38217fb2266ae": "internal forwarding note tied to a place and a gym",
+    "153756a71eca820f": "third-party vendor ordering instructions, cut off",
+    "3ec09ad1149d8c4d": "company history unreadable under scrub placeholders",
+    "409c75a1416129bf": "a claim about a person's drug use, and profanity",
+    "58fbfd45af7a23f7": "calls signs of a damaged or tampered product normal",
+    "89d0b4163aef9fd1": "eating-disorder question given only a hand-off",
+    "57813bce3033bf81": "pasted AI research, not an expert answer",
+    "02eaeb23a7b95ea8": "pasted AI chat about a business concept",
+    "40e7be4a0256c9c9": "pasted AI summary and internal talking points",
+}
 # Gap inside an honorific span: with a period, horizontal whitespace plus at
 # most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
 # is required — bare "Dr" must not glue onto a word ("DrPH" the degree) and
