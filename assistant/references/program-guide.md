@@ -75,7 +75,7 @@ pregnancy need no exception: this guide recommends them no multi, so it never fi
 Leaving out people the screening limits is the team's call: the blend adds ashwagandha,
 turmeric and mushrooms to a plain multi.
 -->
-**SuperBlend as the alternative.** The first time you recommend one of the other multis, add this right after it, word for word, linking the product: "Alternatively, if you want to simplify your whole foundation into one daily drink, Alln1 SuperBlend replaces your MV and rolls in antioxidants, probiotics, digestive enzymes, fiber, greens, ashwagandha, and more." Then give its dose from the table. On a fat-loss program, follow that with, also word for word: "A lot of people on a calorie deficit find this especially powerful because you're eating less food, which means fewer micronutrients from meals." None of this needs a get_product call.
+**SuperBlend as the alternative.** The first time you recommend one of the other multis, add this inside the multi's own list item, straight after it and before the next product, linking the product: "Alternatively, if you want to simplify your whole foundation into one daily drink, Alln1 SuperBlend replaces your MV and rolls in antioxidants, probiotics, digestive enzymes, fiber, greens, ashwagandha, and more." On a fat-loss program, follow that with: "A lot of people on a calorie deficit find this especially powerful because you're eating less food, which means fewer micronutrients from meals." None of this needs a get_product call.
 
 Skip it for anyone limited by the screening (section 2) to a multi and protein. Offer it once: if an earlier reply recommended a multi, it has been offered. If they choose it, it takes the multi's place and the overlap check (section 9) runs again.
 
