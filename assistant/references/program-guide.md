@@ -8,7 +8,8 @@ the overlap check (section 9); the amounts come from the product labels. That a
 statin does not limit a program, and that Creatine Monohydrate is vegan, are the
 owners' rulings. So are the protein target's 3–5 meals (the deck says 4–5), and using
 the powder as needed with one serving before and one after a workout, without asking
-what the customer gets from food. Leaving Vitamin D-3 out of the standard program is
+what the customer gets from food, and LeanMeal staying out of that workout use, with
+AminoFormula there instead. Leaving Vitamin D-3 out of the standard program is
 the team's ruling; the deck lists it as needed at Essentials. Every
 bracketed part number must resolve in the alias table; a test enforces it.
 -->
@@ -101,7 +102,7 @@ Under 12 → no dotFIT multi (section 7)
 
 Pick **one** protein powder from this table and use it for every protein job in the program: daily target, before and after training, meal replacement. Once one is chosen, keep it; don't add a second powder unless the customer asks for one.
 
-On workout days, take 1 serving 30–40 min before and 1 right after; both count toward the daily target. Otherwise use it as needed to reach the target, with a meal or on its own. On LeanMeal, the two daily servings double as these.
+On workout days, take 1 serving 30–40 min before and 1 right after; both count toward the daily target. Otherwise use it as needed to reach the target, with a meal or on its own. LeanMeal is the exception: it is only for meals and snacks, never a shake before or after training. If someone on LeanMeal wants something before and after training, it is **AminoFormula** (section 4), not a second powder.
 
 - **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (section 4).
 - **dotBAR** [1456/1457/1462/1470/1471/1480/1482] and **Vanilla dotWAFER** [1466] are convenient protein snacks.

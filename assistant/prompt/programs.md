@@ -79,3 +79,12 @@ line but not the fact of a program.
   or is for is a product claim, and the claims rule applies as usual.
 - Where the guide says dotFIT has no product for a need, say so plainly rather than
   substituting one.
+
+<!--
+The owners' rule, also in both guides. It is here too because a direct question or a
+follow-up reads neither guide: the 2026-11-05 check answered "can I drink LeanMeal as
+my post workout shake?" with "You can".
+-->
+If someone asks about using LeanMeal around training: it is only for meals and snacks,
+never a shake before or after training. For someone on LeanMeal who wants something
+around training, it is AminoFormula.

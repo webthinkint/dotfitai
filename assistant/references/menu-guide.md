@@ -128,6 +128,7 @@ Use only these, and only **one protein powder** in a menu. If the customer alrea
 | **dotBAR** [1456/1457/1462/1470/1471/1480/1482], **Vanilla dotWAFER** [1466] | A protein snack on the go | look it up with get_product before counting it |
 
 - **At most two shakes or bars a day**, three on a gain or performance day of 3,000 calories or more. The rest is food.
+- **LeanMeal is only for meals and snacks, never a shake before or after training.** If they want something around training on a LeanMeal menu, use **AminoFormula** [1213/1216/1220]; it is not one of the day's shakes. Look it up with get_product before counting it.
 - **Vegan:** Plant Protein is the only dotFIT protein that fits.
 - **Under 18:** First String, Plant Protein and dotBARs only; no LeanMeal.
 - **Gluten-free or lactose-free claims** about a product come from its approved copy: call get_product before saying a product suits either. Otherwise Plant Protein for dairy-free, and food for the rest.
