@@ -13,11 +13,13 @@ is closed; the commit message records why.
   paths (`source_file`, the Stage 0 tree) keep the raw name. A person reads the
   flagged records among what is new each week; a name the model never noticed is
   unmeasured, goes unread and can reach customers.
-- **Nobody has read the live Q&A corpus for records that do not belong in it.** The
-  first weekly batch's review ruled out 11 of 48 new or changed records for what they
-  are, not for PII: pasted AI output, internal notes, a private person's results. No
-  flag looks for that. The older corpus has 273 live records with no question and 6
-  with 20 or more placeholders, and has had no such read.
+- **Most of the live Q&A corpus has not been read for records that do not belong in
+  it.** No flag looks for pasted AI output, internal notes, third-party sourcing or a
+  private person's results. The older records with no question or with 20 or more
+  placeholders have had one read: 123 of 271 had a problem, and the high and medium
+  ones are ruled out or redacted. Five peptide programs written for one person wait
+  on the owners, and 33 low-severity records stay. The roughly 680 live records with
+  a question have had no such read.
 - **Real customer text in git history.** Comments and a test fixture quoted a
   customer's name and a street fragment from the corpus; the files are clean
   now, but the history still holds them. Decide whether that is acceptable for

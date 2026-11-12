@@ -107,6 +107,10 @@ always quote paths.
 - `original-data/QAs/` holds real customer mail; it is gitignored, nothing
   unscrubbed leaves Stage 0, and the weekly fetch is the only thing that writes
   to it.
+- **Owner rulings carry no corpus text.** `EXCLUDED_DOCUMENTS` keeps a document
+  out of Stage 0 with what is wrong in general terms; `REDACTED_SPANS` replaces a
+  personal detail no pattern reaches with a placeholder and holds the span's
+  length and hash, not the span. A ruling that no longer matches raises.
 - **Aliases tag and expand; they never rewrite corpus text.** A rename is one
   product under two names and expands to the successor's part numbers; a
   replacement is a different formula and is a currency cue only. Every alias is
@@ -139,7 +143,8 @@ run would publish is always the working tree against HEAD.
   the pipeline and pushed to master before Thursday. A PII flag whose text is
   provably not served leaves the reading list and is only counted: the text is
   still in the Stage 0 and Stage 1 files, which publishing commits. A record that
-  does not belong in the corpus at all joins `EXCLUDED_DOCUMENTS`.
+  does not belong in the corpus at all joins `EXCLUDED_DOCUMENTS`; a personal
+  detail in prose, in a record that otherwise belongs, joins `REDACTED_SPANS`.
 - **Thursday 12:00**: take master, rerun the stages from cache with no fetch,
   index, commit and push. A model error stops the run, since Stage 4 treats a
   failed judgment as superseded. So do more than 20 answers leaving search

@@ -14,7 +14,7 @@ Guarantees:
 
 Placeholder vocabulary (kept stable — Stage 1 and reviewers depend on it):
   [EMAIL] [PHONE] [SSN] [CARD] [ADDRESS] [PROFILE-URL] [CUSTOMER] [NAME]
-  [SIGNATURE]
+  [SIGNATURE], and [DETAIL] from owner redactions only (``REDACTED_SPANS``)
 
 ``[CUSTOMER]`` marks the enquirer (contact-block identity, the expert's
 opening greeting). ``[NAME]`` marks a person whose role we cannot assert —
@@ -24,7 +24,9 @@ mail recipients, greetings inside quoted replies — and must not be read as
 
 from __future__ import annotations
 
+import hashlib
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 
 from .extract import ExtractResult
@@ -371,7 +373,39 @@ EXCLUDED_DOCUMENTS = {
     "aede3ab5abbf9536": "third-party sourcing for an unapproved compound",
     "cf7b6eb82ffdb516": "third-party sourcing for an unapproved compound",
     "ef5f39ab09076e58": "third-party sourcing for an unapproved compound",
+    "6239a2ad0bf6903c": "a private person's bloodwork results",
+    "f42ee5f9c11f0238": "a customer's own health details, and a program framed as managing a condition",
+    "ea46b9cff26f51b8": "raw customer-service thread with details that could identify the customer",
 }
+
+# Owner redactions for a personal detail in prose that no pattern reaches (a town,
+# a sport and division, a name inside a sentence) in a document that otherwise
+# belongs. Keyed by document id, each span is its length and the first 16 hex of
+# the SHA-256 of its exact Stage 0 text (``span_digest``), with the placeholder
+# that replaces it: a hash, because the span itself is corpus text. Spans apply in
+# order, so a full name goes before its surname alone, and match whole words. A
+# span that no longer appears raises, and a ruling whose file is gone raises on a
+# whole-corpus run, as an exclusion does.
+REDACTED_SPANS: dict[str, tuple[tuple[int, str, str], ...]] = {
+    "ad9584eb377bade4": (
+        (7, "ed7d5c58c916fa07", "[ADDRESS]"),
+        (8, "739061d73d65dcde", "[NAME]"),
+    ),
+    "05a7779207c7e137": (
+        (11, "70a9cde96108b17b", "[DETAIL]"),
+    ),
+    "45e84d4d564c56f0": (
+        (15, "8670705039ff4873", "[NAME]"),
+        (7, "29f42d4da191108d", "[NAME]"),
+        (12, "d48122eb365e2f58", "[NAME]"),
+        (12, "2dceb274798ff2c7", "[NAME]"),
+        (8, "b60d9df538dc07a0", "[NAME]"),
+    ),
+}
+# [DETAIL] is not in the Stage 2 prompt's list of placeholders to preserve: adding
+# it there misses the cache for the whole corpus, so it waits for the next prompt
+# change.
+REDACTION_PLACEHOLDERS = frozenset({"[NAME]", "[ADDRESS]", "[DETAIL]"})
 # Gap inside an honorific span: with a period, horizontal whitespace plus at
 # most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
 # is required — bare "Dr" must not glue onto a word ("DrPH" the degree) and
@@ -823,3 +857,34 @@ def scrub_docx(extraction: ExtractResult) -> tuple[str | None, ScrubReport]:
         rep = ScrubReport(ok=False, error=extraction.error)
         return None, rep
     return scrub_extracted(extraction.lines)
+
+
+def span_digest(span: str) -> str:
+    """What a ``REDACTED_SPANS`` entry holds for *span*."""
+    return hashlib.sha256(span.encode("utf-8")).hexdigest()[:16]
+
+
+def redact_spans(text: str, doc: str, rep: ScrubReport,
+                 rulings: Mapping[str, tuple[tuple[int, str, str], ...]] = REDACTED_SPANS
+                 ) -> str:
+    """*text* of document *doc* with each owner-ruled span replaced, whole words only."""
+    for length, digest, placeholder in rulings.get(doc, ()):
+        if placeholder not in REDACTION_PLACEHOLDERS:
+            raise ValueError(f"{doc}: {placeholder} is not a redaction placeholder")
+        pieces: list[str] = []
+        start = pos = hits = 0
+        while pos + length <= len(text):
+            if ((pos == 0 or not text[pos - 1].isalnum())
+                    and (pos + length == len(text) or not text[pos + length].isalnum())
+                    and span_digest(text[pos:pos + length]) == digest):
+                pieces += [text[start:pos], placeholder]
+                pos = start = pos + length
+                hits += 1
+            else:
+                pos += 1
+        if not hits:
+            raise ValueError(f"{doc}: redacted span {digest} not found; re-read the "
+                             "ruling rather than deleting it silently")
+        text = "".join(pieces) + text[start:]
+        _bump(rep.redactions, "owner_span", hits)
+    return text

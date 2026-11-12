@@ -5,7 +5,7 @@ from __future__ import annotations
 from qa_pipeline.extract import extract_docx
 from qa_pipeline.scrub import (
     ADDRESS_RE, CARD_RE, EMAIL_RE, GREETING_NAME_TOKENS, PHONE_RE,
-    PROFILE_URL_RE, SSN_RE, scrub_extracted,
+    PROFILE_URL_RE, SSN_RE, ScrubReport, redact_spans, scrub_extracted, span_digest,
 )
 
 import pytest
@@ -627,3 +627,26 @@ class TestRedactionCounting:
         ])
         assert rep.redactions["email"] == 3
         assert rep.redactions["phone"] == 2
+
+
+class TestOwnerRedactions:
+    def _rule(self, *spans: tuple[str, str]) -> dict:
+        return {"doc": tuple((len(s), span_digest(s), ph) for s, ph in spans)}
+
+    def test_replaces_whole_words_in_order(self):
+        rulings = self._rule(("Dana Quill", "[NAME]"), ("Quill", "[NAME]"),
+                             ("Larkford", "[ADDRESS]"))
+        rep = ScrubReport(ok=True)
+        text = redact_spans("Dana Quill trains in Larkford. Quill's Quillon stays.",
+                            "doc", rep, rulings)
+        assert text == "[NAME] trains in [ADDRESS]. [NAME]'s Quillon stays."
+        assert rep.redactions["owner_span"] == 3
+
+    def test_a_document_without_a_ruling_is_unchanged(self):
+        rulings = self._rule(("Larkford", "[ADDRESS]"))
+        assert redact_spans("Larkford", "other", ScrubReport(ok=True), rulings) == "Larkford"
+
+    def test_a_span_that_is_gone_raises(self):
+        rulings = self._rule(("Larkford", "[ADDRESS]"))
+        with pytest.raises(ValueError, match="not found"):
+            redact_spans("No town here.", "doc", ScrubReport(ok=True), rulings)

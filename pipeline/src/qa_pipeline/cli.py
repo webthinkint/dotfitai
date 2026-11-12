@@ -59,7 +59,7 @@ from .pdsrg import chunk_pdf, chunk_records, review_outline
 from .podcast import (
     clean_title, resolve_titles, segment_episode, summarize as summarize_podcast,
 )
-from .scrub import EXCLUDED_DOCUMENTS, scrub_docx
+from .scrub import EXCLUDED_DOCUMENTS, REDACTED_SPANS, redact_spans, scrub_docx
 from .stage1 import classify_and_parse, load_scrub_report, review_reasons
 from .stage2 import (
     CHAT_API_VERSION, MIN_CONFIDENCE_DEFAULT, PROMPT_VERSION, Extractor,
@@ -154,13 +154,15 @@ def _prune_orphans(root: Path, expected: set[Path]) -> int:
 
 
 def drop_excluded(files: list[Path], input_root: Path, *, whole_corpus: bool,
-                  excluded: Mapping[str, str] = EXCLUDED_DOCUMENTS) -> list[Path]:
+                  excluded: Mapping[str, str] = EXCLUDED_DOCUMENTS,
+                  redacted: Mapping[str, object] = REDACTED_SPANS) -> list[Path]:
     """*files* without the owner-excluded documents. Only a whole-corpus run can
-    prove a ruling stale, and a stale one raises rather than lingering unread."""
+    prove a ruling stale, an exclusion or a redaction, and a stale one raises
+    rather than lingering unread."""
     ids = {path: doc_id(rel_posix(path, input_root)) for path in files}
-    stale = sorted(set(excluded) - set(ids.values())) if whole_corpus else []
+    stale = sorted((set(excluded) | set(redacted)) - set(ids.values())) if whole_corpus else []
     if stale:
-        raise ValueError(f"excluded document(s) not in the corpus: {', '.join(stale)}; "
+        raise ValueError(f"ruled document(s) not in the corpus: {', '.join(stale)}; "
                          "re-read the ruling rather than deleting it silently")
     return [path for path in files if ids[path] not in excluded]
 
@@ -190,6 +192,8 @@ def cmd_stage0(args: argparse.Namespace) -> int:
 
         extraction = extract_docx(path)
         scrubbed, rep = scrub_docx(extraction)
+        if scrubbed is not None:
+            scrubbed = redact_spans(scrubbed, doc_id(rel), rep)
 
         record = {"source_file": rel, "id": doc_id(rel), **rep.to_dict()}
         write_json(report_path, record)

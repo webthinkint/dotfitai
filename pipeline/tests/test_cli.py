@@ -113,12 +113,17 @@ class TestDropExcluded:
         kept, ruled = tmp_path / "2026" / "a.docx", tmp_path / "2026" / "b.docx"
         ruling = {doc_id("2026/b.docx"): "synthetic reason"}
         assert drop_excluded([kept, ruled], tmp_path, whole_corpus=True,
-                             excluded=ruling) == [kept]
+                             excluded=ruling, redacted={}) == [kept]
 
     def test_a_ruling_with_no_file_raises_on_a_whole_corpus_run(self, tmp_path):
         ruling = {doc_id("2026/gone.docx"): "synthetic reason"}
         with pytest.raises(ValueError, match="not in the corpus"):
             drop_excluded([], tmp_path, whole_corpus=True, excluded=ruling)
+
+    def test_a_redaction_with_no_file_raises_on_a_whole_corpus_run(self, tmp_path):
+        ruling = {doc_id("2026/gone.docx"): ((5, "0123456789abcdef", "[NAME]"),)}
+        with pytest.raises(ValueError, match="not in the corpus"):
+            drop_excluded([], tmp_path, whole_corpus=True, excluded={}, redacted=ruling)
 
     def test_a_filtered_run_cannot_prove_a_ruling_stale(self, tmp_path):
         ruling = {doc_id("2026/gone.docx"): "synthetic reason"}
