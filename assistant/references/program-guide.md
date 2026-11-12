@@ -9,7 +9,10 @@ statin does not limit a program, and that Creatine Monohydrate is vegan, are the
 owners' rulings. So are the protein target's 3–5 meals (the deck says 4–5), and using
 the powder as needed with one serving before and one after a workout, without asking
 what the customer gets from food, and LeanMeal staying out of that workout use, with
-AminoFormula there instead. Leaving Vitamin D-3 out of the standard program is
+AminoFormula there instead. On a weight or fat-loss goal every powder stays out of it and
+AminoFormula goes there alone, with no protein stacking unless the loss is very slow in an
+experienced athlete building muscle; that making weight for a competition is not slow is
+read from the owner's example. Leaving Vitamin D-3 out of the standard program is
 the team's ruling; the deck lists it as needed at Essentials. Every
 bracketed part number must resolve in the alias table; a test enforces it.
 -->
@@ -116,6 +119,8 @@ Pick **one** protein powder from this table and use it for every protein job in 
 
 On workout days, take 1 serving 30–40 min before and 1 right after; both count toward the daily target. Otherwise use it as needed to reach the target, with a meal or on its own. LeanMeal is the exception: it is only for meals and snacks, never a shake before or after training. If someone on LeanMeal wants something before and after training, it is **AminoFormula** (section 4), not a second powder.
 
+**Losing weight or fat:** whichever powder they use is only for reaching the daily target, not a shake before or after training. Whatever goes before and after training is **AminoFormula**, on its own: no protein stacking (section 4). Stacking is for performance and weight gain, and for very slow fat loss in an experienced athlete building muscle. Making weight for a competition is not slow.
+
 - **AminoFormula** [1213/1216/1220]: 1–2 scoops a day count as 25–30 g of protein toward the daily target (section 4).
 - **dotBAR** [1456/1457/1462/1470/1471/1480/1482] and **Vanilla dotWAFER** [1466] are convenient protein snacks.
 
@@ -136,7 +141,7 @@ The levels build on each other.
 | **Creatine Monohydrate** [1200 flavored, 1227 unflavored] | Optional load: 5 g four times a day for 5 days. Maintenance: under 175 lb, 5 g a day; 175 lb and over, 10 g a day (5 g before the workout and 5 g after; on rest days, 5 g in the morning and 5 g in the evening). Take it with a meal or shake containing protein or carbs. Older adults and health use: 5 g a day. |
 | **Creatine Complex** [1207] (Extreme Creatine: creatine, beta-alanine, glutamine, Careflow; no stimulants) | 2 scoops a day. Training days: 1 before and 1 after. Rest days: 1 with the morning meal and 1 with the evening meal. Over 150 lb chasing strength, speed or power: an optional 3rd scoop with a meal. |
 | **NO7 PreWorkout** [1214/1215/1217] (creatine, beta-alanine, caffeine, citrulline, Nitrosigine, glycerol) | 10–30 min before training. Under 150 lb: 1.5 scoops. 150–200 lb: 2. Over 200 lb: 2.5. **Never more than 3.** On rest days, take the same amount at least 5 hours before sleep. If caffeine or beta-alanine tingling bothers them, split it into half-scoops 90 min apart. |
-| **AminoFormula** [1213/1216/1220] (essential amino acids, 4.2 g leucine per serving) | Around exercise: up to 150 lb, ½ scoop before and ½ after; 150–200 lb, ¾ + ¾; over 200 lb, 1 + 1. Both doses can go in one drink, sipped from 10 min before the workout to the end. Protein stacking: intact protein 30–40 min before training, AminoFormula before, during and right after, then a protein shake 30–40 min later. |
+| **AminoFormula** [1213/1216/1220] (essential amino acids, 4.2 g leucine per serving) | Around exercise: up to 150 lb, ½ scoop before and ½ after; 150–200 lb, ¾ + ¾; over 200 lb, 1 + 1. Both doses can go in one drink, sipped from 10 min before the workout to the end. Protein stacking: intact protein 30–40 min before training, AminoFormula before, during and right after, then a protein shake 30–40 min later. Not for weight or fat loss (section 3.4). |
 | **GlutamineComplex** [1205] | For athletes under prolonged hard training, especially while cutting calories or making weight. 1 scoop (5 g) 3 times a day: before activity, after, and before bed. |
 
 **Competition or weight-class cuts** (slides 233–234):

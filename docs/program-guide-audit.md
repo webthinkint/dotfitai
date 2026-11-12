@@ -115,3 +115,6 @@ with the powder used as needed to reach the target and one serving before and on
 after a workout. The deck says nothing on LeanMeal around workouts; the owner's ruling
 is that LeanMeal is only for meals and snacks, never those two servings, and that
 someone on it who wants something around training uses AminoFormula (guide 3.4).
+On a weight or fat-loss goal the same holds for every powder: it only meets the daily
+target, and AminoFormula alone goes around training, with no protein stacking unless
+the loss is very slow in an experienced athlete building muscle (guide 3.4).
