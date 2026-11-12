@@ -436,6 +436,7 @@ EXCLUDED_DOCUMENTS = {
     "52f7f02a21254892": "the rewritten question does not match the answer",
     "cbeb1addc207c467": "the rewritten question does not match the answer",
     "ee158e72262972c0": "no usable content: a hand-off",
+    "5d929e86435f249b": "no usable content: a missing attachment",
     "65b2364549840793": "states dotFIT prices or discount terms",
     "c0774026f73b7532": "states dotFIT prices or discount terms",
     "2f3aa5761e807188": "calls signs of a changed product normal",
