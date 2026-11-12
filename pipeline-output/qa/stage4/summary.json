@@ -11,42 +11,42 @@
   "include": null,
   "limit": null
  },
- "n_documents": 991,
+ "n_documents": 916,
  "by_stage4_status": {
-  "current": 878,
+  "current": 805,
   "superseded_currency": 103,
-  "superseded_dup": 10
+  "superseded_dup": 8
  },
- "n_current": 878,
+ "n_current": 805,
  "by_currency_judgment": {
   "dependent": 101,
-  "independent": 10,
+  "independent": 9,
   "low_confidence": 2
  },
- "n_clusters": 19,
+ "n_clusters": 14,
  "n_conflict_clusters": 2,
  "n_dispositioned_clusters": 0,
  "n_audit_clusters": 0,
- "n_review_queue": 16,
+ "n_review_queue": 10,
  "review_reasons": {
   "cluster_conflict": 4,
-  "cluster_uncovered": 10,
+  "cluster_uncovered": 4,
   "currency_low_confidence": 2
  },
  "embedding": {
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
-  "n_cache_hits": 781,
+  "n_cache_hits": 704,
   "n_api_calls": 1
  },
  "judge": {
   "n_judge_calls": 0,
-  "n_judge_cache_hits": 113,
+  "n_judge_cache_hits": 112,
   "n_judge_errors": 0,
-  "n_judged": 113,
+  "n_judged": 112,
   "n_no_llm": 0,
-  "n_unique_questions": 783,
-  "n_clusters": 19,
+  "n_unique_questions": 708,
+  "n_clusters": 14,
   "n_conflict_clusters": 2,
   "n_audit_clusters": 0,
   "n_dispositioned_clusters": 0,

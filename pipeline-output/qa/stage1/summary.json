@@ -1,6 +1,6 @@
 {
  "pipeline_version": "0.1.0",
- "n_documents": 991,
+ "n_documents": 916,
  "n_excluded": {
   "no_expert_answer": 6,
   "empty_document": 5
@@ -52,16 +52,16 @@
   }
  ],
  "by_doc_type": {
-  "qa_email": 798,
-  "expert_note": 193
+  "qa_email": 724,
+  "expert_note": 192
  },
  "by_year": {
-  "2023": 352,
-  "2024": 306,
-  "2025": 92,
-  "2026": 241
+  "2023": 325,
+  "2024": 284,
+  "2025": 80,
+  "2026": 227
  },
  "n_review_queue": 2,
- "with_question_extracted": 731,
- "with_thread_date": 786
+ "with_question_extracted": 666,
+ "with_thread_date": 715
 }

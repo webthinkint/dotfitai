@@ -44,6 +44,6 @@ Subject: dotFIT - Ask the Experts
 From: [CUSTOMER]
 Email: [EMAIL]
 Category: Nutrition
-Question: My 36 year old daughter has just seen a cardiologist and been told to loose 150 lbs. She is now on a beta blocker for extremely high blood pressure and is being treated for first stages of cororally artery disease. Can the nutritionist at Crunch work with her on a heart healthy diet if I can persuade her to join?
+Question: My [DETAIL] daughter has just seen a cardiologist and been told to loose [DETAIL]. She is now on a beta blocker for extremely high blood pressure and is being treated for first stages of cororally artery disease. Can the nutritionist at Crunch work with her on a heart healthy diet if I can persuade her to join?
  
 
