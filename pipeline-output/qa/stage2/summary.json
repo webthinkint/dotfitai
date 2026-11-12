@@ -11,19 +11,19 @@
   "include": null,
   "limit": null
  },
- "n_documents": 1074,
+ "n_documents": 1075,
  "by_doc_type": {
-  "expert_note": 269,
+  "expert_note": 270,
   "qa_email": 805
  },
- "n_review_queue": 340,
+ "n_review_queue": 341,
  "review_reasons": {
   "answer_outside_expert": 2,
   "audit_sample": 44,
   "containment_fail": 1,
   "low_confidence": 57,
   "low_coverage": 8,
-  "residual_pii_flag": 264
+  "residual_pii_flag": 265
  },
  "with_products": 701,
  "with_currency_cues": 308,
@@ -320,7 +320,7 @@
  },
  "llm": {
   "n_llm_calls": 0,
-  "n_cache_hits": 1074,
+  "n_cache_hits": 1075,
   "n_fallback": 0,
   "n_llm_errors": 0,
   "deployment": "claude-haiku-5-5",

@@ -1,0 +1,48 @@
+Today’s Practitioner Message is the Latest Scientific Update on Gummy Dietary Supplements
+dotFIT Scientific Position Paper
+NOVEMBER 2026 | RESEARCH SUMMARY | TRAINER & INDUSTRY EDUCATION
+Gummy Dietary Supplements: Convenience vs. Quality, Potency and Stability
+Based on: Perspective on Gummy Dietary Supplements Manufacturing and Testing — Hu et al., Journal of Dietary Supplements, September 17, 2026.
+Authors: Five scientists affiliated with the U.S. FDA at the time of the research.
+Source: Original scientific publication | PubMed abstract
+Executive summary
+Gummy supplements have become increasingly popular because of their convenience, pleasant taste and ease of consumption. However, this FDA-authored scientific perspective highlights significant formulation, manufacturing, potency, stability and testing challenges that distinguish gummies from conventional capsules, tablets and powders. Further, gummy matrixes limit the type and amounts of ingredients they can effectively contain.  
+The central message: Not withstanding ingredient limitations, gummies can be effective delivery systems, but producing a gummy that consistently delivers its labeled ingredients throughout its shelf life requires sophisticated formulation, manufacturing controls and validated testing. In other words, not all gummy products currently in the market are ready for “primetime”. It’s still a tough climb to be confident in safe and effective formulations delivered in this matrix.
+Six key scientific findings and implications
+| Issue | Scientific concern |
+| 1. Ingredient stability | Heat, moisture, acidity and storage conditions can degrade sensitive nutrients and active compounds. |
+| 2. Label accuracy | Actual nutrient content may differ from label claims, particularly when ingredients degrade during manufacturing or storage. |
+| 3. Manufacturing complexity | Gelling agents, processing temperatures, curing conditions and moisture must be carefully controlled. |
+| 4. Testing difficulties | The sticky gel matrix can interfere with ingredient extraction and analytical measurement, requiring validated methods. |
+| 5. Microbial safety | Higher water activity can increase microbial susceptibility without appropriate formulation and manufacturing controls. |
+| 6. Shelf-life reliability | Manufacturers must demonstrate that potency and quality are maintained through the stated expiration date, not merely at production. |
+These issues are described in the FDA scientists' perspective and subsequent industry reporting. 
+Particularly concerning: Independent product testing
+The October 2026 NutraIngredients coverage reported results from NOW Foods' independent testing of 25 vitamin C gummy supplements sold through Amazon.
+12 of 25 failed to meet label claims.
+5 High-dose products claimed ≥1,000 mg but contained less than 2 mg vitamin C each
+These findings illustrate the potential magnitude of gummy potency problems, although this was a targeted market investigation rather than a representative study of all gummy supplements. 
+Gummy supplements vs. traditional delivery systems
+General formulation considerations when choosing delivery sytems
+| Consideration | Gummies | Capsules, tablets, powders |
+| Taste and enjoyment | Often excellent | Varies |
+| High-dose delivery | Limited by serving size | Generally easier |
+| Heat-sensitive ingredients | Processing can present challenges | Often easier to protect |
+| Shelf-life stability | More formulation-dependent | Often more straightforward |
+| Laboratory testing | More complex matrix | Often simpler |
+| Convenience | Excellent for some consumers | Excellent, depending on format |
+Important distinction: A properly manufactured gummy can be safe, stable and effective. Likewise, traditional formats are not automatically superior. Quality depends on the actual formulation, manufacturing process, packaging and finished-product verification. Always mindful certain ingredients or amounts that are easily and effectively delivered in traditional tablets, capsules or powders simply cannot be put into a gummy format.
+Implications for creatine, vitamins and performance supplements
+For dotFIT's product-development and education strategy, three applications deserve particular attention.
+Creatine: Moisture and acidity can create conditions for creatine degradation over time. Creatine gummies should be supported by finished-product creatine assays and stability data throughout shelf life. At this time testing results are all over the board.
+Multivitamins: Sensitive vitamins may require specialized processing, protective technologies or carefully controlled overages. Label accuracy should be confirmed through expiration. Gummies are very limited on total vitamins and minerals.
+Performance formulas: Products requiring several grams of active ingredients, such as creatine, amino acids and certain recovery compounds, may be more practical and economical in powder or capsule formats.
+dotFIT position
+Quality and clinical dosing should determine the delivery system—not consumer trends alone. Gummies may be appropriate when they can reliably provide the intended ingredients at effective doses, with demonstrated stability, safety and accurate label claims. However, when precise dosing, ingredient compatibility, high active-ingredient quantities and long-term stability are priorities, traditional powders, capsules and tablets will most often be preferable.
+Trainer/Practitioner takeaway
+A supplement's effectiveness depends on more than what the label promises. It must contain the right ingredients, in meaningful amounts, and maintain those amounts until consumption.
+"A supplement is only as good as what it actually delivers—not what its label claims. At dotFIT, we prioritize scientifically supported ingredients, effective dosing, rigorous quality verification and the delivery system best suited to the formulation."
+Scientific interpretation: This September 2026 publication is a perspective/review, not a new randomized clinical trial or a formal FDA regulation. Its findings support greater scrutiny of gummy manufacturing and testing, but do not establish that all gummies are ineffective or unsafe. As science progresses so will we.
+ As soon as science can prove that gummies can be a safe, effective and stable delivery system for important dietary supplement complete formulas, we will be among the first companies to adopt the validated technologies. Who doesn’t love a gummy, but we need more than just candy.
+Additional reading: NutraIngredients: FDA weighs in on gummy dietary supplements
+

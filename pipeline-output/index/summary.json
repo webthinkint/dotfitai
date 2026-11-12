@@ -7,14 +7,14 @@
   "no_upload": false,
   "reset": false
  },
- "n_documents": 4267,
+ "n_documents": 4268,
  "by_source_type": {
   "infopage": 116,
   "menu_desc": 10,
   "pdsrg": 1080,
   "podcast": 1800,
   "product": 288,
-  "qa": 973
+  "qa": 974
  },
  "products_indexed": [
   "1000",
@@ -74,21 +74,21 @@
  "embedding": {
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
-  "n_docs": 4267,
-  "n_cache_hits": 4230,
-  "n_api_calls": 3,
+  "n_docs": 4268,
+  "n_cache_hits": 4264,
+  "n_api_calls": 1,
   "dims": 3072
  },
  "upload": {
   "index": "kb-main-v2",
   "index_status": "exists",
-  "n_uploaded": 4267,
-  "n_selected": 4267,
+  "n_uploaded": 4268,
+  "n_selected": 4268,
   "errors": []
  },
  "prune": {
   "n_present": 4269,
-  "n_deleted": 2,
+  "n_deleted": 1,
   "errors": []
  }
 }

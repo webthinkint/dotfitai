@@ -11,13 +11,13 @@
   "include": null,
   "limit": null
  },
- "n_documents": 1074,
+ "n_documents": 1075,
  "by_stage4_status": {
-  "current": 961,
+  "current": 962,
   "superseded_currency": 103,
   "superseded_dup": 10
  },
- "n_current": 961,
+ "n_current": 962,
  "by_currency_judgment": {
   "dependent": 101,
   "independent": 11,

@@ -269,6 +269,7 @@
 {"source_file": "2026/Folic acid vs folate, 5-MTHF bullshit.docx", "reasons": ["audit_sample"]}
 {"source_file": "2026/Food Noise - Definitions and GLP-1s.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/GlutenCross contamination warning-label-full note DigestiveEnz.docx", "reasons": ["residual_pii_flag", "low_coverage", "low_confidence"]}
+{"source_file": "2026/Gummies - all info/Gummies complete summary vs standard delivery systems.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Gummies - all info/Gummy info, FAQ, slides, full note.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Gummies - all info/H20 tablet -drug or supp.docx", "reasons": ["residual_pii_flag"]}
 {"source_file": "2026/Isotretinoin-accutane, and vitamin A intake-info.docx", "reasons": ["residual_pii_flag", "low_confidence"]}
