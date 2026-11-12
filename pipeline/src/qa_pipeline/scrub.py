@@ -289,6 +289,7 @@ EXCLUDED_DOCUMENTS = {
     "02eaeb23a7b95ea8": "pasted AI chat about a business concept",
     "40e7be4a0256c9c9": "pasted AI summary and internal talking points",
     "e347438dc1fd46b2": "pasted AI answer unrelated to nutrition or fitness",
+    "3703a1309c981b8b": "dose written in the wrong unit, out until the source is fixed",
 }
 # Gap inside an honorific span: with a period, horizontal whitespace plus at
 # most ONE newline (a wrapped "Dr.\nSmith"); without a period, real separation
