@@ -11,17 +11,17 @@
   "include": null,
   "limit": null
  },
- "n_documents": 916,
+ "n_documents": 915,
  "by_doc_type": {
   "expert_note": 192,
-  "qa_email": 724
+  "qa_email": 723
  },
- "n_review_queue": 256,
+ "n_review_queue": 255,
  "review_reasons": {
   "answer_outside_expert": 2,
   "audit_sample": 40,
   "containment_fail": 1,
-  "low_confidence": 26,
+  "low_confidence": 25,
   "low_coverage": 4,
   "residual_pii_flag": 202
  },
@@ -286,8 +286,8 @@
   "weight loss 90 3 pack": 1
  },
  "llm": {
-  "n_llm_calls": 4,
-  "n_cache_hits": 912,
+  "n_llm_calls": 0,
+  "n_cache_hits": 915,
   "n_fallback": 0,
   "n_llm_errors": 0,
   "deployment": "claude-haiku-5-5",

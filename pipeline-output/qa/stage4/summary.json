@@ -11,13 +11,13 @@
   "include": null,
   "limit": null
  },
- "n_documents": 916,
+ "n_documents": 915,
  "by_stage4_status": {
-  "current": 805,
+  "current": 804,
   "superseded_currency": 103,
   "superseded_dup": 8
  },
- "n_current": 805,
+ "n_current": 804,
  "by_currency_judgment": {
   "dependent": 101,
   "independent": 9,
@@ -36,8 +36,8 @@
  "embedding": {
   "deployment": "text-embedding-3-large",
   "api_version": "2025-04-01-preview",
-  "n_cache_hits": 704,
-  "n_api_calls": 1
+  "n_cache_hits": 707,
+  "n_api_calls": 0
  },
  "judge": {
   "n_judge_calls": 0,
@@ -45,7 +45,7 @@
   "n_judge_errors": 0,
   "n_judged": 112,
   "n_no_llm": 0,
-  "n_unique_questions": 708,
+  "n_unique_questions": 707,
   "n_clusters": 14,
   "n_conflict_clusters": 2,
   "n_audit_clusters": 0,
