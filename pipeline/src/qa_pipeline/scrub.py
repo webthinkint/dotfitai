@@ -58,9 +58,11 @@ STREET_TYPES = (
     "Place", "Lane", "Road", "Suite", "Ave", "Blvd", "Pkwy", "Hwy", "Rd",
     "Ste", "Apt", "Ln", "Ct", "Pl", "St", "Dr",
 )
+# A street-name word is capitalized or an ordinal ("37th"), and a direction may
+# follow the street type ("Ave SE") before the city, state and ZIP.
 ADDRESS_RE = re.compile(
-    r"(?<![\w.-])\d{1,6}\s+(?:[A-Z][\w'’.-]*\s+){1,4}"
-    r"(?:" + "|".join(STREET_TYPES) + r")\b\.?"
+    r"(?<![\w.-])\d{1,6}\s+(?:(?:[A-Z][\w'’.-]*|\d+(?:st|nd|rd|th))\s+){1,4}"
+    r"(?:" + "|".join(STREET_TYPES) + r")\b\.?(?:\s+(?:[NS][EW]?|[EW])\b\.?)?"
     r"(?:\s*,?\s*(?:[A-Z][\w'’.-]*\s*){1,3},?\s*[A-Z][A-Za-z]\.?\s*\d{5}(?:-\d{4})?)?"
 )
 

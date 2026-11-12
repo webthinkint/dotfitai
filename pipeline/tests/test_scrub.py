@@ -176,9 +176,15 @@ class TestAddressRedaction:
                   "452 W Example Ave Glendora Ca 91741"):
             assert ADDRESS_RE.search(s), s
 
+    def test_numbered_streets_with_the_city_after_a_direction(self):
+        for s in ("12 34th\u00a0Ave SE, Springfield WA 99999", "980 N 5th St",
+                  "7 21st Street, Lakeview, OR 97630"):
+            assert ADDRESS_RE.search(s).group(0) == s, s
+
     def test_prose_and_dosages_are_not_addresses(self):
         for s in ("take 1000-1200 mg daily", "in 2019 Dr. Hazen showed",
-                  "3 servings per day", "2 capsules with a meal"):
+                  "3 servings per day", "2 capsules with a meal",
+                  "took 2 3rd-party tests", "the gym on 5th Street"):
             assert not ADDRESS_RE.search(s), s
 
 
