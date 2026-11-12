@@ -5,18 +5,21 @@ is closed; the commit message records why.
 
 ## Before public customer traffic
 
-- **Residual PII in the Q&A corpus.** 264 records carry the flag, and
-  `pipeline/scripts/stage2_queue_triage.py` groups them: 30 with the flagged span
-  still in a committed record, 6 of those in a served answer or question (article
-  authors and one stray letter), and 207 with it only in committed Stage 0 text
-  (not served, but in git). Filenames are scrubbed for what is served, but committed
-  paths (`source_file`, the Stage 0 tree) keep the raw name. A person reads the
-  flagged records among what is new each week; a name the model never noticed is
-  unmeasured, goes unread and can reach customers.
+- **Residual PII in the Q&A corpus.** 178 live records carry the flag. By the
+  weekly report's rule, 9 may show the flagged text in what is served; all 9 have
+  been read and are public names (study and article authors, quoted experts, a
+  journalist). The rest have it only in committed files, the Stage 0 and Stage 1
+  text and `source_file` paths: not served, but in git, which is the question in the
+  next item. Every live record has had one read for a private person's details,
+  and a detail found later is redacted in `REDACTED_SPANS` or its record ruled out.
+  In new records, a person reads the flagged ones each week; a name the model never
+  noticed goes unread until then and can reach customers.
 - **Real customer text in git history.** Comments and a test fixture quoted a
   customer's name and a street fragment from the corpus; the files are clean
-  now, but the history still holds them. Decide whether that is acceptable for
-  who can read the repository, or rewrite it.
+  now, but the history still holds them. Committed pipeline output is the same:
+  the Stage 0 and Stage 1 text of every excluded record, and every span redacted
+  since, stays in the commits before the ruling. Decide whether that is acceptable
+  for who can read the repository, or rewrite it.
 - **The debug transcript is on in the preview unit**
   (`DOTFIT_ASSISTANT_DEBUG_TRANSCRIPT=1` in `runtime/deploy/dotfit-service.service`)
   and must be removed before public traffic.
@@ -62,8 +65,20 @@ is closed; the commit message records why.
   rerun on Haiku's. Its questions match more often, and the merge coverage rule
   limits what a wrong merge can remove.
 - **The low-confidence cutoff.** Haiku scores itself lower than the previous model:
-  55 records fall below 0.7, with the same fidelity as the rest. Decide whether the
+  25 live records fall below 0.7, with the same fidelity as the rest. Decide whether the
   queue reason still earns a read at 0.7.
+- **Seven Q&A records wait on their source documents.** Each is ruled out "until
+  the source is fixed" in `EXCLUDED_DOCUMENTS`: six doses or limits written in the
+  wrong unit, and a missing "not" that reverses a product's sport certification. The
+  owner corrects the doc in Dropbox; it keeps its path and id, so the ruling is
+  removed by hand once the Monday fetch brings the fix. Three live records carry a
+  unit slip judged harmless and should be corrected the same way
+  (`d1fe4d28342037f9`, `b70bbee238c40644`, `6ffd3d368416e884`).
+- **The weight-loss and liver product's own copy is framed around liver fat.** The
+  PDSRG says it mobilizes unhealthful liver fat, and the product script says it
+  supports the liver's fat processing. Q&A answers that went further (clearing liver
+  fat, healing liver tissue, protecting against liver disease) are ruled out, but
+  the approved wording stays quotable. Whether it holds is the owners' call.
 - **Two current answers still recommend VeganMV**, which is discontinued. The
   currency judge called the line incidental despite the prompt rule (the previous
   model also left two). A disposition or a rerun would settle them.
