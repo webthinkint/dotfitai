@@ -224,12 +224,12 @@ nothing blocks, withholds or retracts an answer. Six parts:
 ## F-8 · `first_delta_ms` and the `answer` stage fire on pre-tool narration
 
 The loop sets `Stages.Answer` and `firstDeltaMs` on the first non-tool text. If
-the model writes before calling a tool — `docs/open.md` already flags that this
-streams — the latency metric measures the narration, the client's spinner stops
-before the answer exists, and `website-integration.md`'s definition of `answer`
-("the answer has started streaming") is false. No smoke turn shows it yet. The
-narration and the answer also join with no separator: "Let me look that
-up.Take 5 g daily [1]."
+the model writes before calling a tool, that text streams: the latency metric
+measures the narration, the client's spinner stops before the answer exists, and
+`website-integration.md`'s definition of `answer` ("the answer has started
+streaming") is false. It is rare: one smoke turn of about 430 (S-094 on
+2026-10-27) and none of the preview unit's 192. The narration and the answer
+also join with no separator: "Let me look that up.Take 5 g daily [1]."
 
 Nothing is withheld, so the narration still streams. Record
 `first_answer_delta_ms` — the first delta after the turn's last tool call,

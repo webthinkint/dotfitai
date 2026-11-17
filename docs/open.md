@@ -64,9 +64,6 @@ is closed; the commit message records why.
   the previous model's question wording, and `stage4_cluster_scan.py` has not been
   rerun on Haiku's. Its questions match more often, and the merge coverage rule
   limits what a wrong merge can remove.
-- **The low-confidence cutoff.** Haiku scores itself lower than the previous model:
-  25 live records fall below 0.7, with the same fidelity as the rest. Decide whether the
-  queue reason still earns a read at 0.7.
 - **Seven Q&A records wait on their source documents.** Each is ruled out "until
   the source is fixed" in `EXCLUDED_DOCUMENTS`: six doses or limits written in the
   wrong unit, and a missing "not" that reverses a product's sport certification. The
@@ -96,13 +93,14 @@ is closed; the commit message records why.
 - **The menu guide awaits the owners.** Its calorie formula, floors, youth and
   medical rules, shake limit and the gluten- and lactose-free product question
   are proposals; `docs/menu-guide-review.md` lists each.
-- **Product links are unmeasured.** Whether the model links every product it
-  recommends, only those, and with a real part number is unread in any smoke
-  run. The turn log's `products` and `product_links_unresolved`, and the smoke
-  table's product list, show it.
-- **Pre-tool narration streams to the customer.** If the model writes before
-  calling a tool, that text streams. Decide from real transcripts whether it
-  reads as conversation or noise.
+- **Some answers about one product carry no link.** Across the preview and smoke
+  answers since links began, every part number resolves and a product the answer
+  leaves out stays unlinked, but 7 of 64 preview answers that looked a product up
+  link nothing, among them answers about that product alone. A malformed link
+  (`dotfit/product/<n>`, no colon) has appeared once: `ProductLinks` does not read
+  it, so the turn log does not count it and the customer sees it broken. A
+  follow-up that restates a program usually leaves its products unlinked; that is
+  accepted, since a rule for it would lengthen the prompt.
 - **Vegan program exclusion (S-091).** One smoke run recommended dotFIT Vitamin
   D-3, which contains gelatin, to a vegan; another run excluded it. Watch it; if
   it recurs, tighten `programs.md`.
