@@ -454,6 +454,8 @@ EXCLUDED_DOCUMENTS = {
     "17467e34cb6ba9d2": "a pregnancy caution called liability only",
     "7744e39d749c9e13": "an allergy left unaddressed",
     "bac1484c84fd7901": "a stimulant cleared for a stimulant-sensitive person",
+    "2ea5bc820c2df481": "internal business note, and a banned-substance assurance to athletes",
+    "41e5e482e29b5adf": "a one-off reply to one sender, not written for reuse",
 }
 
 # Owner redactions for a personal detail in prose that no pattern reaches (a town,
@@ -493,6 +495,9 @@ REDACTED_SPANS: dict[str, tuple[tuple[int, str, str], ...]] = {
     ),
     "29064aa9466688f1": (
         (11, "70a9cde96108b17b", "[DETAIL]"),
+    ),
+    "f7cc89d3b10fba5b": (
+        (5, "74825b5db16192b0", "[DETAIL]"),
     ),
 }
 # [DETAIL] is not in the Stage 2 prompt's list of placeholders to preserve: adding
