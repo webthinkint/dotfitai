@@ -1,6 +1,6 @@
 {
  "pipeline_version": "0.1.0",
- "n_documents": 915,
+ "n_documents": 917,
  "n_excluded": {
   "no_expert_answer": 6,
   "empty_document": 5
@@ -52,16 +52,16 @@
   }
  ],
  "by_doc_type": {
-  "qa_email": 723,
+  "qa_email": 725,
   "expert_note": 192
  },
  "by_year": {
   "2023": 324,
   "2024": 284,
   "2025": 80,
-  "2026": 227
+  "2026": 229
  },
  "n_review_queue": 2,
- "with_question_extracted": 665,
- "with_thread_date": 714
+ "with_question_extracted": 667,
+ "with_thread_date": 716
 }

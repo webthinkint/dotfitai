@@ -11,10 +11,10 @@
   "include": null,
   "limit": null
  },
- "n_documents": 915,
+ "n_documents": 917,
  "by_doc_type": {
   "expert_note": 192,
-  "qa_email": 723
+  "qa_email": 725
  },
  "n_review_queue": 255,
  "review_reasons": {
@@ -25,7 +25,7 @@
   "low_coverage": 4,
   "residual_pii_flag": 202
  },
- "with_products": 627,
+ "with_products": 629,
  "with_currency_cues": 286,
  "products_indexed": [
   1000,
@@ -87,7 +87,7 @@
   "VeganMV": 76,
   "1-Vegan": 47,
   "dotFIT Nutrition High Protein Bar": 34,
-  "dotFIT Multivitamin & Mineral": 32,
+  "dotFIT Multivitamin & Mineral": 33,
   "TA": 19,
   "KidMV": 14,
   "pre & post training formula": 14,
@@ -166,6 +166,7 @@
   "Allin1 super blend": 1,
   "Alln1": 1,
   "Alln1 Super Omega 3": 1,
+  "Amino Acids": 1,
   "Amino Boost": 1,
   "Amino Boost XXL": 1,
   "Amino Forumula": 1,
@@ -286,8 +287,8 @@
   "weight loss 90 3 pack": 1
  },
  "llm": {
-  "n_llm_calls": 0,
-  "n_cache_hits": 915,
+  "n_llm_calls": 1,
+  "n_cache_hits": 916,
   "n_fallback": 0,
   "n_llm_errors": 0,
   "deployment": "claude-haiku-5-5",
